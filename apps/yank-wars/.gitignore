@@ -1,0 +1,8 @@
+node_modules/
+.direnv/
+result
+result-*
+dist/
+*.sqlite
+*.sqlite-*
+.DS_Store

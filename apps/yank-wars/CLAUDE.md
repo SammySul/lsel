@@ -1,0 +1,84 @@
+# yank-wars
+
+Head-to-head vim golf in the browser. Everyone gets the same code and a target;
+the first to match the target locks in and starts a grace timer for the rest;
+fewest keystrokes among finishers wins, ties go to whoever finished first.
+Rationale for every stack choice is in `docs/decisions.md`.
+
+```
+packages/engine/   pure TS, no I/O: puzzle + protocol types, key notation,
+                   headless replay, match rules (lock-in, grace, scoring).
+                   Imported by everything else.
+apps/web/          Svelte 5 + Vite SPA, CodeMirror 6 + @replit/codemirror-vim
+apps/server/       Bun.serve: static files, WebSocket rooms, matchmaker
+tools/generate/    daily puzzle generator, run by .github/workflows/daily.yml
+puzzles/           generated + handmade puzzles as JSON (data, not code)
+spikes/            throwaway proofs; never imported
+```
+
+## What a CLAUDE.md is for
+
+Only traps: something that already went wrong here, or would, and that neither
+the code nor upstream's docs make obvious. One or two lines each, with the why.
+No descriptions of what code does, no history. When you touch something a note
+describes, fix or delete the note.
+
+## Working here
+
+- **Nix dev shell** (`direnv allow`, or `nix develop`) provides bun and biome;
+  nothing is installed globally. **Bun only** for install, test, run and
+  `bun patch`; no npm, no npx.
+- **Deploy is a Nix package + NixOS module**, imported by `squares` on `twelve`
+  and exposed through its `cloudflared` tunnel (`typ` is the precedent). No
+  Dockerfile.
+- **Validate:** `bun run check` (tsc, svelte-check, biome) and `bun test`. Say
+  plainly when something is untested, especially anything only checked headless.
+- **Comments: one line or none**, only for a why the code can't show.
+- **Commits: subject line only.** No body, no Co-Authored-By trailer.
+- Don't build ahead of the build order in `docs/decisions.md`: no GitHub
+  login, ratings or ghosts before step 5.
+
+## Invariants
+
+- **One key log, one result.** The browser and the server's headless replay must
+  turn the same key log into the same buffer, or honest players get rejected.
+  Every editor extension comes from `engine`'s shared config; the web app adds
+  only visuals (theme, gutters, diff highlight), never anything that edits text.
+- **No text-editing helpers in the editor**: closeBrackets, autocomplete,
+  auto-indent-on-input, etc. would type characters the key log doesn't show.
+- **No line wrapping, no folding.** Headless replay makes `j`/`k` logical-line
+  moves (CM6 measures pixels otherwise); wrapping on the client breaks parity.
+- **The server owns time.** Lock-in and grace deadlines use server receive time;
+  client timestamps are display-only.
+- Keys are vim notation strings (`"a"`, `"<Esc>"`, `"<C-v>"`), one array entry
+  per keystroke (VimGolf convention). **The score is the count since the last
+  reset marker**, and the server replays only that tail; the whole log is
+  still stored for replays and mismatch reports.
+- **Undo steps never depend on wall-clock time.** The client types with
+  pauses, the replay runs instantly; a time-grouped `u` diverges.
+
+## Engine traps (codemirror-vim, headless)
+
+Found in `spikes/headless-replay.ts`; each needs a test in `engine` before it is
+"handled".
+
+- **Vim state is process-global** (registers, macros, search, last `:s`),
+  shared by every editor in the process. Call `Vim.resetVimGlobalState_()`
+  before each replay, or player B's `@q` runs player A's macro. A crash
+  mid-replay also leaves that state poisoned for every later replay.
+- `Vim.handleKey` does not insert text in insert mode (the browser's input event
+  does). The replayer must `replaceSelection` unhandled keys itself.
+- `cm.openDialog` is both the `:`/`/` prompt and the macro "recording" banner.
+  Only prompts pass `onKeyDown`; capturing the banner swallows every later key.
+- Never replay via `:normal` / mappings: keys from a mapping skip macro
+  recording and collapse undo, so macros and `u` silently break.
+- `EditorState.allowMultipleSelections` must be on, or visual-block `I`/`A`
+  only edits the first line.
+- Needs DOM globals (happy-dom) even headless; `Window` among them.
+- **Diverges from vim, unpatched:** a failing motion does not abort a macro
+  (vim stops `3@q` at the last line; the engine keeps going), and a recursive
+  macro (`qa…@aq@a`) overflows the stack instead of terminating. Golfers rely on
+  both; patch with `bun patch` and upstream it.
+- Whether the engine's undo grouping is already time-independent is
+  unverified (the spike passed with `newGroupDelay` 0 and 500, which is a hint,
+  not proof). Prove it with a parity test before trusting `u`.
