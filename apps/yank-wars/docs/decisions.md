@@ -121,7 +121,7 @@ results.
 | Auth | **Better Auth** (1.7.x) with the anonymous plugin; GitHub provider later | Framework-agnostic `Request → Response` handler mounts on `Bun.serve`; guests get real user rows that link to a GitHub login without losing history; `bun:sqlite` supported natively |
 | Database | **`bun:sqlite`** from step 2, one file in the service's state dir | Better Auth needs it anyway; puzzles stay files. Drizzle only if hand-written SQL for match history gets unwieldy |
 | Domain | **yankwars.app** (owned) | `.app` is HSTS-preloaded: browsers refuse plain HTTP, so it's only ever served through the tunnel's TLS. Its DNS must live on Cloudflare for the tunnel to take the hostname |
-| Deploy | **Nix package + NixOS module**, imported by `squares` into `twelve`; loopback port behind the existing `cloudflared` tunnel as `yankwars.app` | Same box and tunnel as `typ`, but Nix-built instead of a Docker Hub image, so the flake is the single source for dev, CI and prod. Single region is fine because latency barely matters. *Unproven:* packaging Bun deps reproducibly; `bun2nix` (a separate flake, not in nixpkgs) is the candidate, a fixed-output `bun install` the fallback. Prove one before step 2 ships |
+| Deploy | **Nix package + NixOS module**, imported by `squares` into `twelve`; loopback port behind the existing `cloudflared` tunnel as `yankwars.app` | Same box and tunnel as `typ`, but Nix-built instead of a Docker Hub image, so the flake is the single source for dev, CI and prod. Single region is fine because latency barely matters. Bun deps are packaged with **bun2nix**: `fetchBunDeps` turns `bun.nix` into a Bun cache, `mkDerivation` compiles one binary. Proven on the replay spike (2026-10-30), `bun patch` patches included. bun2nix 2.1.2 carries our `nix/bun2nix-lockfile-v2.patch` until upstream PR #110 is released |
 | CI | GitHub Actions running `nix develop -c bun run check` and `bun test` on PRs | Same shell as local, so no drift |
 
 ## Puzzles
@@ -156,9 +156,8 @@ projects, keeps the upstream engine PR and puzzle-source credits simple.
 
 ## Build order
 
-0. Spike: package `spikes/headless-replay.ts` as a flake output (bun2nix, else
-   fixed-output `bun install`) to prove the Nix route and that `bun patch` files
-   survive it
+0. Done (2026-10-30): `nix build .#headless-replay` packages the spike with
+   bun2nix; a throwaway `bun patch` proved patches survive the route
 1. Solo, client-only: editor, split view, live diff, key counter, reset key,
    lock-in, study window; ~10 handmade puzzles
 2. Server: rooms via invite link, grace timer, round cap, reconnect, headless

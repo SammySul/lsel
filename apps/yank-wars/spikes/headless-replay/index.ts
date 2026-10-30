@@ -1,4 +1,4 @@
-// Spike: can codemirror-vim replay a key log without a browser? Needs @codemirror/{state,view,commands}, @replit/codemirror-vim, happy-dom.
+// Spike: can codemirror-vim replay a key log without a browser? `bun install && bun run index.ts`
 
 import { Window } from "happy-dom";
 const w = new Window();
