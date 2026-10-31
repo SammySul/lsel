@@ -113,9 +113,9 @@ results.
 | Runtime, package manager, tests | **Bun** (workspaces, `bun test`) | One tool for install, run, test and `bun patch` (needed for the engine fixes); native TS and WebSockets in `Bun.serve` |
 | Frontend | **Svelte 5 + Vite**, SPA | Familiar from Maw; a handful of routes doesn't need SvelteKit. *Revisit* if routes or SSR needs grow |
 | Editor | CodeMirror 6 + `@replit/codemirror-vim` | See Engine |
-| Diff highlight | `@codemirror/merge` | Same ecosystem; built-in diff and line highlighting |
+| Diff highlight | `@codemirror/merge` (its `diff`/`Chunk` only) | Same ecosystem; we render our own line decorations, since `MergeView` would own the editor |
 | Server | `Bun.serve` (routes + websocket), no framework | A few HTTP routes and one socket; a framework would add more than it saves |
-| Message validation | **Valibot**, at the socket boundary only | Small bundle on the web side; inside the boundary, trust the types |
+| Message validation | **Valibot**, at external boundaries only (puzzle JSON now, socket messages in step 2) | Small bundle on the web side; inside the boundary, trust the types |
 | Lint/format | **Biome** + `svelte-check` | One fast tool; svelte-check covers what Biome doesn't in `.svelte` |
 | E2E | **Playwright** (later) | Browser-vs-headless parity tests: type a key log in a real browser, compare with replay |
 | Auth | **Better Auth** (1.7.x) with the anonymous plugin; GitHub provider later | Framework-agnostic `Request → Response` handler mounts on `Bun.serve`; guests get real user rows that link to a GitHub login without losing history; `bun:sqlite` supported natively |
@@ -148,6 +148,42 @@ unclear).
 Wordle-style. With nobody in the queue you play the daily against par and see
 today's best. Ghost replays (recorded key logs played back as an opponent) can
 come later on the same data.
+
+## Step 1 design (2026-10-31)
+
+From the design workflow (3 researchers, 3 proposals, 3 judges, 1 synthesis);
+the full spec is `docs/step1-spec.md`. "Parity by construction" won on every
+judge's card over observing codemirror-vim natively.
+
+**Key capture: the browser is one more replayer.** A `Prec.highest` keydown handler owned by the engine prevents every keydown and calls the same `feedKey()` the headless replay uses; codemirror-vim's own keydown handler, native insert-mode typing and its `<input>` command line never run. *Rejected:* observing the adapter and emulating native behaviour in the replayer (insert text would be labelled differently, prompt keys are DOM events on a panel input, Cmd+A moves the selection unlogged). *Revisit* only if an upstream API makes the adapter itself drivable without DOM.
+
+**Undo grouping is a logical group id, not a clock.** A `transactionFilter` sets `Transaction.time` to the session's undo group (bumped per normal-mode key, per command during macro playback), relabels changes to `input.type`, and marks selection-only transactions `addToHistory: false`; `history({newGroupDelay: 1, joinToEvent: () => true})`. One step per normal command including its insert session, one per ex command, one per macro command. Verified against commands 6.11.1 / state 6.7.6; the catalog pin plus `undo.test.ts` (with `setSystemTime` jumps) is the upgrade gate.
+
+**Vim regex syntax: `nopcre`.** `applyEngineOptions()` sets `pcre` false after every global reset so `/` and `:s` accept `\(` `\+` `\<`; `:set` is blocked so players cannot flip it. *Rejected:* JavaScript regex (the default) because golfers' muscle memory is vim's.
+
+**`o`/`O`/insert `<CR>` insert a plain newline** (`CodeMirror.commands.newlineAndIndent` overridden; vim's `noautoindent`). Removes the syntax tree from the most common insert path and makes `o` and `<CR>` consistent. The language stays engine config for `=`/`>>`/`<<`. *Revisit* if playtests want autoindent (both sides change in one place).
+
+**Clipboard registers are the unnamed register.** `Vim.defineAction("setRegister")` maps `"+`/`"*` to no register, so `navigator.clipboard` is never read (async, unlogged) or written. *Rejected:* overriding the `paste` action via the internal `continuePaste`, and clearing `registerName` after each key (misses `"+p` inside a macro).
+
+**Window-dependent motions run on a virtual 30-line window** (`H/M/L/<C-f>/<C-b>/<C-d>/<C-u>/gj/gk` via `Vim.defineMotion`; `<C-e>/<C-y>/zz/zt/zb` no-ops) and `findPosV` is line arithmetic on both sides. Puzzles are ≤ 30 lines and the pane is sized to show them all. *Revisit* if generated puzzles grow.
+
+**UI chords: `<C-CR>` reset, `<C-S-CR>` forfeit, `<C-S-L>` line numbers, Space/Enter ready.** Layout-independent, never AltGr characters, not vim commands; intercepted before logging. The editor is a focus trap during a round (Tab, Meta combos and F-keys are prevented); copy happens from the result card. *Rejected:* Ctrl+Alt+R/N (collide with AltGr on US-International), F2/F3 (need Fn on Mac laptops).
+
+**One key grammar: `<lt>` is the only spelling of `<`** in logs, solutions and result cards; `toCoreKey` maps it back at the engine boundary. `<Reset>` is a log marker never produced by `keyFromEvent`.
+
+**Dead keys and IME are unsupported in step 1.** `Dead`/`Process`/`isComposing` keydowns are dropped and prevented, DOM text is swallowed, the status line shows a hint; puzzles are ASCII-only. *Revisit* when Playwright can verify per-browser dead-key delivery.
+
+**Reset = fresh session.** `createSession` always runs `Vim.resetVimGlobalState_()` + `applyEngineOptions()`, so a client reset and the server's tail replay start from the same pristine engine. *Rejected:* `view.setState` (re-instantiates the vim plugin in place with stale patched references).
+
+**Diff highlight uses `@codemirror/merge`'s `Chunk.build` only**, rendered as our own `Decoration.line`s. `MergeView`/`unifiedMergeView` own the views' dispatch and add widgets/accept-reject controls that edit text, violating 'every editor extension comes from engine'. Stack-table wording 'built-in line highlighting' is refined accordingly.
+
+**Valibot validates puzzle JSON inside the engine** (`parsePuzzle` at the file boundary), amending 'at the socket boundary only': puzzle files are external data and step 2 reuses the same library for socket messages.
+
+**Puzzle text has no trailing newline.** CM has no final line terminator and lock-in is `doc.toString() === target`; a trailing `\n` would be an extra empty line to create. Vim's implicit eol is not modelled.
+
+**TypeScript 5.9.3 via the root catalog.** svelte-check 4.7.7 hard-rejects TS 7 (`ts-version-check.js`) and peers `^5 || ^6`; 6.0.3 is a verified drop-in. TS 7 later only as `@typescript/native` alias with `--tsgo`.
+
+**Tooling layout:** Bun isolated linker (default) with a root catalog pinning every `@codemirror/*` (one copy, enforces web-cannot-edit), `bunfig.toml` at the root only (`[run] bun = true`, happy-dom test preload), Biome 2.5.15 legacy Svelte mode with the documented override and a CI grep for `preset: recommended`. happy-dom is a root devDependency for tests; step 2 adds it to the server.
 
 ## Project
 
