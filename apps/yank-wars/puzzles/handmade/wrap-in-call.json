@@ -1,0 +1,16 @@
+{
+  "id": "wrap-in-call",
+  "title": "Stringify",
+  "description": "Wrap every right-hand side in str().",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "count = len(items)\ntotal = sum(prices)\nratio = total / count",
+  "target": "count = str(len(items))\ntotal = str(sum(prices))\nratio = str(total / count)",
+  "solution": "qaf=wistr(<Esc>A)<Esc>+q2@a",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["macro"]
+}

@@ -63,7 +63,7 @@ client-only.
 A JS reimplementation of vim, actively maintained (6.4.0, July 2026), with an
 API to intercept and replay keys (`Vim.handleKey`, `Vim.defineEx`).
 
-Spike result (`spikes/headless-replay.ts`, 17/19 cases): motions, text objects,
+Spike result (`spikes/headless-replay/index.ts`, 17/19 cases): motions, text objects,
 `.`, undo, `:s`, `:g`, `:sort`, `:norm`, search, visual block and non-recursive
 macros all replay correctly headless under Bun + happy-dom. Failures: macros
 don't abort on a failed motion, and recursive macros overflow the stack. Both
@@ -161,9 +161,11 @@ judge's card over observing codemirror-vim natively.
 
 **Vim regex syntax: `nopcre`.** `applyEngineOptions()` sets `pcre` false after every global reset so `/` and `:s` accept `\(` `\+` `\<`; `:set` is blocked so players cannot flip it. *Rejected:* JavaScript regex (the default) because golfers' muscle memory is vim's.
 
-**`o`/`O`/insert `<CR>` insert a plain newline** (`CodeMirror.commands.newlineAndIndent` overridden; vim's `noautoindent`). Removes the syntax tree from the most common insert path and makes `o` and `<CR>` consistent. The language stays engine config for `=`/`>>`/`<<`. *Revisit* if playtests want autoindent (both sides change in one place).
+**`o`/`O`/insert `<CR>` insert a plain newline** (`CodeMirror.commands.newlineAndIndent` overridden; vim's `noautoindent`), and `cc`/`S` drop the indent too (a wrapping `change` operator). Removes the syntax tree from the most common insert path and makes `o` and `<CR>` consistent. The language stays engine config for `=`/`>>`/`<<`. *Revisit* if playtests want autoindent (both sides change in one place).
 
-**Clipboard registers are the unnamed register.** `Vim.defineAction("setRegister")` maps `"+`/`"*` to no register, so `navigator.clipboard` is never read (async, unlogged) or written. *Rejected:* overriding the `paste` action via the internal `continuePaste`, and clearing `registerName` after each key (misses `"+p` inside a macro).
+**Clipboard registers are the unnamed register.** The core touches `navigator.clipboard` in exactly two places, and both are closed: `RegisterController.prototype.pushText` maps `+`/`*` to no register, and the `paste` action is replaced by its own non-clipboard branch (`continuePaste`). So `"+p`, `:pu +`, `:y +` and `:g/x/pu +` never read the clipboard (async, unlogged) or write it. *Rejected:* overriding only `setRegister` (the first version; `:pu +` and `:y +` pass the register name straight to the core, found in review), and clearing `registerName` after each key (misses `"+p` inside a macro).
+
+**Macros are keys, as in vim.** The engine owns `q`, `@` and `:normal` (`macro.ts`): a recording is the keys typed, stored one per register entry, and playback and `:normal` feed keys through the same per-key path as typing. The core recorded an insert session as a change list and never recorded ex commands, so `qq:s/a/b/<CR>jq@q` and `<Left>` or `<C-o>` inside a recorded insert replayed wrongly, and a played `:` left a prompt open that ate the next keys. Nesting deeper than 100 throws: a recursive macro used to run until the stack overflowed, at a depth that differs between browsers and between runs, so one log gave two results. On this path Chromium overflows at about 720 levels and Bun at about 2200 (measured 2026-11-11). *Revisit* the limit when step 2 makes a failing motion abort a macro, because then a recursive macro can stop on its own.
 
 **Window-dependent motions run on a virtual 30-line window** (`H/M/L/<C-f>/<C-b>/<C-d>/<C-u>/gj/gk` via `Vim.defineMotion`; `<C-e>/<C-y>/zz/zt/zb` no-ops) and `findPosV` is line arithmetic on both sides. Puzzles are ≤ 30 lines and the pane is sized to show them all. *Revisit* if generated puzzles grow.
 
@@ -184,6 +186,32 @@ judge's card over observing codemirror-vim natively.
 **TypeScript 5.9.3 via the root catalog.** svelte-check 4.7.7 hard-rejects TS 7 (`ts-version-check.js`) and peers `^5 || ^6`; 6.0.3 is a verified drop-in. TS 7 later only as `@typescript/native` alias with `--tsgo`.
 
 **Tooling layout:** Bun isolated linker (default) with a root catalog pinning every `@codemirror/*` (one copy, enforces web-cannot-edit), `bunfig.toml` at the root only (`[run] bun = true`, happy-dom test preload), Biome 2.5.15 legacy Svelte mode with the documented override and a CI grep for `preset: recommended`. happy-dom is a root devDependency for tests; step 2 adds it to the server.
+
+### Step 1 deviations and deferrals
+
+The deviations from vim behave the same in the browser and in the replay: they cost vim fidelity, never parity.
+
+**The command line is append-only.** Inside `:`/`/`/`?`, `<Left>/<Right>/<Home>/<End>/<Del>/<Tab>` are counted no-ops and `<Tab>` neither completes nor cancels; `<BS>` on an empty prompt cancels, `<Up>/<Down>` recall history, `<C-u>` clears. The virtual prompt only forwards keys to the core's own handlers; a cursor inside the prompt would be emulation. *Revisit* if players miss editing the command line.
+
+**Shift on a named key is the base key; unbound keys still count.** Shift+Space/Enter/Backspace/Tab/Delete/Escape/Insert log as `<Space>`, `<CR>`, … (terminal vim behaviour); `<S-Left>` and friends survive. F-keys, Meta combos and Dead/Process keys are dropped and not counted. `<C-v>`, `<PageUp>`, `<S-Left>` and other keys the core doesn't bind in insert mode count as a key and do nothing (the spike typed `<C-v>` as six characters).
+
+**`/` and `:s` are always ignorecase+smartcase:** the core hard-codes both (`:s` calls `updateSearchQuery(cm, regex, true, true)`) and `:set` is blocked. Under nopcre, `&` in a `:s` replacement is a literal `&`; `\0` is the whole match.
+
+**`<C-r>+` inserts nothing**, which follows from the clipboard registers being the unnamed register.
+
+**Replace-mode `<BS>` moves left without restoring the replaced character** (vim restores it), and `.`/`@q` afterwards repeat only what was typed after the last `<BS>`: adapter behaviour, inherited on both sides. Without `<BS>`, `R…<Esc>` then `.`/`@q`/counts match vim: `feedKey` wraps the adapter's `overWriteSelection` in one vim operation, because its selection-only first dispatch otherwise reads as a cursor move and drops all but the last character from the `.` record (an upstream adapter bug, so the stock browser path has it too).
+
+**`:map`, `:set`, `:w` and `:colorscheme` (every alias) are blocked with a status message** instead of failing as unknown commands; `:w` says lock-in is automatic.
+
+**Vim state is process-global, so replays are serial.** `createSession` resets it, so a page never replays while its live session accepts keys (the DEV self-check runs after lock-in), and step 2's server must serialise replays. The engine's `:normal` never uses the core's module-private `keyToKeyStack`, which the reset doesn't clear; `replay.test.ts` runs a recursion inside `:norm @q` into the depth limit and then checks that prompts still work.
+
+**Chrome on Windows/Linux reserves Ctrl+W/T/N,** so insert-mode `<C-w>` can close the tab. The status line shows a hint; nothing is remapped.
+
+**The 4-minute cap applies to solo rounds too,** with retry on one key (`r`) from the result card.
+
+**The engine supersedes the spike's replayer.** `feedKey` takes the adapter's own path (`multiSelectHandleKey` with `vim.status` appended first, not `handleKey`), prompt keys go through the core's handlers (the spike's `<Esc>` skipped `clearInputState` and left `d:` pending), `<BS>` is `deleteCharBackwardStrict` plus explicit `InsertModeKey` recording, replace mode overwrites, and `forceParsing` runs after every key. The spike's shortcuts passed its 19 cases but would have diverged from the browser; the engine's parity suite is now the reference.
+
+**Deferred to step 2** beyond the build order below: the root `postinstall` and `bun.nix` with the first `package.nix`, the Playwright parity suite, and optionally upstreaming `InsertModeKey` recording as a core patch. A recursive macro now stops at 100 levels in milliseconds, but a large count (`999@q`) still runs synchronously; the server must bound it.
 
 ## Project
 

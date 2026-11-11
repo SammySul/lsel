@@ -2,11 +2,15 @@
 
 Binding context: `CLAUDE.md` (invariants, traps), `docs/decisions.md` (round rules, build order). This spec supersedes the three proposals; implementers will not see them. File:line citations refer to `spikes/headless-replay/node_modules/@replit/codemirror-vim/dist/index.js` (A), `@replit/codemirror-vim-core/vim.js` (C), `@codemirror/commands/dist/index.js` (H), `@codemirror/state/dist/index.js` (S), `@codemirror/view/dist/index.js` (V). Read them when a step says "port"; they are pinned versions (adapter 6.4.0, core 0.1.0).
 
-## 0. Status and open points (2026-10-31)
+## 0. Status and open points (2026-11-11)
 
-Design done, nothing implemented. Next: Implement workflow (4 workers per
-section 7), then review, then `bun install`, `bun run check`, `bun test`,
-`bun run build`, then commit (subject line only).
+Implemented and integrated: `bun install --frozen-lockfile`, `bun run check`,
+`bun test` and `bun run build` pass from the root. The sections below were
+corrected after implementation wherever the code had to differ (each such
+place says so), and again after the review pass that replaced the core's macro
+recording, closed the clipboard's ex-command paths and fixed several vim
+divergences (3.6, 3.11, 8). Left: the manual checklist in `apps/web/README.md` in the
+listed browsers, then commit (subject line only).
 
 Defaults taken from the synthesizer's open questions unless Sammy objects:
 dead keys/IME unsupported (ASCII puzzles, status hint); `o`/`O` plain newline;
@@ -36,7 +40,7 @@ rule or `!`).
 | `:` `/` `?` prompt as a real `<input>` in a panel (A:868-924), keys as DOM events outside `contentDOM` | `cm.openDialog` is overridden per instance with an engine-owned virtual prompt (both sides). Prompt keys are ordinary log entries routed through the core's own `onKeyDown`/`onKeyUp`/`callback` with a synthetic event shaped like the core's own virtual prompt (C:1101-1119). |
 | Undo grouping by wall clock (`newGroupDelay` 500, `Transaction.time = Date.now()`, H:499-513) | A `transactionFilter` replaces `Transaction.time` with a logical **undo group id** owned by the session, relabels every change's `userEvent` to `input.type`, and marks selection-only transactions `addToHistory: false`; `history({newGroupDelay: 1, joinToEvent: () => true})`. Grouping is a pure function of the key log. |
 | `j`/`k` via `cm.findPosV` → `moveVertically` (pixels); `H/M/L/<C-f>/<C-b>/<C-d>/<C-u>/gj/gk/<C-e>/<C-y>/zz/zt/zb` via scroll geometry | `findPosV` patched per instance to line arithmetic (both sides); the window-dependent motions redefined via `Vim.defineMotion`/`Vim.defineAction` on a fixed virtual 30-line window (both sides). |
-| `"+`/`"*` registers → `navigator.clipboard` (C:1515, 3251) | `Vim.defineAction("setRegister")` maps `+`/`*` to "no register" (unnamed). The clipboard is never read; `writeText` is never reached. |
+| `"+`/`"*` registers → `navigator.clipboard` (C:1515, 3251), reachable from `"+`, `:pu +`, `:y +`, `:g/x/pu +` | Both call sites are closed: `RegisterController.prototype.pushText` maps `+`/`*` to no register and the `paste` action is replaced by its non-clipboard branch (`continuePaste`). The clipboard is never read or written. |
 | `o`/`O` → `insertNewlineAndIndent` (A:771, C:3244, 3468) | `CodeMirror.commands.newlineAndIndent = cm => cm.replaceSelection("\n")` (vim's `noautoindent` default). `=`, `>>`, `<<` still use the puzzle's language/`indentUnit`/`tabSize`, so those stay engine config. |
 | `<BS>`/`<Del>` in insert mode recorded for `.`/macros only via a DOM `keydown` listener (C:3121, 6944-6957) | `feedKey` records `Vim.InsertModeKey` explicitly on both sides before dispatching the deletion. |
 | `<C-c>` copy branch, status-bar click `<Esc>`, mouse selection, paste listener (A:1480, 1369; C:320-348) | Unreachable (handler bypassed; `vim({status:true})` never used; mousedown/paste/drop/cut/dragstart/contextmenu blocked; the core's `paste` listener removed from `contentDOM`). |
@@ -66,7 +70,7 @@ yank-wars/
   biome.json
   .gitignore                        (existing; see 2.10)
   .github/workflows/ci.yml
-  test/dom.ts                       happy-dom globals + clipboard shim for bun test
+  test/dom.ts                       happy-dom globals for bun test
   flake.nix, nix/                   unchanged in step 1
   CLAUDE.md, docs/decisions.md      updated (see 8)
   puzzles/
@@ -83,6 +87,9 @@ yank-wars/
     src/languages.ts                LanguageId -> Language.extension
     src/round.ts                    RoundState reducer with injected clock
     src/vimSetup.ts                 lockEngine, applyEngineOptions, VIRTUAL_WINDOW_LINES
+    src/registry.ts                 adapter instance -> session + dispatch, for core actions and ex commands
+    src/macro.ts                    macro recording/playback as keys, :normal, MAX_MACRO_DEPTH
+    src/insertStart.ts              vim's insert start, for insert-mode <C-w>/<C-u>
     src/history.ts                  UndoClock, undoHistory (history config + transactionFilter)
     src/insertKeys.ts               INSERT_LITERALS, insertCommands, insertKeymap, recordInsertKey
     src/prompt.ts                   PromptState, installPrompt, routePromptKey
@@ -102,7 +109,8 @@ yank-wars/
     src/app.css
     src/App.svelte
     src/lib/puzzles.ts              import.meta.glob of puzzles/handmade/*.json -> parsePuzzle
-    src/lib/prefs.svelte.ts         relativeNumbers + per-puzzle best (localStorage, try/catch)
+    src/lib/prefs.svelte.ts         relativeNumbers + per-puzzle best, reactive wrapper
+    src/lib/prefsStorage.ts         localStorage read/merge/write (try/catch; re-read before every write)
     src/lib/clock.ts                now(): number via performance.now()
     src/lib/chords.ts               RESET_KEY, FORFEIT_KEY, NUMBERS_KEY, READY_KEYS
     src/lib/round.svelte.ts         RoundController (runes)
@@ -183,11 +191,9 @@ for (const k of [
   "requestAnimationFrame", "getComputedStyle", "Node", "HTMLElement", "KeyboardEvent",
 ]) g[k] ??= src[k];
 g.window = w;
-// The core calls navigator.clipboard.writeText on "+y (vim.js:1515) before it updates the
-// unnamed register; without a shim the sync TypeError would abort the yank half-way.
-const nav = globalThis.navigator as unknown as Record<string, unknown>;
-nav.clipboard ??= { writeText: async () => {}, readText: async () => "" };
 ```
+
+No clipboard shim: no engine path reaches `navigator.clipboard` (3.6), so a regression throws in tests instead of being masked.
 
 Step 2's server must install the same globals before its first `EditorView`.
 
@@ -312,6 +318,7 @@ export default { preprocess: vitePreprocess() };
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Yank Wars</title>
+    <link rel="icon" href="data:," />
     <style>html,body{margin:0;background:#0d1117;color:#e6edf3}</style>
   </head>
   <body>
@@ -326,7 +333,9 @@ export default { preprocess: vitePreprocess() };
 import { mount } from "svelte";
 import App from "./App.svelte";
 import "./app.css";
-mount(App, { target: document.getElementById("app")! });
+const target = document.getElementById("app");
+if (target === null) throw new Error("index.html has no #app element");
+mount(App, { target });
 ```
 
 ### 2.8 `biome.json`
@@ -401,9 +410,9 @@ export interface SyntheticKeyInit { key: string; keyCode: number; ctrlKey: boole
 export function keyToDomKey(key: VimKey): SyntheticKeyInit;
 ```
 
-Grammar accepted by `isVimKey`: exactly one Unicode code point that is not `<` or `>`; or `<` + optional `C-` + optional `A-` + optional `S-` + (single code point other than `<`/`>` | name in `NAMED_KEYS`) + `>`; `<lt>` only without modifiers; `M-` rejected; `<Reset>` rejected; `S-` on a single code point requires `C-` or `A-` as well (so `<S-a>` is invalid, `<C-S-A>` valid).
+Grammar accepted by `isVimKey` (canonical spellings only, so every key has exactly one spelling): exactly one Unicode code point that is not `<`, a space or a control/surrogate code point (a bare `>` is a key: `>>`, `V>`); or `<` + optional `C-` + optional `A-` + optional `S-` + (single such code point other than `<`/`>` | name in `NAMED_KEYS`, exact case) + `>`; a bracketed single character needs `C-` or `A-` (`<x>` is written `x`; `<S-a>` is invalid, `<C-S-A>` valid); `<lt>` only without modifiers; `M-` rejected; `<Reset>` rejected.
 
-`parseKeys`: tokenize with `/<[^<>]+>|[^<>]/gsu`; any `<` or `>` not consumed by a `<...>` token throws `KeyNotationError` ("write <lt>"). `" "` becomes `<Space>`. Inside `<...>` normalise case: modifier letters upper-cased, names canonicalised (`<cr>` → `<CR>`, `<esc>` → `<Esc>`, `<space>` → `<Space>`, `<lt>` stays), the character after modifiers preserved verbatim. Unknown names and `<Reset>` throw.
+`parseKeys`: tokenize with `/<[^<>]+>|[\s\S]/gu`; a bare `<` throws `KeyNotationError` ("write <lt>"), whose `index` is the UTF-16 offset of the bad token. `" "` becomes `<Space>`; a bare tab, newline or other control character throws (write `<Tab>`, `<CR>`). Inside `<...>` normalise case: modifier letters upper-cased, names canonicalised (`<cr>` → `<CR>`, `<esc>` → `<Esc>`, `<space>` → `<Space>`, `<lt>` stays), the character after modifiers preserved verbatim. Unknown names, `<x>`, `<C->`, `<>`, `<C-lt>` and `<Reset>` throw. Every result satisfies `isVimKey`.
 
 `formatKeys`: concatenation (identity, since `<` never appears bare in a log). `toCoreKey`: `<lt>` → `<`, everything else unchanged. `keyToDomKey`: `<CR>` → `{key:"Enter", keyCode:13}`, `<Esc>` → `Escape`/27, `<BS>` → `Backspace`/8, `<Del>` → `Delete`/46, `<Tab>` → `Tab`/9, `<Space>` → `" "`/32, `<Ins>` → `Insert`/45, `<Left>` → `ArrowLeft`/37, `<Up>` 38, `<Right>` 39, `<Down>` 40, `<Home>` 36, `<End>` 35, `<PageUp>` 33, `<PageDown>` 34, `<lt>` → `"<"`/0, single char → itself/0; `C-`/`A-`/`S-` set the booleans; `metaKey` always false.
 
@@ -422,10 +431,10 @@ Exact rules, in order:
 2. `e.key` ∈ {`Shift`,`Control`,`Alt`,`AltGraph`,`Meta`,`OS`,`CapsLock`,`NumLock`,`ScrollLock`,`ContextMenu`,`Dead`,`Unidentified`,`Process`,`Fn`,`FnLock`,`Hyper`,`Super`,`Symbol`,`SymbolLock`} or matches `/^F\d{1,2}$/` → `undefined`.
 3. Named table: `Enter`→`CR`, `Backspace`→`BS`, `Delete`→`Del`, `Escape`→`Esc`, `Insert`→`Ins`, `Tab`→`Tab`, `ArrowLeft`→`Left`, `ArrowRight`→`Right`, `ArrowUp`→`Up`, `ArrowDown`→`Down`, `Home`, `End`, `PageUp`, `PageDown`, `" "`→`Space`. Any other `e.key` with more than one code point → `undefined`. Otherwise `printable = true` and `key = e.key` (astral chars allowed).
 4. Modifiers: `ctrl = e.ctrlKey`, `alt = e.altKey`. If `printable && ctrl && alt` → AltGr: `ctrl = alt = false` (DE/FR/ES/PL `{ } [ ] @ \` must be typeable). If `printable && alt && !ctrl && platform === "mac"` → `alt = false` (Option produces the character, as the core does at C:1233-1235). `prefix = (ctrl ? "C-" : "") + (alt ? "A-" : "")`. Shift: if `(prefix !== "" || !printable) && e.shiftKey` → `prefix += "S-"`, **except** Shift alone (no `C-`/`A-`) on `Space`, `CR`, `BS`, `Tab`, `Del`, `Esc`, `Ins` → no `S-` (Shift+Space is a space, Shift+Enter a newline, like terminal vim; `<S-Left>` and friends survive).
-5. Result: `printable && prefix === ""` → `key === "<" ? "<lt>" : key`; else `` `<${prefix}${key}>` ``.
+5. Result: `printable && prefix === ""` → `key === "<" ? "<lt>" : key`; else `` `<${prefix}${key}>` ``. A modified `<` or `>` (`<C-<>`, `<A->>`, …) and any result that fails `isVimKey` (a control character) → `undefined`, so the log never holds a key the server's `parseKeys` would reject.
 6. `e.repeat` is ignored: every keydown is one key (VimGolf convention).
 
-Agreement property (tested): for all printable ASCII × {none, ctrl, ctrl+shift} and all named keys × {none, shift, ctrl} on platform `other`, `keyFromEvent(e)` equals `Vim.vimKeyFromEvent(e)` (no `vim` argument), except the documented normalisations: `<` → `<lt>`, Shift+{Space,Enter,Backspace,Tab,Delete,Escape,Insert} → base key, Meta → undefined, F-keys → undefined, Process → undefined.
+Agreement property (tested): for all printable ASCII × {none, ctrl, ctrl+shift} and all named keys × {none, shift, ctrl} on platform `other`, `keyFromEvent(e)` equals `Vim.vimKeyFromEvent(e)` (no `vim` argument), except the documented normalisations: `<` → `<lt>`, Shift+{Space,Enter,Backspace,Tab,Delete,Escape,Insert} → base key, a modified `<`/`>` → undefined, Meta → undefined, F-keys → undefined, Process → undefined.
 
 ### 3.3 `log.ts`
 
@@ -452,13 +461,14 @@ export interface Puzzle {
   tabSize: number; indentUnit: string; start: string; target: string;
   solution: VimKey[]; par: number; source: PuzzleSource; tags?: string[];
 }
+export interface PuzzleJson { /* section 5.1 */ }
 export const PuzzleJsonSchema: v.GenericSchema<unknown, PuzzleJson>;  // valibot; `solution` is a notation string in JSON
-export class PuzzleError extends Error { readonly issues: readonly string[] }
+export class PuzzleError extends Error { constructor(readonly issues: readonly string[]) }  // message = issues joined by "\n"
 export function parsePuzzle(json: unknown, expectedId?: string): Puzzle;  // validates, parseKeys(solution), par = solution.length
 export const PUZZLE_LIMITS = { maxLines: 30, maxLineLength: 120, maxChars: 3000 } as const;
 ```
 
-Validation rules are in section 5. `parsePuzzle` throws `PuzzleError` listing every valibot issue path + message; when `expectedId` is given and differs from `id`, it throws too.
+Validation rules are in section 5. `parsePuzzle` throws `PuzzleError` listing every valibot issue as `path: message`; when `expectedId` is given and differs from `id`, it throws too. The schema is strict beyond 5.1: unknown keys (a stored `par`, a typo) are rejected, author/repo/path/tag strings must be non-empty, an excerpt's `commit` is a full 40-char hex SHA and its `url` must contain it.
 
 ### 3.5 `languages.ts`
 
@@ -481,7 +491,7 @@ export function applyEngineOptions(): void;    // after every Vim.resetVimGlobal
 1. `Vim.defineEx(name, shortName, blocked)` for each of: `colorscheme/colo`, `map/map`, `imap/im`, `nmap/nm`, `vmap/vm`, `omap/om`, `noremap/no`, `nnoremap/nn`, `vnoremap/vn`, `inoremap/ino`, `onoremap/ono`, `unmap/unmap`, `mapclear/mapc`, `nmapclear/nmapc`, `vmapclear/vmapc`, `imapclear/imapc`, `omapclear/omapc`, `set/se`, `setlocal/setl`, `setglobal/setg`, `write/w` (exact built-in names and shortNames from C:272-309, so `defineEx` replaces the `commandMap_` entry, C:887-895). `blocked(cm)` calls `cm.openNotification(div("mappings and :set are disabled in Yank Wars"), {bottom: true, duration: 5000})`; for `write`: "lock-in is automatic".
 2. `Vim.mapclear()`; `Vim.suppressErrorLogging = true`.
 3. `CodeMirror.commands.newlineAndIndent = (cm) => cm.replaceSelection("\n")` (core calls `CM.commands.newlineAndIndentContinueComment || CM.commands.newlineAndIndent` at C:3244 and 3468; the former is `undefined` in the adapter).
-4. `Vim.defineAction("setRegister", (_cm, args, vim) => { const n = args.selectedCharacter; vim.inputState.registerName = n === "+" || n === "*" ? undefined : n; })` — port of C:3415-3417 with the clipboard registers mapped to "no register".
+4. The clipboard's two call sites are closed, so `"+`/`"*` are the unnamed register from every entry point (`"+p`, `:pu +`, `:y +`, `:g/x/pu +`): `RegisterController.prototype.pushText` is wrapped to map `+`/`*` to no register (C:1515), and `Vim.defineAction("paste")` runs the core's non-clipboard branch, `this.continuePaste(cm, args, vim, register.toString(), register)` with `+`/`*` mapped to the unnamed register (C:3251-3260). (Implemented first as a `setRegister` override, which missed the ex commands.)
 5. `Vim.defineAction("scroll", () => {})` and `Vim.defineAction("scrollToCursor", () => {})` (`<C-e>`, `<C-y>`, `zz`, `zt`, `zb`, `z.`, `z<CR>`, `z-` never move the cursor; vim's `<C-e>` only moves it when it would scroll off, which cannot happen when the whole puzzle is visible).
 6. `Vim.defineMotion` overrides (`Pos = CodeMirror.Pos`, `last = cm.lastLine()`, `fnb(l) = index of first non-whitespace char on line l`, `clamp(l) = Math.max(0, Math.min(last, l))`):
    - `moveToTopLine(cm, _head, args)`: `l = clamp(args.repeat - 1)`; `new Pos(l, fnb(l))`.
@@ -490,6 +500,13 @@ export function applyEngineOptions(): void;    // after every Vim.resetVimGlobal
    - `moveByPage(cm, head, args)`: `n = (VIRTUAL_WINDOW_LINES - 2) * args.repeat`; `l = clamp(head.line + (args.forward ? n : -n))`; `new Pos(l, fnb(l))`.
    - `moveByScroll(cm, head, args, vim)`: `args.repeat = args.repeat || Math.floor(VIRTUAL_WINDOW_LINES / 2)` (no count arrives as `0`, C:2028-2042); `return this.moveByLines(cm, head, args, vim)` (motions are invoked with `this === motions`, C:2043, so column persistence via `vim.lastHPos` keeps working).
    - `moveByDisplayLines(cm, head, args, vim)`: `return this.moveByLines(cm, head, args, vim)` (`gj`/`gk` = `j`/`k`).
+   - `moveByLines`: a port of C:2398-2441 without the pixel goal, returning `null` (the motion fails, so an operator does nothing) when the cursor is already on the first line moving up or the last line moving down; the core jumps to the line's start/end there, so `dj` on the last line deleted it. Added in review.
+7. Added in review, each matching vim (`vim -u NONE`):
+   - `g0` → `moveToStartOfLine`, `g^` → `moveToFirstNonWhiteSpaceCharacter` via `Vim.mapCommand` (the core runs CM6's smart home for both, C:140, 2575).
+   - `r<character>` → action `countedReplace`: fails when the count runs past the end of the line (`5rx` on `abc`), else `this.replace(...)`.
+   - `c` → operator `changeNoIndent` and normal `S` → `{operatorMotion changeNoIndent, expandToLine}` (the core's `S` is a noremap keyToKey that skips mapped commands): after `this.change(...)`, a linewise non-visual change also deletes the indent the core keeps (C:2732), vim's `noautoindent`; the register still holds the whole line.
+   - Insert `<C-w>`/`<C-u>` → actions that delete back to the word/line start but stop once at the insert start (`insertStart.ts`, vim's `Insstart_orig` with its arrow-key rules) and join lines at column 0 (`'backspace'` `indent,eol,start`).
+   - Macros (`q`, `@`) and `:normal` are the engine's (`macro.ts`), because the core records insert sessions as change lists, never records ex commands, and leaves a played `:` prompt open (C:6768-6801): `enterMacroRecordMode` starts an engine recording, `feedKey` appends every typed key until a `q` in normal mode with nothing pending, and the keys are stored in the register one per `keyBuffer` entry (`qQ` appends). `replayMacro` feeds the register's keys (tokenised like C:6785) through the same per-key path as typed keys, `@:` runs the last ex command, and nesting deeper than `MAX_MACRO_DEPTH` (100) throws, so a recursive macro stops at the same key on every engine instead of wherever the stack runs out. `:normal` types its argument literally (`<CR>` is four keys) through the same path and aborts an unfinished command with `<Esc>`.
 
 `applyEngineOptions()`: `Vim.setOption("pcre", false)` so `/` and `:s` use vim regex syntax (`\(`, `\+`, `\<`); `resetVimGlobalState_` restores option defaults (C:776-779), hence it must run after every reset. `:set` is blocked so players cannot flip it.
 
@@ -517,7 +534,7 @@ policy(tr) {
 
 Why it works (verified in sources): a spec returned by a filter is resolved with `filter: false` and never re-filtered (S:2455-2462); `Transaction.create` only stamps `Date.now()` when no `time` annotation exists (S:2246-2247); history joins a change into the previous event iff `joinableUserEvent.test(userEvent)` and `!lastEvent.selectionsAfter.length && time - prevTime < newGroupDelay && joinToEvent(...)` (H:499-507). With `time = group`, `newGroupDelay = 1`, `joinToEvent = true` and no selection events ever recorded, a change joins iff its group equals the previous change's group. Undo/redo transactions carry `filter: false` and are untouched; `isolateHistory` and other annotations are preserved. Relabelling to plain `input.type` (not `.compose`, which always joins, H:507) is essential; it also makes `indentMore`'s `input.indent` joinable. Comment in the file: "Transaction.time here is a logical undo-group id, not a clock."
 
-Group assignment is in `feedKey` (3.11) and `session.ts` (3.10): the group increments when a key is fed in normal/visual mode with no prompt open, and additionally on `vim-command-done` while a macro is playing and the editor is not in insert mode and no ex callback is running. Resulting rule: one undo step per normal-mode command including the insert session it opens (`cwfoo<Esc>`, `ohey<Esc>`, `3ix<Esc>`, visual-block `I`), one per ex command (`:s`, `:g`, `:g/x/norm @q`), one per command inside `@q` (vim-like), `.` is one step, `x` then `ihello<Esc>` are two steps.
+Group assignment is in `dispatchKey` (3.11): the group increments for every key, typed or replayed by a macro, that arrives in normal/visual mode with no prompt open and outside an ex command, and when an insert-mode cursor key moves the cursor (`<Home>`/`<End>` always; vim's `:help ins-special-special`). (Before review a `vim-command-done` listener did this for the core's macro playback.) Resulting rule: one undo step per normal-mode command including the insert session it opens (`cwfoo<Esc>`, `ohey<Esc>`, `3ix<Esc>`, visual-block `I`), one per ex command (`:s`, `:g`, `:g/x/norm @q`), one per command inside `@q` (vim-like), `.` is one step, `x` then `ihello<Esc>` are two steps.
 
 ### 3.8 `insertKeys.ts`
 
@@ -624,7 +641,7 @@ Never: `basicSetup`, `defaultKeymap`, `historyKeymap`, `indentWithTab`, `closeBr
 3. Patch `cm.findPosV(start, amount, unit, goal)`: for `unit === "line"`: `line = clamp(start.line + amount, 0, doc.lines - 1)`, `ch = min(start.ch, length of that line)`, result `{line, ch, hitSide}` where `hitSide = (line !== start.line + amount)`; for `"page"` same with `amount * VIRTUAL_WINDOW_LINES`; other units delegate to the original. Return a `CodeMirror.Pos` with `hitSide` set as the adapter does (A:522-528).
 4. `installPrompt(s)`.
 5. `view.contentDOM.removeEventListener("paste", cm.state.vim!.onPasteFn!, false)` (the core registers it before CM6's listeners, C:320-327, so a CM6 handler cannot block it).
-6. `cm.on("vim-command-done", () => { if (Vim.getVimGlobalState_().macroModeState.isPlaying && !cm.state.vim?.insertMode && !s.inExCallback) clock.group++; })` (per-command undo steps inside macro playback; `clearInputState` fires before each command's changes, C:2042).
+6. `bindSession(cm, { session: s, dispatch })` (`registry.ts`), so the engine's macro and `:normal` actions find the session from the adapter instance; `dispatch` detaches `cm.curOp` around `dispatchKey`, because replayed keys arrive inside the `@q`/`:normal` key's vim operation, which defers the change events the `.` and count-insert recorders need (A:636-666). `cm.on("vim-mode-change", …)` feeds `insertStart.ts`.
 7. `forceParsing(view, view.state.doc.length, 1e9)`.
 
 ### 3.11 `feedKey.ts`
@@ -634,7 +651,7 @@ export interface KeyResult { solved: boolean; docChanged: boolean; error: string
 export function feedKey(s: EditorSession, key: VimKey): KeyResult;
 ```
 
-Algorithm (port of A:1460-1507 without DOM):
+Algorithm (port of A:1460-1507 without DOM). Since review the per-key part is `dispatchKey(s, key)`, which macro playback and `:normal` call too: it does the group bump (also skipped inside an ex command), stops an engine macro recording on `q`, and captures the insert start after the key; `feedKey` keeps the bookkeeping and appends the key to an active recording. In `insertFallback`, `<Left>/<Right>/<Up>/<Down>/<Home>/<End>` move in replace mode too and split undo as above.
 
 ```
 if (s.solved) return { solved: true, docChanged: false, error: null }
@@ -669,7 +686,7 @@ if (s.cm.state.overwrite) {                                          // replace 
   if (key === "<BS>") { recordInsertKey("Backspace"); CodeMirror.commands.cursorCharLeft(s.cm) }
   else if (key === "<CR>") s.cm.replaceSelection("\n")
   else if (key === "<Del>") { recordInsertKey("Delete"); insertCommands.Delete(s.view) }
-  else if (lit !== undefined) s.cm.overWriteSelection(lit)
+  else if (lit !== undefined) s.cm.operation(() => { s.cm.curOp.isVimOp = true; s.cm.overWriteSelection(lit) })
   else /* named/modified key the core does not bind */ nothing
 } else {
   if (key === "<BS>") { recordInsertKey("Backspace"); insertCommands.Backspace(s.view) }
@@ -679,6 +696,8 @@ if (s.cm.state.overwrite) {                                          // replace 
   else nothing                                                       // <C-v>, <C-x>, <PageUp>, <S-Left>, ...: counted no-ops on both sides
 }
 ```
+
+`overWriteSelection` (A:721) dispatches the widened selection before the text; outside a vim operation the core reads that as a cursor move (C:6898) and drops everything but the last character from the `.`/macro record, so the call runs as one vim op (added after implementation; the stock adapter has this bug). `<CR>` in replace mode inserts a line break and deletes nothing, as in vim (`:help Replace`).
 
 The core's `onChange` recorder (attached in `enterInsertMode`, C:3118) sees every insert-mode change through the adapter's `update() → cm.onChange → onBeforeEndOperation` (A:1380-1389, 598-660) regardless of who dispatched it, so typed text is recorded for `.`/macros; only `<BS>`/`<Del>` need the explicit `InsertModeKey`, and it must be pushed **before** the deletion is dispatched (same order as DOM keydown → native delete).
 
@@ -709,10 +728,10 @@ export interface BrowserInputOptions {
   onFocus?(focused: boolean): void;
   devGuard?: boolean;                                    // import.meta.env.DEV: warn on unlogged doc/selection changes
 }
-export function browserInput(s: EditorSession, opts: BrowserInputOptions): Extension;
+export function browserInput(session: () => EditorSession, opts: BrowserInputOptions): Extension;
 ```
 
-Because the extension needs the session, the web creates the session in two steps: `createSession(puzzle, { parent, extraExtensions: [...visuals, browserInputCompartment.of([])] })` then `view.dispatch({ effects: browserInputCompartment.reconfigure(browserInput(session, opts)) })` — or simpler and preferred: `browserInput` takes a `() => EditorSession` getter and is passed directly in `extraExtensions`; the getter resolves after `createSession` returns. Use the getter form.
+The extension needs the session it is part of, so it takes a getter and is passed directly in `createSession`'s `extraExtensions`; the getter resolves after `createSession` returns.
 
 Extension contents:
 
@@ -731,7 +750,7 @@ Extension contents:
       return true
     },
     keypress: () => true, beforeinput: () => true,
-    paste: () => true, drop: () => true, cut: () => true, dragstart: () => true, dragover: () => true, contextmenu: () => true,
+    paste: () => true, drop: () => true, cut: () => true, copy: () => true, dragstart: () => true, dragover: () => true, contextmenu: () => true,
     mousedown(e, view) { view.focus(); return true },                 // preventDefault on mousedown also cancels focus-on-click
     focus() { opts.onFocus?.(true); return false }, blur() { opts.onFocus?.(false); return false },
   })),
@@ -748,10 +767,10 @@ Extension contents:
 export interface ReplayResult { doc: string; solved: boolean; solvedAt: number | null; applied: number; errors: { index: number; message: string }[]; hud: HudState }
 export interface ReplayOptions { parent?: HTMLElement; stopAtSolve?: boolean /* default true */ }
 export function replay(puzzle: Puzzle, keys: readonly VimKey[], opts?: ReplayOptions): ReplayResult;
-export function verifyRun(puzzle: Puzzle, log: KeyLog): { ok: boolean; score: number; result: ReplayResult };
+export function verifyRun(puzzle: Puzzle, log: KeyLog, opts?: Pick<ReplayOptions, "parent">): { ok: boolean; score: number; result: ReplayResult };
 ```
 
-`replay`: `s = createSession(puzzle, { parent: opts.parent ?? document.body })` (which resets global vim state); `try { for i: r = feedKey(s, keys[i]); if (r.error) errors.push({index: i, message: r.error}); if (r.solved) { solvedAt = i; applied = i + 1; if (stopAtSolve) break } } finally { destroySession(s) }`. Requires DOM globals (happy-dom in tests/server, real DOM in the dev self-check). It resets process-global vim state: never call while a live session on the same page still accepts keys. `verifyRun`: `keys = currentRun(log)`; `ok = result.solvedAt === keys.length - 1` (the last key must be the solving key, so par is honest and the client's own lock-in is confirmed); `score = keys.length`.
+`replay`: `s = createSession(puzzle, { parent: opts.parent ?? document.body })` (which resets global vim state); `try { for i: r = feedKey(s, keys[i]); applied = i + 1; if (r.error) errors.push({index: i, message: r.error}); if (r.solved && solvedAt === null) { solvedAt = i; if (stopAtSolve) break } } finally { destroySession(s) }`. `applied` counts every key fed (a run that never solves has `applied === keys.length`); `solvedAt` is the first solving key, since later keys still report `solved` after lock-in. Requires DOM globals (happy-dom in tests/server, real DOM in the dev self-check). It resets process-global vim state: never call while a live session on the same page still accepts keys. `verifyRun`: `keys = currentRun(log)`; `ok = result.solvedAt === keys.length - 1` (the last key must be the solving key, so par is honest and the client's own lock-in is confirmed); `score = keys.length`.
 
 ### 3.15 `round.ts`
 
@@ -761,16 +780,17 @@ export type RoundPhase = "study" | "playing" | "locked" | "forfeited" | "expired
 export interface RoundState {
   readonly phase: RoundPhase; readonly createdAt: number; readonly studyEndsAt: number;
   readonly startedAt: number | null; readonly endsAt: number | null; readonly finishedAt: number | null;
-  readonly log: KeyLog; readonly runs: number;
+  readonly log: KeyLog; readonly runs: number; readonly capMs: number;   // capMs: from cfg, read when study ends
 }
 export type RoundEvent = { type: "tick" } | { type: "ready" } | { type: "key"; key: VimKey; solved: boolean } | { type: "reset" } | { type: "forfeit" };
-export function createRound(now: number, cfg?: Partial<typeof ROUND>): RoundState;   // phase "study", studyEndsAt = now + studyMs
+export type RoundConfig = { readonly [K in keyof typeof ROUND]: number };            // ROUND is `as const`, so Partial<typeof ROUND> would accept only the defaults
+export function createRound(now: number, cfg?: Partial<RoundConfig>): RoundState;   // phase "study", studyEndsAt = now + studyMs
 export function reduceRound(s: RoundState, e: RoundEvent, now: number): RoundState;  // returns `s` itself when nothing changes
 export function elapsedMs(s: RoundState, now: number): number;    // 0 in study; now - startedAt while playing; frozen at finishedAt after
 export function remainingMs(s: RoundState, now: number): number;  // max(0, endsAt - now) while playing, else 0
 ```
 
-Transitions: `study`: `ready` or `tick` with `now >= studyEndsAt` → `playing` (`startedAt = now`, `endsAt = now + capMs`); keys/reset/forfeit ignored. `playing`: `key` → `log + key`, and `solved` → `locked` (`finishedAt = now`); `reset` → `log + RESET`, `runs + 1`; `forfeit` → `forfeited`; `tick` with `now >= endsAt` → `expired`. Terminal phases ignore everything. Grace timer and ranking belong to step 2 and are not built now.
+Transitions: `study`: `ready` or `tick` with `now >= studyEndsAt` → `playing` (`startedAt = now`, `endsAt = now + capMs`); keys/reset/forfeit ignored. `playing`: `key` → `log + key`, and `solved` → `locked` (`finishedAt = now`); `reset` → `log + RESET`, `runs + 1`; `forfeit` → `forfeited`; `tick` with `now >= endsAt` → `expired`. While playing, **any** event at `now >= endsAt` expires the round first, so a late key is neither logged nor locked in; an expired round has `finishedAt = endsAt` (elapsed freezes at the cap), a forfeited one `finishedAt = now`. Terminal phases ignore everything. Grace timer and ranking belong to step 2 and are not built now.
 
 ---
 
@@ -814,7 +834,7 @@ export class RoundController {
 }
 ```
 
-Behaviour: `mount` creates the player view with `{ platform: detectPlatform(navigator), intercept: k => this.intercept(k), accept: () => this.phase === "playing", onKey: (k, r) => this.onKey(k, r), onBlocked: r => (this.blocked = r), onFocus: f => (this.focused = f), devGuard: import.meta.env.DEV, onDoc: doc => { this.linesOff = ...; this.target?.setPlayerDoc(doc) }, relativeNumbers: prefs.relativeNumbers }`, the target view, focuses the editor, and starts a `requestAnimationFrame` loop that sets `now` and dispatches `{type: "tick"}` while phase is study/playing. `intercept(key)`: `RESET_KEY` → `reset()`; `FORFEIT_KEY` → `forfeit()`; `NUMBERS_KEY` → `toggleNumbers()`; study phase and `READY_KEYS.includes(key)` → dispatch `{ready}`; all return `true`; otherwise `false`. `onKey(key, result)`: dispatch `{type: "key", key, solved: result.solved}`; `snap = sessionSnapshot(session)`; `blocked = null`; if `result.solved` → `onLocked()`. `dispatch(e)`: `next = reduceRound(round, e, clock()); if (next !== round) round = next`. `onLocked()`: in DEV, `selfCheck = "pending"` then `queueMicrotask` → `runSelfCheck(puzzle, round.log, liveDoc)` → `"ok" | "mismatch"` (console.warn with the notation string, both docs and the first differing line on mismatch); record personal best in prefs. The round clock never pauses on reset (decisions.md).
+Behaviour: `mount` creates the player view with `{ platform: detectPlatform(navigator), intercept: k => this.intercept(k), accept: () => this.phase === "playing", onKey: (k, r) => this.onKey(k, r), onBlocked: r => (this.blocked = r), onFocus: f => (this.focused = f), devGuard: import.meta.env.DEV, onDoc: doc => { this.linesOff = ...; this.target?.setPlayerDoc(doc) }, relativeNumbers: prefs.relativeNumbers }`, the target view, focuses the editor, and starts a `requestAnimationFrame` loop that sets `now` and dispatches `{type: "tick"}` while phase is study/playing. `intercept(key)`: `RESET_KEY` → `reset()`; `FORFEIT_KEY` → `forfeit()`; `NUMBERS_KEY` → `toggleNumbers()`; study phase and `READY_KEYS.includes(key)` → dispatch `{ready}`; all return `true`; otherwise `false`. `onKey(key, result)`: dispatch `{type: "key", key, solved: result.solved}`; `snap = sessionSnapshot(session)`; `blocked = null`; if `result.solved` → `onLocked()`. `dispatch(e, now = clock())`: `next = reduceRound(round, e, now); if (next !== round) round = next`. `accept()` reads the clock once per keydown and `onKey` dispatches the key at that same time, so a key whose feed crosses the cap is still logged (it already changed the buffer). An expired or forfeited round shows the result card in a later task (`setTimeout 0`), never inside the keydown that ended it, which would otherwise reach the card's window listener (Esc, Enter, `r`). `onLocked()`: in DEV, `selfCheck = "pending"` then `queueMicrotask` → `runSelfCheck(puzzle, round.log, liveDoc)` → `"ok" | "mismatch"` (console.warn with the notation string, both docs and the first differing line on mismatch); record personal best in prefs. The round clock never pauses on reset (decisions.md).
 
 Chords (`src/lib/chords.ts`): `RESET_KEY = "<C-CR>"`, `FORFEIT_KEY = "<C-S-CR>"`, `NUMBERS_KEY = "<C-S-L>"` (Ctrl+Shift+l has `e.key === "L"`), `READY_KEYS = ["<Space>", "<CR>"]`. All are layout-independent and never collide with AltGr characters.
 
@@ -839,7 +859,7 @@ export function createTargetView(parent: HTMLElement, puzzle: Puzzle): TargetVie
 
 ### 4.5 Diff highlight (`src/editor/diff.ts`)
 
-`diffField(target: Text): StateField<{ deco: DecorationSet; linesOff: number }>`: `create`/`update` (on `docChanged`) run `Chunk.build(doc, target, { scanLimit: 500 })` from `@codemirror/merge`; for each chunk decorate lines `doc.lineAt(chunk.fromA)` … `doc.lineAt(Math.max(chunk.fromA, chunk.endA - 1))` with `Decoration.line({ class: "yw-diff" })`, and insertion-only chunks (`fromA === toA`, lines missing in the buffer) with `Decoration.line({ class: "yw-diff-missing" })` on `doc.lineAt(Math.min(chunk.fromA, doc.length))`; `linesOff` = decorated lines + missing-line chunks; `provide: f => EditorView.decorations.from(f, v => v.deco)`. `targetDiffField(start: Text)` holds the current player doc (updated by the `setPlayerDoc` effect) and decorates the target's `fromB..endB` lines with `yw-pending`. `MergeView`/`unifiedMergeView` are not used: they own the views' dispatch and add widgets/controls that edit text. Export `linesOffOf(state)` for the HUD.
+`diffField(target: Text): StateField<{ deco: DecorationSet; linesOff: number }>`: `create`/`update` (on `docChanged`) run `Chunk.build(doc + "\n", target + "\n", { scanLimit: 500 })` from `@codemirror/merge` (both with one more newline: otherwise a change at the end of a doc is widened back to the previous, correct line); for each chunk decorate lines `doc.lineAt(chunk.fromA)` … `doc.lineAt(chunk.endA)` with `Decoration.line({ class: "yw-diff" })` (`endA` is already the end of the chunk's last line; `endA - 1` would drop a trailing empty line), and insertion-only chunks (`fromA === toA`, lines missing in the buffer) with `Decoration.line({ class: "yw-diff-missing" })` on `doc.lineAt(chunk.fromA)` (a dashed line above it), or, when `fromA` is past the end, `yw-diff-missing-after` on the last line (dashed line below it); `linesOff` = decorated lines + missing-line chunks; `provide: f => EditorView.decorations.from(f, v => v.deco)`. `targetDiffField(start: Text)` holds the current player doc (updated by the `setPlayerDoc` effect) and decorates the target's `fromB..endB` lines with `yw-pending` (chunks empty on the target side mark nothing). `MergeView`/`unifiedMergeView` are not used: they own the views' dispatch and add widgets/controls that edit text. Export `linesOffOf(state)` for the HUD.
 
 ### 4.6 Gutter (`src/editor/gutter.ts`)
 
@@ -854,7 +874,7 @@ export function relativeFormat(cur: number, n: number): string;   // the pure fo
 
 ### 4.7 Theme (`src/editor/theme.ts`)
 
-Tokens: `--bg #0d1117`, `--panel #161b22`, `--border #30363d`, `--fg #e6edf3`, `--muted #8b949e`, `--ok #3fb950`, `--warn #d29922`, `--bad #f85149`, `--cursor #f2cc60`. `ywTheme = EditorView.theme({...}, { dark: true })` (so the adapter's and merge's `&dark` rules apply); fat cursor via `"&.cm-editor .cm-fat-cursor": { background: "var(--cursor)" }` (the adapter's rule is `Prec.highest`, A:1197-1215, so beat it by specificity); `.yw-diff` `rgba(248,81,73,.10)` + 2px left border; `.yw-diff-missing` dashed bottom border; `.yw-pending` `rgba(88,166,255,.08)`; `.cm-vim-panel`/`.cm-vim-message` are never rendered (no dialogs). Syntax colours from `oneDarkHighlightStyle`.
+Tokens: `--bg #0d1117`, `--panel #161b22`, `--border #30363d`, `--fg #e6edf3`, `--muted #8b949e`, `--ok #3fb950`, `--warn #d29922`, `--bad #f85149`, `--cursor #f2cc60`. `ywTheme = EditorView.theme({...}, { dark: true })` (so the adapter's and merge's `&dark` rules apply); fat cursor via `"&.cm-editor.cm-focused .cm-fat-cursor"` (background `var(--cursor)`) and `"&.cm-editor:not(.cm-focused) .cm-fat-cursor"` (1px outline in it) (the adapter's rules are `Prec.highest`, A:1197-1215, so beat them by specificity; `&.cm-editor .cm-fat-cursor` only ties and loses); `.yw-diff` `rgba(248,81,73,.10)` + a 2px left bar as an inset box-shadow (no layout shift between the side-by-side panes); `.yw-diff-missing` a dashed line on the top edge (it sits on the line after the gap); `.yw-pending` `rgba(88,166,255,.08)`; `.cm-vim-panel`/`.cm-vim-message` are never rendered (no dialogs). Syntax colours from `oneDarkHighlightStyle`.
 
 ### 4.8 HUD, study, reset, result
 
@@ -870,7 +890,7 @@ Tokens: `--bg #0d1117`, `--panel #161b22`, `--border #30363d`, `--fg #e6edf3`, `
 export function runSelfCheck(puzzle: Puzzle, log: KeyLog, liveDoc: string): "ok" | "mismatch";
 ```
 
-Only when `import.meta.env.DEV`. Creates a hidden host (`position:absolute; left:-9999px; width:600px; height:400px`) appended to `document.body`, calls `verifyRun(puzzle, log)`, removes the host, returns `"ok"` iff `result.ok && result.result.doc === liveDoc`. Runs only after the round is over (replay resets process-global vim state).
+Only when `import.meta.env.DEV`. Creates a hidden host (`position:fixed; left:-9999px; top:0; width:600px; height:400px`; fixed because CM6's `scrollRectIntoView` stops at fixed ancestors, V:554, so the replay never scrolls the page) appended to `document.body`, calls `verifyRun(puzzle, log, { parent: host })`, removes the host, returns `"ok"` iff `result.ok && result.result.doc === liveDoc`; on mismatch or a throwing replay it logs the 4.2 warning itself. Runs only after the round is over (replay resets process-global vim state).
 
 ### 4.10 Puzzle loading (`src/lib/puzzles.ts`)
 
@@ -921,32 +941,32 @@ Example (`puzzles/handmade/quote-style.json`):
 1. `start`/`target`: LF only (no `\r`); **no trailing newline** (CM has no final line terminator; lock-in is `doc.toString() === target`; a trailing `\n` would be an extra empty line the player must create); 1..30 lines; each line ≤ 120 chars (no wrapping exists); ≤ 3000 chars each (keeps the whole document inside `@codemirror/language`'s initial 3000-char synchronous parse); printable ASCII 0x20-0x7E plus `\t`/`\n` only (typeable on every layout; dead keys are unsupported); `start !== target`; `target` non-empty.
 2. Tabs may appear only when `indentUnit === "\t"`. `indentUnit`/`tabSize` are engine config (`>>`, `<<`, `=`, rendering), so they belong to the puzzle.
 3. `solution`: parseable by `parseKeys` (a literal `<` is `<lt>`, a space is `<Space>` or `" "`); *test*: `replay(puzzle, solution).solvedAt === solution.length - 1` (no trailing no-op keys, so par is honest) and `doc === target`; `replay(puzzle, [])` is not solved.
-4. Engine semantics authors must know: `o`/`O`/insert `<CR>` insert a plain newline (no autoindent); `/` and `:s` use **vim** regex syntax (`\(` `\)` `\+` `\<` `\>` `\{n\}`), hard-coded ignorecase+smartcase for `/`; `:map`/`:set`/`:w`/`:colorscheme` are blocked; `"+`/`"*` are the unnamed register; `H/M/L/<C-d>/<C-u>/<C-f>/<C-b>` work on a virtual 30-line window; `<C-e>/<C-y>/zz/zt/zb` do nothing; the command line is append-only (`<Left>`/`<Right>`/`<Tab>` are counted no-ops); the two known engine bugs (macro does not abort on a failed motion, recursive macro overflows) are unpatched in step 1, so solutions must not rely on them; `:m`/`:t`/`:e`/`:r`/`:!` do not exist.
+4. Engine semantics authors must know: `o`/`O`/insert `<CR>` insert a plain newline (no autoindent); `/` and `:s` use **vim** regex syntax (`\(` `\)` `\+` `\<` `\>` `\{n\}`; `\<` is `\<lt>` in key notation), hard-coded ignorecase+smartcase for both `/` and `:s`; `&` in a `:s` replacement is literal (`\0` is the whole match); replace-mode `<BS>` moves left without restoring, and `.`/`@q` then repeat only what followed the last `<BS>`; `:map`/`:set`/`:w`/`:colorscheme` are blocked; `"+`/`"*` are the unnamed register; `H/M/L/<C-d>/<C-u>/<C-f>/<C-b>` work on a virtual 30-line window; `<C-e>/<C-y>/zz/zt/zb` do nothing; the command line is append-only (`<Left>`/`<Right>`/`<Tab>` are counted no-ops); the two known engine bugs (macro does not abort on a failed motion; a recursive macro runs until it is nested 100 deep and then errors) are unpatched in step 1, so solutions must not rely on them; `cc`/`S` drop the indent like `o` (noautoindent); `:m`/`:t`/`:e`/`:r`/`:!` do not exist.
 5. `source` required; `excerpt` needs `repo`, permalink `url`, allowed `license`, `path`, `commit`, shown on the result card. Prefer original snippets. VimGolf challenges only with the maintainer's permission.
 6. Puzzles are data: no code under `puzzles/`; loaded through `parsePuzzle` at the boundary (engine tests via `Bun.Glob`, web via `import.meta.glob`). *test*: ids unique, equal to file names.
 
 ### 5.3 The ten handmade puzzles (all original snippets written for this repo)
 
-| id | title | language | start → target | intended technique | rough par |
+| id | title | language | start → target | reference solution | par |
 |---|---|---|---|---|---|
-| `quote-style` | Double quotes | javascript | 3-line module; single-quoted strings on line 1 → double quotes | `:s/'/"/g<CR>` on the current line | 10 |
-| `rename-var` | Rename `data` | typescript | 8-line function using `data` 4× (plus `metadata` once, which must not change) → `payload` | `:%s/\<data\>/payload/g<CR>` (vim regex, nopcre) | 26 |
-| `swap-args` | Swap the arguments | python | 6 lines: `def area(width, height)` and three calls `area(a, b)` → arguments swapped in every pair | `:%s/(\(\w\+\), \(\w\+\))/(\2, \1)/g<CR>` | 36 |
-| `sort-imports` | Sort the imports | go | 7-line file with an unsorted `import ( ... )` block of 4 paths → sorted | `:2,5sort<CR>` or `jVjjj:sort<CR>` | 10 |
-| `join-lines` | One line | rust | `let v = vec![\n    1,\n    2,\n    3,\n];` → `let v = vec![1, 2, 3];` | `V4jJ` then fix spaces, or `JJJJ` + `:s` | 12 |
-| `comment-block` | Comment out the body | python | 6-line function; 4 body lines → each prefixed `# ` | `j<C-v>3jI# <Esc>` (visual block, allowMultipleSelections) | 9 |
-| `quote-keys` | Quote the keys | json | 5-line object with bare keys `{a: 1, ...}` → `"a": 1` | `:%s/\(\w\+\):/"\1":/<CR>` | 24 |
-| `wrap-in-call` | Stringify | python | 3 assignments `x = expr` → `x = str(expr)` | `qaf=wistr(<Esc>A)<Esc>jq2@a` (macro, insert-mode recording) | 24 |
-| `css-comment` | Disable the rule | css | 4-line rule → wrapped in `/*` and `*/` lines | `O/*<Esc>jjjo*/<Esc>` (plain-newline `o`/`O`) | 13 |
-| `indent-body` | Indent the body | go | function with an unindented 3-line body → indented by one `\t` | `jV2j>` (uses `indentUnit`) | 5 |
+| `quote-style` | Double quotes | javascript | 3-line module; single-quoted strings on line 1 → double quotes | `:s/'/"/g<CR>` on the current line | 9 |
+| `rename-var` | Rename `data` | typescript | 8-line function using `data` 4× (plus `metadata` once, which must not change) → `payload` | `:%s/\<lt>data\>/payload/g<CR>` (vim regex, nopcre; `\<` is `\<lt>` in key notation) | 23 |
+| `swap-args` | Swap the arguments | python | 6 lines: `def area(width, height)` and three calls `area(a, b)` → arguments swapped in every pair | `:%s/(\(\w\+\), \(\w\+\))/(\2, \1)/<CR>` | 35 |
+| `sort-imports` | Sort the imports | go | 8-line file with an unsorted `import ( ... )` block of 4 paths → sorted | `:4,7sor<CR>` | 8 |
+| `join-lines` | One line | rust | `let v = vec![\n    1,\n    2,\n    3,\n];` → `let v = vec![1, 2, 3];` | `Jx4JXx` | 6 |
+| `comment-block` | Comment out the body | python | 6-line function; 4 body lines → each prefixed `# ` | `2jw<C-v>3jI#<Space>` (visual block, allowMultipleSelections; locks in before `<Esc>`) | 9 |
+| `quote-keys` | Quote the keys | json | 5-line object with bare keys `{a: 1, ...}` → `"a": 1` | `:%s/\w\+/"\0"/<CR>` (`&` is literal under nopcre, so `\0`) | 15 |
+| `wrap-in-call` | Stringify | python | 3 assignments `x = expr` → `x = str(expr)` | `qaf=wistr(<Esc>A)<Esc>+q2@a` (macro, insert-mode recording; `+`, not `j`, so `f=` never fails) | 19 |
+| `css-comment` | Disable the rule | css | 4-line rule → wrapped in `/*` and `*/` lines | `O/*<Esc>Go*/` (plain-newline `o`/`O`; locks in before `<Esc>`) | 8 |
+| `indent-body` | Indent the body | go | function with an unindented 3-line body → indented by one `\t` | `j3>>` (uses `indentUnit`) | 4 |
 
-Authors write the solution, prove it with `bun test packages/engine/src/puzzles.test.ts`, and adjust par to the proven length.
+Authors write the solution, prove it with `bun test packages/engine/src/puzzles.test.ts`, and adjust par to the proven length (listed in that file's `PAR`). The design draft's solutions for `comment-block` and `css-comment` ended in a wasted `<Esc>` after lock-in, and its `wrap-in-call` macro failed in vim and in the engine; the table holds the proven ones.
 
 ---
 
 ## 6. Tests
 
-All `bun:test`, run from the repo root (`bunfig.toml` preload installs happy-dom + the clipboard shim). Tests call the public API as the web and the future server do and assert literal buffers.
+All `bun:test`, run from the repo root (`bunfig.toml` preload installs happy-dom). Tests call the public API as the web and the future server do and assert literal buffers.
 
 **`packages/engine/src/keys.test.ts`** — `parseKeys("ihello<Esc>")` → `["i","h","e","l","l","o","<Esc>"]`; `parseKeys("a<lt>b c")` → `["a","<lt>","b","<Space>","c"]`; `formatKeys(parseKeys(x)) === x` for every spike case string and every puzzle solution (after `" "` → `<Space>` canonicalisation); `<cr>`/`<esc>`/`<c-v>` normalise to `<CR>`/`<Esc>`/`<C-v>`; `parseKeys("a<b")`, `parseKeys("<Foo>")`, `parseKeys("<Reset>")`, `parseKeys("<M-x>")`, `parseKeys("<S-a>")` throw `KeyNotationError`; `isVimKey("<C-S-A>")` true; `toCoreKey("<lt>") === "<"`; `keyToDomKey("<CR>")` → `{key:"Enter", keyCode:13,...}`; `keyToDomKey("<C-S-Left>")` → `{key:"ArrowLeft", keyCode:37, ctrlKey:true, shiftKey:true}`.
 
@@ -954,23 +974,23 @@ All `bun:test`, run from the repo root (`bunfig.toml` preload installs happy-dom
 
 **`log.test.ts`** — `scoreOf([])` 0; `scoreOf(["a","b"])` 2; `scoreOf(["a",RESET,"b"])` 1; `scoreOf(["a",RESET])` 0; `runs(["a",RESET,RESET,"b"])` → `[["a"],[],["b"]]`; `currentRun` of the same → `["b"]`; `isVimKey(RESET)` false.
 
-**`puzzle.test.ts`** — the example parses with `par === 10`; rejects: trailing `\n` in `start`, `\r\n`, 31 lines, a 121-char line, 3001 chars, `ü`, a tab with `indentUnit: "  "`, `start === target`, bad `id` (`Quote_Style`), `id !== expectedId`, unknown language, `solution` with a bare `<`, `excerpt` without `commit`; each error message names the field path.
+**`puzzle.test.ts`** — the example parses with `par === 9` (its solution is 9 keys); rejects: trailing `\n` in `start`, `\r\n`, 31 lines, a 121-char line, 3001 chars, `ü`, a tab with `indentUnit: "  "`, `start === target`, bad `id` (`Quote_Style`), `id !== expectedId`, unknown language, `solution` with a bare `<`, `excerpt` without `commit`; each error message names the field path.
 
 **`round.test.ts`** — `createRound(1000)` → study, `studyEndsAt 6000`; tick at 5999 stays study, at 6000 → playing with `startedAt 6000`, `endsAt 246000`; `ready` at 2000 → playing at 2000; keys during study ignored (same object returned); `key` appends; `key` with `solved` → locked, `finishedAs 7000`; keys after locked ignored; `reset` → log ends with `RESET`, `runs 2`, `scoreOf` 0; tick at `endsAt - 1` playing, at `endsAt` → expired; `forfeit` → forfeited; `elapsedMs` 0 in study, frozen after lock; `remainingMs` clamps at 0.
 
-**`replay.test.ts`** — the spike's 19 cases as a table (start, keys, expected doc), 17 asserting the exact doc, the two known-bug cases (`jqqddjq3@q` on 5 lines expecting `1\n3\n5`; recursive macro) as `test.failing` referencing decisions.md. Additional cases (doc and `solvedAt`): `ihelo<BS>lo<Esc>j.` on `\n` → `hello\nhello`; `qqihelo<BS>lo<Esc>jq@q` → both lines `hello`; `iab<Del>c<Esc>` on `xy` → `abcy`; `Rxy<BS>z<Esc>` on `abcd` → `xzcd`; `R<CR>` on `ab` → `\nb`; `ia<Space>b<lt><Tab>c<Esc>` → `a b<\tc`; `i<C-v>x<Esc>`, `i<PageUp>x<Esc>`, `i<S-Left>x<Esc>` → `x` (no-ops still count: `applied` 4); `"ayiwo<C-r>a<Esc>` on `foo` → `foo\nfoo`; `ihello<C-w>x<Esc>` → `x`; `i<Ins>xy<Esc>` on `abc` → `xyc`; `<C-v>jIZ<Esc>` and `<C-v>jAZ<Esc>` on `ab\ncd` → `Zab\nZcd` / `aZb\ncZd`; `dd` on the last line; `5j` on 3 lines lands on the last; `gjgjx` = `jjx`; on a 25-line doc `Hx`, `Mx`, `Lx`, `3Hx`, `<C-d>x`, `<C-u>x`, `<C-f>x`, `<C-b>x`, `<C-e>x`, `<C-y>x`, `zzx` delete the char on lines 1, 13, 25, 3, 16, 1, 25, 1, 1, 1, 1 respectively (0-based: 0, 12, 24, 2, 15, 0, 24, 0, 0, 0, 0); `o` after `{` in a javascript puzzle inserts an **unindented** line and `A<CR>` too; `V>` in a go puzzle with `indentUnit "\t"` prepends a tab, in a python puzzle with `"    "` four spaces; `==` on a misindented javascript body re-indents (language is engine config); `:g/x/d<CR>` on `x1\ny\nx2` with target `y\nx2` → `solvedAt === null`; `stopAtSolve` stops feeding after the solving key (`applied === solvedAt + 1`), `stopAtSolve: false` feeds all; a run ending in insert mode with a matching buffer locks in; `"+yyjp` works with the shim (pastes the yanked line); `<C-r>+` in insert inserts nothing; a crashing replay (recursive macro) is followed by the `:%s/foo/X/g` case passing (no poisoning via `createSession`'s reset); two consecutive replays: `qaAx<Esc>q` then `@a` in the second does nothing.
+**`replay.test.ts`** — the spike's 19 cases as a table (start, keys, expected doc), 17 asserting the exact doc, the two known-bug cases (`jqqddjq3@q` on 5 lines expecting `1\n3\n5`; recursive macro) as `test.failing` referencing decisions.md. Additional cases (doc and `solvedAt`): `ihelo<BS>lo<Esc>j.` on `\n` → `hello\nhello`; `qqihelo<BS>lo<Esc>jq@q` → both lines `hello`; `iab<Del>c<Esc>` on `xy` → `abcy`; `Rxy<BS>z<Esc>` on `abcd` → `xzcd`; `R<CR>` on `ab` → `\nab` (vim inserts a line break and deletes nothing) and `R<CR>x<Esc>` → `\nxb`; `Rxy<Esc>j0.`, `qqRxy<Esc>jq0@q` on `abcd\nabcd` → `xycd\nxycd`, `Rxy<Esc>j02.` → `xycd\nxyxy`; `ia<Space>b<lt><Tab>c<Esc>` → `a b<\tc`; `i<C-v>x<Esc>`, `i<PageUp>x<Esc>`, `i<S-Left>x<Esc>` → `x` (no-ops still count: `applied` 4); `"ayiwo<C-r>a<Esc>` on `foo` → `foo\nfoo`; `ihello<C-w>x<Esc>` → `x`; `i<Ins>xy<Esc>` on `abc` → `xyc`; `<C-v>jIZ<Esc>` and `<C-v>jAZ<Esc>` on `ab\ncd` → `Zab\nZcd` / `aZb\ncZd`; `dd` on the last line; `5j` on 3 lines lands on the last; `gjgjx` = `jjx`; on a 25-line doc `Hx`, `Mx`, `Lx`, `3Hx`, `<C-d>x`, `<C-u>x`, `<C-f>x`, `<C-b>x`, `<C-e>x`, `<C-y>x`, `zzx` delete the char on lines 1, 13, 25, 3, 16, 1, 25, 1, 1, 1, 1 respectively (0-based: 0, 12, 24, 2, 15, 0, 24, 0, 0, 0, 0); `o` after `{` in a javascript puzzle inserts an **unindented** line and `A<CR>` too; `V>` in a go puzzle with `indentUnit "\t"` prepends a tab, in a python puzzle with `"    "` four spaces; `==` on a misindented javascript body re-indents (language is engine config); `:g/x/d<CR>` on `x1\ny\nx2` with target `y\nx2` → `solvedAt === null`; `stopAtSolve` stops feeding after the solving key (`applied === solvedAt + 1`), `stopAtSolve: false` feeds all; a run ending in insert mode with a matching buffer locks in; `"+yyjp` pastes the yanked line; `<C-r>+` in insert inserts nothing; a crashing replay (recursive macro, stopped at the depth limit) is followed by the `:%s/foo/X/g` case passing (no poisoning via `createSession`'s reset); runaway recursion inside `:norm @q` stops with the same error and leaves later `:` and `/` prompts working; two consecutive replays: `qaAx<Esc>q` then `@a` in the second does nothing; `verifyRun` with a `parent` mounts there and leaves it empty. Added in review, with docs from real vim: ex commands, insert cursor keys, `<C-o>`, counts and `.` inside macros; `qQ` appends; a recursive macro gives the same doc on every run; `:normal` literal `<…>` and aborting; failing `j`/`k`/`+`/`<C-p>` and counted `r` at the buffer edge; replace-mode cursor keys; `g0`/`g^`; `cc`/`S` noautoindent; insert `<C-w>`/`<C-u>` stopping at the insert start.
 
-**`prompt.test.ts`** — `:s/a/b/<CR>` on `a` → `b`; `:s/a/b/` + `<Esc>` → `a` and the next `x` deletes (prompt closed); `d:<Esc>x` on `ab` → `b` (operator cleared via `clearInputState`); `/zz<BS><BS><BS>` then `x` → cancelled on empty, `x` deletes; `/foo<CR>` then `/<Up><CR>x` finds the second `foo` (history via `onKeyUp`); `:foo<C-u>s/a/b/<CR>` → substitution ran; `:%s/a/b/gc<CR>yn` and `...a` and `...q` on `a a a` → `b a a`? no: `y` replaces 1st, `n` skips 2nd, prompt still open → `b a a` after `q`; `a` → `b b b`; the confirm run is one undo step; `<Tab>`, `<Left>`, `<Home>` inside a prompt leave `value` unchanged and the prompt open; `qa` banner: keys typed while recording still edit (CLAUDE.md trap); `:2,3norm @w<CR>` after `qwA!<Esc>jq` on `x\nx\nx` → `x!\nx!\nx!` (keyToKeyStack virtual prompt path); `:s/[/x<CR>` records an error, `hud.message` non-null, run continues; `:%s/\(foo\) \(bar\)/\2 \1/<CR>` → `bar foo` and `/\<foo\><CR>x` skip `foobar` (nopcre survives reset); `:registers<CR>` then `<CR>` is swallowed (long notification) and the next `x` deletes; `:map a b<CR>` then `a` appends normally and `hud.message` says disabled; `:nn`, `:ino`, `:se nopcre`, `:w`, `:colo` likewise; `:set pcre<CR>` blocked so `\(` still works afterwards.
+**`prompt.test.ts`** — `:s/a/b/<CR>` on `a` → `b`; `:s/a/b/` + `<Esc>` → `a` and the next `x` deletes (prompt closed); `d:<Esc>x` on `ab` → `b` (operator cleared via `clearInputState`); `/zz<BS><BS><BS>` then `x` → cancelled on empty, `x` deletes; `/foo<CR>/<Up>` shows `foo` in the prompt and `/foo<CR>/bar<CR>/<Up><Up><CR>x` searches `foo` again, where a bare `/<CR>` would repeat `bar` (history via `onKeyDown`); `:foo<C-u>s/a/b/<CR>` → substitution ran; `:%s/a/b/gc<CR>yn` and `...a` and `...q` on `a a a` → `b a a`? no: `y` replaces 1st, `n` skips 2nd, prompt still open → `b a a` after `q`; `a` → `b b b`; the confirm run is one undo step; `<Tab>`, `<Left>`, `<Home>` inside a prompt leave `value` unchanged and the prompt open; `qa` banner: keys typed while recording still edit (CLAUDE.md trap); `:2,3norm @w<CR>` after `qwA!<Esc>jq` on `x\nx\nx` → `x!\nx!\nx!`; `:s/[/x<CR>` shows `hud.message === "Invalid regex: ["` with `hud.error === null` (core 0.1.0 catches bad regexes and reports them through `showConfirm`, not by throwing) and the run continues; `:%s/\(foo\) \(bar\)/\2 \1/<CR>` → `bar foo` and `/\<foo\><CR>x` skip `foobar` (nopcre survives reset); `:registers<CR>` then `<CR>` is swallowed (long notification) and the next `x` deletes; `:map a b<CR>` then `a` appends normally and `hud.message` says disabled; `:nn`, `:ino`, `:se nopcre`, `:w`, `:colo` likewise; `:set pcre<CR>` blocked so `\(` still works afterwards; `:s/data/x/g` on `Data data` → `x x` but `:s/Data/x/g` → `x data` (smartcase); `:s/a/[&]/` → `[&]b`, `:s/a/[\0]/` → `[a]b`.
 
-**`undo.test.ts`** — each case run three times: real clock, `setSystemTime` advancing 10 s between keys, `setSystemTime` frozen; docs identical and equal to the literal: `ihello<Esc>u` on `one` → `one`; `xihello<Esc>u` on `one` → `ne`; `cwfoo<Esc>u` on `bar baz` → `bar baz`; `ohey<Esc>u` → start; `ihi<Esc>ohey<Esc>uu` → start; `3ix<Esc>u` → start; `xxu` on `abc` → `bc`; `ddp.u` on `one\ntwo\nthree` → `two\none\nthree`; `ihello<C-w>world<Esc>u` → start; `ia<BS>b<Esc>u` → start; `<C-v>jIZ<Esc>u` → start; `:%s/a/b/g<CR>u` → start; `:g/x/d<CR>u` → start; `qqxjq2@qu` on `ab\ncd\nef` → `b\nd\nef` (only the last macro command undone); `qaA,<Esc>jq@au` on `a\nb` → `a,\nb`; `:g/^/norm Ax<CR>u` → start (ex command is one step); `xu<C-r>` redoes; a `numbers`-style compartment reconfigure and a `forceParsing` empty transaction between `x` and `u` do not break the join or add steps.
+**`undo.test.ts`** — each case run three times: real clock, `setSystemTime` advancing 10 s between keys, `setSystemTime` frozen; docs identical and equal to the literal: `ihello<Esc>u` on `one` → `one`; `xihello<Esc>u` on `one` → `ne`; `cwfoo<Esc>u` on `bar baz` → `bar baz`; `ohey<Esc>u` → start; `ihi<Esc>ohey<Esc>uu` → start; `3ix<Esc>u` → start; `xxu` on `abc` → `bc`; `ddp.u` on `one\ntwo\nthree` → `two\none\nthree`; `ihello<C-w>world<Esc>u` → start; `ia<BS>b<Esc>u` → start; `ifoo<Left>bar<Esc>u` → `foo`, `ifoo<Right>bar<Esc>u` → empty (no move, no split), `ifoo<End>bar<Esc>u` → `foo`; `<C-v>jIZ<Esc>u` → start; `:%s/a/b/g<CR>u` → start; `:g/x/d<CR>u` → start; `qqxjq2@qu` on `ab\ncd\nef` → `b\nd\nef` (only the last macro command undone); `qaA,<Esc>jq@au` on `a\nb` → `a,\nb`; `:g/^/norm Ax<CR>u` → start (ex command is one step); `xu<C-r>` redoes; a `numbers`-style compartment reconfigure and a `forceParsing` empty transaction between `x` and `u` do not break the join or add steps.
 
-**`engineLock.test.ts`** — `lockEngine()` twice is a no-op; `Vim.resetVimGlobalState_()` then `applyEngineOptions()` leaves `getOption("pcre") === false`; blocked ex commands (every name and shortName) leave the doc unchanged and set `message`; `"+yy` with `navigator.clipboard` deleted from the shimmed navigator still works (the register name never becomes `+`); motion overrides give the documented lines (see replay list); `CodeMirror.commands.newlineAndIndent` inserts exactly `"\n"`.
+**`engineLock.test.ts`** — `lockEngine()` twice is a no-op; `Vim.resetVimGlobalState_()` then `applyEngineOptions()` leaves `getOption("pcre") === false`; blocked ex commands (every name and shortName) leave the doc unchanged and set `message`; `"+yy"+p` with `navigator.clipboard` undefined still works; with a spy clipboard, `:y +`, `:pu +`, `:pu! *`, `:g/^d/pu +`, `"+yy`, `"+p` and `<C-r>+` never call it, even after the async tick, and give vim's unnamed-register result; `yyj"+p` and `yyj"*p` paste the unnamed register; motion overrides give the documented lines (see replay list); `CodeMirror.commands.newlineAndIndent` inserts exactly `"\n"`.
 
 **`browserInput.test.ts`** (headless, happy-dom `KeyboardEvent`s dispatched on `view.contentDOM`): with a real `createSession` + `browserInput`: dispatching `x` then `a`,`Z`,`Escape` logs `["x","a","Z","<Esc>"]`, the doc equals `replay()` of the same keys, every event is `defaultPrevented`; `Meta+a`, `Shift` alone, `Dead`, `Process`, `F5` log nothing and are `defaultPrevented`; `accept() === false` swallows `x` (doc unchanged, nothing logged) while `intercept` still receives `<Space>`; `<C-CR>` reaches `intercept` and never `onKey`; a synthetic `paste` event is `defaultPrevented`; `Ctrl+v` in insert mode is logged and leaves the doc unchanged; `devGuard` warns (spy on `console.warn`) when `view.dispatch({changes})` is called from outside `feedKey`. (Native text insertion cannot be exercised headless; stated in the file header.)
 
 **`puzzles.test.ts`** — for every `puzzles/handmade/*.json` (`Bun.Glob`): `parsePuzzle(json, idFromFile)` succeeds; ids unique; `verifyRun(puzzle, puzzle.solution).ok`; `result.doc === target`; `replay(puzzle, []).solved === false`; `par` between 3 and 60.
 
-**`apps/web/src/editor/diff.test.ts`** — `Chunk.build`-based field: for start `a\nb\nc` vs target `a\nX\nc` exactly line 2 has `yw-diff`, `linesOff === 1`; deleting line 2 yields one `yw-diff-missing` on the line at the gap; identical docs → no decorations, `linesOff 0`; inserting a line above re-aligns (lines below are not tinted). **`gutter.test.ts`** — `relativeFormat(5, 5) === "5"`, `relativeFormat(5, 2) === "3"`, `relativeFormat(5, 9) === "4"`.
+**`apps/web/src/editor/diff.test.ts`** — `Chunk.build`-based field: for start `a\nb\nc` vs target `a\nX\nc` exactly line 2 has `yw-diff`, `linesOff === 1`; deleting line 2 yields one `yw-diff-missing` on the line at the gap; identical docs → no decorations, `linesOff 0`; inserting a line above re-aligns (lines below are not tinted); at the end of the buffer an extra line tints only itself and a missing last line marks the line above with `yw-diff-missing-after`, without tinting it; on the target side only the missing last line is pending. **`gutter.test.ts`** — `relativeFormat(5, 5) === "5"`, `relativeFormat(5, 2) === "3"`, `relativeFormat(5, 9) === "4"`.
 
 **Tooling gates** — `bun run check` (tsc engine, svelte-check web, biome, preset grep), `bun test`, `bun run build`. **Manual checklist** (until Playwright, per decisions.md), in `apps/web/README.md`: Chrome/Firefox/Safari on macOS, Chrome on Windows: type each spike case in the real editor, compare the counter and buffer with the DEV self-check badge; Shift+Space inserts a space; AltGr `{` on a DE layout types `{`; dead key `'` on US-International shows the "dead key" hint and inserts nothing; click does not move the cursor; paste/drop/cut do nothing; `<C-CR>` resets; `<C-S-L>` toggles numbers and they follow the cursor; `:` prompt renders in the status line, `<Esc>` cancels, `<Up>` recalls; focus-loss hint appears; HMR works under `bun --bun vite`. Explicitly untested in step 1: real-keyboard behaviour (only fake events), IME/dead keys per OS, HMR.
 
@@ -997,15 +1017,18 @@ Four implementers, disjoint file ownership. The engine's `src/index.ts` export l
 ## 8. Known deviations and deferrals
 
 **From vim (parity-safe, same on both sides):**
-- `o`/`O` and insert-mode `<CR>` insert a plain newline (vim `noautoindent`); `=`, `>>`, `<<` remain language-aware.
-- `/` and `:s` use vim regex syntax (nopcre); `/` is always ignorecase+smartcase (core hard-codes it).
+- `o`/`O`, insert-mode `<CR>`, `cc` and `S` follow vim's `noautoindent`; `=`, `>>`, `<<` remain language-aware.
+- `/` and `:s` use vim regex syntax (nopcre); both are always ignorecase+smartcase (core hard-codes it); `&` in a `:s` replacement is literal, `\0` is the whole match.
 - `"+`/`"*` behave as "no register" (unnamed); `<C-r>+` inserts nothing.
 - `H/M/L/<C-f>/<C-b>/<C-d>/<C-u>/gj/gk` operate on a virtual 30-line window anchored at line 1; `<C-e>/<C-y>/zz/zt/zb/z./z<CR>/z-` do nothing.
 - The command line is append-only: `<Left>/<Right>/<Home>/<End>/<Del>/<Tab>` are counted no-ops; `<Tab>` does not complete or cancel.
 - Shift+Space/Enter/Backspace/Tab/Delete/Escape/Insert are the base keys; F-keys, Meta combos, Dead/Process keys are dropped and prevented (not counted); `<C-v>` and other unbound named keys in insert mode are counted no-ops.
-- `.`/`@q` replay of replace-mode `<BS>` deletes instead of moving left (core behaviour, inherited).
+- Replace-mode `<BS>` moves left without restoring the replaced character, and `.`/`@q` afterwards repeat only what was typed after the last `<BS>` (adapter behaviour, inherited). Without `<BS>`, `R` repeats like vim (3.11).
 - `:map`, `:set`, `:w`, `:colorscheme` families are blocked with a message; `:normal` inside `:g` is one undo step; each command inside `@q` is its own step.
-- Known engine bugs ship unpatched (macro does not abort on a failed motion; recursive macro overflows): patch + upstream PR in step 2 as decided. A crash inside `:normal`/mapping can leave the core's module-private `keyToKeyStack` non-empty for the rest of the process (every later prompt goes virtual); a page needs a reload. Step 2's server must serialise replays and restart its worker on a poisoned engine.
+- Known engine bugs ship unpatched: a macro does not abort on a failed motion (patch + upstream PR in step 2 as decided), so a recursive macro never terminates on its own; it runs until it is nested `MAX_MACRO_DEPTH` (100) deep and then throws, at the same key in every engine (before review it overflowed the stack, at a depth that differs between browsers and runs). A large count (`999@q`) still costs CPU, which step 2's server must bound. Vim state is process-global, so step 2's server must serialise replays.
+- Not like vim, found in review and left as is: visual-line `c` (`Vc`) joins the changed lines with the next one, and the cursor column after `u` can differ (`ddp.ux` on `one\ntwo\nthree`).
+
+**Fixed in the engine (stock adapter/core behaviour, found in review):** macros record and replay keys (ex commands, insert cursor keys and `<C-o>` were dropped and a played `:` prompt stayed open); `:normal` types `<…>` literally and aborts an unfinished command; `j`/`k`/`+`/`-` fail on the last/first line instead of jumping to its end/start; counted `r` fails past the end of the line; `g0`/`g^` are `0`/`^`; replace-mode cursor keys move; insert cursor keys split undo; insert `<C-w>`/`<C-u>` stop once at the insert start.
 
 **From the spike's replayer:** `multiSelectHandleKey` instead of `handleKey` (adapter path; multiselect and notification branches); `vim.status` appended before the call; prompt keys go through the core's own handlers (the spike's `<Esc>` skipped `clearInputState`, leaving `d:` pending; `<BS>` on empty now cancels; `<C-u>`, `<Up>/<Down>`, `onKeyUp` modelled); unknown named keys in insert mode are no-ops, not literal text (the spike inserted `<C-v>` as six characters); `<BS>` is `deleteCharBackwardStrict` + `InsertModeKey` recording; replace mode overwrites; undo is group-id based (the spike relied on `newGroupDelay`); `findPosV` patch and window motions live in the engine for both sides; `<lt>` is the only spelling of `<`; global vim state is reset inside `createSession`, so the client's reset and the server's tail replay are identical; `forceParsing` after each key; ex/register/newline lockdown.
 

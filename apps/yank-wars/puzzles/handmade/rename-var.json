@@ -1,0 +1,16 @@
+{
+  "id": "rename-var",
+  "title": "Rename data",
+  "description": "Rename data to payload everywhere. The metadata key stays as it is.",
+  "language": "typescript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "export function summarize(data: number[], meta: Meta): Summary {\n  const total = data.reduce((sum, n) => sum + n, 0);\n  const mean = data.length > 0 ? total / data.length : 0;\n  return {\n    metadata: meta,\n    stats: { total, mean },\n  };\n}",
+  "target": "export function summarize(payload: number[], meta: Meta): Summary {\n  const total = payload.reduce((sum, n) => sum + n, 0);\n  const mean = payload.length > 0 ? total / payload.length : 0;\n  return {\n    metadata: meta,\n    stats: { total, mean },\n  };\n}",
+  "solution": ":%s/\\<lt>data\\>/payload/g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

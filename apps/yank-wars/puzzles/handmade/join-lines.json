@@ -1,0 +1,16 @@
+{
+  "id": "join-lines",
+  "title": "One line",
+  "description": "Put the vector on one line.",
+  "language": "rust",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "let v = vec![\n    1,\n    2,\n    3,\n];",
+  "target": "let v = vec![1, 2, 3];",
+  "solution": "Jx4JXx",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["join"]
+}

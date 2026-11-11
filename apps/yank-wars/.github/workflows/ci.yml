@@ -1,0 +1,12 @@
+name: ci
+on: { pull_request: {}, push: { branches: [main] } }
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v16
+      - run: nix develop -c bun install --frozen-lockfile
+      - run: nix develop -c bun run check
+      - run: nix develop -c bun test
+      - run: nix develop -c bun run build

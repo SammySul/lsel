@@ -1,0 +1,31 @@
+{
+  "name": "yank-wars",
+  "private": true,
+  "type": "module",
+  "workspaces": {
+    "packages": [
+      "packages/*",
+      "apps/*"
+    ],
+    "catalog": {
+      "@codemirror/commands": "6.11.1",
+      "@codemirror/language": "6.13.1",
+      "@codemirror/search": "6.7.2",
+      "@codemirror/state": "6.7.6",
+      "@codemirror/view": "6.43.15",
+      "@replit/codemirror-vim": "6.4.0",
+      "typescript": "5.9.3"
+    }
+  },
+  "scripts": {
+    "dev": "bun run --filter @yank-wars/web dev",
+    "build": "bun run --filter @yank-wars/web build",
+    "check": "tsc --noEmit -p packages/engine && bun run --filter @yank-wars/web check && biome check . && grep -q '\"preset\": \"recommended\"' biome.json",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "1.4.4",
+    "happy-dom": "21.0.4",
+    "typescript": "catalog:"
+  }
+}

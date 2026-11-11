@@ -1,0 +1,16 @@
+{
+  "id": "indent-body",
+  "title": "Indent the body",
+  "description": "Indent the function body by one tab.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "func greet(name string) string {\nmsg := \"hello, \" + name\nmsg += \"!\"\nreturn msg\n}",
+  "target": "func greet(name string) string {\n\tmsg := \"hello, \" + name\n\tmsg += \"!\"\n\treturn msg\n}",
+  "solution": "j3>>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["indent"]
+}
