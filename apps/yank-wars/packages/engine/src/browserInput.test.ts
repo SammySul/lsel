@@ -158,15 +158,17 @@ describe("blocked DOM events", () => {
 });
 
 describe("devGuard", () => {
-  test("warns on a change from outside feedKey, stays quiet for logged keys", () => {
+  test("a change from outside feedKey is dropped (Firefox's stray DOM selections), logged keys go through", () => {
     const warn = spyOn(console, "warn").mockImplementation(() => {});
     try {
       const r = rig("hello", { devGuard: true });
       r.press("x");
+      expect(r.session.view.state.doc.toString()).toBe("ello");
+      r.session.view.dispatch({ changes: { from: 0, insert: "q" }, selection: { anchor: 3 } });
+      r.session.view.dispatch({ selection: { anchor: 2 }, userEvent: "select" });
+      expect(r.session.view.state.doc.toString()).toBe("ello");
+      expect(r.session.view.state.selection.main.from).toBe(0);
       expect(warn).not.toHaveBeenCalled();
-      r.session.view.dispatch({ changes: { from: 0, insert: "q" } });
-      expect(warn).toHaveBeenCalledTimes(1);
-      expect(warn.mock.calls[0]?.[0]).toBe("[yank-wars] unlogged editor change");
     } finally {
       warn.mockRestore();
     }

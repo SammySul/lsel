@@ -22,7 +22,19 @@ let { puzzle, onNext, onRetry, onList }: Props = $props();
 
 // App keys this component on the puzzle id, so the first puzzle is the only one it ever sees.
 const ctl = untrack(() => new RoundController(puzzle, prefs, now));
-onDestroy(() => ctl.destroy());
+let unprobe: (() => void) | undefined;
+let destroyed = false;
+// A dynamic import inside a DEV branch, so the production bundle drops the probe entirely.
+if (import.meta.env.DEV) {
+  void import("../dev/roundProbe.ts").then((m) => {
+    if (!destroyed) unprobe = m.exposeRound(ctl);
+  });
+}
+onDestroy(() => {
+  destroyed = true;
+  unprobe?.();
+  ctl.destroy();
+});
 </script>
 
 <div class="round">

@@ -73,6 +73,14 @@ describes, fix or delete the note.
 - **Undo steps never depend on wall-clock time.** The client types with
   pauses, the replay runs instantly; a time-grouped `u` diverges.
 
+## Oracle traps
+
+- `*.vim.json` fixtures are written only by `bun run oracle` and
+  `fuzz/answer.ts`, and `oracle/deviations.json` only by `oracle/pin.ts` after
+  deciding a difference stays; never edit them by hand.
+- `bun run oracle` and `bun run test:browser` need the dev shell's vim and
+  browsers: `nix develop -c …` (the system vim answers differently).
+
 ## Nix traps
 
 - **bun2nix 2.1.2 is patched** (`nix/bun2nix-lockfile-v2.patch`, upstream PR
@@ -104,24 +112,32 @@ Found in `spikes/headless-replay/index.ts` and step 1; each needs a test in
   Only prompts pass `onKeyDown`; capturing the banner swallows every later key.
 - Never replay via `:normal` / mappings: keys from a mapping skip macro
   recording and collapse undo, so macros and `u` silently break.
-- `EditorState.allowMultipleSelections` must be on, or visual-block `I`/`A`
-  only edits the first line.
+- `EditorState.allowMultipleSelections` must be on, or the core's block
+  operators (`d`, `r`, `~`, `p`) only edit the first line.
 - Needs DOM globals (happy-dom) even headless; `Window` among them.
   `test/dom.ts` installs them with `??=`, so Bun's own `Event` and `navigator`
   win: build test events with `window.Event`.
 - In key notation vim regex `\<` is `\<lt>`: `/\<foo\>` fails to parse because
   `<foo\>` reads as a key name.
-- **Diverges from vim, unpatched:** a failing motion does not abort a macro
-  (vim stops `3@q` at the last line; the engine keeps going), and a recursive
-  macro (`qa…@aq@a`) runs until `MAX_MACRO_DEPTH` and throws instead of
-  terminating. Golfers rely on both; patch with `bun patch` and upstream it.
+- **The core is patched** (`patches/@replit%2Fcodemirror-vim-core@0.1.0.patch`):
+  the engine's hooks (`Vim.exHook`, `vimRegExp`, `adjustOperatorRange`,
+  `onFailure`, `repeatInsert`) do nothing without it. `bun patch` copies the
+  package to root `node_modules/@replit/`, but the adapter imports the `.bun`
+  store copy, so edits there don't run until `bun patch --commit`.
+- An error thrown through the core's `handleKey` resets the vim state
+  (marks, last edit): macro.ts catches errors inside a macro run.
+- `evalInput` clears `vim.inputState` before calling a motion: read the pending
+  operator from the motion's fifth argument. A keymap entry with
+  `context: "normal"` never matches once an operator is pending.
+- History transactions skip transaction filters (`filter: false`), so undo-step
+  bookkeeping lives in the `u`/`<C-r>` actions (operators.ts), not history.ts.
 - The core's macro recording (`q`, `@`, `isRecording`) and `:normal` are replaced
   in `vimSetup.ts`: it dropped ex commands and insert-mode cursor keys. Keys a
   core command replays run inside its vim operation, which defers change events;
   `createSession`'s `dispatch` detaches `cm.curOp`, or `.` and `3ix<Esc>` break.
-- **Diverges from vim, parity-safe:** `:s` is ignorecase+smartcase like `/`;
-  under nopcre `&` in a replacement is literal (`\0` works); replace-mode `<BS>`
-  moves left without restoring the character. Solutions must not rely on vim
-  there (`puzzles/README.md`).
+- **Differs from vim, parity-safe:** every known case is pinned in
+  `oracle/deviations.json` by group (`oracle/deviations.ts`); replace-mode
+  `<BS>` moves left without restoring the character. Solutions must not rely on
+  vim there (`puzzles/README.md`).
 - `Transaction.time` in the engine is a logical undo-group id, not a clock
   (`history.ts`): never read it as time; `undo.test.ts` guards `u` parity.

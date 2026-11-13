@@ -102,3 +102,17 @@ export function recordInsertKey(name: "Backspace" | "Delete"): void {
     }),
   );
 }
+
+/** The ". register as vim puts it: the core joins its change list, so a recorded <BS> reads "[object Object]". */
+export function syncDotRegister(): void {
+  const ms = Vim.getVimGlobalState_().macroModeState;
+  if (ms.isPlaying) return;
+  let text = "";
+  for (const c of ms.lastInsertModeChanges.changes as unknown[]) {
+    if (typeof c === "string") text += c;
+    else if (Array.isArray(c)) text += String(c[0]);
+    else if ((c as { keyName?: string }).keyName?.includes("Backspace"))
+      text = [...text].slice(0, -1).join("");
+  }
+  Vim.getRegisterController().getRegister(".").setText(text);
+}

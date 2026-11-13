@@ -11,11 +11,16 @@ const PAR: Record<string, number> = {
   "swap-args": 35,
   "sort-imports": 8,
   "join-lines": 6,
-  "comment-block": 9,
+  "comment-block": 10,
   "quote-keys": 15,
   "wrap-in-call": 19,
   "css-comment": 8,
   "indent-body": 4,
+};
+
+// vim's own answers for each reference solution, written by `bun run oracle puzzles`.
+const VIM = (await Bun.file(join(import.meta.dir, "../oracle/cases/puzzles.vim.json")).json()) as {
+  cases: Record<string, { start: string; keys: string; doc: string }>;
 };
 
 const files = [...new Bun.Glob("*.json").scanSync({ cwd: DIR })].sort();
@@ -52,6 +57,12 @@ describe.each(loaded)("$file", ({ id, json }) => {
     expect(result.solvedAt).toBe(puzzle.solution.length - 1);
     expect(score).toBe(puzzle.par);
     expect(ok).toBe(true);
+  });
+
+  test("vim reaches the target with the reference solution", () => {
+    const v = VIM.cases[`puzzle-${id}`];
+    expect({ start: v?.start, keys: v?.keys }).toEqual({ start: json.start, keys: json.solution });
+    expect(v?.doc).toBe(puzzle.target);
   });
 
   test("the start is not already solved", () => {

@@ -51,7 +51,13 @@
               biome
               # regenerates bun.nix from bun.lock (package.json postinstall)
               (bun2nixFor system)
+              # the oracle: `bun run oracle` replays test cases in real vim
+              vim
             ];
+            # `bun run test:browser`; playwright-core in package.json must equal this version
+            PLAYWRIGHT_BROWSERS_PATH = pkgs.playwright-driver.browsers;
+            PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1";
+            PLAYWRIGHT_DRIVER_VERSION = pkgs.playwright-driver.version;
           };
         }
       );

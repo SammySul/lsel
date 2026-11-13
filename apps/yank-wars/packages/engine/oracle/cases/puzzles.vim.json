@@ -1,0 +1,145 @@
+{
+  "vim": "9.2.1164",
+  "cases": {
+    "puzzle-comment-block": {
+      "start": "@cache\ndef load(path):\n    with open(path) as f:\n        text = f.read()\n    rows = text.splitlines()\n    return [r.split(\",\") for r in rows]",
+      "keys": "2jw<C-v>3jI#<Space><Esc>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "@cache\ndef load(path):\n    # with open(path) as f:\n    #     text = f.read()\n    # rows = text.splitlines()\n    # return [r.split(\",\") for r in rows]",
+      "cursor": {
+        "line": 3,
+        "col": 5
+      },
+      "mode": "normal"
+    },
+    "puzzle-css-comment": {
+      "start": ".banner {\n  color: red;\n  margin: 0 auto;\n}",
+      "keys": "O/*<Esc>Go*/",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "/*\n.banner {\n  color: red;\n  margin: 0 auto;\n}\n*/",
+      "cursor": {
+        "line": 6,
+        "col": 3
+      },
+      "mode": "insert"
+    },
+    "puzzle-indent-body": {
+      "start": "func greet(name string) string {\nmsg := \"hello, \" + name\nmsg += \"!\"\nreturn msg\n}",
+      "keys": "j3>>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "\t"
+      },
+      "doc": "func greet(name string) string {\n\tmsg := \"hello, \" + name\n\tmsg += \"!\"\n\treturn msg\n}",
+      "cursor": {
+        "line": 2,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "puzzle-join-lines": {
+      "start": "let v = vec![\n    1,\n    2,\n    3,\n];",
+      "keys": "Jx4JXx",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "let v = vec![1, 2, 3];",
+      "cursor": {
+        "line": 1,
+        "col": 21
+      },
+      "mode": "normal"
+    },
+    "puzzle-quote-keys": {
+      "start": "{\n  id: 7,\n  name: \"ada\",\n  admin: true\n}",
+      "keys": ":%s/\\w\\+/\"\\0\"/<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "{\n  \"id\": 7,\n  \"name\": \"ada\",\n  \"admin\": true\n}",
+      "cursor": {
+        "line": 4,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "puzzle-quote-style": {
+      "start": "const names = ['ada', 'linus', 'grace'];\nconst greet = (n) => `hi ${n}`;\nexport default names.map(greet);",
+      "keys": ":s/'/\"/g<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "const names = [\"ada\", \"linus\", \"grace\"];\nconst greet = (n) => `hi ${n}`;\nexport default names.map(greet);",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-rename-var": {
+      "start": "export function summarize(data: number[], meta: Meta): Summary {\n  const total = data.reduce((sum, n) => sum + n, 0);\n  const mean = data.length > 0 ? total / data.length : 0;\n  return {\n    metadata: meta,\n    stats: { total, mean },\n  };\n}",
+      "keys": ":%s/\\<lt>data\\>/payload/g<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "export function summarize(payload: number[], meta: Meta): Summary {\n  const total = payload.reduce((sum, n) => sum + n, 0);\n  const mean = payload.length > 0 ? total / payload.length : 0;\n  return {\n    metadata: meta,\n    stats: { total, mean },\n  };\n}",
+      "cursor": {
+        "line": 3,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "puzzle-sort-imports": {
+      "start": "package main\n\nimport (\n\t\"strings\"\n\t\"os\"\n\t\"fmt\"\n\t\"errors\"\n)",
+      "keys": ":4,7sor<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "\t"
+      },
+      "doc": "package main\n\nimport (\n\t\"errors\"\n\t\"fmt\"\n\t\"os\"\n\t\"strings\"\n)",
+      "cursor": {
+        "line": 4,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "puzzle-swap-args": {
+      "start": "def area(width, height):\n    return width * height\n\nprint(area(3, 4))\nprint(area(10, 2))\nprint(area(7, 5))",
+      "keys": ":%s/(\\(\\w\\+\\), \\(\\w\\+\\))/(\\2, \\1)/<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "def area(height, width):\n    return width * height\n\nprint(area(4, 3))\nprint(area(2, 10))\nprint(area(5, 7))",
+      "cursor": {
+        "line": 6,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-wrap-in-call": {
+      "start": "count = len(items)\ntotal = sum(prices)\nratio = total / count",
+      "keys": "qaf=wistr(<Esc>A)<Esc>+q2@a",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "count = str(len(items))\ntotal = str(sum(prices))\nratio = str(total / count)",
+      "cursor": {
+        "line": 3,
+        "col": 26
+      },
+      "mode": "normal"
+    }
+  }
+}

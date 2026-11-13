@@ -1,15 +1,22 @@
 import { forceParsing, indentUnit } from "@codemirror/language";
-import { EditorState, type Extension } from "@codemirror/state";
+import { EditorSelection, EditorState, type Extension } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { CodeMirror, getCM, type Pos, Vim, vim } from "@replit/codemirror-vim";
-import { dispatchKey } from "./feedKey.ts";
+import { blockInsertModeChange } from "./blockInsert.ts";
+import { backFromCtrlO, dispatchKey } from "./feedKey.ts";
 import { type UndoClock, undoHistory } from "./history.ts";
-import { insertKeymap } from "./insertKeys.ts";
+import { insertKeymap, syncDotRegister } from "./insertKeys.ts";
+import { insertStarted } from "./insertRepeat.ts";
 import { noteModeChange } from "./insertStart.ts";
 import { languageExtension } from "./languages.ts";
+import { resetMacros } from "./macro.ts";
 import { installPrompt, type PromptState } from "./prompt.ts";
 import type { Puzzle } from "./puzzle.ts";
 import { bindSession } from "./registry.ts";
+import { resetSearch } from "./search.ts";
+import { resetSubstitute } from "./substitute.ts";
+import { changeTracker } from "./track.ts";
+import { resetVimRegexState } from "./vimRegex.ts";
 import { applyEngineOptions, lockEngine, VIRTUAL_WINDOW_LINES } from "./vimSetup.ts";
 
 export interface EditorSession {
@@ -41,6 +48,7 @@ export function engineExtensions(puzzle: Puzzle, clock: UndoClock): Extension[] 
     languageExtension(puzzle.language),
     undoHistory(clock),
     insertKeymap,
+    changeTracker,
     EditorView.contentAttributes.of({
       autocorrect: "off",
       autocapitalize: "off",
@@ -49,15 +57,28 @@ export function engineExtensions(puzzle: Puzzle, clock: UndoClock): Extension[] 
   ];
 }
 
+// On a blank line vim stops on its last character, never past it.
+function startColumn(doc: string): number {
+  const first = doc.split("\n", 1)[0] ?? "";
+  const i = first.search(/[^ \t]/);
+  return i === -1 ? Math.max(0, first.length - 1) : i;
+}
+
 export function createSession(puzzle: Puzzle, opts: SessionOptions): EditorSession {
   lockEngine();
   Vim.resetVimGlobalState_();
+  resetVimRegexState();
+  resetSubstitute();
+  resetSearch();
+  resetMacros();
   applyEngineOptions();
 
   const clock: UndoClock = { group: 0 };
   const view = new EditorView({
     state: EditorState.create({
       doc: puzzle.start,
+      // vim (and VimGolf) opens a file on line 1's first non-blank.
+      selection: EditorSelection.cursor(startColumn(puzzle.start)),
       extensions: [...engineExtensions(puzzle, clock), ...(opts.extraExtensions ?? [])],
     }),
     parent: opts.parent,
@@ -94,6 +115,7 @@ export function createSession(puzzle: Puzzle, opts: SessionOptions): EditorSessi
     lastError: null,
   };
   installPrompt(s);
+  let inInsert = false;
   bindSession(cm, {
     session: s,
     // Replayed keys arrive inside @q's or :normal's vim operation, which defers the change events '.' records (index.js:636-666).
@@ -112,8 +134,24 @@ export function createSession(puzzle: Puzzle, opts: SessionOptions): EditorSessi
   // The core registers this before CM6's listeners (vim.js:320-327), so no CM6 handler can block it.
   const onPaste = cm.state.vim?.onPasteFn;
   if (onPaste) view.contentDOM.removeEventListener("paste", onPaste, false);
+  // Its only other user is the insert-mode keydown listener (vim.js:3121), which records <BS>/<Del> a second time in browsers.
+  const detached = {};
+  cm.getInputField = () => detached as HTMLElement;
 
-  cm.on("vim-mode-change", (e: { mode: string }) => noteModeChange(s, e.mode));
+  cm.on("vim-mode-change", (e: { mode: string }) => {
+    const insert = e.mode === "insert" || e.mode === "replace";
+    const entering = insert && !inInsert;
+    if (inInsert && !insert) {
+      blockInsertModeChange(s, e.mode);
+      syncDotRegister();
+    }
+    inInsert = insert;
+    if (entering) {
+      insertStarted(s);
+      backFromCtrlO(s);
+    }
+    noteModeChange(s, e.mode);
+  });
 
   forceParsing(view, view.state.doc.length, 1e9);
   return s;

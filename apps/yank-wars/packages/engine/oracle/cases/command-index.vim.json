@@ -1,0 +1,859 @@
+{
+  "vim": "9.2.1164",
+  "cases": {
+    "ci-backtick-paren-close": {
+      "start": "One. Two. Three.",
+      "keys": "w`)x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "One. wo. Three.",
+      "cursor": {
+        "line": 1,
+        "col": 6
+      },
+      "mode": "normal"
+    },
+    "ci-backtick-paren-open": {
+      "start": "One. Two. Three.",
+      "keys": "$`(x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "One. Two. hree.",
+      "cursor": {
+        "line": 1,
+        "col": 11
+      },
+      "mode": "normal"
+    },
+    "ci-backtick-para-end": {
+      "start": "a\nb\n\nc",
+      "keys": "`}x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a\nb\n\nc",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-backtick-para-start": {
+      "start": "a\n\nb\nc",
+      "keys": "G`{x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a\n\nb\nc",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-quote-lt": {
+      "start": "ab\ncd\nef",
+      "keys": "lvj<Esc>G'<lt>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "b\ncd\nef",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-backtick-lt": {
+      "start": "abc\ncde\nefg",
+      "keys": "lvjl<Esc>G`<lt>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "ac\ncde\nefg",
+      "cursor": {
+        "line": 1,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "ci-backtick-gt": {
+      "start": "abc\ncde\nefg",
+      "keys": "lvjl<Esc>gg`>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abc\ncd\nefg",
+      "cursor": {
+        "line": 2,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "ci-quote-bracket-close": {
+      "start": "a\nb\nc\nd",
+      "keys": "yjG']x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a\n\nc\nd",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-page-down": {
+      "start": "l1\nl2\nl3\nl4\nl5\nl6\nl7\nl8\nl9\nl10\nl11\nl12\nl13\nl14\nl15\nl16\nl17\nl18\nl19\nl20\nl21\nl22\nl23\nl24\nl25\nl26\nl27\nl28\nl29\nl30\nl31\nl32\nl33\nl34\nl35\nl36\nl37\nl38\nl39\nl40",
+      "keys": "<PageDown>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "l1\nl2\nl3\nl4\nl5\nl6\nl7\nl8\nl9\nl10\nl11\nl12\nl13\nl14\nl15\nl16\nl17\nl18\nl19\nl20\nl21\nl22\nl23\nl24\nl25\nl26\nl27\nl28\n29\nl30\nl31\nl32\nl33\nl34\nl35\nl36\nl37\nl38\nl39\nl40",
+      "cursor": {
+        "line": 29,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-page-up": {
+      "start": "l1\nl2\nl3\nl4\nl5\nl6\nl7\nl8\nl9\nl10\nl11\nl12\nl13\nl14\nl15\nl16\nl17\nl18\nl19\nl20\nl21\nl22\nl23\nl24\nl25\nl26\nl27\nl28\nl29\nl30\nl31\nl32\nl33\nl34\nl35\nl36\nl37\nl38\nl39\nl40",
+      "keys": "G<PageUp>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "l1\nl2\nl3\nl4\nl5\nl6\nl7\nl8\nl9\nl10\nl11\nl12\nl13\nl14\nl15\nl16\nl17\nl18\nl19\nl20\nl21\nl22\nl23\nl24\nl25\nl26\nl27\nl28\nl29\n30\nl31\nl32\nl33\nl34\nl35\nl36\nl37\nl38\nl39\nl40",
+      "cursor": {
+        "line": 30,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-s-down": {
+      "start": "l1\nl2\nl3\nl4\nl5\nl6\nl7\nl8\nl9\nl10\nl11\nl12\nl13\nl14\nl15\nl16\nl17\nl18\nl19\nl20\nl21\nl22\nl23\nl24\nl25\nl26\nl27\nl28\nl29\nl30\nl31\nl32\nl33\nl34\nl35\nl36\nl37\nl38\nl39\nl40",
+      "keys": "<S-Down>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "l1\nl2\nl3\nl4\nl5\nl6\nl7\nl8\nl9\nl10\nl11\nl12\nl13\nl14\nl15\nl16\nl17\nl18\nl19\nl20\nl21\nl22\nl23\nl24\nl25\nl26\nl27\nl28\n29\nl30\nl31\nl32\nl33\nl34\nl35\nl36\nl37\nl38\nl39\nl40",
+      "cursor": {
+        "line": 29,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-s-up": {
+      "start": "l1\nl2\nl3\nl4\nl5\nl6\nl7\nl8\nl9\nl10\nl11\nl12\nl13\nl14\nl15\nl16\nl17\nl18\nl19\nl20\nl21\nl22\nl23\nl24\nl25\nl26\nl27\nl28\nl29\nl30\nl31\nl32\nl33\nl34\nl35\nl36\nl37\nl38\nl39\nl40",
+      "keys": "G<S-Up>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "l1\nl2\nl3\nl4\nl5\nl6\nl7\nl8\nl9\nl10\nl11\nl12\nl13\nl14\nl15\nl16\nl17\nl18\nl19\nl20\nl21\nl22\nl23\nl24\nl25\nl26\nl27\nl28\nl29\n30\nl31\nl32\nl33\nl34\nl35\nl36\nl37\nl38\nl39\nl40",
+      "cursor": {
+        "line": 30,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-c-home": {
+      "start": "ab\ncd\nef",
+      "keys": "G$<C-Home>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "b\ncd\nef",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-c-end": {
+      "start": "ab\ncd\nef",
+      "keys": "<C-End>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "ab\ncd\ne",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-ctrl-j-normal": {
+      "start": "ab\ncd",
+      "keys": "l<C-j>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "ab\nc",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-ctrl-l-normal": {
+      "start": "abc",
+      "keys": "l<C-l>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "ac",
+      "cursor": {
+        "line": 1,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "ci-ctrl-bracket-cancels-operator": {
+      "start": "abc",
+      "keys": "ld<C-[>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "ac",
+      "cursor": {
+        "line": 1,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "ci-g-minus": {
+      "start": "abcd",
+      "keys": "xu$xg-",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "bcd",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-g-minus-twice": {
+      "start": "abcd",
+      "keys": "xu$xg-g-",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abcd",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-g-minus-g-plus": {
+      "start": "abcd",
+      "keys": "xu$xg-g-g+",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "bcd",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-g-home": {
+      "start": "  abc",
+      "keys": "$g<Home>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": " abc",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-g-end": {
+      "start": "abc",
+      "keys": "g<End>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "ab",
+      "cursor": {
+        "line": 1,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "ci-g-up": {
+      "start": "ab\ncd",
+      "keys": "jlg<Up>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a\ncd",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-g-down": {
+      "start": "ab\ncd",
+      "keys": "lg<Down>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "ab\nc",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-ins-normal": {
+      "start": "abc",
+      "keys": "l<Ins>x<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "axbc",
+      "cursor": {
+        "line": 1,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "ci-i-ctrl-bracket": {
+      "start": "abc",
+      "keys": "ix<C-[>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abc",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-i-ctrl-g-j": {
+      "start": "abcdef\nabcdef",
+      "keys": "lllix<C-g>jy<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abcxdef\nabcydef",
+      "cursor": {
+        "line": 2,
+        "col": 4
+      },
+      "mode": "normal"
+    },
+    "ci-i-ctrl-g-k": {
+      "start": "abcdef\nabcdef",
+      "keys": "jlllix<C-g>ky<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abcydef\nabcxdef",
+      "cursor": {
+        "line": 1,
+        "col": 4
+      },
+      "mode": "normal"
+    },
+    "ci-i-ctrl-g-U-undo": {
+      "start": "abc",
+      "keys": "Ax<C-g>U<Left>y<Esc>u",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abc",
+      "cursor": {
+        "line": 1,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "ci-i-ctrl-g-U-dot": {
+      "start": "ab\nab",
+      "keys": "Ax<C-g>U<Left>y<Esc>j.",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abyx\nabyx",
+      "cursor": {
+        "line": 2,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "ci-i-caret-ctrl-d": {
+      "start": "    ab",
+      "keys": "A^<C-d>x<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abx",
+      "cursor": {
+        "line": 1,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "ci-i-c-home": {
+      "start": "a\nb",
+      "keys": "jA<C-Home>x<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "xa\nb",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-i-c-end": {
+      "start": "a\nb",
+      "keys": "i<C-End>x<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a\nbx",
+      "cursor": {
+        "line": 2,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "ci-c-ctrl-bracket": {
+      "start": "abc",
+      "keys": ":s/a/b/<C-[>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "bc",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-c-esc-in-macro-executes": {
+      "start": "a\na",
+      "keys": "qq:s/a/b/<Esc>jq@q",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a\nb",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-c-s-up": {
+      "start": "a\na",
+      "keys": ":s/a/b/<CR>j:<S-Up><CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "b\nb",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-c-page-up": {
+      "start": "a\na",
+      "keys": ":s/a/b/<CR>j:<PageUp><CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "b\nb",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-c-ins-overstrike": {
+      "start": "a",
+      "keys": ":s/a/b/<Left><Left><Ins>c<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "c",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-c-ctrl-j": {
+      "start": "a",
+      "keys": ":s/a/b/<C-j>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "b",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-c-ctrl-m": {
+      "start": "a",
+      "keys": ":s/a/b/<C-m>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "b",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-c-s-up-twice": {
+      "start": "a\na\na",
+      "keys": ":s/a/b/<CR>:s/a/c/<CR>j:<S-Up><S-Up><CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "b\nb\na",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-c-s-up-ignores-prefix": {
+      "start": "a\na",
+      "keys": ":s/a/b/<CR>:%s/x/y/e<CR>j:s<S-Up><CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "b\na",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-c-s-down": {
+      "start": "a\na\na",
+      "keys": ":s/a/b/<CR>:s/a/c/<CR>j:<S-Up><S-Up><S-Down><CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "b\nc\na",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-search-s-up": {
+      "start": "ab ab ab",
+      "keys": "/b<CR>/a<CR>/<S-Up><S-Up><CR>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "ab a ab",
+      "cursor": {
+        "line": 1,
+        "col": 5
+      },
+      "mode": "normal"
+    },
+    "ci-c-ins-twice": {
+      "start": "abc",
+      "keys": ":s/a/x/<Left><Left><Ins>y<Ins>z<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "yzbc",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-i-ctrl-g-esc-consumed": {
+      "start": "abc",
+      "keys": "ix<C-g><Esc>y<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "xyabc",
+      "cursor": {
+        "line": 1,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "ci-i-ctrl-g-down": {
+      "start": "abcdef\nabcdef",
+      "keys": "lllix<C-g><Down>y<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abcxdef\nabcydef",
+      "cursor": {
+        "line": 2,
+        "col": 4
+      },
+      "mode": "normal"
+    },
+    "ci-i-ctrl-g-ctrl-k": {
+      "start": "abcdef\nabcdef",
+      "keys": "jlllix<C-g><C-k>y<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abcydef\nabcxdef",
+      "cursor": {
+        "line": 1,
+        "col": 4
+      },
+      "mode": "normal"
+    },
+    "ci-i-ctrl-g-j-tab": {
+      "start": "\tabc\nabcdefghijk",
+      "keys": "A<C-g>jx<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "\tabc\nabcdexfghijk",
+      "cursor": {
+        "line": 2,
+        "col": 6
+      },
+      "mode": "normal"
+    },
+    "ci-i-ctrl-g-j-last-line": {
+      "start": "ab",
+      "keys": "ix<C-g>jy<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "xyab",
+      "cursor": {
+        "line": 1,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "ci-i-ctrl-g-u-dot": {
+      "start": "ab\nab",
+      "keys": "Ax<C-g>uy<Esc>j.",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abxy\nabxy",
+      "cursor": {
+        "line": 2,
+        "col": 4
+      },
+      "mode": "normal"
+    },
+    "ci-i-ctrl-g-U-right": {
+      "start": "abc",
+      "keys": "ix<C-g>U<Right>y<Esc>u",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abc",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-c-end-count": {
+      "start": "ab\ncd\nef",
+      "keys": "2<C-End>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "ab\nc\nef",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-d-c-end": {
+      "start": "ab\ncd\nef",
+      "keys": "ld<C-End>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-d-c-home": {
+      "start": "ab\ncd\nef",
+      "keys": "jd<C-Home>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "ef",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-g-end-trailing-blank": {
+      "start": "abc  ",
+      "keys": "g<End>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "ab  ",
+      "cursor": {
+        "line": 1,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "ci-s-down-insert": {
+      "start": "abc",
+      "keys": "i<S-Down>x<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "xabc",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-dot-reg-bs": {
+      "start": "abc",
+      "keys": "Axy<BS>z<Esc>0\".P",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "xzabcxz",
+      "cursor": {
+        "line": 1,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "ci-dot-reg-bs-past-start": {
+      "start": "abc",
+      "keys": "A<BS>x<Esc>0\".P",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "xabx",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "ci-dot-reg-del": {
+      "start": "abc",
+      "keys": "0ixy<Del>z<Esc>$\".p",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "xyzbcxyz",
+      "cursor": {
+        "line": 1,
+        "col": 8
+      },
+      "mode": "normal"
+    },
+    "ci-ctrl-r-dot-after-bs": {
+      "start": "ab\ncd",
+      "keys": "Axy<BS>z<Esc>jA<C-r>.<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abxz\ncdxz",
+      "cursor": {
+        "line": 2,
+        "col": 4
+      },
+      "mode": "normal"
+    }
+  }
+}

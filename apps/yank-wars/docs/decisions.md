@@ -67,9 +67,7 @@ Spike result (`spikes/headless-replay/index.ts`, 17/19 cases): motions, text obj
 `.`, undo, `:s`, `:g`, `:sort`, `:norm`, search, visual block and non-recursive
 macros all replay correctly headless under Bun + happy-dom. Failures: macros
 don't abort on a failed motion, and recursive macros overflow the stack. Both
-are real vim-golf techniques, so we patch them (`bun patch`) in step 2, when
-the headless replayer gives the fix a test on both sides, and open the upstream
-PR at the same time. Solo play in step 1 ships with the bugs.
+are fixed in `macro.ts` (see "Engine fidelity" below; pulled into step 1).
 
 **Undo is vim-style and time-independent:** one step per normal-mode command
 or insert session, never a wall-clock window, or `u` diverges between a client
@@ -191,11 +189,11 @@ judge's card over observing codemirror-vim natively.
 
 The deviations from vim behave the same in the browser and in the replay: they cost vim fidelity, never parity.
 
-**The command line is append-only.** Inside `:`/`/`/`?`, `<Left>/<Right>/<Home>/<End>/<Del>/<Tab>` are counted no-ops and `<Tab>` neither completes nor cancels; `<BS>` on an empty prompt cancels, `<Up>/<Down>` recall history, `<C-u>` clears. The virtual prompt only forwards keys to the core's own handlers; a cursor inside the prompt would be emulation. *Revisit* if players miss editing the command line.
+**The command line has a cursor** (superseded 2026-11-11): `<Left>/<Right>/<Home>/<End>/<Del>/<BS>/<C-w>` edit at the cursor, `<C-r>{reg}`, `<C-r><C-w>` and `<C-v>{key}` insert, `<Tab>` is a literal tab in a `:` line (nothing to complete) and nothing in `/`, as in vim 9.2. `<BS>` on an empty prompt cancels, `<Up>/<Down>` recall history, `<C-u>` clears.
 
 **Shift on a named key is the base key; unbound keys still count.** Shift+Space/Enter/Backspace/Tab/Delete/Escape/Insert log as `<Space>`, `<CR>`, … (terminal vim behaviour); `<S-Left>` and friends survive. F-keys, Meta combos and Dead/Process keys are dropped and not counted. `<C-v>`, `<PageUp>`, `<S-Left>` and other keys the core doesn't bind in insert mode count as a key and do nothing (the spike typed `<C-v>` as six characters).
 
-**`/` and `:s` are always ignorecase+smartcase:** the core hard-codes both (`:s` calls `updateSearchQuery(cm, regex, true, true)`) and `:set` is blocked. Under nopcre, `&` in a `:s` replacement is a literal `&`; `\0` is the whole match.
+**`/` and `:s` are always ignorecase+smartcase** (`:set` is blocked; the oracle runs vim with the same options). `&` in a `:s` replacement is the match, as in vim (superseded 2026-11-11: it was literal under the core's nopcre).
 
 **`<C-r>+` inserts nothing**, which follows from the clipboard registers being the unnamed register.
 
@@ -211,7 +209,37 @@ The deviations from vim behave the same in the browser and in the replay: they c
 
 **The engine supersedes the spike's replayer.** `feedKey` takes the adapter's own path (`multiSelectHandleKey` with `vim.status` appended first, not `handleKey`), prompt keys go through the core's handlers (the spike's `<Esc>` skipped `clearInputState` and left `d:` pending), `<BS>` is `deleteCharBackwardStrict` plus explicit `InsertModeKey` recording, replace mode overwrites, and `forceParsing` runs after every key. The spike's shortcuts passed its 19 cases but would have diverged from the browser; the engine's parity suite is now the reference.
 
-**Deferred to step 2** beyond the build order below: the root `postinstall` and `bun.nix` with the first `package.nix`, the Playwright parity suite, and optionally upstreaming `InsertModeKey` recording as a core patch. A recursive macro now stops at 100 levels in milliseconds, but a large count (`999@q`) still runs synchronously; the server must bound it.
+**Deferred to step 2** beyond the build order below: the root `postinstall` and `bun.nix` with the first `package.nix` (which must apply `patches/`), and the upstream PRs for the core patch. A recursive macro stops at its first failing command or at 100 levels, but a large count (`999@q`) still runs synchronously; the server must bound it.
+
+## Engine fidelity: oracle, patches, browser parity (2026-11-11)
+
+**Pulled into step 1 at Sammy's request (2026-11-11):** the Playwright parity suite (`bun run test:browser`, `apps/web/e2e/`) and the engine patches planned for step 2, so nobody has to run the manual browser checklist. Expected values come from vim 9.2.1164 pinned in the dev shell (`bun run oracle` writes `packages/engine/oracle/cases/*.vim.json`, `fuzz/answer.ts` the fuzz fixture); fixtures are never edited by hand.
+
+**Where fixes live, in order of preference:** an engine override (`vimSetup.ts`, `operators.ts`, `textObjects.ts`, `ex.ts`, `substitute.ts`, `search.ts`, `sort.ts`, `vimRegex.ts`, `expr.ts`, `increment.ts`, `insertRepeat.ts`, `macro.ts`), the same code on both sides; else a `bun patch` of `@replit/codemirror-vim-core` (`patches/@replit%2Fcodemirror-vim-core@0.1.0.patch`). Our own ex layer, `:s`, `:sort`, search and regex dialect replace the core's because the core's parsing (ranges, flags, counts, escapes, cursor rules) was wrong in too many places to patch one by one.
+
+**The core patch, hunk by hunk, for upstreaming** (each is a bug fix or a small hook; the hooks are what an upstream API would offer):
+- hooks on `Vim`: `vimRegExp` (nopcre patterns), `exHook` (command lines), `adjustOperatorRange` (exclusive/linewise operator ranges), `onFailure` (a failed motion), `repeatInsert` (`.` of an insert from typed keys); `defineMotion/Action/Operator` return what they replace, so an override can wrap it;
+- `*`/`#` build a vim pattern (`\<word\>`), and a cancelled search keeps the previous pattern instead of re-parsing a JS source;
+- failed `f t ; , %` and symbol motions return null, so an operator does nothing (vim beeps); `a<`/`i<` no longer throw in a unicode-mode `RegExpCursor`;
+- `y` leaves the cursor at the start of what it yanked; a yank is not a change for `.`; charwise `P` and `p` on an empty line end on the last character put; `gp`/`gP` and `<C-o>p` end after the text;
+- a linewise delete through the last line takes the line break before it, and the register holds only the lines;
+- visual `c`/`C`/`S` on lines leave one empty line (was: joined with the next); visual `S` is linewise in every visual mode; a charwise selection ending at a line's end takes the line break; visual-line `~ u U g? p` leave the cursor in column 0.
+
+**Macros abort like vim's typeahead.** Macros live in `macro.ts` and replay through `typeahead()`: a key that fails (a motion returning null via the core's `onFailure` hook, a thrown ex or core error, `J` on the last line, `r` past the end, `<C-a>` with no number) ends the running macro, every enclosing `@` level and the rest of a `3@q` count, as vim flushes typeahead. `:normal` stops only its own keys. Errors are caught inside the macro so they never unwind through the core's `handleKey` (which would reset the vim state). A recursion that never fails still stops at `MAX_MACRO_DEPTH` (vim itself would run forever). A macro run is one undo step (`u` after `3@q` undoes all of it).
+
+**Undo cursor is vim's** (`u_undoredo()`): back where the change began when that position is inside the changed lines, otherwise the first changed line's first non-blank. The undo step's starting cursor is recorded per step in `history.ts`.
+
+**Browser parity fixes.** The core's raw insert-mode keydown listener recorded `<BS>`/`<Del>` a second time in browsers (`cm.getInputField()` now returns a detached object); a typed `<` armed the core's 200 ms insert-keymap timer (bypassed); `browserInput` drops any transaction that does not come from a fed key (Firefox moved the DOM selection after some redraws, WebKit on right-click); `:sort` is stable in every JS engine; Ctrl+Shift+2 is `<C-@>` (Shift is part of a symbol).
+
+### Engine deviations from vim
+
+Every case of the oracle and fuzz corpora that still differs from vim is pinned in `packages/engine/oracle/deviations.json` (written only by `oracle/pin.ts`, after deciding the difference stays) under a group of `oracle/deviations.ts`; the suite fails if a pinned case changes or starts matching vim. 758 pinned (212 corpus, 546 fuzz) at the end of step 1, down from 2570 failing cases when the oracle first ran; 769 (223 corpus, 546 fuzz) after the verification pass added the `command-index` and `puzzles` categories (keys from `:help index` no case typed, and each handmade puzzle's reference solution); 686 (183 corpus, 503 fuzz) after the visual-block fix added the `visual-block` category.
+
+*Accepted:* `virtual-window` (fixed 30-line window for `<C-d>`/`<C-f>`/`H`/`L`, step1-spec §8), `replace-bs` (replace-mode `<BS>` does not restore), `insert-keys` (completion `<C-n>/<C-p>/<C-x>`, digraphs `<C-k>`, literal `<C-v>`), `expression` (`\=` knows only `expr.ts`'s subset: numbers, strings, arithmetic, `.`, comparisons, `?:`, `submatch line col printf toupper tolower repeat len str2nr`).
+
+*Bugs, not fixed in step 1* (most likely for golfers first): `visual-block` (block `p`/`P`, `r` repeated by `.`, `gv` after a block, a count on a blockwise `P`), `curswant` (`$` then `v`/`<C-v>` loses the end-of-line column), `visual` (`.` after a multi-line visual op, `A` in `v`/`V`, `p`/`P` over a selection, `3V`), `text-objects` (word/paragraph objects on blank lines and counts past the end, brackets inside quotes), `sentence`, `registers` (`"1` shifting for `d%`/`d/`/`"xdd`, `"1p.`, `"A` appends, a count before `"x`, `".`), `marks` (vim marks keep their column and die with their line; `` `[ `] `^ `. `` `` `( `) `{ `} ``, jump list), `dot-repeat`, `macro` (`@` of a linewise register runs its line break in vim; `<Esc>` on a command line replayed by `@` runs it in vim, the engine cancels it), `insert-ctrl` (`<C-a> <C-@> <C-r><C-r>`, `^<C-d>`, `<C-d>`/`<C-t>` rounding, insert `<Up>/<Down>` curswant), `replace-mode`, `gi-gv`, `forced-motion` (`dvj`, `dVl`), `line-undo` (`U`), `undo-tree` (`g-`/`g+`), `percent` (quotes, `/* */`, `#if`), `cursor` (buffer right, cursor elsewhere), `other` (`gN` from inside a match: `/foo<CR>$gNd`; `cw` on an empty line joins; `2D.`). `fuzz-unreduced`: 546 generated cases nobody has shrunk to a root cause yet; shrinking them all against vim takes hours (`fuzz/run.ts --ids`), so they are pinned as a group, not judged one by one. Finding each one's first diverging key prefix against vim takes about 10 minutes for all 546 (most often `p`/`P`, `<Esc>` after an insert, `.`, `s` of `is`/`as`, `gi`, `<CR>`, `u`), but a key prefix does not name a cause reliably enough to regroup them.
+
+Visual-block `I`, `A`, `c`, `s`, `C`, `D`, `X` and `Y` follow vim since 2026-11-12 (`engine/src/blockInsert.ts`, cases in `oracle/cases/visual-block.ts`): an insert types on the first line only and is copied to the other lines at `<Esc>` or `<C-o>`, skipping lines too short for `I`/`c` and padding them for `A`. The `comment-block` puzzle's solution therefore gained its `<Esc>`, and its par went from 9 to 10.
 
 ## Project
 
@@ -226,7 +254,7 @@ projects, keeps the upstream engine PR and puzzle-source credits simple.
    lock-in, study window; ~10 handmade puzzles
 2. Server: rooms via invite link, grace timer, round cap, reconnect, headless
    replay with mismatch logging, Better Auth anonymous sessions on `bun:sqlite`,
-   engine patches + upstream PR, NixOS module on `twelve` as `yankwars.app`
+   upstream PRs for the core patch, NixOS module on `twelve` as `yankwars.app`
 3. Generator + daily puzzle page (Action vs systemd timer decided here)
 4. Matchmaking queue with daily/solo fallback
 5. Only if people rematch: GitHub login + linking, ratings (Glicko-2 /

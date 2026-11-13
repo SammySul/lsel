@@ -7,9 +7,17 @@ import {
   Vim,
   type vimKey,
 } from "@replit/codemirror-vim";
+import { installBlockInsert } from "./blockInsert.ts";
+import { executeEx, exHook } from "./ex.ts";
+import { installIncrement } from "./increment.ts";
+import { repeatInsert } from "./insertRepeat.ts";
 import { deleteBackInInsert } from "./insertStart.ts";
-import { playRegister, runNormal, startRecording } from "./macro.ts";
+import { chAtVcol, cursorVcol, replaceMotion } from "./lines.ts";
+import { endMacroRun, macroAborted, noteFailure, playRegister, startRecording } from "./macro.ts";
+import { installOperators } from "./operators.ts";
 import { boundTo } from "./registry.ts";
+import { installSearch } from "./search.ts";
+import { vimRegExp } from "./vimRegex.ts";
 
 export const VIRTUAL_WINDOW_LINES = 30;
 
@@ -82,6 +90,9 @@ const isClipboard = (name: string | null | undefined) => name === "+" || name ==
 
 let locked = false;
 
+const coreRegExp = (pattern: string, ignoreCase: boolean, smartCase: boolean) =>
+  vimRegExp(pattern, "m", ignoreCase, smartCase);
+
 export function lockEngine(): void {
   if (locked) return;
   locked = true;
@@ -91,6 +102,8 @@ export function lockEngine(): void {
   Vim.defineEx("write", "w", blocked("lock-in is automatic"));
   Vim.mapclear();
   Vim.suppressErrorLogging = true;
+  // Our patch of the core (patches/): every nopcre pattern goes through vim's dialect, not translateRegex.
+  (Vim as unknown as { vimRegExp: typeof coreRegExp }).vimRegExp = coreRegExp;
   CodeMirror.commands.newlineAndIndent = (cm) => cm.replaceSelection("\n");
 
   // The clipboard's only call sites (vim.js:1515, 3253), so "+p, :pu +, :y + and :g/x/pu + never reach it.
@@ -121,29 +134,45 @@ export function lockEngine(): void {
     return lineStart(cm, head.line + (args.forward ? n : -n));
   });
   // Port of vim.js:2398-2441 without pixel goals that fails like vim on the first/last line (dj there deletes nothing).
+  // lastHPos is vim's curswant, a screen column, so j and k keep the column across tabs.
   Vim.defineMotion("moveByLines", function (this: Motions, cm, head, args, vim) {
-    let ch = head.ch;
+    const ts = boundTo(cm)?.session.puzzle.tabSize ?? 8;
+    let vcol = cursorVcol(cm.getLine(head.line), head.ch, ts);
     switch (vim.lastMotion) {
       case this.moveByLines:
       case this.moveByDisplayLines:
       case this.moveByScroll:
       case this.moveToColumn:
       case this.moveToEol:
-        ch = vim.lastHPos;
+        vcol = vim.lastHPos;
         break;
       default:
-        vim.lastHPos = ch;
+        vim.lastHPos = vcol;
     }
     const repeat = args.repeat + (args.repeatOffset ?? 0);
     const want = args.forward ? head.line + repeat : head.line - repeat;
     const last = cm.lastLine();
     if ((want < 0 && head.line === 0) || (want > last && head.line === last)) return null;
     const line = Math.max(0, Math.min(last, want));
+    // A block after $ stays ragged-right through j and k (the core keeps head.ch Infinity, vim.js:2095).
+    if (vcol === Number.POSITIVE_INFINITY && vim.visualBlock && !args.toFirstChar)
+      return new CodeMirror.Pos(line, Number.POSITIVE_INFINITY);
+    let ch = chAtVcol(cm.getLine(line), vcol, ts);
     if (args.toFirstChar) {
       ch = firstNonBlank(cm, line);
-      vim.lastHPos = ch;
+      vim.lastHPos = cursorVcol(cm.getLine(line), ch, ts);
     }
     return new CodeMirror.Pos(line, ch);
+  });
+  // | goes to a screen column.
+  Vim.defineMotion("moveToColumn", (cm, head, args, vim) => {
+    const ts = boundTo(cm)?.session.puzzle.tabSize ?? 8;
+    vim.lastHPos = args.repeat - 1;
+    const text = cm.getLine(head.line);
+    return new CodeMirror.Pos(
+      head.line,
+      Math.min(chAtVcol(text, args.repeat - 1, ts), Math.max(0, text.length - 1)),
+    );
   });
   Vim.defineMotion("moveByScroll", function (this: Motions, cm, head, args, vim, inputState) {
     // No count arrives as 0 (vim.js:2028-2042).
@@ -160,7 +189,10 @@ export function lockEngine(): void {
   // vim fails when the count runs past the end of the line: 5rx on abc changes nothing.
   Vim.defineAction("countedReplace", function (this: Actions, cm, args, vim) {
     const cur = cm.getCursor();
-    if (!vim.visualMode && cur.ch + args.repeat > cm.getLine(cur.line).length) return;
+    if (!vim.visualMode && cur.ch + args.repeat > cm.getLine(cur.line).length) {
+      noteFailure();
+      return;
+    }
     this.replace(cm, args, vim);
   });
   Vim.mapCommand("r<character>", "action", "countedReplace", undefined, { isEdit: true });
@@ -206,30 +238,23 @@ export function lockEngine(): void {
     let name = args.selectedCharacter ?? "";
     if (name === "@") name = ms.latestRegister ?? "";
     else ms.latestRegister = name;
-    for (let i = 0; i < (args.repeat || 1); i++) playRegister(b, name);
+    for (let i = 0; i < (args.repeat || 1) && !macroAborted(); i++) playRegister(b, name);
+    endMacroRun();
   });
-  // :normal types its argument literally (`:norm A<CR>` appends four characters), as in vim.
-  Vim.defineEx("normal", "norm", (cm, params) => {
-    const b = boundTo(cm);
-    if (b === undefined) return;
-    let text = params.argString ?? "";
-    if (text.startsWith("!")) text = text.slice(1);
-    text = text.trimStart();
-    if (!text) {
-      notify(cm, "Argument is required.");
-      return;
-    }
-    if (typeof params.line !== "number") {
-      runNormal(b, text);
-      return;
-    }
-    const end =
-      params.lineEnd === undefined || Number.isNaN(params.lineEnd) ? params.line : params.lineEnd;
-    for (let line = params.line; line <= end; line++) {
-      cm.setCursor(line, 0);
-      runNormal(b, text);
-    }
+  // Our patch of the core: command lines go to ex.ts first; what it does not know, the core runs.
+  (Vim as unknown as { exHook: typeof exHook }).exHook = exHook;
+  installSearch(replaceMotion);
+  installOperators();
+  installIncrement();
+  installBlockInsert();
+  (Vim as unknown as { onFailure: () => void }).onFailure = noteFailure;
+  (Vim as unknown as { repeatInsert: typeof repeatInsert }).repeatInsert = repeatInsert;
+  // & is :s (no flags) and g& is :%s//~/& (:help &, g&).
+  Vim.defineAction("repeatSubstitute", (cm, args) => {
+    executeEx(cm, (args as { global?: boolean }).global ? "%s//~/&" : "s");
   });
+  Vim.mapCommand("&", "action", "repeatSubstitute", {}, { isEdit: true });
+  Vim.mapCommand("g&", "action", "repeatSubstitute", { global: true } as never, { isEdit: true });
 }
 
 export function applyEngineOptions(): void {

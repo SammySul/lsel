@@ -13,6 +13,23 @@ interface Recording {
 
 const recordings = new WeakMap<EditorSession, Recording>();
 let depth = 0;
+// vim flushes typeahead when a command fails or errors: the running macros (and :normal) stop there.
+let failed = false;
+let aborted = false;
+
+export function inMacro(): boolean {
+  return depth > 0;
+}
+
+export function noteFailure(): void {
+  failed = true;
+}
+
+export function resetMacros(): void {
+  failed = false;
+  aborted = false;
+  depth = 0;
+}
 
 export function recordingOf(s: EditorSession): Recording | undefined {
   return recordings.get(s);
@@ -52,8 +69,19 @@ const LITERAL_KEY: Readonly<Record<string, string>> = {
   "\t": "<Tab>",
 };
 
+// Control characters (a <C-v><Esc> typed into :normal) run as their keys.
+const CONTROL_KEY: Readonly<Record<string, string>> = {
+  "\r": "<CR>",
+  "\u001b": "<Esc>",
+  "\b": "<BS>",
+};
+
 export function charKey(c: string): VimKey | undefined {
-  const k = LITERAL_KEY[c] ?? c;
+  let k = LITERAL_KEY[c] ?? CONTROL_KEY[c] ?? c;
+  const code = c.charCodeAt(0);
+  if (k === c && c.length === 1 && code >= 1 && code <= 26 && c !== "\n") {
+    k = `<C-${String.fromCharCode(code + 96)}>`;
+  }
   return isVimKey(k) ? k : undefined;
 }
 
@@ -99,18 +127,58 @@ export function runEx(b: BoundSession, input: string): void {
   }
 }
 
+/** One key of a macro or :normal; false once it failed, which ends them. */
+function typeahead(b: BoundSession, key: VimKey): boolean {
+  failed = false;
+  try {
+    b.dispatch(key);
+  } catch (e) {
+    // Thrown through the core's handleKey it would reset the vim state (vim.js:1050-1060); keep it here.
+    b.session.lastError = e instanceof Error ? e.message : String(e);
+    failed = true;
+  }
+  if (failed) aborted = true;
+  failed = false;
+  return !aborted;
+}
+
 // Like vim's typeahead: the register's keys go through the same path as typed keys.
 export function playRegister(b: BoundSession, name: string): void {
   const reg = Vim.getRegisterController().getRegister(name);
-  nested(() => {
-    if (name === ":") {
-      const input = reg.keyBuffer[0];
-      if (input) runEx(b, input);
-      return;
+  const outer = depth === 0;
+  try {
+    nested(() => {
+      if (name === ":") {
+        const input = reg.keyBuffer[0];
+        if (!input) return;
+        try {
+          runEx(b, input);
+        } catch (e) {
+          b.session.lastError = e instanceof Error ? e.message : String(e);
+          aborted = true;
+        }
+        return;
+      }
+      const keys = reg.keyBuffer.flatMap(registerKeys);
+      for (const k of keys) if (!typeahead(b, k)) break;
+    });
+  } catch (e) {
+    b.session.lastError = e instanceof Error ? e.message : String(e);
+    aborted = true;
+  } finally {
+    if (outer) {
+      if (aborted) failed = false;
     }
-    const keys = reg.keyBuffer.flatMap(registerKeys);
-    for (const k of keys) b.dispatch(k);
-  });
+  }
+}
+
+/** True when the macro run that just ended stopped early; an outer @ loop ends with it. */
+export function macroAborted(): boolean {
+  return aborted;
+}
+
+export function endMacroRun(): void {
+  if (depth === 0) aborted = false;
 }
 
 function hasPendingInput(vim: vimState): boolean {
@@ -120,10 +188,13 @@ function hasPendingInput(vim: vimState): boolean {
 // :help :normal: an unfinished command is aborted as if <Esc> was typed.
 export function runNormal(b: BoundSession, text: string): void {
   const s = b.session;
+  const was = aborted;
+  aborted = false;
   for (const c of text) {
     const k = charKey(c);
-    if (k !== undefined) b.dispatch(k);
+    if (k !== undefined && !typeahead(b, k)) break;
   }
+  aborted = was;
   const vim = s.cm.state.vim;
   if (s.prompt !== null || vim?.insertMode || (vim && hasPendingInput(vim)))
     b.dispatch("<Esc>" as VimKey);

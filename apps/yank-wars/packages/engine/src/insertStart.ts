@@ -56,6 +56,12 @@ export function captureInsertStart(s: EditorSession): void {
   st.changed = false;
 }
 
+/** Where the current insert started (0-based line and ch), for i_CTRL-G j/k. */
+export function insertStartOf(s: EditorSession): { line: number; ch: number } | undefined {
+  const at = of(s).starts[0];
+  return at && { line: at.line - 1, ch: at.ch };
+}
+
 export function noteArrow(s: EditorSession): void {
   of(s).arrowUsed = true;
 }

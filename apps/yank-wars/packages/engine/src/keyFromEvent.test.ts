@@ -26,6 +26,8 @@ describe("keyFromEvent", () => {
     ["Shift+a", "A", { shiftKey: true }, "A"],
     ["Ctrl+a", "a", { ctrlKey: true }, "<C-a>"],
     ["Ctrl+Shift+a", "A", { ctrlKey: true, shiftKey: true }, "<C-S-A>"],
+    ["Ctrl+Shift+2 (US)", "@", { ctrlKey: true, shiftKey: true }, "<C-@>"],
+    ["Ctrl+Shift+6 (US)", "^", { ctrlKey: true, shiftKey: true }, "<C-^>"],
     ["space", " ", {}, "<Space>"],
     ["Shift+Space", " ", { shiftKey: true }, "<Space>"],
     ["Shift+Enter", "Enter", { shiftKey: true }, "<CR>"],
@@ -207,7 +209,12 @@ describe("agreement with Vim.vimKeyFromEvent", () => {
     const core = Vim.vimKeyFromEvent(e as unknown as KeyboardEvent);
     const ours: string | undefined = keyFromEvent(e, "other");
     const normalised = NORMALISED[id];
-    if (normalised === undefined) {
+    // Shift is part of a symbol, as in vim (Ctrl+Shift+2 is <C-@>); the core keeps an S- that vim never sees.
+    const symbol = key.length === 1 && key.toLowerCase() === key.toUpperCase();
+    if (normalised === undefined && symbol && mods === MODS["ctrl+shift"]) {
+      expect(core).toBe(`<C-S-${key}>`);
+      expect(ours).toBe(`<C-${key}>`);
+    } else if (normalised === undefined) {
       expect(ours).toBe(core);
     } else {
       expect(core).toBe(normalised[0]);

@@ -68,7 +68,9 @@ export function keyFromEvent(e: KeyEventLike, platform: Platform): VimKey | unde
   if (printable && ctrl && alt) ctrl = alt = false;
   if (printable && alt && !ctrl && platform === "mac") alt = false;
   let prefix = (ctrl ? "C-" : "") + (alt ? "A-" : "");
-  const shiftIsBase = prefix === "" && SHIFT_IS_BASE.has(key);
+  // Shift is already in a symbol (Ctrl+Shift+2 is <C-@>); letters keep it for the app's <C-S-L>.
+  const shiftInKey = printable && key.toLowerCase() === key.toUpperCase();
+  const shiftIsBase = (prefix === "" && SHIFT_IS_BASE.has(key)) || shiftInKey;
   if ((prefix !== "" || !printable) && e.shiftKey && !shiftIsBase) prefix += "S-";
 
   const out = printable && prefix === "" ? (key === "<" ? "<lt>" : key) : `<${prefix}${key}>`;

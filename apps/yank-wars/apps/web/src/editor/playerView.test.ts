@@ -85,6 +85,30 @@ test("keydowns go through the engine, are reported, and the buffer locks in", ()
   expect(linesOffOf(state())).toBe(0);
 });
 
+// vim with noautoindent and expandtab: no bracket, quote or indent helper adds a character.
+test("typed brackets, quotes, <CR>, <Tab> and } insert exactly themselves", () => {
+  const h = mount();
+  const keys = ["A", "(", "[", "{", '"', "'", "`", "<", "Enter", "Tab", "}", "Escape"];
+  for (const k of keys) press(h, k);
+  expect(h.player.session.view.state.doc.toString()).toBe(
+    "const a = 1;([{\"'`<\n  }\nconst b = 2;",
+  );
+  expect(h.keys).toEqual([
+    "A",
+    "(",
+    "[",
+    "{",
+    '"',
+    "'",
+    "`",
+    "<lt>",
+    "<CR>",
+    "<Tab>",
+    "}",
+    "<Esc>",
+  ]);
+});
+
 test("the player pane tints the line that still differs from the target", () => {
   const h = mount();
   const tinted = [...h.host.querySelectorAll(".cm-line.yw-diff")].map((el) => el.textContent);

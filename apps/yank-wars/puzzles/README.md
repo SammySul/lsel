@@ -65,28 +65,17 @@ and in replay.
   `<<` still follow the puzzle's language and `indentUnit`.
 - `/` **and `:s`** use vim regex syntax (`\(` `\)` `\+` `\<` `\>` `\{n\}`), and
   both always use ignorecase+smartcase: `:s/data/x/` also matches `Data`.
-- In a `:s` replacement, `&` is a literal `&`. Write `\0` for the whole match.
-- `:map`, `:set`, `:w` and `:colorscheme` are blocked. `:m`, `:t`, `:e`, `:r`
-  and `:!` don't exist.
+- `:map`, `:set`, `:w` and `:colorscheme` are blocked. `:e`, `:r` and `:!`
+  don't exist.
 - `"+` and `"*` act as the unnamed register.
 - `H`, `M`, `L`, `<C-d>`, `<C-u>`, `<C-f>` and `<C-b>` work on a virtual
-  30-line window anchored at line 1. `<C-e>`, `<C-y>`, `zz`, `zt` and `zb` do
-  nothing.
-- The command line is append-only: `<Left>`, `<Right>` and `<Tab>` are counted
-  no-ops.
+  30-line window anchored at line 1. `zz`, `zt` and `zb` do nothing.
 - In replace mode (`R`), `<BS>` moves left without restoring the replaced
   character, and a later `.` or `@q` repeats only what was typed after the last
   `<BS>`. `R` without `<BS>` repeats like vim.
-- Two engine bugs are unpatched, so a solution must not rely on either:
-  1. A failing motion does not abort a macro. Real vim stops; the engine carries
-     on with the next key.
-  2. A recursive macro never stops on its own: it runs until it is nested 100
-     deep, then errors.
-
-  A macro that ends with `j` after `A` leaves the cursor at the end of the next
-  line. A following `f=` then fails, which aborts in vim but wraps onto the
-  wrong line in the engine. End such macros with `+` or `0` so every iteration
-  starts at a known column.
+- Everything else known to differ from vim (block pastes, sentence objects,
+  marks, numbered registers, ...) is listed by group in `docs/decisions.md`
+  ("Engine deviations from vim"); a solution must not rely on vim there.
 
 ## Proving a puzzle
 

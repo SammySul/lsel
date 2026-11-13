@@ -3,6 +3,7 @@ import {
   createRound,
   currentRun,
   detectPlatform,
+  type EditorSession,
   elapsedMs,
   formatKeys,
   type HudState,
@@ -97,6 +98,7 @@ export class RoundController {
   mount(playerHost: HTMLElement, targetHost: HTMLElement): void {
     this.unmount();
     this.#playerHost = playerHost;
+    playerHost.addEventListener("compositionstart", this.#onComposition);
     this.#target = createTargetView(targetHost, this.puzzle);
     this.#startPlayer();
     if (!isOver(this.phase)) this.#raf = requestAnimationFrame(this.#frame);
@@ -110,6 +112,7 @@ export class RoundController {
     this.#player = null;
     this.#target?.destroy();
     this.#target = null;
+    this.#playerHost?.removeEventListener("compositionstart", this.#onComposition);
     this.#playerHost = null;
   }
 
@@ -140,6 +143,10 @@ export class RoundController {
 
   focus(): void {
     this.#player?.focus();
+  }
+
+  get session(): EditorSession | null {
+    return this.#player?.session ?? null;
   }
 
   destroy(): void {
@@ -198,6 +205,11 @@ export class RoundController {
     if (this.#player !== null) this.snap = sessionSnapshot(this.#player.session);
     this.blocked = null;
   }
+
+  // An IME may compose without any keydown the key capture could flag (Chromium's CDP does).
+  #onComposition = (): void => {
+    if (!isOver(this.phase)) this.blocked = "ime";
+  };
 
   #onDoc(doc: Text): void {
     if (this.#player !== null) this.linesOff = linesOffOf(this.#player.session.view.state);

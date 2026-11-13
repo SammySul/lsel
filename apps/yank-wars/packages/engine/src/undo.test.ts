@@ -89,7 +89,8 @@ describe("undo steps are a function of the key log", () => {
     ["ab\ncd", "<C-v>jIZ<Esc>u", "ab\ncd"],
     ["a a\na", ":%s/a/b/g<CR>u", "a a\na"],
     ["x1\ny\nx2", ":g/x/d<CR>u", "x1\ny\nx2"],
-    ["ab\ncd\nef", "qqxjq2@qu", "b\nd\nef"],
+    // vim: u undoes a whole macro run, here 2@q (which stops at the failing j).
+    ["ab\ncd\nef", "qqxjq2@qu", "b\ncd\nef"],
     ["a\nb", "qaA,<Esc>jq@au", "a,\nb"],
     ["a\nb", ":g/^/norm Ax<CR>u", "a\nb"],
     ["abc", "xu<C-r>", "bc"],
@@ -109,7 +110,7 @@ describe("undo steps are a function of the key log", () => {
     for (const clock of CLOCKS) {
       expect(undoRun("one", "ihi<Esc>ohey<Esc>u", clock)).toBe("hione");
       expect(undoRun("abc", "xxxuu", clock)).toBe("bc");
-      expect(undoRun("ab\ncd\nef", "qqxjq2@quu", clock)).toBe("b\ncd\nef");
+      expect(undoRun("ab\ncd\nef", "qqxjq2@quu", clock)).toBe("ab\ncd\nef");
     }
   });
 });

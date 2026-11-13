@@ -84,16 +84,19 @@ describe("ex and search prompts", () => {
     expect(run("a", ":foo<C-u>s/a/b/<CR>").doc).toBe("b");
   });
 
-  test("<Tab>, <Left>, <Home> are no-ops that keep the prompt open", () => {
+  test("the command line has a cursor: <Left> and <Home> move it, <Tab> is inserted in a : line", () => {
     const s = session("a");
-    expect(s.feed(":ab<Tab><Left><Home>").prompt).toEqual({ prefix: ":", value: "ab" });
+    expect(s.feed(":ab<Tab><Left><Home>").prompt).toEqual({ prefix: ":", value: "ab\t" });
+    expect(s.feed("X<End>Y").prompt).toEqual({ prefix: ":", value: "Xab\tY" });
+    // vim: :s/b/X<Left><Left>Y<CR> on abc substitutes with XY... typed at the cursor.
+    expect(run("abc", ":s/b/X<Left><Left>Y<CR>").doc).toBe("abc");
+    expect(run("abc", ":s/b/XY<Left><Del><CR>").doc).toBe("aXc");
   });
 
-  test("a bad regex reports a message and the run continues", () => {
+  test("an unclosed [ is literal and takes the rest as the pattern (vim's skip_regexp)", () => {
     const s = session("a[b");
     const hud = s.feed(":s/[/x<CR>");
-    expect(hud.message).toBe("Invalid regex: [");
-    expect(hud.error).toBeNull();
+    expect(hud.error).toBe("E486: Pattern not found: [/x");
     expect(s.doc()).toBe("a[b");
     s.feed("x");
     expect(s.doc()).toBe("[b");
@@ -151,8 +154,9 @@ describe("engine options survive the per-session reset", () => {
     expect(run("Data data", ":s/Data/x/g<CR>").doc).toBe("x data");
   });
 
-  test("& in a replacement is literal under nopcre; \\0 is the whole match", () => {
-    expect(run("ab", ":s/a/[&]/<CR>").doc).toBe("[&]b");
+  test("& and \\0 in a replacement are the whole match, \\& a literal &", () => {
+    expect(run("ab", ":s/a/[&]/<CR>").doc).toBe("[a]b");
+    expect(run("ab", ":s/a/[\\&]/<CR>").doc).toBe("[&]b");
     expect(run("ab", ":s/a/[\\0]/<CR>").doc).toBe("[a]b");
   });
 

@@ -63,11 +63,11 @@ describe("spike cases", () => {
     });
   }
 
-  // Known engine bugs, unpatched in step 1 (docs/decisions.md, "Engine": patched in step 2).
-  test.failing("jqqddjq3@q stops at the failing j (macro does not abort on a failed motion)", () => {
+  // vim ends a macro run at the first failing command (macro.ts).
+  test("jqqddjq3@q stops at the failing j", () => {
     expect(run("1\n2\n3\n4\n5", "jqqddjq3@q").doc).toBe("1\n3\n5");
   });
-  test.failing("recursive macro terminates (runs to the depth limit instead)", () => {
+  test("a recursive macro terminates at the failing j", () => {
     const r = run("a\nb\nc", "qaqqaA,<Esc>j@aq@a");
     expect(r.errors).toEqual([]);
     expect(r.doc).toBe("a,\nb,\nc,");
@@ -114,9 +114,9 @@ describe("insert mode", () => {
     expect(run("abcd\nabcd", "Rxyz<Esc>u").doc).toBe("abcd\nabcd");
   });
 
-  test("literal table: <Space>, <lt>, <Tab>", () => {
-    const r = run("", "ia<Space>b<lt><Tab>c<Esc>", "a b<\tc");
-    expect(r.doc).toBe("a b<\tc");
+  test("literal table: <Space>, <lt>, <Tab> ('expandtab': spaces to the next tabstop)", () => {
+    const r = run("", "ia<Space>b<lt><Tab>c<Esc>", "a b<    c");
+    expect(r.doc).toBe("a b<    c");
     expect(r.solvedAt).toBe(6);
   });
 
@@ -147,13 +147,16 @@ describe("insert mode", () => {
     expect(r.solvedAt).toBe(3);
   });
 
-  test("visual block I and A edit every line", () => {
+  test("visual block I and A reach the other lines only at <Esc>, as in vim", () => {
     const i = run("ab\ncd", "<C-v>jIZ<Esc>", "Zab\nZcd");
     expect(i.doc).toBe("Zab\nZcd");
-    expect(i.solvedAt).toBe(3);
+    expect(i.solvedAt).toBe(4);
     const a = run("ab\ncd", "<C-v>jAZ<Esc>", "aZb\ncZd");
     expect(a.doc).toBe("aZb\ncZd");
-    expect(a.solvedAt).toBe(3);
+    expect(a.solvedAt).toBe(4);
+    const typing = run("ab\ncd", "<C-v>jIZ", "Zab\nZcd");
+    expect(typing.doc).toBe("Zab\ncd");
+    expect(typing.solved).toBe(false);
   });
 
   test("a run ending in insert mode with a matching buffer locks in", () => {
@@ -255,11 +258,11 @@ describe("macros replay the keys that were typed", () => {
   });
 
   test("a recursive macro stops at the same key on every run", () => {
-    const want = `,\nb,\nc${",".repeat(99)}`;
+    // vim: the j on the last line fails and ends every level of the recursion.
     for (let i = 0; i < 2; i++) {
       const r = run("a\nb\nc", "qaqqaA,<Esc>j@aq@aggx");
-      expect(r.doc).toBe(want);
-      expect(r.errors).toEqual([{ index: 13, message: "macro nested deeper than 100" }]);
+      expect(r.doc).toBe(",\nb,\nc,");
+      expect(r.errors).toEqual([]);
     }
   });
 });
@@ -418,8 +421,9 @@ describe("registers", () => {
 
 describe("process-global vim state", () => {
   test("a crashing replay does not poison the next one", () => {
-    const crash = run("a\nb\nc", "qaqqaA,<Esc>j@aq@a");
-    expect(crash.errors).toEqual([{ index: 13, message: "macro nested deeper than 100" }]);
+    // No motion fails here, so only the depth limit stops it (vim itself never finishes).
+    const crash = run("a\nb\nc", "qaqqaA,<Esc>@aq@a");
+    expect(crash.errors).toEqual([{ index: 12, message: "macro nested deeper than 100" }]);
     const next = run("foo bar\nfoo baz\nqux foo", ":%s/foo/X/g<CR>");
     expect(next.doc).toBe("X bar\nX baz\nqux X");
     expect(next.errors).toEqual([]);

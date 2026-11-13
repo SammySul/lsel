@@ -1,4 +1,4 @@
-import { type Extension, Prec, Transaction } from "@codemirror/state";
+import { EditorState, type Extension, Prec, Transaction } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { feedKey, type KeyResult } from "./feedKey.ts";
 import { keyFromEvent, type Platform } from "./keyFromEvent.ts";
@@ -75,6 +75,10 @@ export function browserInput(session: () => EditorSession, opts: BrowserInputOpt
     ),
     // Any DOM-originated text is dropped; CM redraws from state.
     Prec.highest(EditorView.inputHandler.of(() => true)),
+    // Firefox moves the DOM selection after some redraws and WebKit on right-click; only fed keys may move the cursor.
+    EditorState.transactionFilter.of((tr) =>
+      (tr.docChanged || tr.selection) && !session().feeding ? [] : tr,
+    ),
     opts.devGuard
       ? EditorView.updateListener.of((u) => {
           if ((u.docChanged || u.selectionSet) && !session().feeding) {
