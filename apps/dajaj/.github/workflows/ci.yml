@@ -1,0 +1,36 @@
+name: ci
+on: { pull_request: {}, push: { branches: [main] } }
+permissions: { contents: read }
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: DeterminateSystems/nix-installer-action@v23
+      - run: nix develop -c bun install --frozen-lockfile
+      - run: nix develop -c bun run check
+      - run: nix develop -c bun run test
+      - run: nix develop -c bun run build
+      - run: nix develop -c bun run test:e2e
+      - run: nix build .#default
+
+  # A version in package.json without its tag becomes a release; any other push releases nothing.
+  release:
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions: { contents: write }
+    concurrency: release
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+      - env: { GH_TOKEN: "${{ github.token }}" }
+        run: |
+          tag="v$(jq -r .version package.json)"
+          if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+            echo "$tag is already released"
+            exit 0
+          fi
+          prev=$(git describe --tags --abbrev=0 2>/dev/null || true)
+          notes=$(git log --format='- %s' "${prev:+$prev..}HEAD")
+          gh release create "$tag" --target "$GITHUB_SHA" --title "$tag" --notes "$notes"
