@@ -3,8 +3,8 @@ import { parseKeys, replay } from "../src/index.ts";
 import { loadCorpus, readFixtures, staleness } from "./corpus.ts";
 import { DEVIATIONS, type Deviation } from "./deviations.ts";
 import { type EngineRun, puzzleOf, replayCase } from "./engine.ts";
-import { fuzzCases } from "./fuzz/corpus.ts";
 import type { FixtureEntry, Observed, OracleCase } from "./types.ts";
+import { vimVersion } from "./vim.ts";
 
 // ORACLE_CATEGORY=seed,motions-counts bun test packages/engine/oracle
 const only = process.env.ORACLE_CATEGORY?.split(",").filter(Boolean);
@@ -137,9 +137,18 @@ describe("corpus-wide", () => {
     LONG,
   );
 
+  // CI never reruns vim (`bun run oracle --check` is manual), so a vim bump must show up here.
+  test("every answer file was made with the dev shell's vim", async () => {
+    const vim = await vimVersion();
+    const made = await Promise.all(
+      corpus.map(async (cat) => ({ category: cat.name, vim: (await readFixtures(cat))?.vim })),
+    );
+    expect(made.filter((m) => m.vim !== vim)).toEqual([]);
+  });
+
   test("every allow-list entry names a case in the corpus", () => {
     if (only !== undefined) return;
-    const ids = new Set([...allCases, ...fuzzCases()].map((c) => c.id));
+    const ids = new Set(allCases.map((c) => c.id));
     expect(Object.keys(DEVIATIONS).filter((id) => !ids.has(id))).toEqual([]);
   });
 });

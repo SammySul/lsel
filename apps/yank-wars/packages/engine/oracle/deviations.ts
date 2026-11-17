@@ -137,12 +137,6 @@ export const DEVIATION_GROUPS: Readonly<Record<string, DeviationGroup>> = {
     reason: "a single-case difference listed with its repro in docs/decisions.md",
     link: DECISIONS,
   },
-  "fuzz-unreduced": {
-    kind: "bug",
-    reason:
-      "a generated case not yet reduced to one of the causes above (fuzz/run.ts --ids shrinks it)",
-    link: DECISIONS,
-  },
 };
 
 interface Pin {

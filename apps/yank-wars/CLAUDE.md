@@ -77,9 +77,10 @@ describes, fix or delete the note.
 
 ## Oracle traps
 
-- `*.vim.json` fixtures are written only by `bun run oracle` and
-  `fuzz/answer.ts`, and `oracle/deviations.json` only by `oracle/pin.ts` after
-  deciding a difference stays; never edit them by hand.
+- `*.vim.json` fixtures are written only by `bun run oracle`, and
+  `oracle/deviations.json` only by `oracle/pin.ts` after deciding a difference
+  stays; never edit them by hand. CI never runs vim: after adding or changing
+  cases, or a nixpkgs bump that moves vim, run `bun run oracle` yourself.
 - `bun run oracle` and `bun run test:browser` need the dev shell's vim and
   browsers: `nix develop -c …` (the system vim answers differently).
 
