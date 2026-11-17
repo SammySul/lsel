@@ -14,13 +14,13 @@ the desktop use (`squares` imports it from here).
 | `--base` | page background |
 | `--raise`, `--surface` | panels, rows, inputs: one step up each; depth comes from these steps, never from shadows |
 | `--overlay` | borders and dividers |
-| `--highlight` | selected or hovered row fill |
+| `--highlight` | selected or hovered row fill, text selection |
 | `--text` | body text |
 | `--subtle` | secondary text, on `--base` or `--raise` only |
 | `--muted` | disabled and decorative text only: it fails AA for reading |
 | `--accent` | focus, links, the primary action, the selected marker |
 | `--error`, `--warning`, `--success` | states; `--success` text only on `--base` |
-| `--select` | text selection, the cursor |
+| `--select` | the text cursor |
 | `--term-0` … `--term-15` | the terminal's 16 colors, for syntax and charts |
 
 Readable pairs are pinned by `theme/contrast.test.ts` (WCAG AA, 4.5:1). Text
@@ -36,7 +36,8 @@ the interface around it still uses these variables.
   OFL license ships with them). No other family, except a pixel display face
   for a game's title.
 - Sizes: `--text-xs` 12, `--text-sm` 14 (body), `--text-md` 16, `--text-lg`
-  20, `--text-xl` 28; line height 1.5.
+  20, `--text-xl` 28; `--text-display` 40 for the one number a screen is about
+  (a score, a timer). Line height 1.5.
 - Sentence case everywhere, including buttons and headings.
 
 ## Shape

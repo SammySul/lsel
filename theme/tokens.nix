@@ -42,6 +42,7 @@ p: ''
     --text-md: 16px;
     --text-lg: 20px;
     --text-xl: 28px;
+    --text-display: 40px;
     --leading: 1.5;
 
     --space-1: 4px;
