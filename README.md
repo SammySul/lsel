@@ -26,6 +26,6 @@ cd ../.. && bun run sync
 
 ## Changing the palette or tokens
 
-Edit `theme/`, run `bun test`, commit, then `bun run sync` and commit the
+Edit `theme/`, run `bun run test`, commit, then `bun run sync` and commit the
 changed assets in each project. `bun run sync --check` lists projects that are
 out of date. `squares` follows with `nix flake update lsel`.
