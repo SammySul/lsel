@@ -267,7 +267,7 @@ that the next `deploy twelve` rolls back).
    counter, reset key, lock-in, study window; ~10 handmade puzzles
 2. Done (2026-11-17): `yankwars.app` live from `twelve` (step 2 part 1:
    static server, Nix package, NixOS module)
-3. **v1, the solo release** (moved ahead of rooms 2026-11-17): puzzle
+3. Done (2026-11-17, `v1.0.0`): **v1, the solo release** (moved ahead of rooms): puzzle
    difficulty and a list filter, ~50 handmade puzzles (about 30 easy, 15
    medium, 5 hard), favicon and share card, a needs-a-keyboard screen on touch
    devices, how-it-works on the front page, progress marks, a share line on the
