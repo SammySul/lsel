@@ -84,7 +84,9 @@ p: ''
     *,
     *::before,
     *::after {
+      /* biome-ignore lint/complexity/noImportantStyles: the user's setting must beat every component's own transition */
       transition-duration: 0s !important;
+      /* biome-ignore lint/complexity/noImportantStyles: the user's setting must beat every component's own animation */
       animation-duration: 0s !important;
     }
   }
