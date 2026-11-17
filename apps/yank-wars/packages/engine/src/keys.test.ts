@@ -53,7 +53,7 @@ describe("parseKeys", () => {
     expect(parseKeys("a<lt>b c")).toEqual<string[]>(["a", "<lt>", "b", "<Space>", "c"]);
   });
 
-  test("normalises the case of names and modifiers, keeps the character verbatim", () => {
+  test("normalizes the case of names and modifiers, keeps the character verbatim", () => {
     expect(parseKeys("<cr><esc><c-v><space><LT><c-s-a><s-left><pageup>")).toEqual<string[]>([
       "<CR>",
       "<Esc>",

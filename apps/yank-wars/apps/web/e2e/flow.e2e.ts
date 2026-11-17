@@ -447,7 +447,7 @@ for (const name of browserNames()) {
       await typeKeys(page, "<Esc>");
       expect(await page.locator(".status .prompt").count()).toBe(0);
       expect(await text(page, ".status .mode")).toBe("-- NORMAL --");
-      // vim keeps a cancelled line in the history too
+      // vim keeps a canceled line in the history too
       await typeKeys(page, ":<Up>");
       expect(await text(page, ".status .prompt")).toBe(":s/x/y");
       await typeKeys(page, "<Esc>:s/\\(/x/<CR>");

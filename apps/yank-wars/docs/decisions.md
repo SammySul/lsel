@@ -128,13 +128,13 @@ results.
 written and reviewed like code; Claude writes most of them, and the puzzle tests
 (the solution reaches the target on its last key, par pinned in `PAR`) are the
 gate. *Rejected:* the generator (repo excerpts plus scripted vim-shaped edits):
-mechanical edits make samey, tedious puzzles, and it needed licence tracking
+mechanical edits make samey, tedious puzzles, and it needed license tracking
 and a daily job.
 
 **Easy first.** Most puzzles are short: one or two vim ideas, solved in
 seconds. The list starts with the easiest and harder ones stay a minority;
 easy ones are the most fun. VimGolf challenges only with the maintainer's
-permission (licence unclear).
+permission (license unclear).
 
 **Daily puzzle = solo fallback.** One puzzle per day is the same for everyone,
 Wordle-style, picked from the handmade pool on a fixed rotation, so no job and
@@ -148,7 +148,7 @@ From the design workflow (3 researchers, 3 proposals, 3 judges, 1 synthesis);
 the spec, `docs/step1-spec.md`, was removed once built (2026-11-17; it is in git history). "Parity by construction" won on every
 judge's card over observing codemirror-vim natively.
 
-**Key capture: the browser is one more replayer.** A `Prec.highest` keydown handler owned by the engine prevents every keydown and calls the same `feedKey()` the headless replay uses; codemirror-vim's own keydown handler, native insert-mode typing and its `<input>` command line never run. *Rejected:* observing the adapter and emulating native behaviour in the replayer (insert text would be labelled differently, prompt keys are DOM events on a panel input, Cmd+A moves the selection unlogged). *Revisit* only if an upstream API makes the adapter itself drivable without DOM.
+**Key capture: the browser is one more replayer.** A `Prec.highest` keydown handler owned by the engine prevents every keydown and calls the same `feedKey()` the headless replay uses; codemirror-vim's own keydown handler, native insert-mode typing and its `<input>` command line never run. *Rejected:* observing the adapter and emulating native behavior in the replayer (insert text would be labelled differently, prompt keys are DOM events on a panel input, Cmd+A moves the selection unlogged). *Revisit* only if an upstream API makes the adapter itself drivable without DOM.
 
 **Undo grouping is a logical group id, not a clock.** A `transactionFilter` sets `Transaction.time` to the session's undo group (bumped per normal-mode key, per command during macro playback), relabels changes to `input.type`, and marks selection-only transactions `addToHistory: false`; `history({newGroupDelay: 1, joinToEvent: () => true})`. One step per normal command including its insert session, one per ex command, one per macro command. Verified against commands 6.11.1 / state 6.7.6; the catalog pin plus `undo.test.ts` (with `setSystemTime` jumps) is the upgrade gate.
 
@@ -186,17 +186,17 @@ The deviations from vim behave the same in the browser and in the replay: they c
 
 **The command line has a cursor** (superseded 2026-11-11): `<Left>/<Right>/<Home>/<End>/<Del>/<BS>/<C-w>` edit at the cursor, `<C-r>{reg}`, `<C-r><C-w>` and `<C-v>{key}` insert, `<Tab>` is a literal tab in a `:` line (nothing to complete) and nothing in `/`, as in vim 9.2. `<BS>` on an empty prompt cancels, `<Up>/<Down>` recall history, `<C-u>` clears.
 
-**Shift on a named key is the base key; unbound keys still count.** Shift+Space/Enter/Backspace/Tab/Delete/Escape/Insert log as `<Space>`, `<CR>`, … (terminal vim behaviour); `<S-Left>` and friends survive. F-keys, Meta combos and Dead/Process keys are dropped and not counted. `<C-v>`, `<PageUp>`, `<S-Left>` and other keys the core doesn't bind in insert mode count as a key and do nothing (the spike typed `<C-v>` as six characters).
+**Shift on a named key is the base key; unbound keys still count.** Shift+Space/Enter/Backspace/Tab/Delete/Escape/Insert log as `<Space>`, `<CR>`, … (terminal vim behavior); `<S-Left>` and friends survive. F-keys, Meta combos and Dead/Process keys are dropped and not counted. `<C-v>`, `<PageUp>`, `<S-Left>` and other keys the core doesn't bind in insert mode count as a key and do nothing (the spike typed `<C-v>` as six characters).
 
 **`/` and `:s` are always ignorecase+smartcase** (`:set` is blocked; the oracle runs vim with the same options). `&` in a `:s` replacement is the match, as in vim (superseded 2026-11-11: it was literal under the core's nopcre).
 
 **`<C-r>+` inserts nothing**, which follows from the clipboard registers being the unnamed register.
 
-**Replace-mode `<BS>` moves left without restoring the replaced character** (vim restores it), and `.`/`@q` afterwards repeat only what was typed after the last `<BS>`: adapter behaviour, inherited on both sides. Without `<BS>`, `R…<Esc>` then `.`/`@q`/counts match vim: `feedKey` wraps the adapter's `overWriteSelection` in one vim operation, because its selection-only first dispatch otherwise reads as a cursor move and drops all but the last character from the `.` record (an upstream adapter bug, so the stock browser path has it too).
+**Replace-mode `<BS>` moves left without restoring the replaced character** (vim restores it), and `.`/`@q` afterwards repeat only what was typed after the last `<BS>`: adapter behavior, inherited on both sides. Without `<BS>`, `R…<Esc>` then `.`/`@q`/counts match vim: `feedKey` wraps the adapter's `overWriteSelection` in one vim operation, because its selection-only first dispatch otherwise reads as a cursor move and drops all but the last character from the `.` record (an upstream adapter bug, so the stock browser path has it too).
 
 **`:map`, `:set`, `:w` and `:colorscheme` (every alias) are blocked with a status message** instead of failing as unknown commands; `:w` says lock-in is automatic.
 
-**Vim state is process-global, so replays are serial.** `createSession` resets it, so a page never replays while its live session accepts keys (the DEV self-check runs after lock-in), and step 2's server must serialise replays. The engine's `:normal` never uses the core's module-private `keyToKeyStack`, which the reset doesn't clear; `replay.test.ts` runs a recursion inside `:norm @q` into the depth limit and then checks that prompts still work.
+**Vim state is process-global, so replays are serial.** `createSession` resets it, so a page never replays while its live session accepts keys (the DEV self-check runs after lock-in), and step 2's server must serialize replays. The engine's `:normal` never uses the core's module-private `keyToKeyStack`, which the reset doesn't clear; `replay.test.ts` runs a recursion inside `:norm @q` into the depth limit and then checks that prompts still work.
 
 **Chrome on Windows/Linux reserves Ctrl+W/T/N,** so insert-mode `<C-w>` can close the tab. The status line shows a hint; nothing is remapped.
 
@@ -214,7 +214,7 @@ The deviations from vim behave the same in the browser and in the replay: they c
 
 **The core patch, hunk by hunk, for upstreaming** (each is a bug fix or a small hook; the hooks are what an upstream API would offer):
 - hooks on `Vim`: `vimRegExp` (nopcre patterns), `exHook` (command lines), `adjustOperatorRange` (exclusive/linewise operator ranges), `onFailure` (a failed motion), `repeatInsert` (`.` of an insert from typed keys); `defineMotion/Action/Operator` return what they replace, so an override can wrap it;
-- `*`/`#` build a vim pattern (`\<word\>`), and a cancelled search keeps the previous pattern instead of re-parsing a JS source;
+- `*`/`#` build a vim pattern (`\<word\>`), and a canceled search keeps the previous pattern instead of re-parsing a JS source;
 - failed `f t ; , %` and symbol motions return null, so an operator does nothing (vim beeps); `a<`/`i<` no longer throw in a unicode-mode `RegExpCursor`;
 - `y` leaves the cursor at the start of what it yanked; a yank is not a change for `.`; charwise `P` and `p` on an empty line end on the last character put; `gp`/`gP` and `<C-o>p` end after the text;
 - a linewise delete through the last line takes the line break before it, and the register holds only the lines;

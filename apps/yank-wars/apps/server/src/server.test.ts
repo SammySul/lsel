@@ -27,7 +27,7 @@ afterAll(() => {
   rmSync(dir, { recursive: true, force: true });
 });
 
-/** Sends the path byte for byte: fetch would normalise `..` away before it left the client. */
+/** Sends the path byte for byte: fetch would normalize `..` away before it left the client. */
 async function rawGet(path: string): Promise<string> {
   const { promise, resolve } = Promise.withResolvers<string>();
   let data = "";

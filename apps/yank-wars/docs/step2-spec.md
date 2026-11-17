@@ -106,7 +106,7 @@ Specified before it starts; decisions already made are in `docs/decisions.md`
 - The server owns time: lock-in and grace deadlines use receive time; round
   cap 4 minutes; 15 s to reconnect, then forfeit.
 - Replay of the scored tail on each lock-in claim. Vim state is
-  process-global, so replays are serialised; to decide here: a queue on the
+  process-global, so replays are serialized; to decide here: a queue on the
   main thread or one replay worker (happy-dom in a `Worker`) so a slow replay
   can't stall the sockets. Bound macro counts (`999@q`).
 - Mismatch handling: a rejected lock-in keeps the player in the round and logs

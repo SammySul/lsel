@@ -167,7 +167,7 @@ describe("agreement with Vim.vimKeyFromEvent", () => {
   } as const satisfies Record<string, Mods>;
 
   // [key, mods] -> [what the core says, what we say]; every other combination must agree exactly.
-  const NORMALISED: Record<string, readonly [string, string | undefined]> = {
+  const NORMALIZED: Record<string, readonly [string, string | undefined]> = {
     "< none": ["<", "<lt>"],
     "< ctrl": ["<C-<>", undefined],
     "< ctrl+shift": ["<C-S-<>", undefined],
@@ -208,23 +208,23 @@ describe("agreement with Vim.vimKeyFromEvent", () => {
     const e = ev(key, mods);
     const core = Vim.vimKeyFromEvent(e as unknown as KeyboardEvent);
     const ours: string | undefined = keyFromEvent(e, "other");
-    const normalised = NORMALISED[id];
+    const normalized = NORMALIZED[id];
     // Shift is part of a symbol, as in vim (Ctrl+Shift+2 is <C-@>); the core keeps an S- that vim never sees.
     const symbol = key.length === 1 && key.toLowerCase() === key.toUpperCase();
-    if (normalised === undefined && symbol && mods === MODS["ctrl+shift"]) {
+    if (normalized === undefined && symbol && mods === MODS["ctrl+shift"]) {
       expect(core).toBe(`<C-S-${key}>`);
       expect(ours).toBe(`<C-${key}>`);
-    } else if (normalised === undefined) {
+    } else if (normalized === undefined) {
       expect(ours).toBe(core);
     } else {
-      expect(core).toBe(normalised[0]);
-      expect(ours).toBe(normalised[1]);
+      expect(core).toBe(normalized[0]);
+      expect(ours).toBe(normalized[1]);
     }
   });
 
-  test("every normalisation is exercised", () => {
+  test("every normalization is exercised", () => {
     const ids = new Set(cases.map(([id]) => id));
-    expect(Object.keys(NORMALISED).filter((id) => !ids.has(id))).toEqual([]);
+    expect(Object.keys(NORMALIZED).filter((id) => !ids.has(id))).toEqual([]);
   });
 });
 
