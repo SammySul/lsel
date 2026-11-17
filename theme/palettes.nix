@@ -33,10 +33,10 @@
     subtle = "#908caa"; # subtle
     text = "#e0def4"; # text
 
-    accent = "#c4a7e7"; # iris
+    accent = "#3e8fb0"; # pine
     error = "#eb6f92"; # love
     warning = "#f6c177"; # gold
-    success = "#3e8fb0"; # pine
+    success = "#9ccfd8"; # foam
     select = "#ea9a97"; # rose
   };
 }

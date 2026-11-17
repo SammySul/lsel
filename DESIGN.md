@@ -18,8 +18,8 @@ the desktop use (`squares` imports it from here).
 | `--text` | body text |
 | `--subtle` | secondary text, on `--base` or `--raise` only |
 | `--muted` | disabled and decorative text only: it fails AA for reading |
-| `--accent` | focus, links, the primary action, the selected row's left bar, a pressed toggle's border |
-| `--error`, `--warning`, `--success` | states; text in a state color sits on `--base` (`--success` fails AA on anything raised), so a selected row or a pressed toggle gets a border, not a fill |
+| `--accent` | focus, links, the primary action, the selected row's left bar, a pressed toggle's border; as text it sits on `--base` only (it fails AA on anything raised) |
+| `--error`, `--warning`, `--success` | states; text in a state color sits on `--base`, so a selected row or a pressed toggle gets a border, not a fill |
 | `--select` | the text cursor |
 | `--term-0` … `--term-15` | the terminal's 16 colors, for syntax and charts |
 
@@ -45,6 +45,9 @@ the interface around it still uses these variables.
 - **No rounding**: `border-radius: 0` on everything (`tokens.css` sets it).
 - 1px borders in `--overlay`; no shadows, gradients, blur or transparency
   effects.
+- A page's content sits in `main`, which `tokens.css` frames with a border and
+  a gap to the window; the app sets only its `max-width` and padding. A popup
+  has no `main`: the browser frames it.
 - Spacing on a 4px grid: `--space-1` … `--space-7` (4, 8, 12, 16, 24, 32, 48).
 
 ## Elements

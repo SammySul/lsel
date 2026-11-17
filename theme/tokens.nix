@@ -78,6 +78,19 @@ p: ''
     line-height: var(--leading);
   }
 
+  /* A page's content sits in main, in a thin frame; the app sets max-width and padding, never margin. */
+  main {
+    width: calc(100% - 2 * var(--space-5));
+    margin: var(--space-5) auto;
+    border: var(--border);
+  }
+  @media (max-width: 600px) {
+    main {
+      width: calc(100% - 2 * var(--space-2));
+      margin: var(--space-2) auto;
+    }
+  }
+
   /* The common elements, styled once so every app looks the same; components may extend, not restyle. */
   h1,
   h2 {
