@@ -240,7 +240,7 @@ Visual-block `I`, `A`, `c`, `s`, `C`, `D`, `X` and `Y` follow vim since 2026-11-
 
 Public repo on Sammy's personal GitHub account, **MIT**. Matches the other
 projects, keeps the upstream engine PR and puzzle-source credits simple:
-`github.com/SamiSuleiman/yank-wars`, public from v1.
+`github.com/SammySul/yank-wars`, public from v1.
 
 **Releases (2026-11-17).** The root `package.json` `version` is the only
 version: the Nix package and the page footer read it. A push to `main` that

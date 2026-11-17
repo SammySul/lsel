@@ -622,7 +622,7 @@ for (const name of browserNames()) {
         "https://yankwars.app/og.png",
       );
       expect(await attr('footer a[href*="github.com"]', "href")).toBe(
-        "https://github.com/SamiSuleiman/yank-wars",
+        "https://github.com/SammySul/yank-wars",
       );
       const pkg = JSON.parse(readFileSync(join(import.meta.dir, "../../../package.json"), "utf8"));
       expect(await text(page, "footer .version")).toBe(`v${pkg.version}`);

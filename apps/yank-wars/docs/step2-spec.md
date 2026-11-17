@@ -73,7 +73,7 @@ the spike), `dontRunLifecycleScripts`. It runs `bun run build`, compiles
 
 ### 1.4 Deploy: `squares`
 
-- Input `yank-wars = github:SamiSuleiman/yank-wars`, following
+- Input `yank-wars = github:SammySul/yank-wars`, following
   `nixpkgs-twelve` like `lsel`; `inputs.yank-wars.nixosModules.default` in
   `hosts/twelve/default.nix`.
 - `hosts/twelve/native.nix`: `services.yank-wars.enable = true;` and
