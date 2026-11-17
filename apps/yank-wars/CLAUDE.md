@@ -30,6 +30,9 @@ describes, fix or delete the note.
 - **Deploy is a Nix package + NixOS module**, imported by `squares` on `twelve`
   and exposed through its `cloudflared` tunnel (`typ` is the precedent). No
   Dockerfile.
+- **Releasing is bumping `version`** in the root `package.json` and pushing
+  `main`: CI tags it and `twelve` runs the tag within minutes. A tag that fails
+  `twelve`'s health check is never retried, so fix forward with a new version.
 - **Validate from the repo root:** `bun run check` (tsc, svelte-check, biome),
   `bun test`, `bun run build`. `bunfig.toml` (happy-dom preload) is read from the
   cwd only, so `bun test` in a subdirectory runs without DOM globals. Say

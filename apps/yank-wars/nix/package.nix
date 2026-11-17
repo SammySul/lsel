@@ -15,7 +15,7 @@ let
 in
 stdenv.mkDerivation {
   pname = "yank-wars";
-  version = "0.0.0";
+  inherit (packageJson) version;
 
   src = lib.fileset.toSource {
     inherit root;

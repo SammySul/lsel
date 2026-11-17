@@ -244,11 +244,20 @@ public at v1; until then `origin` is `/srv/git/yank-wars.git` on `twelve`.
 
 **Releases (2026-11-17).** The root `package.json` `version` is the only
 version: the Nix package and the page footer read it. A push to `main` that
-changes it runs the full checks, then CI tags `vX.Y.Z` and publishes a GitHub
-release listing the commit subjects since the last tag; a push without a bump
-releases nothing. Deploy stays manual: update the `yank-wars` input in
-`squares`, then `deploy twelve`. *Rejected:* auto-deploy (CI would need a way
-into `twelve`, or `twelve` would rebuild itself from whatever was pushed last).
+changes it runs the full checks (`nix build` included), then CI tags `vX.Y.Z`
+and publishes a GitHub release listing the commit subjects since the last tag;
+a push without a bump releases nothing.
+
+**Deploy follows the tags (2026-11-17).** With `services.yank-wars.autoUpdate`
+on, a timer on `twelve` asks GitHub for the newest `v*` tag every 5 minutes,
+`nix build`s it into `/var/lib/yank-wars-updater/current` (the link moves only
+on success) and restarts yank-wars alone; a failed health check puts the
+previous build back. Nothing else on `twelve` changes, and `squares` only pins
+the fallback the service starts from before the first update. *Rejected:*
+comin (every push to `squares` would redeploy all of `twelve`, and a broken
+network config could cut off the fix), deploy-rs/colmena (CI would need ssh
+into `twelve`), `system.autoUpgrade` with an updated input (an uncommitted lock
+that the next `deploy twelve` rolls back).
 
 ## Build order
 

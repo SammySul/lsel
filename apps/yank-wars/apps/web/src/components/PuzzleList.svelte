@@ -1,6 +1,7 @@
 <script lang="ts">
 import { DIFFICULTIES, type Difficulty } from "@yank-wars/engine";
 import { untrack } from "svelte";
+import { version } from "../../../../package.json";
 import { CHORD_LABELS } from "../lib/chords.ts";
 import { formatClock } from "../lib/clock.ts";
 import { prefs } from "../lib/prefs.svelte.ts";
@@ -189,8 +190,11 @@ function onkeydown(e: KeyboardEvent) {
   {/if}
 
   <footer>
-    <kbd>j</kbd>/<kbd>k</kbd> move · <kbd>Enter</kbd> play · <kbd>/</kbd> search ·
-    <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> difficulty, <kbd>0</kbd> all · <kbd>u</kbd> unsolved
+    <p>
+      <kbd>j</kbd>/<kbd>k</kbd> move · <kbd>Enter</kbd> play · <kbd>/</kbd> search ·
+      <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> difficulty, <kbd>0</kbd> all · <kbd>u</kbd> unsolved
+    </p>
+    <p class="meta">Yank Wars <span class="version">v{version}</span></p>
   </footer>
 </main>
 
@@ -387,5 +391,8 @@ function onkeydown(e: KeyboardEvent) {
     margin-top: 32px;
     color: var(--muted);
     font-size: 12px;
+  }
+  footer p {
+    margin: 0 0 8px;
   }
 </style>
