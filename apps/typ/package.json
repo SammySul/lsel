@@ -1,0 +1,26 @@
+{
+  "name": "typ",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --bun vite",
+    "build": "bun --bun vite build",
+    "check": "tsc --noEmit && svelte-check --tsconfig ./tsconfig.json --output human && biome check . && grep -q '\"preset\": \"recommended\"' biome.json",
+    "test": "bun test ./src",
+    "test:e2e": "bun test ./e2e",
+    "postinstall": "bun2nix -o bun.nix"
+  },
+  "dependencies": {
+    "svelte": "5.57.3",
+    "valibot": "1.5.0"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "7.3.1",
+    "@types/bun": "1.4.4",
+    "playwright-core": "1.64.1",
+    "svelte-check": "4.7.7",
+    "typescript": "5.9.3",
+    "vite": "8.3.5"
+  }
+}
