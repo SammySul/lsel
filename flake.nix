@@ -80,7 +80,7 @@
 
       templates.web = {
         path = ./templates/web;
-        description = "A Bun project with the lsel dev shell, Biome, strict TypeScript and CI that releases on a version bump";
+        description = "A Svelte page served by Bun: dev shell, Nix package, browser tests and CI that releases on a version bump";
       };
     };
 }

@@ -58,8 +58,8 @@ describes, fix or delete the note.
   scroll handler moves content: a test that fails on console warnings must
   ignore exactly that one.
 - **bun2nix 2.1.2 rejects bun ≥ 1.3's lockfile** ("Unsupported lockfile
-  version"): apply yank-wars' `nix/bun2nix-lockfile-v2.patch` until a release
-  has upstream PR #110.
+  version"): the template's `flake.nix` applies `nix/bun2nix-lockfile-v2.patch`
+  until a release has upstream PR #110; then drop it there and in each project.
 - `cloudflared tunnel route dns` writes into the zone its cert was issued for;
   for any other zone it silently creates `<host>.<that zone>`. The certs are
   `~/.cloudflared/cert-<zone>.pem` (one per zone; `ls ~/.cloudflared`):

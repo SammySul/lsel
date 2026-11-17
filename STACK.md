@@ -1,8 +1,8 @@
 # Stack
 
 The defaults every project starts from (`nix flake init -t ../..#web` from a
-new `projects/<name>/`). yank-wars is the reference implementation for all of
-it.
+new `projects/<name>/`). `templates/web/` is all of it, and lsel's CI builds
+and tests it.
 
 | Concern | Default | Why |
 |---|---|---|
@@ -63,8 +63,9 @@ storage belongs to, so every copy shares it.
 
 ## Deploy (a new service)
 
-The project ships only its package: copy yank-wars' `nix/package.nix`. The
-server reads `<PREFIX>_HOST` and `<PREFIX>_PORT` and answers `ok` on `/healthz`.
+The project ships only its package (the template's `nix/package.nix`). The
+server reads `<PREFIX>_HOST` and `<PREFIX>_PORT` and answers `ok` on `/healthz`;
+the prefix is `package.json`'s `name` in capitals, `-` as `_`.
 Then in `squares`:
 
 1. A flake input `git+https://git.sammysul.com/SammySul/<name>` following

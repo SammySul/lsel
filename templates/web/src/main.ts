@@ -1,2 +1,0 @@
-// The entry point.
-export {};

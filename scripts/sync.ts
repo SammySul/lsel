@@ -1,4 +1,4 @@
-// bun run sync [--check]: writes lsel's assets into every projects/<name>/ that has an lsel.json.
+// bun run sync [--check]: writes lsel's assets into the template and every projects/<name>/ that has an lsel.json.
 // lsel.json: { "assets": "<dir inside the project>" }; that directory belongs to lsel, so extra files are removed.
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -12,11 +12,13 @@ const assets = built.stdout.toString().trim();
 const files = (await readdir(assets)).sort();
 
 let drift = 0;
-for (const name of (await readdir(join(root, "projects"), { withFileTypes: true }).catch(() => []))
+const projects = (await readdir(join(root, "projects"), { withFileTypes: true }).catch(() => []))
   .filter((d) => d.isDirectory())
-  .map((d) => d.name)
-  .sort()) {
-  const project = join(root, "projects", name);
+  .map((d) => join("projects", d.name))
+  .sort();
+// the template carries the assets too, so it builds as shipped and CI catches a palette change it missed
+for (const name of ["templates/web", ...projects]) {
+  const project = join(root, name);
   const config = await readFile(join(project, "lsel.json"), "utf8").catch(() => undefined);
   if (config === undefined) continue;
   const assetsDir = (JSON.parse(config) as { assets: string }).assets;

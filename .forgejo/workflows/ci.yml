@@ -8,3 +8,17 @@ jobs:
       - uses: actions/checkout@v7
       - run: nix develop -c bun run test
       - run: nix flake check
+      - run: nix develop -c bun run sync --check
+
+  # The template is a whole project: it must pass its own CI as shipped.
+  template:
+    runs-on: self-hosted
+    defaults: { run: { working-directory: templates/web } }
+    steps:
+      - uses: actions/checkout@v7
+      - run: nix develop -c bun install --frozen-lockfile
+      - run: nix develop -c bun run check
+      - run: nix develop -c bun run test
+      - run: nix develop -c bun run build
+      - run: nix develop -c bun run test:e2e
+      - run: nix build .#default --no-link
