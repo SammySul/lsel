@@ -1,10 +1,20 @@
 # Forgejo on twelve: plan
 
-Status (2026-11-17): steps 1-3 done; step 4 done for the private repos
-(remotes, `squares` inputs, twelve's clone; `/srv/git` read-only). Public
-repos (yank-wars, dajaj, typ) switch with steps 5-6. Forgejo's `typ` holds the
-old SvelteKit history: rename it `typ-sveltekit` (archived) before the new
-`typ` goes there.
+Status (2026-11-17): done. Every repo is on Forgejo; GitHub holds only push
+mirrors of yank-wars, dajaj and typ; `/srv/git` and the private GitHub repos
+are deleted (last night's restic snapshot still has `/srv/git` until it ages
+out); clippenberg is deleted everywhere. The steps below are the record.
+
+Traps found on the way:
+
+- The runner module is `services.forgejo-runner` (uuid + token from
+  `/admin/actions/runners`), not `services.gitea-actions-runner`, whose
+  `--token-file` forgejo-runner 13 rejects silently.
+- `host.workdir_parent` must be the real `/var/lib/private/...` path: git
+  matches `actions/checkout`'s `includeIf gitdir:` credentials against the
+  resolved path, so under DynamicUser's symlink the fetch gets 401.
+- Forgejo's API has run status (`/actions/tasks`) but no job logs.
+- A `write:repository` token can't delete a repo; that stays in the web UI.
 
 ## Goal
 

@@ -22,8 +22,9 @@ describes, fix or delete the note.
   only headless or only on one OS.
 - **Comments: one line or none**, only for a why the code can't show.
 - **Commits: subject line only.** No body, no trailers. Signed with the
-  personal SSH key, author `Sammy Suleiman <mail@sammysul.com>`; public repos
-  are `github.com/SammySul/<name>`, MIT, `Copyright (c) <year> SammySul`. A repo
+  personal SSH key, author `Sammy Suleiman <mail@sammysul.com>`; every repo lives
+  on Forgejo (`twelve:<name>.git`, git.sammysul.com); public ones are mirrored
+  to `github.com/SammySul/<name>` by Forgejo's push mirror, MIT, `Copyright (c) <year> SammySul`. A repo
   goes public only with a history free of older names and emails (fresh, or
   rewritten), since a public history can't be taken back.
 - **Specs are deleted once built**; `docs/decisions.md` keeps the why.
@@ -49,7 +50,7 @@ describes, fix or delete the note.
   dependency that shipped a binary, `rm -rf node_modules`, or the stale copy
   keeps running instead of the dev shell's.
 - **Playwright with Nix's browsers:** `playwright-core` must equal the dev
-  shell's `PLAYWRIGHT_DRIVER_VERSION`. Off NixOS (GitHub's runners) set
+  shell's `PLAYWRIGHT_DRIVER_VERSION`. Off NixOS (e.g. a hosted Ubuntu runner) set
   `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1` (its ldconfig check can't see
   Nix's libraries) and, on Linux, `__EGL_VENDOR_LIBRARY_DIRS` to
   `${pkgs.mesa}/share/glvnd/egl_vendor.d`, or WebKit dies opening a page.

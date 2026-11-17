@@ -37,9 +37,13 @@ it.
 ## Release
 
 1. `version` in the root `package.json` is the only version.
-2. Pushing `main` runs CI (`nix develop -c …` for every step). A version
-   without its `v<version>` tag becomes a GitHub release listing the commit
-   subjects since the last tag; any other push releases nothing.
+2. Pushing `main` runs CI on twelve's Forgejo runner (`.forgejo/workflows/`,
+   `runs-on: self-hosted`, the host's Nix; `nix develop -c …` for every step,
+   `nix flake check` for the module's VM test). A version without its
+   `v<version>` tag becomes a Forgejo release listing the commit subjects since
+   the last tag; any other push releases nothing. A public repo gets a push
+   mirror to GitHub (the `github-mirror` token in the keychain covers the
+   mirrored repos; add a new one to it), with no workflows there.
 3. On `twelve`, the project's updater sees the new tag within 5 minutes, builds
    it, restarts only that service and rolls back if `/healthz` fails. A tag
    that fails is never retried: fix forward with a new version.
@@ -49,9 +53,11 @@ it.
 Copy yank-wars' `nix/package.nix` and `nix/module.nix` (with `autoUpdate`),
 then in `squares`:
 
-1. A flake input `github:SammySul/<name>` following `nixpkgs-twelve`, and its
+1. A flake input `git+https://git.sammysul.com/SammySul/<name>` following
+   `nixpkgs-twelve`, and its
    `nixosModules.default` in `hosts/twelve/default.nix`.
-2. `services.<name>` with a free loopback port and `autoUpdate.repo`.
+2. `services.<name>` with a free loopback port and `autoUpdate.url =
+   "https://git.sammysul.com/SammySul/<name>"`.
 3. An `ingress."<domain>"` line on the existing cloudflared tunnel, then the DNS
    record (`cloudflared tunnel route dns`, see the trap in `CLAUDE.md`).
 4. Its state directory in the nightly restic paths, or `stateIgnored` with the
