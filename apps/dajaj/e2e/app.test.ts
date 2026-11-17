@@ -127,7 +127,13 @@ for (const name of names) {
         ]);
       }
       expect(await page.locator("select").isDisabled()).toBe(false);
+      const drawn = () =>
+        page.locator(".chart canvas").evaluate((c: HTMLCanvasElement) => c.toDataURL());
+      await page.waitForTimeout(400);
+      const kills = await drawn();
       await page.locator("select").selectOption("damage");
+      await page.waitForTimeout(400);
+      expect(await drawn()).not.toBe(kills);
       await page.keyboard.press("1");
       await page.locator("table").waitFor();
       await ctx.close();

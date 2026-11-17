@@ -127,15 +127,19 @@ const status = $derived.by(() => {
 
   <p class="status" role="status">{status}</p>
   {#if error !== null}
-    <p class="error" role="alert">{error}</p>
+    <p class="error lsel-appear" role="alert">{error}</p>
   {/if}
 
   {#if report !== null && report.matchCount > 0}
-    {#if view === "table"}
-      <Table {report} />
-    {:else}
-      <Chart {report} {view} {stat} />
-    {/if}
+    {#key view}
+      <div class="lsel-appear">
+        {#if view === "table"}
+          <Table {report} />
+        {:else}
+          <Chart {report} {view} {stat} />
+        {/if}
+      </div>
+    {/key}
   {/if}
 
   <footer>
