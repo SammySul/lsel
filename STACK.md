@@ -34,6 +34,16 @@ it.
 - **Show upstream failures**: a rate limit or outage is a message on screen,
   never an empty table.
 
+## Browser extension
+
+rssism is the reference. Svelte 5 + Vite with `vite-plugin-web-extension`,
+styled by `tokens.css` like any app (`lsel.json` points at the popup), checked
+and tested the same way; the popup keeps its own width. There is no server,
+release or updater: `package.nix` builds the unpacked extension and a desktop
+host loads it from `squares` (`localExtensions` on tanaka), so a change ships by
+updating that flake input and deploying the host. The manifest's `key` pins the
+extension id, which the extension's storage belongs to.
+
 ## Release
 
 1. `version` in the root `package.json` is the only version.
