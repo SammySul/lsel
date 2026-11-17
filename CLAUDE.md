@@ -59,10 +59,11 @@ describes, fix or delete the note.
 - **bun2nix 2.1.2 rejects bun ≥ 1.3's lockfile** ("Unsupported lockfile
   version"): apply yank-wars' `nix/bun2nix-lockfile-v2.patch` until a release
   has upstream PR #110.
-- `cloudflared tunnel route dns` writes into the zone its `cert.pem` was issued
-  for; for any other zone it silently creates `<host>.<that zone>`. Log in for
-  the new zone first (`cloudflared tunnel login`, after moving the old
-  `cert.pem` aside).
+- `cloudflared tunnel route dns` writes into the zone its cert was issued for;
+  for any other zone it silently creates `<host>.<that zone>`. The certs are
+  `~/.cloudflared/cert-<zone>.pem` (one per zone; `ls ~/.cloudflared`):
+  pass the right one with `--origincert`. A new zone needs `cloudflared tunnel
+  login` (it writes `cert.pem`; rename it after).
 - Cloudflare's login check rejects the Mac's Proton exit address (via `twelve`):
   sign in from another device instead.
 - `tailscale serve` settings live in tailscaled, not in Nix: removing a service
