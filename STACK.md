@@ -10,7 +10,7 @@ it.
 | Runtime, packages, tests | Bun | One tool for install, run, test and `bun patch` |
 | Language | TypeScript, strict (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`) | The template's `tsconfig.json` |
 | Lint, format | Biome, `recommended` preset | Fast, one tool; never run `biome migrate` (it switches the linter off) |
-| Interface | Svelte 5 + Vite, single page | Small, no framework server; SvelteKit only if server rendering is needed |
+| Interface | Svelte 5 + Vite, single page | Small, no framework server. Several screens are `#/…` routes in the app (yank-wars). SvelteKit only when pages must render on the server: indexed content, a link preview per page, working without JavaScript |
 | Games | A 2D canvas inside the Svelte shell | The shell keeps keyboard, focus and layout consistent with the rest |
 | Validation | Valibot, only where outside data enters | Inside the boundary, trust the types |
 | Data | Content as files, state in `bun:sqlite` | One file in the service's state directory, backed up by `squares` |
