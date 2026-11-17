@@ -102,11 +102,16 @@ export async function startVite(): Promise<Vite> {
 }
 
 /** Collects console warnings/errors and uncaught errors; `take()` returns and clears them. */
+/** Firefox's performance hint for CodeMirror's scroll handling: printed once per page, by whichever key scrolls first. */
+export function isBrowserNoise(m: ConsoleMessage): boolean {
+  return m.type() === "warning" && m.text().includes("scroll-linked positioning effect");
+}
+
 export function watchPage(page: Page): { take(): Promise<string[]> } {
   const lines: string[] = [];
   const pending: Promise<void>[] = [];
   const onConsole = (m: ConsoleMessage) => {
-    if (m.type() !== "warning" && m.type() !== "error") return;
+    if ((m.type() !== "warning" && m.type() !== "error") || isBrowserNoise(m)) return;
     const at = lines.push(`${m.type()}: ${m.text()}`) - 1;
     pending.push(
       Promise.all(m.args().map((a) => a.jsonValue().catch(() => "?"))).then((v) => {

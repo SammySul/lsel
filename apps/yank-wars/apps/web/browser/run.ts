@@ -5,6 +5,7 @@ import { loadCorpus, readFixtures, staleness } from "@yank-wars/engine/oracle/co
 import { DEVIATIONS } from "@yank-wars/engine/oracle/deviations";
 import type { FixtureEntry, Observed, OracleCase } from "@yank-wars/engine/oracle/types";
 import { type BrowserType, chromium, firefox, type Page, webkit } from "playwright-core";
+import { isBrowserNoise } from "../e2e/lib.ts";
 import type { HarnessState } from "../src/dev/harness.ts";
 import { playwrightKey } from "./keys.ts";
 import { knownFailure } from "./known.ts";
@@ -154,7 +155,7 @@ async function main() {
         const page = await browser.newPage();
         const problems: string[] = [];
         page.on("console", (m) => {
-          if (m.type() !== "warning" && m.type() !== "error") return;
+          if ((m.type() !== "warning" && m.type() !== "error") || isBrowserNoise(m)) return;
           // Synchronously, so the line lands in this case; the args are spelled out as JSON.
           const at = problems.push(`${m.type()}: ${m.text()}`) - 1;
           void Promise.all(m.args().map((a) => a.jsonValue().catch(() => "?"))).then((v) => {
