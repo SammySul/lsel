@@ -14,12 +14,12 @@ the desktop use (`squares` imports it from here).
 | `--base` | page background |
 | `--raise`, `--surface` | panels, rows, inputs: one step up each; depth comes from these steps, never from shadows |
 | `--overlay` | borders and dividers |
-| `--highlight` | selected or hovered row fill, text selection |
+| `--highlight` | text selection |
 | `--text` | body text |
 | `--subtle` | secondary text, on `--base` or `--raise` only |
 | `--muted` | disabled and decorative text only: it fails AA for reading |
-| `--accent` | focus, links, the primary action, the selected marker |
-| `--error`, `--warning`, `--success` | states; `--success` text only on `--base` |
+| `--accent` | focus, links, the primary action, the selected row's left bar, a pressed toggle's border |
+| `--error`, `--warning`, `--success` | states; text in a state color sits on `--base` (`--success` fails AA on anything raised), so a selected row or a pressed toggle gets a border, not a fill |
 | `--select` | the text cursor |
 | `--term-0` … `--term-15` | the terminal's 16 colors, for syntax and charts |
 
