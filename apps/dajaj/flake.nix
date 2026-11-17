@@ -1,6 +1,4 @@
 {
-  description = "dajaj: PUBG stats for a group of friends";
-
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     bun2nix = {
