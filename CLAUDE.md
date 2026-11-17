@@ -67,6 +67,9 @@ describes, fix or delete the note.
   login` (it writes `cert.pem`; rename it after).
 - Cloudflare's login check rejects the Mac's Proton exit address (via `twelve`):
   sign in from another device instead.
+- **Forgejo's API** has run status (`/api/v1/repos/<owner>/<repo>/actions/tasks`)
+  but no job logs, and a `write:repository` token can't delete a repo: read
+  logs and delete repos in the web UI.
 - `tailscale serve` settings live in tailscaled, not in Nix: removing a service
   from `squares` leaves its `serve` running until `sudo tailscale serve
   --https=<port> off`.
