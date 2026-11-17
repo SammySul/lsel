@@ -47,6 +47,13 @@ the interface around it still uses these variables.
   effects.
 - Spacing on a 4px grid: `--space-1` … `--space-7` (4, 8, 12, 16, 24, 32, 48).
 
+## Elements
+
+`tokens.css` styles buttons (outlined on `--base`; a pressed toggle has an
+accent border), selects, inputs, `kbd`, links, `h1`/`h2` and tables. Apps use
+those elements as they are and keep their own CSS to layout; a component may
+extend an element (a column's alignment), never restyle it.
+
 ## Interaction
 
 - **Keyboard first**: every action has a key, and the key is shown next to it

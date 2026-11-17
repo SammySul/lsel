@@ -78,6 +78,86 @@ p: ''
     line-height: var(--leading);
   }
 
+  /* The common elements, styled once so every app looks the same; components may extend, not restyle. */
+  h1,
+  h2 {
+    margin: 0;
+    line-height: 1.2;
+  }
+  h1 {
+    font-size: var(--text-xl);
+  }
+  h2 {
+    font-size: var(--text-lg);
+  }
+
+  a {
+    color: var(--accent);
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+
+  button,
+  select,
+  input,
+  textarea {
+    font: inherit;
+    color: var(--text);
+    background: var(--base);
+    border: var(--border);
+    padding: var(--space-1) var(--space-3);
+  }
+  button,
+  select {
+    cursor: pointer;
+  }
+  button:hover:not(:disabled),
+  select:hover:not(:disabled) {
+    border-color: var(--subtle);
+  }
+  button[aria-pressed="true"] {
+    border-color: var(--accent);
+  }
+  button:disabled,
+  select:disabled,
+  input:disabled,
+  textarea:disabled {
+    color: var(--muted);
+    cursor: default;
+  }
+
+  kbd {
+    font-family: var(--font);
+    font-size: var(--text-xs);
+    color: var(--subtle);
+    border: var(--border);
+    border-bottom-width: 2px;
+    padding: 0 var(--space-1);
+  }
+
+  pre,
+  code {
+    font-family: var(--font);
+  }
+
+  table {
+    border-collapse: collapse;
+    font-variant-numeric: tabular-nums;
+  }
+  th,
+  td {
+    padding: var(--space-2) var(--space-3);
+    border-bottom: var(--border);
+    text-align: left;
+  }
+  th {
+    color: var(--subtle);
+    font-size: var(--text-xs);
+    font-weight: 400;
+  }
+
   :focus-visible {
     outline: var(--focus);
     outline-offset: 2px;
