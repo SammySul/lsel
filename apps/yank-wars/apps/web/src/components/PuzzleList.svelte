@@ -194,7 +194,10 @@ function onkeydown(e: KeyboardEvent) {
       <kbd>j</kbd>/<kbd>k</kbd> move · <kbd>Enter</kbd> play · <kbd>/</kbd> search ·
       <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> difficulty, <kbd>0</kbd> all · <kbd>u</kbd> unsolved
     </p>
-    <p class="meta">Yank Wars <span class="version">v{version}</span></p>
+    <p class="meta">
+      Yank Wars <span class="version">v{version}</span> ·
+      <a href="https://github.com/SamiSuleiman/yank-wars">source</a> · MIT
+    </p>
   </footer>
 </main>
 
