@@ -37,7 +37,7 @@ onDestroy(() => {
 });
 </script>
 
-<div class="round">
+<div class="round lsel-appear">
   <Hud {ctl} />
   <div class="stage">
     <Panes {ctl} />

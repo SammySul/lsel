@@ -61,7 +61,7 @@ function onkeydown(e: KeyboardEvent) {
 <svelte:window {onkeydown} />
 
 <div class="backdrop">
-  <div class="card" role="dialog" aria-labelledby="result-headline">
+  <div class="card lsel-appear" role="dialog" aria-labelledby="result-headline">
     <h2 id="result-headline" class:ok={locked}>{headline}</h2>
 
     <dl class="stats">

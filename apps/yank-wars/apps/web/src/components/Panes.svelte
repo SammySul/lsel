@@ -71,7 +71,7 @@ $effect(() => {
     pointer-events: none;
     outline: 2px solid var(--accent);
     outline-offset: -2px;
-    animation: flash var(--motion) forwards;
+    animation: flash var(--motion) var(--ease) forwards;
   }
   @keyframes flash {
     to {

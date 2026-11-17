@@ -74,7 +74,7 @@ function onkeydown(e: KeyboardEvent) {
 
 <svelte:window {onkeydown} />
 
-<main class="list">
+<main class="list lsel-appear">
   <header>
     <h1>Yank Wars</h1>
     <p class="tagline">Vim golf against the clock. Fewest keys wins.</p>
