@@ -63,6 +63,21 @@
         }
       );
 
+      # A new project's first `bun run check` runs Biome on the template's files, so they must pass as shipped.
+      checks = forEachSystem (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        {
+          template-biome = pkgs.runCommand "lsel-template-biome" { nativeBuildInputs = [ pkgs.biome ]; } ''
+            cp -r ${./templates/web} web && chmod -R u+w web && cd web
+            biome check --vcs-enabled=false .
+            touch $out
+          '';
+        }
+      );
+
       templates.web = {
         path = ./templates/web;
         description = "A Bun project with the lsel dev shell, Biome, strict TypeScript and CI that releases on a version bump";
