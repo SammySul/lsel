@@ -62,7 +62,11 @@ the interface around it still uses these variables.
 - Plain and short. Say what happened or what to do; no exclamation marks, no
   emoji.
 - US spelling, 12-hour clock (3:05 PM); metric units and Celsius.
-- Numbers with their unit; durations as `m:ss.t` where precision matters.
+- Numbers with their unit, in units people read: distances in km or m,
+  durations as h:mm or m:ss (`m:ss.t` where precision matters), dates as
+  "Nov 18, 9:16 PM".
+- Remember a screen's choices (selection, view, filters) across reloads in
+  `localStorage`; never search text or anything secret.
 
 ## Not
 

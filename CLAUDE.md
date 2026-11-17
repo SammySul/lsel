@@ -22,8 +22,10 @@ describes, fix or delete the note.
   only headless or only on one OS.
 - **Comments: one line or none**, only for a why the code can't show.
 - **Commits: subject line only.** No body, no trailers. Signed with the
-  personal SSH key, author `mail@sammysul.com`; public repos are
-  `github.com/SammySul/<name>`, MIT.
+  personal SSH key, author `Sammy Suleiman <mail@sammysul.com>`; public repos
+  are `github.com/SammySul/<name>`, MIT, `Copyright (c) <year> SammySul`. A repo
+  goes public only with a history free of older names and emails (fresh, or
+  rewritten), since a public history can't be taken back.
 - **Specs are deleted once built**; `docs/decisions.md` keeps the why.
 - **When Sammy has to act** (a login, `sudo`, a dashboard), one step per
   message, then wait.

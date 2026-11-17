@@ -19,6 +19,21 @@ it.
 | Browser tests | Playwright with the dev shell's browsers | Real-browser checks in Chromium, Firefox and WebKit |
 | Styling | `tokens.css` from lsel | `DESIGN.md` |
 
+## Patterns
+
+- **One process** serves the built web app and its API (`Bun.serve`); no
+  separate web server or container per part.
+- **One request per screen**: the API answers with everything a view needs,
+  rather than the client stitching several calls together.
+- **Validate what comes in** from outside (an upstream API, a file, a socket)
+  with Valibot at that edge, so a change upstream fails loudly instead of
+  turning into zeros.
+- **Cache by how data changes**: immutable upstream data (a finished match) in
+  `bun:sqlite`, kept across restarts; data that moves (recent stats) in memory
+  with a TTL; merge identical requests already in flight.
+- **Show upstream failures**: a rate limit or outage is a message on screen,
+  never an empty table.
+
 ## Release
 
 1. `version` in the root `package.json` is the only version.
