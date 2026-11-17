@@ -11,6 +11,13 @@
         "typescript": "catalog:",
       },
     },
+    "apps/server": {
+      "name": "@yank-wars/server",
+      "version": "0.0.0",
+      "dependencies": {
+        "valibot": "1.5.0",
+      },
+    },
     "apps/web": {
       "name": "@yank-wars/web",
       "dependencies": {
@@ -191,6 +198,8 @@
     "@types/ws": ["@types/ws@8.18.2", "", { "dependencies": { "@types/node": "*" } }, "sha512-67MQl+fpWKVTT1NYdnmo3U4sc/xPo/zQBncVnI74qmQa0z/b+1g6iYqNmGCPbxO+zz2aklb08a0oHfegiVd0/w=="],
 
     "@yank-wars/engine": ["@yank-wars/engine@workspace:packages/engine"],
+
+    "@yank-wars/server": ["@yank-wars/server@workspace:apps/server"],
 
     "@yank-wars/web": ["@yank-wars/web@workspace:apps/web"],
 

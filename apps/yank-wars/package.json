@@ -20,10 +20,11 @@
   "scripts": {
     "dev": "bun run --filter @yank-wars/web dev",
     "build": "bun run --filter @yank-wars/web build",
-    "check": "tsc --noEmit -p packages/engine && bun run --filter @yank-wars/web check && biome check . && grep -q '\"preset\": \"recommended\"' biome.json",
+    "check": "tsc --noEmit -p packages/engine && tsc --noEmit -p apps/server && bun run --filter @yank-wars/web check && biome check . && grep -q '\"preset\": \"recommended\"' biome.json",
     "test": "bun test",
     "oracle": "bun packages/engine/oracle/run.ts",
-    "test:browser": "bun apps/web/browser/run.ts"
+    "test:browser": "bun apps/web/browser/run.ts",
+    "postinstall": "bun2nix -o bun.nix"
   },
   "devDependencies": {
     "@types/bun": "1.4.4",

@@ -10,7 +10,12 @@
   };
 
   outputs =
-    { nixpkgs, bun2nix, ... }:
+    {
+      self,
+      nixpkgs,
+      bun2nix,
+      ...
+    }:
     let
       # mac for dev, x86_64-linux for twelve
       forEachSystem = nixpkgs.lib.genAttrs [
@@ -32,12 +37,25 @@
           pkgs = nixpkgs.legacyPackages.${system};
         in
         {
+          default = pkgs.callPackage ./nix/package.nix { bun2nix = bun2nixFor system; };
           # step 0 of docs/decisions.md: proves the Bun-in-Nix route
           headless-replay = pkgs.callPackage ./spikes/headless-replay/package.nix {
             bun2nix = bun2nixFor system;
           };
         }
       );
+
+      nixosModules.default =
+        { lib, pkgs, ... }:
+        {
+          imports = [ ./nix/module.nix ];
+          services.yank-wars.package = lib.mkDefault self.packages.${pkgs.stdenv.hostPlatform.system}.default;
+        };
+
+      checks.x86_64-linux.module = nixpkgs.legacyPackages.x86_64-linux.callPackage ./nix/module-test.nix {
+        module = ./nix/module.nix;
+        package = self.packages.x86_64-linux.default;
+      };
 
       devShells = forEachSystem (
         system:

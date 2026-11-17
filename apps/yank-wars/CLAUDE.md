@@ -11,8 +11,7 @@ packages/engine/   pure TS, no I/O: puzzle + protocol types, key notation,
                    Imported by everything else.
 apps/web/          Svelte 5 + Vite SPA, CodeMirror 6 + @replit/codemirror-vim
 apps/server/       Bun.serve: static files, WebSocket rooms, matchmaker
-tools/generate/    daily puzzle generator, run by .github/workflows/daily.yml
-puzzles/           generated + handmade puzzles as JSON (data, not code)
+puzzles/           handmade puzzles as JSON (data, not code)
 spikes/            throwaway proofs; never imported
 ```
 
@@ -87,11 +86,13 @@ describes, fix or delete the note.
   #110): bun ≥ 1.3 writes `lockfileVersion: 2`, which the release rejects as
   "Unsupported lockfile version", the npm `bun2nix` included, so only the dev
   shell's CLI can generate `bun.nix`. Drop the patch once a release has #110.
-- `bun.nix` comes from a `postinstall: bun2nix -o bun.nix` that needs the dev
-  shell's `bun2nix` (only the spike has one; step 2 adds one to the root
-  `package.json`, one root `bun.nix`). The Nix build would rerun it without, hence
-  `dontRunLifecycleScripts` in every `package.nix`, which also skips any
+- `bun.nix` comes from the root `postinstall: bun2nix -o bun.nix`, which needs the
+  dev shell's `bun2nix`: run `bun install` inside it after any dependency change,
+  or the Nix build uses a stale `bun.nix`. The Nix build would rerun it without,
+  hence `dontRunLifecycleScripts` in every `package.nix`, which also skips any
   dependency's own install script.
+- `checks.x86_64-linux.module` is a NixOS VM test: run it on `twelve`
+  (`nix build path:.#checks.x86_64-linux.module`), the mac has no Linux builder.
 - A flake sees only git-tracked files: `git add` new files before `nix build`
   or `nix develop`, or it fails with "does not exist in Git repository".
 - Package scripts put `node_modules/.bin` first on PATH: after dropping a
