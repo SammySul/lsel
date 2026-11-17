@@ -204,7 +204,6 @@ function onkeydown(e: KeyboardEvent) {
 <style>
   .list {
     max-width: 760px;
-    margin: 0 auto;
     padding: 48px 24px;
   }
   .tagline {

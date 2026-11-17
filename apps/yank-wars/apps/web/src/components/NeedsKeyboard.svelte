@@ -21,7 +21,6 @@ let { onDismiss }: Props = $props();
 <style>
   .needs-keyboard {
     max-width: 420px;
-    margin: 0 auto;
     padding: 64px 24px;
     text-align: center;
   }
