@@ -1,6 +1,10 @@
 # Forgejo on twelve: plan
 
-Status: draft for Sammy's approval; nothing changed yet.
+Status (2026-11-17): steps 1-3 done; step 4 done for the private repos
+(remotes, `squares` inputs, twelve's clone; `/srv/git` read-only). Public
+repos (yank-wars, dajaj, typ) switch with steps 5-6. Forgejo's `typ` holds the
+old SvelteKit history: rename it `typ-sveltekit` (archived) before the new
+`typ` goes there.
 
 ## Goal
 
