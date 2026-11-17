@@ -1,6 +1,4 @@
 {
-  description = "typ: compare fonts side by side on your own text";
-
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     bun2nix = {
