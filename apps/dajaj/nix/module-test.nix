@@ -27,7 +27,7 @@ testers.runNixOSTest {
       environmentFile = "/etc/dajaj.env";
       autoUpdate = {
         enable = true;
-        repo = "example/dajaj";
+        url = "https://git.example.com/owner/dajaj";
       };
     };
     system.extraDependencies = [ release ];
@@ -48,7 +48,7 @@ testers.runNixOSTest {
     machine.fail("curl -sf http://127.0.0.1:7310/nope")
     machine.succeed("systemctl show -p DynamicUser --value dajaj | grep -qx yes")
 
-    with subtest("an updater that can't reach GitHub fails without touching the running server"):
+    with subtest("an updater that can't reach the repository fails without touching the running server"):
         machine.succeed("systemctl list-timers dajaj-update.timer | grep -q dajaj-update")
         machine.fail("systemctl start dajaj-update.service")
         machine.fail("test -e /var/lib/dajaj-updater/current")

@@ -144,7 +144,7 @@ const status = $derived.by(() => {
 
   <footer>
     dajaj <span class="version">v{version}</span> ·
-    <a href="https://github.com/SammySul/dajaj">source</a> · MIT
+    <a href="https://git.sammysul.com/SammySul/dajaj">source</a> · MIT
   </footer>
 </main>
 

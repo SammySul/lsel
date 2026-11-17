@@ -27,9 +27,9 @@ let
       config.systemd.package
     ];
     text = ''
-      repo=${lib.escapeShellArg cfg.autoUpdate.repo}
+      url=${lib.escapeShellArg cfg.autoUpdate.url}
       dir=${updaterDir}
-      latest=$(git ls-remote --tags --refs --sort=-v:refname "https://github.com/$repo" 'v*' | sed -n '1s|.*refs/tags/||p')
+      latest=$(git ls-remote --tags --refs --sort=-v:refname "$url" 'v*' | sed -n '1s|.*refs/tags/||p')
       if [ -z "$latest" ]; then
         echo "no release tags yet"
         exit 0
@@ -40,7 +40,7 @@ let
       echo "building $latest"
       previous=$(readlink "$dir/current" || true)
       # the out-link moves only after a successful build, and is the build's GC root
-      nix --extra-experimental-features "nix-command flakes" build "github:$repo/$latest" --out-link "$dir/current"
+      nix --extra-experimental-features "nix-command flakes" build "git+$url?ref=refs/tags/$latest" --out-link "$dir/current"
       echo "$latest" >"$dir/tag"
       systemctl restart dajaj.service
       for _ in $(seq 30); do
@@ -87,11 +87,11 @@ in
       description = "Port to bind.";
     };
     autoUpdate = {
-      enable = lib.mkEnableOption "running the newest vX.Y.Z release tag of `repo`; only dajaj restarts, a failed build or health check keeps the running version";
-      repo = lib.mkOption {
+      enable = lib.mkEnableOption "running the newest vX.Y.Z release tag of `url`; only dajaj restarts, a failed build or health check keeps the running version";
+      url = lib.mkOption {
         type = lib.types.str;
-        example = "owner/dajaj";
-        description = "The GitHub repository whose release tags to follow.";
+        example = "https://git.example.com/owner/dajaj";
+        description = "The git repository (https) whose release tags to follow.";
       };
       interval = lib.mkOption {
         type = lib.types.str;
