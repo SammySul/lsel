@@ -14,30 +14,14 @@ apps/server/       Bun.serve: static files, WebSocket rooms, matchmaker
 puzzles/           handmade puzzles as JSON (data, not code)
 ```
 
-## What a CLAUDE.md is for
-
-Only traps: something that already went wrong here, or would, and that neither
-the code nor upstream's docs make obvious. One or two lines each, with the why.
-No descriptions of what code does, no history. When you touch something a note
-describes, fix or delete the note.
+Shared rules, the stack, release and deploy come from lsel's `CLAUDE.md` and
+`STACK.md`; this file holds only this project's traps.
 
 ## Working here
 
-- **Nix dev shell** (`direnv allow`, or `nix develop`) provides bun and biome;
-  nothing is installed globally. **Bun only** for install, test, run and
-  `bun patch`; no npm, no npx.
-- **Deploy is a Nix package + NixOS module**, imported by `squares` on `twelve`
-  and exposed through its `cloudflared` tunnel (`typ` is the precedent). No
-  Dockerfile.
-- **Releasing is bumping `version`** in the root `package.json` and pushing
-  `main`: CI tags it and `twelve` runs the tag within minutes. A tag that fails
-  `twelve`'s health check is never retried, so fix forward with a new version.
 - **Validate from the repo root:** `bun run check` (tsc, svelte-check, biome),
   `bun test`, `bun run build`. `bunfig.toml` (happy-dom preload) is read from the
-  cwd only, so `bun test` in a subdirectory runs without DOM globals. Say
-  plainly when something is untested, especially anything only checked headless.
-- **Comments: one line or none**, only for a why the code can't show.
-- **Commits: subject line only.** No body, no Co-Authored-By trailer.
+  cwd only, so `bun test` in a subdirectory runs without DOM globals.
 - Don't build ahead of the build order in `docs/decisions.md`: no GitHub
   login, ratings or ghosts before step 6.
 
@@ -85,22 +69,11 @@ describes, fix or delete the note.
 
 ## Nix traps
 
-- **bun2nix 2.1.2 is patched** (`nix/bun2nix-lockfile-v2.patch`, upstream PR
-  #110): bun ≥ 1.3 writes `lockfileVersion: 2`, which the release rejects as
-  "Unsupported lockfile version", the npm `bun2nix` included, so only the dev
-  shell's CLI can generate `bun.nix`. Drop the patch once a release has #110.
 - `bun.nix` comes from the root `postinstall: bun2nix -o bun.nix`, which needs the
   dev shell's `bun2nix`: run `bun install` inside it after any dependency change,
   or the Nix build uses a stale `bun.nix`. The Nix build would rerun it without,
   hence `dontRunLifecycleScripts` in every `package.nix`, which also skips any
   dependency's own install script.
-- The service and its updater are defined in `squares` (`hosts/twelve/apps.nix`,
-  with their VM test), not here: this repo ships only the package.
-- A flake sees only git-tracked files: `git add` new files before `nix build`
-  or `nix develop`, or it fails with "does not exist in Git repository".
-- Package scripts put `node_modules/.bin` first on PATH: after dropping a
-  dependency that shipped a binary, `rm -rf node_modules`, or the stale copy
-  keeps running instead of the dev shell's (the npm `bun2nix` did exactly that).
 
 ## Engine traps (codemirror-vim, headless)
 
