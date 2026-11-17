@@ -78,6 +78,9 @@ the spike), `dontRunLifecycleScripts`. It runs `bun run build`, compiles
   `hosts/twelve/default.nix`.
 - `hosts/twelve/native.nix`: `services.yank-wars.enable = true;` and
   `ingress."yankwars.app" = "http://localhost:7300";` on the existing tunnel.
+- `hosts/twelve/services.nix`: `/var/lib/private/yank-wars` in the nightly
+  restic paths; `squares` asserts every state directory is backed up or
+  explicitly ignored.
 - DNS: `cloudflared tunnel route dns <tunnel> yankwars.app` once (open point 1).
 - Deploy is asked for separately when the module test passes; Claude edits
   `squares` but does not switch `twelve` unasked.
@@ -114,5 +117,8 @@ Specified before it starts; decisions already made are in `docs/decisions.md`
 ## 3. Identity and records (outline)
 
 - Better Auth with the anonymous plugin, `bun:sqlite` in the state directory.
+  `squares` backs up `/var/lib/private/yank-wars` nightly with restic, which
+  copies files as they are: write a consistent snapshot first (`VACUUM INTO`
+  or the `-predump` convention in `squares`), never rely on the live file.
 - Rejected lock-ins and finished rounds stored; the upstream PRs for the core
   patch go out alongside.
