@@ -3,7 +3,9 @@
 Status (2026-11-17): done. Every repo is on Forgejo; GitHub holds only push
 mirrors of yank-wars, dajaj and typ; `/srv/git` and the private GitHub repos
 are deleted (last night's restic snapshot still has `/srv/git` until it ages
-out); clippenberg is deleted everywhere. The steps below are the record.
+out); clippenberg is deleted everywhere, and so are the old-history repos
+(typ-sveltekit, dajaj-angular, squares-github-history, whose commits were
+all replayed into the current squares). The steps below are the record.
 
 Traps found on the way:
 
