@@ -63,22 +63,28 @@
           pkgs = nixpkgs.legacyPackages.${system};
         in
         {
-          default = pkgs.mkShellNoCC {
-            packages = with pkgs; [
-              bun
-              biome
-              # regenerates bun.nix from bun.lock (package.json postinstall)
-              (bun2nixFor system)
-              # the oracle: `bun run oracle` replays test cases in real vim
-              vim
-            ];
-            # `bun run test:browser`; playwright-core in package.json must equal this version
-            PLAYWRIGHT_BROWSERS_PATH = pkgs.playwright-driver.browsers;
-            PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1";
-            # its host check looks for system libraries via ldconfig, which Nix's browsers bring themselves
-            PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = "1";
-            PLAYWRIGHT_DRIVER_VERSION = pkgs.playwright-driver.version;
-          };
+          default = pkgs.mkShellNoCC (
+            {
+              packages = with pkgs; [
+                bun
+                biome
+                # regenerates bun.nix from bun.lock (package.json postinstall)
+                (bun2nixFor system)
+                # the oracle: `bun run oracle` replays test cases in real vim
+                vim
+              ];
+              # `bun run test:browser`; playwright-core in package.json must equal this version
+              PLAYWRIGHT_BROWSERS_PATH = pkgs.playwright-driver.browsers;
+              PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1";
+              # its host check looks for system libraries via ldconfig, which Nix's browsers bring themselves
+              PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = "1";
+              PLAYWRIGHT_DRIVER_VERSION = pkgs.playwright-driver.version;
+            }
+            # WebKit (WPE) needs an EGL driver; Nix's libglvnd looks only in NixOS's /run/opengl-driver
+            // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+              __EGL_VENDOR_LIBRARY_DIRS = "${pkgs.mesa}/share/glvnd/egl_vendor.d";
+            }
+          );
         }
       );
     };
