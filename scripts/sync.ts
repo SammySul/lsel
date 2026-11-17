@@ -1,6 +1,7 @@
 // bun run sync [--check]: writes lsel's assets into every projects/<name>/ that has an lsel.json.
 // lsel.json: { "assets": "<dir inside the project>" }; that directory belongs to lsel, so extra files are removed.
-// It also fails on app CSS that restyles an element tokens.css styles (DESIGN.md, Elements): layout and color are fine.
+// It also fails on app CSS rules that name an element tokens.css styles and change its look (DESIGN.md, Elements);
+// layout and color are fine. Rules on classes are not resolved to elements, so `.chip` on a button passes.
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 

@@ -53,8 +53,9 @@ the interface around it still uses these variables.
 accent border), selects, inputs, `kbd`, links, `h1`/`h2`, `pre` blocks and
 tables. Apps use those elements as they are and keep their own CSS to layout; a
 component may extend an element (a column's alignment, a color that carries
-meaning), never restyle it. `bun run sync --check` fails on app CSS that sets
-an element's background, border, padding or font.
+meaning), never restyle it. `bun run sync --check` fails on app CSS rules that
+name an element and set its background, border, padding or font; it does not see
+a class that lands on an element (`.chip` on a button), so review catches those.
 
 ## Interaction
 
