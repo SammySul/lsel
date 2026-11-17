@@ -41,6 +41,14 @@ test("ids are unique and equal their file names", () => {
   expect(new Set(ids).size).toBe(ids.length);
 });
 
+test("easy puzzles stay short: par at most 10", () => {
+  const long = loaded
+    .map(({ json, id }) => parsePuzzle(json, id))
+    .filter((p) => p.difficulty === "easy" && p.par > 10)
+    .map((p) => `${p.id} (par ${p.par})`);
+  expect(long).toEqual([]);
+});
+
 describe.each(loaded)("$file", ({ id, json }) => {
   const puzzle = parsePuzzle(json, id);
 

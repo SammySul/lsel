@@ -14,6 +14,7 @@ function puzzle(start: string): Puzzle {
   return {
     id: "test",
     title: "test",
+    difficulty: "easy",
     language: "javascript",
     tabSize: 4,
     indentUnit: "  ",

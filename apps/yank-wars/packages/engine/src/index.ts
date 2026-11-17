@@ -41,6 +41,9 @@ export {
   type SyntheticPromptEvent,
 } from "./prompt.ts";
 export {
+  comparePuzzles,
+  DIFFICULTIES,
+  type Difficulty,
   type LanguageId,
   PUZZLE_LIMITS,
   type Puzzle,

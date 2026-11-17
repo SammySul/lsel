@@ -24,9 +24,13 @@ export type PuzzleSource =
       commit: string;
     };
 
+export const DIFFICULTIES = ["easy", "medium", "hard"] as const;
+export type Difficulty = (typeof DIFFICULTIES)[number];
+
 export interface Puzzle {
   id: string;
   title: string;
+  difficulty: Difficulty;
   description?: string;
   language: LanguageId;
   tabSize: number;
@@ -42,6 +46,7 @@ export interface Puzzle {
 export interface PuzzleJson {
   id: string;
   title: string;
+  difficulty: Difficulty;
   description?: string;
   language: LanguageId;
   tabSize: 2 | 4 | 8;
@@ -141,6 +146,7 @@ export const PuzzleJsonSchema: v.GenericSchema<unknown, PuzzleJson> = v.pipe(
       v.regex(/^[a-z0-9]+(-[a-z0-9]+)*$/, "must be lower-case kebab-case"),
     ),
     title: v.pipe(v.string(), v.minLength(1), v.maxLength(60)),
+    difficulty: v.picklist(DIFFICULTIES),
     description: v.exactOptional(v.pipe(v.string(), v.maxLength(200))),
     language: v.picklist([
       "text",
@@ -204,6 +210,7 @@ export function parsePuzzle(json: unknown, expectedId?: string): Puzzle {
   return {
     id: p.id,
     title: p.title,
+    difficulty: p.difficulty,
     ...(p.description === undefined ? {} : { description: p.description }),
     language: p.language,
     tabSize: p.tabSize,
@@ -215,4 +222,13 @@ export function parsePuzzle(json: unknown, expectedId?: string): Puzzle {
     source: p.source,
     ...(p.tags === undefined ? {} : { tags: p.tags }),
   };
+}
+
+/** List order: easiest first, then shortest par, then title. */
+export function comparePuzzles(a: Puzzle, b: Puzzle): number {
+  return (
+    DIFFICULTIES.indexOf(a.difficulty) - DIFFICULTIES.indexOf(b.difficulty) ||
+    a.par - b.par ||
+    a.title.localeCompare(b.title)
+  );
 }

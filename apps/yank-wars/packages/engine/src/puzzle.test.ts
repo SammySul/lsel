@@ -1,9 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { PuzzleError, type PuzzleJson, parsePuzzle } from "./index.ts";
+import { comparePuzzles, PuzzleError, type PuzzleJson, parsePuzzle } from "./index.ts";
 
 const example: PuzzleJson = {
   id: "quote-style",
   title: "Double quotes",
+  difficulty: "easy",
   description: "The linter wants double quotes.",
   language: "javascript",
   tabSize: 2,
@@ -37,6 +38,7 @@ describe("parsePuzzle accepts", () => {
     expect(p.solution).toEqual<string[]>([":", "s", "/", "'", "/", '"', "/", "g", "<CR>"]);
     expect(p.par).toBe(9);
     expect(p.id).toBe("quote-style");
+    expect(p.difficulty).toBe("easy");
     expect(p.tabSize).toBe(2);
     expect(p.indentUnit).toBe("  ");
     expect(p.description).toBe("The linter wants double quotes.");
@@ -209,6 +211,16 @@ describe("parsePuzzle rejects, naming the field", () => {
     expect(issues[0]).toStartWith("par: ");
   });
 
+  test("a missing or unknown difficulty", () => {
+    const { difficulty: _d, ...none } = example;
+    expect(issuesOf(none)).toEqual([
+      'difficulty: Invalid key: Expected "difficulty" but received undefined',
+    ]);
+    expect(issuesOf({ ...example, difficulty: "expert" })).toEqual([
+      'difficulty: Invalid type: Expected ("easy" | "medium" | "hard") but received "expert"',
+    ]);
+  });
+
   test("a tabSize outside 2, 4, 8", () => {
     const issues = issuesOf({ ...example, tabSize: 3 });
     expect(issues.length).toBe(1);
@@ -232,5 +244,28 @@ describe("parsePuzzle rejects, naming the field", () => {
   test("non-objects", () => {
     expect(issuesOf(null).length).toBe(1);
     expect(issuesOf("quote-style")[0]).toStartWith("(root): ");
+  });
+});
+
+describe("comparePuzzles", () => {
+  test("easy before medium before hard, then shorter par, then title", () => {
+    const p = (title: string, difficulty: PuzzleJson["difficulty"], solution: string) =>
+      parsePuzzle({ ...example, title, difficulty, solution });
+    const list = [
+      p("Hard one", "hard", "xxx"),
+      p("Medium long", "medium", "xxxxx"),
+      p("Easy b", "easy", "xxxx"),
+      p("Medium short", "medium", "xxx"),
+      p("Easy a", "easy", "xxxx"),
+      p("Easy short", "easy", "xxx"),
+    ];
+    expect(list.sort(comparePuzzles).map((x) => x.title)).toEqual([
+      "Easy short",
+      "Easy a",
+      "Easy b",
+      "Medium short",
+      "Medium long",
+      "Hard one",
+    ]);
   });
 });

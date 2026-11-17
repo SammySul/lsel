@@ -1,6 +1,7 @@
 {
   "id": "quote-keys",
   "title": "Quote the keys",
+  "difficulty": "medium",
   "description": "JSON needs its keys in double quotes.",
   "language": "json",
   "tabSize": 2,

@@ -6,6 +6,7 @@ import { createPlayerView, type PlayerView, type PlayerViewOptions } from "./pla
 const puzzle = parsePuzzle({
   id: "player-pane",
   title: "Player pane",
+  difficulty: "easy",
   language: "javascript",
   tabSize: 2,
   indentUnit: "  ",

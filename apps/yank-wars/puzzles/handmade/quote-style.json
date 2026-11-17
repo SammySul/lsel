@@ -1,6 +1,7 @@
 {
   "id": "quote-style",
   "title": "Double quotes",
+  "difficulty": "medium",
   "description": "The linter wants double quotes.",
   "language": "javascript",
   "tabSize": 2,

@@ -17,6 +17,7 @@ function puzzle(start: string, over: Partial<Puzzle> = {}): Puzzle {
   return {
     id: "test",
     title: "test",
+    difficulty: "easy",
     language: "text",
     tabSize: 4,
     indentUnit: "  ",

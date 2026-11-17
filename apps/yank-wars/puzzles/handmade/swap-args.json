@@ -1,6 +1,7 @@
 {
   "id": "swap-args",
   "title": "Swap the arguments",
+  "difficulty": "hard",
   "description": "Swap the two arguments in the signature and in every call.",
   "language": "python",
   "tabSize": 4,

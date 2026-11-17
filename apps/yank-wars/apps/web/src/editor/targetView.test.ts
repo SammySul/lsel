@@ -6,6 +6,7 @@ import { createTargetView, type TargetView } from "./targetView.ts";
 const puzzle = parsePuzzle({
   id: "target-pane",
   title: "Target pane",
+  difficulty: "easy",
   language: "javascript",
   tabSize: 2,
   indentUnit: "  ",

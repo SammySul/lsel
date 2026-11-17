@@ -1,4 +1,6 @@
-import { type Puzzle, parsePuzzle } from "@yank-wars/engine";
+import { comparePuzzles, type Puzzle, parsePuzzle } from "@yank-wars/engine";
+import { filterPuzzles, nextAfter } from "./filter.ts";
+import { prefs } from "./prefs.svelte.ts";
 
 export interface PuzzleLoadError {
   readonly file: string;
@@ -21,14 +23,19 @@ for (const [path, json] of Object.entries(files)) {
   }
 }
 
-export const puzzles: readonly Puzzle[] = loaded.sort((a, b) => a.title.localeCompare(b.title));
+export const puzzles: readonly Puzzle[] = loaded.sort(comparePuzzles);
 export const puzzleErrors: readonly PuzzleLoadError[] = failed;
 
 export function findPuzzle(id: string): Puzzle | undefined {
   return puzzles.find((p) => p.id === id);
 }
 
+/** The puzzles the list's filter shows, in list order. */
+export function visiblePuzzles(): Puzzle[] {
+  return filterPuzzles(puzzles, prefs.filter, (id) => prefs.best[id] !== undefined);
+}
+
+/** Next in list order among the filtered puzzles; the whole list when the filter shows no other. */
 export function nextPuzzle(id: string): Puzzle | undefined {
-  const i = puzzles.findIndex((p) => p.id === id);
-  return puzzles[(i + 1) % puzzles.length];
+  return nextAfter(puzzles, visiblePuzzles(), id);
 }

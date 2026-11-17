@@ -5,6 +5,7 @@ import { runSelfCheck } from "./selfCheck.ts";
 const puzzle = parsePuzzle({
   id: "quote-style",
   title: "Double quotes",
+  difficulty: "easy",
   language: "javascript",
   tabSize: 2,
   indentUnit: "  ",

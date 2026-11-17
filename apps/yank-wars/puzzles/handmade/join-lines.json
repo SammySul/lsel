@@ -1,6 +1,7 @@
 {
   "id": "join-lines",
   "title": "One line",
+  "difficulty": "easy",
   "description": "Put the vector on one line.",
   "language": "rust",
   "tabSize": 4,

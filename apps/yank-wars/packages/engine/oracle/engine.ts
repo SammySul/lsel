@@ -11,6 +11,7 @@ export function puzzleOf(c: Pick<OracleCase, "id" | "start" | "settings">): Puzz
   return {
     id: `oracle-${c.id}`,
     title: c.id,
+    difficulty: "easy",
     language: "text",
     tabSize: s.tabSize,
     indentUnit: s.indentUnit,

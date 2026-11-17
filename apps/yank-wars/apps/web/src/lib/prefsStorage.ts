@@ -1,11 +1,20 @@
+import { DIFFICULTIES, type Difficulty } from "@yank-wars/engine";
+
 export interface Best {
   readonly keys: number;
   readonly ms: number;
 }
 
+/** The list filter's lasting part; the search text stays per visit. */
+export interface StoredFilter {
+  readonly difficulty: Difficulty | null;
+  readonly unsolved: boolean;
+}
+
 export interface Stored {
   relativeNumbers: boolean;
   best: Record<string, Best>;
+  filter: StoredFilter;
 }
 
 export type PrefsStorage = Pick<Storage, "getItem" | "setItem">;
@@ -25,8 +34,21 @@ function isBest(x: unknown): x is Best {
   );
 }
 
+function parseFilter(x: unknown): StoredFilter {
+  const f: { difficulty: Difficulty | null; unsolved: boolean } = {
+    difficulty: null,
+    unsolved: false,
+  };
+  if (typeof x !== "object" || x === null) return f;
+  const { difficulty, unsolved } = x as Record<string, unknown>;
+  if ((DIFFICULTIES as readonly unknown[]).includes(difficulty))
+    f.difficulty = difficulty as Difficulty;
+  if (typeof unsolved === "boolean") f.unsolved = unsolved;
+  return f;
+}
+
 function parseStored(raw: string | null): Stored {
-  const stored: Stored = { relativeNumbers: true, best: {} };
+  const stored: Stored = { relativeNumbers: true, best: {}, filter: parseFilter(null) };
   if (raw === null) return stored;
   let data: unknown;
   try {
@@ -35,8 +57,9 @@ function parseStored(raw: string | null): Stored {
     return stored;
   }
   if (typeof data !== "object" || data === null) return stored;
-  const { relativeNumbers, best } = data as Record<string, unknown>;
+  const { relativeNumbers, best, filter } = data as Record<string, unknown>;
   if (typeof relativeNumbers === "boolean") stored.relativeNumbers = relativeNumbers;
+  stored.filter = parseFilter(filter);
   if (typeof best === "object" && best !== null) {
     for (const [id, b] of Object.entries(best)) if (isBest(b)) stored.best[id] = b;
   }
@@ -66,7 +89,11 @@ function update(
   try {
     fresh = storage ? parseStored(storage.getItem(STORAGE_KEY)) : undefined;
   } catch {}
-  const next: Stored = fresh ?? { relativeNumbers: mine.relativeNumbers, best: {} };
+  const next: Stored = fresh ?? {
+    relativeNumbers: mine.relativeNumbers,
+    best: {},
+    filter: mine.filter,
+  };
   for (const [id, b] of Object.entries(mine.best)) {
     const theirs = next.best[id];
     if (theirs === undefined || isBetter(b, theirs)) next.best[id] = b;
@@ -101,5 +128,15 @@ export function writeRelativeNumbers(
 ): Stored {
   return update(storage, mine, (s) => {
     s.relativeNumbers = on;
+  });
+}
+
+export function writeFilter(
+  storage: PrefsStorage | undefined,
+  mine: Stored,
+  filter: StoredFilter,
+): Stored {
+  return update(storage, mine, (s) => {
+    s.filter = filter;
   });
 }

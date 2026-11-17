@@ -3,6 +3,7 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  comparePuzzles,
   createSession,
   currentRun,
   destroySession,
@@ -34,8 +35,9 @@ const PUZZLES_DIR = join(import.meta.dir, "../../../puzzles/handmade");
 const puzzles: Puzzle[] = readdirSync(PUZZLES_DIR)
   .filter((f) => f.endsWith(".json"))
   .map((f) => parsePuzzle(JSON.parse(readFileSync(join(PUZZLES_DIR, f), "utf8")), f.slice(0, -5)));
-// The list is ordered by title (puzzles.ts); "next" walks that order and wraps.
-const byTitle = [...puzzles].sort((a, b) => a.title.localeCompare(b.title));
+// The list's order (comparePuzzles); "next" walks it and wraps.
+const listOrder = [...puzzles].sort(comparePuzzles);
+const ofDifficulty = (d: Puzzle["difficulty"]) => listOrder.filter((p) => p.difficulty === d);
 const P = (id: string): Puzzle => {
   const p = puzzles.find((x) => x.id === id);
   if (p === undefined) throw new Error(`no puzzle ${id}`);
@@ -193,17 +195,17 @@ for (const name of browserNames()) {
       expect(p).toEqual([]);
     }
 
-    test("the puzzle list opens a round from the keyboard, in title order", async () => {
+    test("the puzzle list opens a round from the keyboard, easiest first", async () => {
       const { ctx, page, problems } = await fresh();
       const titles = await page.locator("ol li a.row .title").allTextContents();
-      expect(titles).toEqual(byTitle.map((p) => p.title));
+      expect(titles).toEqual(listOrder.map((p) => p.title));
       const pars = await page.locator("ol li a.row span.num:nth-of-type(3)").allTextContents();
-      expect(pars.map(Number)).toEqual(byTitle.map((p) => p.solution.length));
+      expect(pars.map(Number)).toEqual(listOrder.map((p) => p.solution.length));
       await page.keyboard.press("j");
       await page.keyboard.press("j");
       await page.keyboard.press("k");
       await page.keyboard.press("Enter");
-      const second = byTitle[1] as Puzzle;
+      const second = listOrder[1] as Puzzle;
       await waitRound(page, second.id);
       expect(await hash(page)).toBe(`#/p/${second.id}`);
       expect(await text(page, ".hud h1")).toBe(second.title);
@@ -333,10 +335,10 @@ for (const name of browserNames()) {
 
     test("every puzzle locks in on its reference solution with the self-check ok; Enter walks the list", async () => {
       const { ctx, page, problems } = await fresh();
-      const first = byTitle[0] as Puzzle;
+      const first = listOrder[0] as Puzzle;
       await openRound(page, first.id);
       const rows: string[] = [];
-      for (const [i, p] of byTitle.entries()) {
+      for (const [i, p] of listOrder.entries()) {
         await waitRound(page, p.id);
         await page.keyboard.press("Space");
         await typeKeys(page, p.solution);
@@ -367,7 +369,7 @@ for (const name of browserNames()) {
           ]),
         );
         await page.keyboard.press("Enter");
-        const next = byTitle[(i + 1) % byTitle.length] as Puzzle;
+        const next = listOrder[(i + 1) % listOrder.length] as Puzzle;
         await page.waitForFunction((h) => location.hash === h, `#/p/${next.id}`);
       }
       await done(ctx, problems);
@@ -500,7 +502,80 @@ for (const name of browserNames()) {
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("ArrowUp");
       await page.keyboard.press("Enter");
-      await waitRound(page, (byTitle[2] as Puzzle).id);
+      await waitRound(page, (listOrder[2] as Puzzle).id);
+      await done(ctx, problems);
+    });
+
+    const titles = (page: Page) => page.locator("ol li a.row .title").allTextContents();
+
+    test("the filter: number keys and chips pick a difficulty, / searches, Esc clears, 0 shows all", async () => {
+      const { ctx, page, problems } = await fresh();
+      await page.keyboard.press("1");
+      expect(await titles(page)).toEqual(ofDifficulty("easy").map((p) => p.title));
+      await page.keyboard.press("/");
+      await page.keyboard.type("rust");
+      expect(await page.locator(".search").inputValue()).toBe("rust");
+      expect(await titles(page)).toEqual(["One line"]);
+      expect(await text(page, ".count")).toBe(`1 of ${puzzles.length} puzzles`);
+      await page.keyboard.type("x");
+      expect(await titles(page)).toEqual([]);
+      expect(await text(page, "li.empty")).toContain("No puzzles match.");
+      await page.keyboard.press("Escape");
+      expect(await page.locator(".search").inputValue()).toBe("");
+      await page.keyboard.press("Escape");
+      expect(await page.evaluate(() => document.activeElement?.className ?? "")).not.toContain(
+        "search",
+      );
+      await page.keyboard.press("0");
+      expect(await titles(page)).toEqual(listOrder.map((p) => p.title));
+      await page.locator(".chip", { hasText: "hard" }).click();
+      expect(await titles(page)).toEqual(ofDifficulty("hard").map((p) => p.title));
+      await page.locator(".chip", { hasText: "hard" }).click();
+      expect(await titles(page)).toEqual(listOrder.map((p) => p.title));
+      await done(ctx, problems);
+    });
+
+    test("the search keeps arrows and Enter for the list, and keeps letters for the query", async () => {
+      const { ctx, page, problems } = await fresh();
+      await page.keyboard.press("/");
+      await page.keyboard.type("substitute");
+      const matches = listOrder.filter((p) => p.tags?.includes("substitute"));
+      expect(await titles(page)).toEqual(matches.map((p) => p.title));
+      await page.keyboard.type(" ");
+      await page.keyboard.press("ArrowDown");
+      await page.keyboard.press("Enter");
+      await waitRound(page, (matches[1] as Puzzle).id);
+      await done(ctx, problems);
+    });
+
+    test("difficulty and unsolved survive a reload; the search text does not", async () => {
+      const { ctx, page, problems } = await fresh();
+      const easy = ofDifficulty("easy");
+      await playToLockIn(page, easy[0] as Puzzle);
+      await page.keyboard.press("Escape");
+      await page.locator("ol li a.row").first().waitFor();
+      await page.keyboard.press("1");
+      await page.keyboard.press("u");
+      await page.keyboard.press("/");
+      await page.keyboard.type("o");
+      await page.reload({ waitUntil: "networkidle" });
+      await page.locator("ol li a.row").first().waitFor();
+      expect(await page.locator(".search").inputValue()).toBe("");
+      expect(await titles(page)).toEqual(easy.slice(1).map((p) => p.title));
+      expect(await page.locator(".chip[aria-pressed=true]").allTextContents()).toEqual([
+        "easy",
+        "Unsolved",
+      ]);
+      await done(ctx, problems);
+    });
+
+    test("Enter on the result card walks only the puzzles the filter shows", async () => {
+      const { ctx, page, problems } = await fresh();
+      await page.keyboard.press("2");
+      const medium = ofDifficulty("medium");
+      await playToLockIn(page, medium[0] as Puzzle);
+      await page.keyboard.press("Enter");
+      await waitRound(page, (medium[1] as Puzzle).id);
       await done(ctx, problems);
     });
 

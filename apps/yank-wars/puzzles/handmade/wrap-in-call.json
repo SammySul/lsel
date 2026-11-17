@@ -1,6 +1,7 @@
 {
   "id": "wrap-in-call",
   "title": "Stringify",
+  "difficulty": "hard",
   "description": "Wrap every right-hand side in str().",
   "language": "python",
   "tabSize": 4,

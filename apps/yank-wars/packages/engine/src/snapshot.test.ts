@@ -14,6 +14,7 @@ import {
 const puzzle = parsePuzzle({
   id: "snapshot-probe",
   title: "probe",
+  difficulty: "easy",
   language: "text",
   tabSize: 4,
   indentUnit: "    ",

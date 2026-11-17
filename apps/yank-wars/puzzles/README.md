@@ -12,6 +12,7 @@ load them with `Bun.Glob`.
 {
   id: string;            // ^[a-z0-9]+(-[a-z0-9]+)*$, 3..40 chars, equal to the file name
   title: string;         // 1..60 chars
+  difficulty: "easy" | "medium" | "hard";
   description?: string;  // at most 200 chars
   language: "text" | "javascript" | "typescript" | "jsx" | "tsx" | "python" | "go" | "rust" | "json" | "css";
   tabSize: 2 | 4 | 8;
@@ -51,7 +52,11 @@ Unknown keys are rejected, so a stored `par` or a misspelt field fails loudly.
    that contains the full 40-char `commit`, an allowed `license` and the `path`.
    Prefer original snippets. Use VimGolf challenges only with the maintainer's
    permission.
-5. *test*: ids are unique and equal their file names. Par is between 3 and 60,
+5. **`difficulty`** orders the list (easy first, then par, then title), so it
+   is how hard the puzzle feels, not its par. *easy*: one vim idea, par at most
+   10 (*test*); *medium*: two ideas or an ex command; *hard*: macros, regex
+   or a plan. Most puzzles are easy: they are the most fun.
+6. *test*: ids are unique and equal their file names. Par is between 3 and 60,
    and it is listed in `PAR` in `packages/engine/src/puzzles.test.ts`, so every
    change to a solution is deliberate.
 

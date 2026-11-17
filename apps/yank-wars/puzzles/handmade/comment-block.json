@@ -1,6 +1,7 @@
 {
   "id": "comment-block",
   "title": "Comment out the body",
+  "difficulty": "medium",
   "description": "Comment out the four body lines at the body's indent.",
   "language": "python",
   "tabSize": 4,

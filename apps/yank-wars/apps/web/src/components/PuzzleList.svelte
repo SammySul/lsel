@@ -1,8 +1,9 @@
 <script lang="ts">
+import { DIFFICULTIES, type Difficulty } from "@yank-wars/engine";
 import { untrack } from "svelte";
 import { formatClock } from "../lib/clock.ts";
 import { prefs } from "../lib/prefs.svelte.ts";
-import { puzzleErrors, puzzles } from "../lib/puzzles.ts";
+import { puzzleErrors, puzzles, visiblePuzzles } from "../lib/puzzles.ts";
 
 interface Props {
   selected?: string | undefined;
@@ -11,31 +12,57 @@ interface Props {
 
 let { selected, missing }: Props = $props();
 
-let index = $state(
-  untrack(() =>
-    Math.max(
-      0,
-      puzzles.findIndex((p) => p.id === selected),
-    ),
+const filter = $derived(prefs.filter);
+const shown = $derived(visiblePuzzles());
+let selectedId = $state(untrack(() => selected));
+const index = $derived(
+  Math.max(
+    0,
+    shown.findIndex((p) => p.id === selectedId),
   ),
 );
+const current = $derived(shown[index]);
 const rows: HTMLAnchorElement[] = $state([]);
-const current = $derived(puzzles[index]);
+let search: HTMLInputElement | undefined = $state();
 
 $effect(() => {
   rows[index]?.scrollIntoView({ block: "nearest" });
 });
 
-function open(i: number) {
-  const p = puzzles[i];
-  if (p !== undefined) location.hash = `#/p/${p.id}`;
+function move(by: number) {
+  const i = Math.min(shown.length - 1, Math.max(0, index + by));
+  selectedId = shown[i]?.id;
+}
+
+function open() {
+  if (current !== undefined) location.hash = `#/p/${current.id}`;
+}
+
+function setDifficulty(d: Difficulty | null) {
+  prefs.filter = { ...filter, difficulty: filter.difficulty === d ? null : d };
 }
 
 function onkeydown(e: KeyboardEvent) {
   if (e.ctrlKey || e.altKey || e.metaKey || puzzles.length === 0) return;
-  if (e.key === "j" || e.key === "ArrowDown") index = Math.min(puzzles.length - 1, index + 1);
-  else if (e.key === "k" || e.key === "ArrowUp") index = Math.max(0, index - 1);
-  else if (e.key === "Enter") open(index);
+  if (e.target === search) {
+    if (e.key === "ArrowDown") move(1);
+    else if (e.key === "ArrowUp") move(-1);
+    else if (e.key === "Enter") open();
+    else if (e.key === "Escape") {
+      if (filter.query !== "") prefs.filter = { ...filter, query: "" };
+      else search?.blur();
+    } else return;
+    e.preventDefault();
+    return;
+  }
+  if (e.key === "j" || e.key === "ArrowDown") move(1);
+  else if (e.key === "k" || e.key === "ArrowUp") move(-1);
+  else if (e.key === "Enter") open();
+  else if (e.key === "/") search?.focus();
+  else if (e.key === "0") setDifficulty(null);
+  else if (e.key === "1" || e.key === "2" || e.key === "3") {
+    setDifficulty(DIFFICULTIES[Number(e.key) - 1] ?? null);
+  } else if (e.key === "u") prefs.filter = { ...filter, unsolved: !filter.unsolved };
   else return;
   e.preventDefault();
 }
@@ -56,14 +83,48 @@ function onkeydown(e: KeyboardEvent) {
   {#if puzzles.length === 0}
     <p class="notice">No puzzles found in <code>puzzles/handmade/</code>.</p>
   {:else}
+    <div class="filters">
+      <div class="chips" role="group" aria-label="Difficulty">
+        <button
+          class="chip"
+          aria-pressed={filter.difficulty === null}
+          onclick={() => setDifficulty(null)}>All</button
+        >
+        {#each DIFFICULTIES as d (d)}
+          <button
+            class="chip {d}"
+            aria-pressed={filter.difficulty === d}
+            onclick={() => setDifficulty(d)}>{d}</button
+          >
+        {/each}
+        <button
+          class="chip"
+          aria-pressed={filter.unsolved}
+          onclick={() => (prefs.filter = { ...filter, unsolved: !filter.unsolved })}
+          >Unsolved</button
+        >
+      </div>
+      <input
+        bind:this={search}
+        class="search"
+        type="search"
+        placeholder="/ search: title, language, skill"
+        aria-label="Search puzzles"
+        spellcheck="false"
+        autocomplete="off"
+        value={filter.query}
+        oninput={(e) => (prefs.filter = { ...filter, query: e.currentTarget.value })}
+      />
+    </div>
+
     <div class="table">
       <div class="row head" aria-hidden="true">
-        <span>Puzzle</span><span>Language</span><span class="num">Par</span><span class="num"
-          >Lines</span
+        <span>Puzzle</span><span>Language</span><span class="num">Par</span><span
+          >Difficulty</span
         ><span class="num">Your best</span>
       </div>
       <ol>
-        {#each puzzles as p, i (p.id)}
+        {#each shown as p, i (p.id)}
           {@const best = prefs.best[p.id]}
           <li>
             <a
@@ -71,22 +132,28 @@ function onkeydown(e: KeyboardEvent) {
               class:selected={i === index}
               href="#/p/{p.id}"
               bind:this={rows[i]}
-              onfocus={() => (index = i)}
-              onmouseenter={() => (index = i)}
+              onfocus={() => (selectedId = p.id)}
+              onmouseenter={() => (selectedId = p.id)}
             >
               <span class="title">{p.title}</span>
               <span class="lang">{p.language}</span>
               <span class="num">{p.par}</span>
-              <span class="num">{p.start.split("\n").length}</span>
+              <span class="diff {p.difficulty}">{p.difficulty}</span>
               <span class="num best" class:none={!best}>
                 {#if best}{best.keys} <small>in {formatClock(best.ms)}</small>{:else}–{/if}
               </span>
             </a>
           </li>
+        {:else}
+          <li class="empty">No puzzles match. <kbd>0</kbd> shows every difficulty, <kbd>Esc</kbd> in the search clears it.</li>
         {/each}
       </ol>
     </div>
-    <p class="detail">{current?.description ?? ""}</p>
+    <p class="detail">
+      {current?.description ?? ""}
+      {#if current?.tags?.length}<span class="tags">{current.tags.join(" · ")}</span>{/if}
+    </p>
+    <p class="count">{shown.length} of {puzzles.length} puzzles</p>
   {/if}
 
   {#if puzzleErrors.length > 0}
@@ -99,7 +166,10 @@ function onkeydown(e: KeyboardEvent) {
     </section>
   {/if}
 
-  <footer><kbd>j</kbd>/<kbd>k</kbd> move · <kbd>Enter</kbd> play</footer>
+  <footer>
+    <kbd>j</kbd>/<kbd>k</kbd> move · <kbd>Enter</kbd> play · <kbd>/</kbd> search ·
+    <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> difficulty, <kbd>0</kbd> all · <kbd>u</kbd> unsolved
+  </footer>
 </main>
 
 <style>
@@ -121,6 +191,90 @@ function onkeydown(e: KeyboardEvent) {
   .notice {
     color: var(--warn);
   }
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .chips {
+    display: flex;
+    gap: 6px;
+  }
+  .chip {
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted);
+    font: inherit;
+    font-size: 12px;
+    text-transform: capitalize;
+    cursor: pointer;
+  }
+  .chip[aria-pressed="true"] {
+    background: var(--panel);
+    border-color: var(--muted);
+    color: var(--fg);
+  }
+  .search {
+    flex: 1 1 220px;
+    max-width: 300px;
+    padding: 5px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+    color: var(--fg);
+    font: inherit;
+    font-size: 13px;
+  }
+  .search:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .diff {
+    font-size: 12px;
+    text-transform: capitalize;
+  }
+  .easy {
+    color: var(--ok);
+  }
+  .medium {
+    color: var(--warn);
+  }
+  .hard {
+    color: var(--bad);
+  }
+  .chip.easy,
+  .chip.medium,
+  .chip.hard {
+    color: var(--muted);
+  }
+  .chip.easy[aria-pressed="true"] {
+    color: var(--ok);
+  }
+  .chip.medium[aria-pressed="true"] {
+    color: var(--warn);
+  }
+  .chip.hard[aria-pressed="true"] {
+    color: var(--bad);
+  }
+  .empty {
+    padding: 16px;
+    color: var(--muted);
+  }
+  .tags {
+    margin-left: 8px;
+    font-family: var(--mono);
+    font-size: 12px;
+  }
+  .count {
+    margin: 0;
+    color: var(--muted);
+    font-size: 12px;
+  }
   .table {
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -128,7 +282,7 @@ function onkeydown(e: KeyboardEvent) {
   }
   .row {
     display: grid;
-    grid-template-columns: 1fr 110px 50px 50px 130px;
+    grid-template-columns: 1fr 110px 50px 80px 130px;
     gap: 12px;
     align-items: baseline;
     padding: 10px 16px;

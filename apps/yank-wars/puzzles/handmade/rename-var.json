@@ -1,6 +1,7 @@
 {
   "id": "rename-var",
   "title": "Rename data",
+  "difficulty": "hard",
   "description": "Rename data to payload everywhere. The metadata key stays as it is.",
   "language": "typescript",
   "tabSize": 2,

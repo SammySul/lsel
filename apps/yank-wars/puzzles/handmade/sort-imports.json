@@ -1,6 +1,7 @@
 {
   "id": "sort-imports",
   "title": "Sort the imports",
+  "difficulty": "medium",
   "description": "gofmt sorts the import block; do it by hand.",
   "language": "go",
   "tabSize": 4,

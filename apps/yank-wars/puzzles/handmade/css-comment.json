@@ -1,6 +1,7 @@
 {
   "id": "css-comment",
   "title": "Disable the rule",
+  "difficulty": "easy",
   "description": "Comment out the whole rule, with the markers on lines of their own.",
   "language": "css",
   "tabSize": 2,

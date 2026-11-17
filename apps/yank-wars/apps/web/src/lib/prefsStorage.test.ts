@@ -1,5 +1,11 @@
 import { expect, test } from "bun:test";
-import { type PrefsStorage, readStored, writeBest, writeRelativeNumbers } from "./prefsStorage.ts";
+import {
+  type PrefsStorage,
+  readStored,
+  writeBest,
+  writeFilter,
+  writeRelativeNumbers,
+} from "./prefsStorage.ts";
 
 function memoryStorage(): PrefsStorage {
   const items = new Map<string, string>();
@@ -62,10 +68,38 @@ test("a throwing storage falls back to the tab's own state", () => {
       throw new Error("denied");
     },
   };
-  expect(readStored(broken)).toEqual({ relativeNumbers: true, best: {} });
+  expect(readStored(broken)).toEqual({
+    relativeNumbers: true,
+    best: {},
+    filter: { difficulty: null, unsolved: false },
+  });
   const r = writeBest(broken, readStored(broken), "join-lines", { keys: 6, ms: 4000 });
   expect(r).toEqual({
     better: true,
-    stored: { relativeNumbers: true, best: { "join-lines": { keys: 6, ms: 4000 } } },
+    stored: {
+      relativeNumbers: true,
+      best: { "join-lines": { keys: 6, ms: 4000 } },
+      filter: { difficulty: null, unsolved: false },
+    },
   });
+});
+
+test("the filter's difficulty and unsolved are stored, and a bad stored value falls back", () => {
+  const storage = memoryStorage();
+  writeFilter(storage, readStored(storage), { difficulty: "medium", unsolved: true });
+  expect(readStored(storage).filter).toEqual({ difficulty: "medium", unsolved: true });
+  storage.setItem(
+    "yank-wars:prefs:v1",
+    JSON.stringify({ filter: { difficulty: "expert", unsolved: 1 } }),
+  );
+  expect(readStored(storage).filter).toEqual({ difficulty: null, unsolved: false });
+});
+
+test("writing a best in another tab keeps this tab's stored filter", () => {
+  const storage = memoryStorage();
+  const tabA = readStored(storage);
+  const tabB = readStored(storage);
+  writeFilter(storage, tabA, { difficulty: "hard", unsolved: false });
+  writeBest(storage, tabB, "join-lines", { keys: 6, ms: 4000 });
+  expect(readStored(storage).filter).toEqual({ difficulty: "hard", unsolved: false });
 });

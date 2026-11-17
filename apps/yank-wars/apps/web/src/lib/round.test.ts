@@ -13,6 +13,7 @@ const T0 = 1_000;
 const puzzle = parsePuzzle({
   id: "round-flow",
   title: "Round flow",
+  difficulty: "easy",
   language: "javascript",
   tabSize: 2,
   indentUnit: "  ",
@@ -290,6 +291,7 @@ test("lock-in: input stops, self-check ok, best recorded, card after the pulse",
   expect(JSON.parse(r.storage.getItem("yank-wars:prefs:v1") ?? "null")).toEqual({
     relativeNumbers: true,
     best: { "round-flow": { keys: 2, ms: 2_500 } },
+    filter: { difficulty: null, unsolved: false },
   });
   r.press("x");
   expect(logOf(r)).toEqual(["d", "w"]);

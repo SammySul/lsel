@@ -1,6 +1,7 @@
 {
   "id": "indent-body",
   "title": "Indent the body",
+  "difficulty": "easy",
   "description": "Indent the function body by one tab.",
   "language": "go",
   "tabSize": 4,
