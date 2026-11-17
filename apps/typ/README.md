@@ -19,10 +19,10 @@ bun run test:e2e     # dist/ in Chromium, Firefox and WebKit
 
 ## Configuration
 
-| Variable                 | Default               |                          |
-| ------------------------ | --------------------- | ------------------------ |
-| `TYP_STATIC`             | the package's web app | absolute path to `dist/` |
-| `TYP_HOST`, `TYP_PORT`   | `127.0.0.1`, `7200`   |                          |
+| Variable               | Default               |                          |
+| ---------------------- | --------------------- | ------------------------ |
+| `TYP_STATIC`           | the package's web app | absolute path to `dist/` |
+| `TYP_HOST`, `TYP_PORT` | `127.0.0.1`, `7200`   |                          |
 
 Deploying is the NixOS module in `nix/module.nix` (`services.typ`); a version
 bump in `package.json` releases it.
