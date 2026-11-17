@@ -154,10 +154,6 @@ const status = $derived.by(() => {
     margin: 0 auto;
     padding: var(--space-6) var(--space-4);
   }
-  h1 {
-    margin: 0;
-    font-size: var(--text-xl);
-  }
   .sub {
     margin: var(--space-1) 0 var(--space-5);
     color: var(--subtle);

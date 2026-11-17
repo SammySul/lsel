@@ -38,21 +38,12 @@ let { report }: Props = $props();
     overflow-x: auto;
     border: var(--border);
   }
-  table {
-    border-collapse: collapse;
-    font-variant-numeric: tabular-nums;
-  }
   th,
   td {
-    padding: var(--space-2) var(--space-3);
-    border-bottom: var(--border);
     text-align: right;
     white-space: nowrap;
   }
   thead th {
-    color: var(--subtle);
-    font-size: var(--text-xs);
-    font-weight: 400;
     white-space: normal;
     vertical-align: bottom;
     min-width: 7ch;
