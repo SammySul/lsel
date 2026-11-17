@@ -62,6 +62,12 @@ the interface around it still uses these variables.
   CSS through `tokens.css`, anything driven from JavaScript (Chart.js, the Web
   Animations API) by checking the media query itself.
 
+## Icon
+
+A project's favicon is its first letter, lowercase, in JetBrains Mono Bold, in
+`--accent` on `--base`, square: `nix run lsel#favicon -- <letter> >
+favicon.svg` (the letter is a path, so no font is needed to show it).
+
 ## Words
 
 - Plain and short. Say what happened or what to do; no exclamation marks, no

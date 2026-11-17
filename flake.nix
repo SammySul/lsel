@@ -25,6 +25,24 @@
           font = pkgs.jetbrains-mono.src;
         in
         {
+          # `nix run lsel#favicon -- d > favicon.svg`: a letter as a path, so no font is needed to show it
+          favicon =
+            pkgs.writers.writePython3Bin "lsel-favicon"
+              {
+                libraries = [ pkgs.python3Packages.fonttools ];
+                flakeIgnore = [ "E501" ];
+              }
+              (
+                builtins.replaceStrings
+                  [ "@font@" "@base@" "@accent@" ]
+                  [
+                    "${pkgs.jetbrains-mono}/share/fonts/truetype/JetBrainsMono-Bold.ttf"
+                    palettes.rose-pine-moon.base
+                    palettes.rose-pine-moon.accent
+                  ]
+                  (builtins.readFile ./scripts/favicon.py)
+              );
+
           # What `bun run sync` copies into a project: tokens.css, the two weights it loads, their license.
           assets = pkgs.runCommand "lsel-assets" { } ''
             mkdir -p $out
