@@ -248,6 +248,11 @@ changes it runs the full checks (`nix build` included), then CI tags `vX.Y.Z`
 and publishes a GitHub release listing the commit subjects since the last tag;
 a push without a bump releases nothing.
 
+**Forgejo (2026-11-17).** The repository moved to
+`git.sammysul.com/SammySul/yank-wars`: CI runs there on `twelve`'s own runner
+(`.forgejo/workflows/`), releases are Forgejo releases, the updater below
+follows Forgejo's tags, and GitHub is a push mirror with no workflows.
+
 **Deploy follows the tags (2026-11-17).** With `services.yank-wars.autoUpdate`
 on, a timer on `twelve` asks GitHub for the newest `v*` tag every 5 minutes,
 `nix build`s it into `/var/lib/yank-wars-updater/current` (the link moves only

@@ -196,7 +196,7 @@ function onkeydown(e: KeyboardEvent) {
     </p>
     <p class="meta">
       Yank Wars <span class="version">v{version}</span> ·
-      <a href="https://github.com/SammySul/yank-wars">source</a> · MIT
+      <a href="https://git.sammysul.com/SammySul/yank-wars">source</a> · MIT
     </p>
   </footer>
 </main>
