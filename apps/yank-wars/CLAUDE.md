@@ -94,8 +94,8 @@ describes, fix or delete the note.
   or the Nix build uses a stale `bun.nix`. The Nix build would rerun it without,
   hence `dontRunLifecycleScripts` in every `package.nix`, which also skips any
   dependency's own install script.
-- `checks.x86_64-linux.module` is a NixOS VM test: run it on `twelve`
-  (`nix build path:.#checks.x86_64-linux.module`), the mac has no Linux builder.
+- The service and its updater are defined in `squares` (`hosts/twelve/apps.nix`,
+  with their VM test), not here: this repo ships only the package.
 - A flake sees only git-tracked files: `git add` new files before `nix build`
   or `nix develop`, or it fails with "does not exist in Git repository".
 - Package scripts put `node_modules/.bin` first on PATH: after dropping a

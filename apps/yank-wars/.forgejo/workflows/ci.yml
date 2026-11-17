@@ -14,8 +14,6 @@ jobs:
       - run: nix develop -c bun test ./apps/web/e2e/parity.e2e.ts
       - run: nix develop -c bun run build
       - run: nix build .#default --no-link
-      # includes the NixOS module's VM test
-      - run: nix flake check
       - name: the test harness stays out of the production build
         run: "! grep -rlq -e __yw -e harness apps/web/dist"
 

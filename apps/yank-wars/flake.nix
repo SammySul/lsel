@@ -11,7 +11,6 @@
 
   outputs =
     {
-      self,
       nixpkgs,
       bun2nix,
       ...
@@ -40,18 +39,6 @@
           default = pkgs.callPackage ./nix/package.nix { bun2nix = bun2nixFor system; };
         }
       );
-
-      nixosModules.default =
-        { lib, pkgs, ... }:
-        {
-          imports = [ ./nix/module.nix ];
-          services.yank-wars.package = lib.mkDefault self.packages.${pkgs.stdenv.hostPlatform.system}.default;
-        };
-
-      checks.x86_64-linux.module = nixpkgs.legacyPackages.x86_64-linux.callPackage ./nix/module-test.nix {
-        module = ./nix/module.nix;
-        package = self.packages.x86_64-linux.default;
-      };
 
       devShells = forEachSystem (
         system:

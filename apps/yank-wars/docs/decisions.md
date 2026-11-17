@@ -253,8 +253,9 @@ a push without a bump releases nothing.
 (`.forgejo/workflows/`), releases are Forgejo releases, the updater below
 follows Forgejo's tags, and GitHub is a push mirror with no workflows.
 
-**Deploy follows the tags (2026-11-17).** With `services.yank-wars.autoUpdate`
-on, a timer on `twelve` asks GitHub for the newest `v*` tag every 5 minutes,
+**Deploy follows the tags (2026-11-17).** A timer on `twelve` (defined in
+`squares`, `hosts/twelve/apps.nix`, once for every app; it began here as
+`nix/module.nix`) asks Forgejo for the newest `v*` tag every 5 minutes,
 `nix build`s it into `/var/lib/yank-wars-updater/current` (the link moves only
 on success) and restarts yank-wars alone; a failed health check puts the
 previous build back. Nothing else on `twelve` changes, and `squares` only pins
