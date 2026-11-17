@@ -207,12 +207,6 @@ function onkeydown(e: KeyboardEvent) {
     margin: 0 auto;
     padding: 48px 24px;
   }
-  h1 {
-    margin: 0;
-    font-family: var(--font);
-    font-size: var(--text-xl);
-    letter-spacing: -0.02em;
-  }
   .tagline {
     margin: 4px 0 16px;
     color: var(--subtle);
@@ -248,32 +242,11 @@ function onkeydown(e: KeyboardEvent) {
     gap: 6px;
   }
   .chip {
-    padding: 4px 10px;
-    border: 1px solid var(--overlay);
-    background: transparent;
-    color: var(--subtle);
-    font: inherit;
-    font-size: var(--text-xs);
     text-transform: capitalize;
-    cursor: pointer;
-  }
-  .chip[aria-pressed="true"] {
-    border-color: var(--accent);
-    color: var(--text);
   }
   .search {
     flex: 1 1 220px;
     max-width: 300px;
-    padding: 5px 10px;
-    border: 1px solid var(--overlay);
-    background: var(--base);
-    color: var(--text);
-    font: inherit;
-    font-size: var(--text-sm);
-  }
-  .search:focus {
-    outline: none;
-    border-color: var(--accent);
   }
   .diff {
     font-size: var(--text-xs);
@@ -291,7 +264,7 @@ function onkeydown(e: KeyboardEvent) {
   .chip.easy,
   .chip.medium,
   .chip.hard {
-    color: var(--subtle);
+    color: var(--text);
   }
   .chip.easy[aria-pressed="true"] {
     color: var(--success);
@@ -374,15 +347,10 @@ function onkeydown(e: KeyboardEvent) {
     color: var(--subtle);
   }
   .errors h2 {
-    font-size: var(--text-sm);
     color: var(--error);
   }
   .errors pre {
-    white-space: pre-wrap;
-    background: var(--raise);
-    border: 1px solid var(--overlay);
-    padding: 8px 12px;
-    font-size: var(--text-xs);
+    margin-top: 8px;
   }
   footer {
     margin-top: 32px;

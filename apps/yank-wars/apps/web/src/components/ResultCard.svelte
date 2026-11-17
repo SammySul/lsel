@@ -162,7 +162,6 @@ function onkeydown(e: KeyboardEvent) {
   }
   h2 {
     margin: 0 0 12px;
-    font-size: var(--text-lg);
     color: var(--warning);
   }
   h2.ok {
@@ -215,12 +214,7 @@ function onkeydown(e: KeyboardEvent) {
   }
   pre {
     margin: 0 0 12px;
-    padding: 8px 12px;
-    white-space: pre-wrap;
-    word-break: break-all;
     user-select: text;
-    background: var(--base);
-    border: 1px solid var(--overlay);
   }
   details pre {
     margin-top: 6px;

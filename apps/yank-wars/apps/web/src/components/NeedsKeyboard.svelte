@@ -27,8 +27,6 @@ let { onDismiss }: Props = $props();
   }
   h1 {
     margin: 24px 0 12px;
-    font-family: var(--font);
-    font-size: var(--text-lg);
   }
   p {
     color: var(--subtle);
@@ -36,11 +34,5 @@ let { onDismiss }: Props = $props();
   }
   button {
     margin-top: 16px;
-    padding: 8px 16px;
-    border: 1px solid var(--overlay);
-    background: var(--raise);
-    color: var(--text);
-    font: inherit;
-    cursor: pointer;
   }
 </style>
