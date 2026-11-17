@@ -130,8 +130,9 @@ describe("formatKeys", () => {
     expect(formatKeys(parseKeys(notation))).toBe(notation.replaceAll(" ", "<Space>"));
   });
 
-  test("finds every handmade puzzle", () => {
-    expect(PUZZLE_SOLUTIONS.length).toBe(10);
+  // the exact set is pinned by PAR in puzzles.test.ts; this only proves the glob finds them
+  test("finds the handmade puzzles", () => {
+    expect(PUZZLE_SOLUTIONS.length).toBeGreaterThan(0);
   });
 
   test.each(PUZZLE_SOLUTIONS)("round-trips the solution of %s", (_id, notation) => {
