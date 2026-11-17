@@ -35,5 +35,5 @@ bun run dev          # vite, proxying /api to the server
 | `DAJAJ_HOST`, `DAJAJ_PORT` | `127.0.0.1`, `7310`                 |                                           |
 | `PUBG_API_URL`             | `https://api.pubg.com/shards/steam` |                                           |
 
-Deploying is the NixOS module in `nix/module.nix` (`services.dajaj`); a
-version bump in `package.json` releases it.
+A version bump in `package.json` releases it; the host that runs it follows
+the release tags.
