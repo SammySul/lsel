@@ -124,26 +124,21 @@ results.
 
 ## Puzzles
 
-**Generated daily**, as JSON. Two ways to run it; pick when step 3 starts:
-a GitHub Action that commits to `puzzles/` (reviewable, versioned, but needs
-a redeploy per day), or a systemd timer in the NixOS module writing into the
-service's state dir (no redeploy; the natural fit once deploy is Nix). Handmade
-puzzles live in the repo either way. The generator:
+**Handmade only (2026-11-16).** Every puzzle is a file in `puzzles/handmade/`,
+written and reviewed like code; Claude writes most of them, and the puzzle tests
+(the solution reaches the target on its last key, par pinned in `PAR`) are the
+gate. *Rejected:* the generator (repo excerpts plus scripted vim-shaped edits):
+mechanical edits make samey, tedious puzzles, and it needed licence tracking
+and a daily job.
 
-1. takes a 10–30 line chunk from a fixed list of MIT/Apache repos (credited
-   with the puzzle);
-2. applies a vim-shaped change (rename, swap arguments, change quote style,
-   add/remove trailing commas, sort/join/split lines, wrap lines in a call,
-   comment out a block) and writes a reference solution for it;
-3. replays the reference solution with `engine`. If it reaches the target, the
-   puzzle is kept and the solution's length becomes **par**; otherwise it's dropped.
-
-A handful of handmade puzzles come first, so the generator never blocks
-playing. VimGolf challenges only with the maintainer's permission (licence
-unclear).
+**Easy first.** Most puzzles are short: one or two vim ideas, solved in
+seconds. The list starts with the easiest and harder ones stay a minority;
+easy ones are the most fun. VimGolf challenges only with the maintainer's
+permission (licence unclear).
 
 **Daily puzzle = solo fallback.** One puzzle per day is the same for everyone,
-Wordle-style. With nobody in the queue you play the daily against par and see
+Wordle-style, picked from the handmade pool on a fixed rotation, so no job and
+no redeploy. With nobody in the queue you play the daily against par and see
 today's best. Ghost replays (recorded key logs played back as an opponent) can
 come later on the same data.
 
@@ -255,7 +250,7 @@ projects, keeps the upstream engine PR and puzzle-source credits simple.
 2. Server: rooms via invite link, grace timer, round cap, reconnect, headless
    replay with mismatch logging, Better Auth anonymous sessions on `bun:sqlite`,
    upstream PRs for the core patch, NixOS module on `twelve` as `yankwars.app`
-3. Generator + daily puzzle page (Action vs systemd timer decided here)
+3. Puzzle pack: many handmade puzzles ordered easy to hard, daily puzzle page
 4. Matchmaking queue with daily/solo fallback
 5. Only if people rematch: GitHub login + linking, ratings (Glicko-2 /
    OpenSkill), ghosts
