@@ -54,8 +54,13 @@ the interface around it still uses these variables.
   lists the keys.
 - Focus is always visible: `--focus`, a 2px accent outline.
 - Nothing only works on hover or with a mouse.
-- Motion only shows a change of state, at `--motion` (120 ms); none for
-  decoration. `prefers-reduced-motion` turns it off (`tokens.css`).
+- **Motion is subtle and on by default**, one curve (`--ease`): controls ease
+  their color and border changes (`--motion-fast`, 150 ms, set by
+  `tokens.css`); content that appears or swaps fades in (`.lsel-appear`,
+  `--motion`, 200 ms); charts animate to new values (`--motion-slow`, 300 ms).
+  Nothing moves for decoration. `prefers-reduced-motion` stops all of it: the
+  CSS through `tokens.css`, anything driven from JavaScript (Chart.js, the Web
+  Animations API) by checking the media query itself.
 
 ## Words
 

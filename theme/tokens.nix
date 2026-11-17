@@ -55,7 +55,10 @@ p: ''
 
     --border: 1px solid var(--overlay);
     --focus: 2px solid var(--accent);
-    --motion: 120ms ease-out;
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+    --motion-fast: 150ms;
+    --motion: 200ms;
+    --motion-slow: 300ms;
   }
 
   *,
@@ -78,6 +81,30 @@ p: ''
   :focus-visible {
     outline: var(--focus);
     outline-offset: 2px;
+  }
+
+  a,
+  button,
+  input,
+  select,
+  summary,
+  textarea {
+    transition:
+      color var(--motion-fast) var(--ease),
+      background-color var(--motion-fast) var(--ease),
+      border-color var(--motion-fast) var(--ease),
+      outline-color var(--motion-fast) var(--ease);
+  }
+
+  @keyframes lsel-appear {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* Content that appears or swaps; re-key the element in Svelte to replay it. */
+  .lsel-appear {
+    animation: lsel-appear var(--motion) var(--ease) both;
   }
 
   @media (prefers-reduced-motion: reduce) {
