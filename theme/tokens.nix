@@ -101,7 +101,7 @@ p: ''
 
   button,
   select,
-  input,
+  input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]),
   textarea {
     font: inherit;
     color: var(--text);
@@ -126,6 +126,12 @@ p: ''
   textarea:disabled {
     color: var(--muted);
     cursor: default;
+  }
+
+  input[type="checkbox"],
+  input[type="radio"],
+  input[type="range"] {
+    accent-color: var(--accent);
   }
 
   kbd {
