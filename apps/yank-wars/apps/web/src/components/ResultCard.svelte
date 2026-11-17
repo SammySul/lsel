@@ -2,6 +2,7 @@
 import { formatKeys } from "@yank-wars/engine";
 import { formatClock } from "../lib/clock.ts";
 import type { RoundController } from "../lib/round.svelte.ts";
+import { shareText } from "../lib/share.ts";
 
 interface Props {
   ctl: RoundController;
@@ -14,6 +15,7 @@ let { ctl, onNext, onRetry, onList }: Props = $props();
 
 let showSolution = $state(false);
 let copied = $state<"idle" | "ok" | "failed">("idle");
+let shared = $state<"idle" | "ok" | "failed">("idle");
 
 const puzzle = $derived(ctl.puzzle);
 const locked = $derived(ctl.phase === "locked");
@@ -32,6 +34,15 @@ async function copy() {
   }
 }
 
+async function share() {
+  try {
+    await navigator.clipboard.writeText(shareText(puzzle, ctl.keys, ctl.elapsed, location.origin));
+    shared = "ok";
+  } catch {
+    shared = "failed";
+  }
+}
+
 // A held key repeats into the card; Ctrl/Alt/Meta combos belong to the browser and the UI chords.
 function onkeydown(e: KeyboardEvent) {
   if (e.ctrlKey || e.altKey || e.metaKey || e.repeat) return;
@@ -40,6 +51,7 @@ function onkeydown(e: KeyboardEvent) {
   else if (key === "r") onRetry();
   else if (key === "s") showSolution = !showSolution;
   else if (key === "c") void copy();
+  else if (key === "y" && locked) void share();
   else if (key === "Escape") onList();
   else return;
   e.preventDefault();
@@ -120,6 +132,11 @@ function onkeydown(e: KeyboardEvent) {
     {/if}
 
     <div class="actions">
+      {#if locked}
+        <button class="share" onclick={share}>
+          {shared === "ok" ? "Copied" : shared === "failed" ? "Copy failed" : "Share"} <kbd>y</kbd>
+        </button>
+      {/if}
       <button onclick={onNext}>Next <kbd>Enter</kbd></button>
       <button onclick={onRetry}>Retry <kbd>r</kbd></button>
       <button onclick={onList}>Puzzles <kbd>Esc</kbd></button>
@@ -234,5 +251,8 @@ function onkeydown(e: KeyboardEvent) {
     gap: 8px;
     justify-content: flex-end;
     margin-top: 16px;
+  }
+  .share {
+    margin-right: auto;
   }
 </style>

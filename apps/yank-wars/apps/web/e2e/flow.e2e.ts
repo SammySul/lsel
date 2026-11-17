@@ -391,6 +391,10 @@ for (const name of browserNames()) {
       expect(((await row.locator(".best").textContent()) ?? "").trim()).toMatch(
         /^4 in 0:\d\d\.\d$/,
       );
+      expect(await row.locator(".mark").getAttribute("class")).toContain("par");
+      expect(await text(page, ".progress")).toBe(
+        `1 of ${puzzles.length} solved · 1 at par or better`,
+      );
       await done(ctx, problems);
     });
 
@@ -492,6 +496,31 @@ for (const name of browserNames()) {
         // headless Firefox and WebKit may refuse clipboard writes; the button must say which
         await page.locator(".notation button", { hasText: /Copied|Copy failed/ }).waitFor();
       }
+      await done(ctx, problems);
+    });
+
+    test("result card: y copies a share line after a lock-in, and is not offered after giving up", async () => {
+      const { ctx, page, problems } = await fresh();
+      if (name === "chromium") await ctx.grantPermissions(["clipboard-read", "clipboard-write"]);
+      const p = P("indent-body");
+      await playToLockIn(page, p);
+      await page.keyboard.press("y");
+      if (name === "chromium") {
+        await page.locator(".actions .share", { hasText: "Copied" }).waitFor();
+        const shared = await page.evaluate(() => navigator.clipboard.readText());
+        expect(shared.replace(/\d:\d\d\.\d/, "T")).toBe(
+          `Yank Wars · Indent the body\n4 keys, par 4 · T\n${vite.base}/#/p/indent-body`,
+        );
+      } else {
+        await page.locator(".actions .share", { hasText: /Copied|Copy failed/ }).waitFor();
+      }
+      await page.keyboard.press("r");
+      await waitRound(page, p.id);
+      await page.keyboard.press("Space");
+      await page.keyboard.press("Control+Shift+Enter");
+      await cardShown(page);
+      expect(await text(page, ".card h2")).toBe("Gave up");
+      expect(await page.locator(".actions .share").count()).toBe(0);
       await done(ctx, problems);
     });
 

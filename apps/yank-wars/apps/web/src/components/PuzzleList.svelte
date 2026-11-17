@@ -1,8 +1,10 @@
 <script lang="ts">
 import { DIFFICULTIES, type Difficulty } from "@yank-wars/engine";
 import { untrack } from "svelte";
+import { CHORD_LABELS } from "../lib/chords.ts";
 import { formatClock } from "../lib/clock.ts";
 import { prefs } from "../lib/prefs.svelte.ts";
+import { markOf, progressOf } from "../lib/progress.ts";
 import { puzzleErrors, puzzles, visiblePuzzles } from "../lib/puzzles.ts";
 
 interface Props {
@@ -14,6 +16,7 @@ let { selected, missing }: Props = $props();
 
 const filter = $derived(prefs.filter);
 const shown = $derived(visiblePuzzles());
+const progress = $derived(progressOf(puzzles, prefs.best));
 let selectedId = $state(untrack(() => selected));
 const index = $derived(
   Math.max(
@@ -74,6 +77,19 @@ function onkeydown(e: KeyboardEvent) {
   <header>
     <h1>Yank Wars</h1>
     <p class="tagline">Vim golf against the clock. Fewest keys wins.</p>
+    <ol class="how">
+      <li>Make your buffer match the target, using vim.</li>
+      <li>Every keystroke counts. Match par, or beat it.</li>
+      <li>
+        It locks in the moment it matches. <kbd>{CHORD_LABELS.reset}</kbd> starts over,
+        <kbd>{CHORD_LABELS.forfeit}</kbd> gives up.
+      </li>
+    </ol>
+    {#if progress.solved > 0}
+      <p class="progress">
+        {progress.solved} of {puzzles.length} solved · {progress.parOrBetter} at par or better
+      </p>
+    {/if}
   </header>
 
   {#if missing}
@@ -140,7 +156,13 @@ function onkeydown(e: KeyboardEvent) {
               <span class="num">{p.par}</span>
               <span class="diff {p.difficulty}">{p.difficulty}</span>
               <span class="num best" class:none={!best}>
-                {#if best}{best.keys} <small>in {formatClock(best.ms)}</small>{:else}–{/if}
+                {#if best}
+                  {@const mark = markOf(best, p.par)}
+                  <span class="mark {mark}" title={mark === "under" ? "under par" : mark === "par" ? "par" : ""}
+                    >{mark === "under" ? "★ " : ""}{best.keys}</span
+                  >
+                  <small>in {formatClock(best.ms)}</small>
+                {:else}–{/if}
               </span>
             </a>
           </li>
@@ -185,8 +207,23 @@ function onkeydown(e: KeyboardEvent) {
     letter-spacing: -0.02em;
   }
   .tagline {
-    margin: 4px 0 32px;
+    margin: 4px 0 16px;
     color: var(--muted);
+  }
+  .how {
+    margin: 0 0 24px;
+    padding-left: 20px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .progress {
+    margin: 0 0 16px;
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  .mark.under,
+  .mark.par {
+    color: var(--ok);
   }
   .notice {
     color: var(--warn);
