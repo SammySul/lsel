@@ -38,13 +38,13 @@ it.
 
 rssism is the reference. Svelte 5 + Vite with `vite-plugin-web-extension`,
 styled by `tokens.css` like any app (`lsel.json` points at the popup), checked
-and tested the same way; the popup keeps its own width. There is no server,
-release or updater: `package.nix` builds the unpacked extension and a desktop
-host loads it from `squares` (`localExtensions` on tanaka), so a change ships by
-updating that flake input and deploying the host. The manifest's `key` pins the
-extension id, which the extension's storage belongs to.
-An extension nobody installs through `squares` ships as a zip on a Forgejo
-release instead (dontstudy: a `v*` tag runs its `release.yml`).
+and tested the same way; the popup keeps its own width. No server and no
+updater. It releases like everything else (Release, below), and the release
+carries the built extension as `<name>.zip` for loading unpacked; the manifest
+takes its version from `package.json` at build. On tanaka, `package.nix` builds
+it and `squares` loads it (`localExtensions`), updated with that flake input and
+a deploy. The manifest's `key` pins the extension id, which the extension's
+storage belongs to, so every copy shares it.
 
 ## Release
 
