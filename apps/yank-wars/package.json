@@ -24,7 +24,8 @@
     "test": "bun test",
     "oracle": "bun packages/engine/oracle/run.ts",
     "test:browser": "bun apps/web/browser/run.ts",
-    "postinstall": "bun2nix -o bun.nix"
+    "postinstall": "bun2nix -o bun.nix",
+    "brand": "bun apps/web/brand/render.ts"
   },
   "devDependencies": {
     "@types/bun": "1.4.4",

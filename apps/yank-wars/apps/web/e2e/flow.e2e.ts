@@ -571,6 +571,42 @@ for (const name of browserNames()) {
       await done(ctx, problems);
     });
 
+    test("a phone-sized window gets the keyboard notice; Play anyway shows the list", async () => {
+      const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
+      const page = await ctx.newPage();
+      const watch = watchPage(page);
+      await page.goto(`${vite.base}/#/`, { waitUntil: "networkidle" });
+      expect(await text(page, ".needs-keyboard h1")).toBe("Yank Wars needs a keyboard");
+      expect(await page.locator("ol li a.row").count()).toBe(0);
+      await page.getByRole("button", { name: "Play anyway" }).click();
+      expect(await page.locator("ol li a.row").count()).toBe(puzzles.length);
+      await done(ctx, watch.take);
+    });
+
+    test("the icon, touch icon and preview card are served and linked", async () => {
+      const { ctx, page, problems } = await fresh();
+      expect(await page.locator(".needs-keyboard").count()).toBe(0);
+      const attr = (sel: string, name: string) => page.locator(sel).getAttribute(name);
+      expect(await attr('link[rel="icon"]', "href")).toBe("/favicon.svg");
+      expect(await attr('link[rel="apple-touch-icon"]', "href")).toBe("/apple-touch-icon.png");
+      expect(await attr('meta[property="og:image"]', "content")).toBe(
+        "https://yankwars.app/og.png",
+      );
+      for (const [path, type] of [
+        ["/favicon.svg", "image/svg+xml"],
+        ["/apple-touch-icon.png", "image/png"],
+        ["/og.png", "image/png"],
+      ] as const) {
+        const r = await page.request.get(`${vite.base}${path}`);
+        expect([path, r.status(), r.headers()["content-type"]?.split(";")[0]]).toEqual([
+          path,
+          200,
+          type,
+        ]);
+      }
+      await done(ctx, problems);
+    });
+
     test("Enter on the result card walks only the puzzles the filter shows", async () => {
       const { ctx, page, problems } = await fresh();
       await page.keyboard.press("2");

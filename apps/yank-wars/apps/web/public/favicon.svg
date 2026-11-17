@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <title>Yank Wars</title>
+  <rect width="32" height="32" rx="7" fill="#0d1117"/>
+  <rect x="6" y="5" width="20" height="22" rx="2" fill="#f2cc60"/>
+  <path d="M11 10l5 7m5-7l-7 12" fill="none" stroke="#0d1117" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

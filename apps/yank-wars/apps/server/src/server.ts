@@ -3,9 +3,9 @@ import type { Server } from "bun";
 import type { Config } from "./config.ts";
 
 const SECURITY_HEADERS: Record<string, string> = {
-  // CodeMirror injects <style> at runtime; the icon is a data: URL.
+  // CodeMirror injects <style> at runtime.
   "Content-Security-Policy":
-    "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+    "default-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
   "X-Content-Type-Options": "nosniff",
   "Referrer-Policy": "no-referrer",
 };

@@ -1,6 +1,8 @@
 <script lang="ts">
+import NeedsKeyboard from "./components/NeedsKeyboard.svelte";
 import PuzzleList from "./components/PuzzleList.svelte";
 import Round from "./components/Round.svelte";
+import { needsKeyboardNotice } from "./lib/device.ts";
 import { findPuzzle, nextPuzzle } from "./lib/puzzles.ts";
 
 type Route = { kind: "list" } | { kind: "round"; id: string };
@@ -13,6 +15,11 @@ function parseRoute(hash: string): Route {
 let hash = $state(location.hash);
 let attempt = $state(0);
 let lastId = $state<string | undefined>(undefined);
+
+const anyFinePointer = matchMedia("(any-pointer: fine)").matches;
+let width = $state(innerWidth);
+let playAnyway = $state(false);
+const showNotice = $derived(!playAnyway && needsKeyboardNotice(anyFinePointer, width));
 
 const route = $derived(parseRoute(hash));
 const puzzle = $derived(route.kind === "round" ? findPuzzle(route.id) : undefined);
@@ -41,9 +48,11 @@ function list() {
 }
 </script>
 
-<svelte:window {onhashchange} />
+<svelte:window {onhashchange} bind:innerWidth={width} />
 
-{#if puzzle}
+{#if showNotice}
+  <NeedsKeyboard onDismiss={() => (playAnyway = true)} />
+{:else if puzzle}
   {#key `${puzzle.id}:${attempt}`}
     <Round {puzzle} onNext={() => next(puzzle.id)} onRetry={retry} onList={list} />
   {/key}

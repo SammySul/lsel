@@ -110,7 +110,7 @@ describe("static files", () => {
     for (const p of ["/", "/nope", "/healthz"]) {
       const h = (await fetch(`${base}${p}`)).headers;
       expect(h.get("content-security-policy")).toBe(
-        "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+        "default-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
       );
       expect(h.get("x-content-type-options")).toBe("nosniff");
       expect(h.get("referrer-policy")).toBe("no-referrer");
