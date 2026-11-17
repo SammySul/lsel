@@ -52,7 +52,7 @@ function ready() {
     align-items: center;
     gap: 16px;
     padding: 8px 16px;
-    background: var(--panel);
+    background: var(--raise);
   }
   .ring {
     position: relative;
@@ -70,10 +70,10 @@ function ready() {
     stroke-width: 3;
   }
   .track {
-    stroke: var(--border);
+    stroke: var(--overlay);
   }
   .arc {
-    stroke: var(--cursor);
+    stroke: var(--accent);
     stroke-linecap: round;
   }
   .secs {
@@ -81,7 +81,7 @@ function ready() {
     inset: 0;
     display: grid;
     place-items: center;
-    font-family: var(--mono);
+    font-family: var(--font);
     font-weight: 700;
   }
   .text {
@@ -93,7 +93,7 @@ function ready() {
   }
   .chords {
     margin-top: 2px;
-    font-size: 12px;
-    color: var(--muted);
+    font-size: var(--text-xs);
+    color: var(--subtle);
   }
 </style>

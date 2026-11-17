@@ -69,10 +69,6 @@
     url = "https://registry.npmjs.org/@codemirror/streamparser/-/streamparser-6.0.0.tgz";
     hash = "sha512-JTFPF6xrfjt0mnfGPgzcLiMwYmvIyNaoizp8BYzv8FE8KrT6GBGDZ190rtt+O7Wke3gG/MFHyiY9YGNeimof4w==";
   };
-  "@codemirror/theme-one-dark@6.1.3" = fetchurl {
-    url = "https://registry.npmjs.org/@codemirror/theme-one-dark/-/theme-one-dark-6.1.3.tgz";
-    hash = "sha512-NzBdIvEJmx6fjeremiGp3t/okrLPYT0d9orIc7AFun8oZcRk58aejkqhv6spnz4MLAevrKNPMQYXEWMg4s+sKA==";
-  };
   "@codemirror/view@6.43.15" = fetchurl {
     url = "https://registry.npmjs.org/@codemirror/view/-/view-6.43.15.tgz";
     hash = "sha512-HHsfpqFeHyXLs983pSRe38Xajs0vFWZQ2BuX0m7Ki8w3jZ5iD8cuR3lBz2/5/X53Dhf32SBHKh6rtSTB6tKeGw==";

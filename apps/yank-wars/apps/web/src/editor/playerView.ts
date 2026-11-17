@@ -1,6 +1,5 @@
 import { syntaxHighlighting } from "@codemirror/language";
 import { Compartment, Text } from "@codemirror/state";
-import { oneDarkHighlightStyle } from "@codemirror/theme-one-dark";
 import { drawSelection, EditorView, highlightActiveLine } from "@codemirror/view";
 import {
   type BrowserInputOptions,
@@ -14,6 +13,7 @@ import {
 } from "@yank-wars/engine";
 import { diffField } from "./diff.ts";
 import { absoluteGutter, relativeGutter } from "./gutter.ts";
+import { ywHighlight } from "./highlight.ts";
 import { ywTheme } from "./theme.ts";
 
 export interface PlayerViewOptions extends Omit<BrowserInputOptions, "onKey"> {
@@ -45,7 +45,7 @@ export function createPlayerView(opts: PlayerViewOptions): PlayerView {
     extraExtensions: [
       browserInput(current, opts),
       ywTheme,
-      syntaxHighlighting(oneDarkHighlightStyle),
+      syntaxHighlighting(ywHighlight),
       drawSelection(),
       highlightActiveLine(),
       numbers.of(gutterFor(opts.relativeNumbers)),

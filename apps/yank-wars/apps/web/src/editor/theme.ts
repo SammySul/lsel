@@ -1,61 +1,49 @@
 import { EditorView } from "@codemirror/view";
 
-// Fallbacks for the page tokens, so the editor renders right even before app.css defines them.
-const tokens = {
-  bg: "#0d1117",
-  border: "#30363d",
-  fg: "#e6edf3",
-  muted: "#8b949e",
-  bad: "#f85149",
-  cursor: "#f2cc60",
-} as const;
-
-const token = (name: keyof typeof tokens): string => `var(--${name}, ${tokens[name]})`;
-
 export const ywTheme = EditorView.theme(
   {
     "&": {
-      color: token("fg"),
-      backgroundColor: token("bg"),
+      color: "var(--text)",
+      backgroundColor: "var(--base)",
       fontSize: "clamp(12px, 1.6vh, 15px)",
       height: "100%",
     },
     "&.cm-focused": { outline: "none" },
     ".cm-scroller": {
-      fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace',
-      lineHeight: "1.5",
+      fontFamily: "var(--font)",
+      lineHeight: "var(--leading)",
     },
     ".cm-gutters": {
-      backgroundColor: token("bg"),
-      color: token("muted"),
+      backgroundColor: "var(--base)",
+      color: "var(--subtle)",
       border: "none",
-      borderRight: `1px solid ${token("border")}`,
+      borderRight: "var(--border)",
     },
-    ".cm-activeLine": { backgroundColor: "rgba(230, 237, 243, 0.04)" },
+    ".cm-activeLine": { backgroundColor: "var(--raise)" },
     ".cm-selectionBackground, &.cm-focused > .cm-scroller > .cm-selectionLayer .cm-selectionBackground":
-      { background: "rgba(88, 166, 255, 0.28)" },
-    ".cm-cursor": { borderLeft: `2px solid ${token("cursor")}` },
+      { background: "var(--highlight)" },
+    ".cm-cursor": { borderLeft: "2px solid var(--select)" },
     // The adapter's cursor rules are Prec.highest (A:1197-1215): win by specificity, not order.
-    "&.cm-editor.cm-focused .cm-fat-cursor": { background: token("cursor") },
-    "&.cm-editor:not(.cm-focused) .cm-fat-cursor": { outline: `solid 1px ${token("cursor")}` },
+    "&.cm-editor.cm-focused .cm-fat-cursor": { background: "var(--select)" },
+    "&.cm-editor:not(.cm-focused) .cm-fat-cursor": { outline: "solid 1px var(--select)" },
     // Insets and gradients instead of borders, so a tinted line never changes height or indent.
     ".cm-line.yw-diff": {
-      backgroundColor: "rgba(248, 81, 73, 0.10)",
-      boxShadow: `inset 2px 0 0 ${token("bad")}`,
+      backgroundColor: "color-mix(in srgb, var(--error) 12%, var(--base))",
+      boxShadow: "inset 2px 0 0 var(--error)",
     },
     ".cm-line.yw-diff-missing": {
-      backgroundImage: `repeating-linear-gradient(90deg, ${token("bad")} 0 4px, transparent 4px 8px)`,
+      backgroundImage: "repeating-linear-gradient(90deg, var(--error) 0 4px, transparent 4px 8px)",
       backgroundSize: "100% 1px",
       backgroundPosition: "left top",
       backgroundRepeat: "no-repeat",
     },
     ".cm-line.yw-diff-missing-after": {
-      backgroundImage: `repeating-linear-gradient(90deg, ${token("bad")} 0 4px, transparent 4px 8px)`,
+      backgroundImage: "repeating-linear-gradient(90deg, var(--error) 0 4px, transparent 4px 8px)",
       backgroundSize: "100% 1px",
       backgroundPosition: "left bottom",
       backgroundRepeat: "no-repeat",
     },
-    ".cm-line.yw-pending": { backgroundColor: "rgba(88, 166, 255, 0.08)" },
+    ".cm-line.yw-pending": { backgroundColor: "color-mix(in srgb, var(--accent) 8%, var(--base))" },
     ".cm-vim-panel, .cm-vim-message": { display: "none" },
   },
   { dark: true },

@@ -69,8 +69,8 @@ const hint = $derived(
     display: grid;
     gap: 4px;
     padding: 8px 16px;
-    font-family: var(--mono);
-    font-size: 13px;
+    font-family: var(--font);
+    font-size: var(--text-sm);
   }
   .line {
     display: flex;
@@ -84,11 +84,11 @@ const hint = $derived(
   }
   .mode {
     font-weight: 700;
-    color: var(--muted);
+    color: var(--subtle);
   }
   .mode-insert,
   .mode-replace {
-    color: var(--ok);
+    color: var(--success);
   }
   .mode-visual,
   .mode-visual-line,
@@ -96,14 +96,14 @@ const hint = $derived(
     color: var(--accent);
   }
   .rec {
-    color: var(--bad);
+    color: var(--error);
   }
   .message {
     overflow: hidden;
     text-overflow: ellipsis;
   }
   .message.error {
-    color: var(--bad);
+    color: var(--error);
   }
   .prompt {
     white-space: pre;
@@ -113,25 +113,25 @@ const hint = $derived(
     width: 0.6em;
     height: 1.1em;
     vertical-align: text-bottom;
-    background: var(--cursor);
+    background: var(--select);
   }
   .pending {
-    color: var(--muted);
+    color: var(--subtle);
     min-width: 6ch;
     text-align: right;
   }
   .off {
-    color: var(--warn);
+    color: var(--warning);
   }
   .off.match {
-    color: var(--ok);
+    color: var(--success);
   }
   .sub {
-    font-family: var(--sans);
-    font-size: 12px;
-    color: var(--muted);
+    font-family: var(--font);
+    font-size: var(--text-xs);
+    color: var(--subtle);
   }
   .hint {
-    color: var(--warn);
+    color: var(--warning);
   }
 </style>

@@ -45,49 +45,37 @@ $effect(() => {
     grid-template-rows: auto 1fr;
     min-width: 0;
     min-height: 0;
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    border: 1px solid var(--overlay);
     overflow: hidden;
-    background: var(--bg);
+    background: var(--base);
   }
   .label {
     display: flex;
     justify-content: space-between;
     padding: 4px 12px;
-    font-size: 12px;
-    color: var(--muted);
-    background: var(--panel);
-    border-bottom: 1px solid var(--border);
+    font-size: var(--text-xs);
+    color: var(--subtle);
+    background: var(--raise);
+    border-bottom: 1px solid var(--overlay);
   }
   .editor-host {
     min-height: 0;
     overflow: hidden;
   }
   .locked {
-    animation: pulse 400ms ease-out;
-    border-color: var(--ok);
-  }
-  @keyframes pulse {
-    0% {
-      box-shadow: 0 0 0 0 rgba(63, 185, 80, 0.7);
-    }
-    100% {
-      box-shadow: 0 0 0 14px rgba(63, 185, 80, 0);
-    }
+    border-color: var(--success);
   }
   .flash {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: var(--accent);
-    animation: flash 350ms ease-out forwards;
+    outline: 2px solid var(--accent);
+    outline-offset: -2px;
+    animation: flash var(--motion) forwards;
   }
   @keyframes flash {
-    from {
-      opacity: 0.25;
-    }
     to {
-      opacity: 0;
+      outline-color: transparent;
     }
   }
 </style>

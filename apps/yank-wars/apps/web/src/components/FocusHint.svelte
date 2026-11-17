@@ -15,15 +15,13 @@ let { ctl }: { ctl: RoundController } = $props();
     display: grid;
     place-items: center;
     border: 0;
-    border-radius: 0;
-    background: rgba(13, 17, 23, 0.55);
+    background: transparent;
     cursor: pointer;
   }
   span {
     padding: 8px 16px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--panel);
-    color: var(--fg);
+    border: 1px solid var(--overlay);
+    background: var(--raise);
+    color: var(--text);
   }
 </style>

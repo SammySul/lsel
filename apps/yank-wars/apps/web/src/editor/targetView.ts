@@ -1,10 +1,10 @@
 import { syntaxHighlighting } from "@codemirror/language";
 import { EditorState, Text } from "@codemirror/state";
-import { oneDarkHighlightStyle } from "@codemirror/theme-one-dark";
 import { EditorView } from "@codemirror/view";
 import { languageExtension, type Puzzle } from "@yank-wars/engine";
 import { setPlayerDoc, targetDiffField } from "./diff.ts";
 import { absoluteGutter } from "./gutter.ts";
+import { ywHighlight } from "./highlight.ts";
 import { ywTheme } from "./theme.ts";
 
 export interface TargetView {
@@ -23,7 +23,7 @@ export function createTargetView(parent: HTMLElement, puzzle: Puzzle): TargetVie
         EditorView.theme({ ".cm-content": { userSelect: "none", cursor: "default" } }),
         languageExtension(puzzle.language),
         ywTheme,
-        syntaxHighlighting(oneDarkHighlightStyle),
+        syntaxHighlighting(ywHighlight),
         absoluteGutter,
         targetDiffField(Text.of(puzzle.start.split("\n"))),
       ],

@@ -125,7 +125,7 @@ function onkeydown(e: KeyboardEvent) {
         bind:this={search}
         class="search"
         type="search"
-        placeholder="/ search: title, language, skill"
+        placeholder="/ search"
         aria-label="Search puzzles"
         spellcheck="false"
         autocomplete="off"
@@ -209,31 +209,31 @@ function onkeydown(e: KeyboardEvent) {
   }
   h1 {
     margin: 0;
-    font-family: var(--mono);
-    font-size: 32px;
+    font-family: var(--font);
+    font-size: var(--text-xl);
     letter-spacing: -0.02em;
   }
   .tagline {
     margin: 4px 0 16px;
-    color: var(--muted);
+    color: var(--subtle);
   }
   .how {
     margin: 0 0 24px;
     padding-left: 20px;
-    color: var(--muted);
+    color: var(--subtle);
     line-height: 1.6;
   }
   .progress {
     margin: 0 0 16px;
-    font-family: var(--mono);
-    font-size: 13px;
+    font-family: var(--font);
+    font-size: var(--text-sm);
   }
   .mark.under,
   .mark.par {
-    color: var(--ok);
+    color: var(--success);
   }
   .notice {
-    color: var(--warn);
+    color: var(--warning);
   }
   .filters {
     display: flex;
@@ -249,79 +249,75 @@ function onkeydown(e: KeyboardEvent) {
   }
   .chip {
     padding: 4px 10px;
-    border: 1px solid var(--border);
-    border-radius: 999px;
+    border: 1px solid var(--overlay);
     background: transparent;
-    color: var(--muted);
+    color: var(--subtle);
     font: inherit;
-    font-size: 12px;
+    font-size: var(--text-xs);
     text-transform: capitalize;
     cursor: pointer;
   }
   .chip[aria-pressed="true"] {
-    background: var(--panel);
-    border-color: var(--muted);
-    color: var(--fg);
+    border-color: var(--accent);
+    color: var(--text);
   }
   .search {
     flex: 1 1 220px;
     max-width: 300px;
     padding: 5px 10px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--bg);
-    color: var(--fg);
+    border: 1px solid var(--overlay);
+    background: var(--base);
+    color: var(--text);
     font: inherit;
-    font-size: 13px;
+    font-size: var(--text-sm);
   }
   .search:focus {
     outline: none;
     border-color: var(--accent);
   }
   .diff {
-    font-size: 12px;
+    font-size: var(--text-xs);
     text-transform: capitalize;
   }
   .easy {
-    color: var(--ok);
+    color: var(--success);
   }
   .medium {
-    color: var(--warn);
+    color: var(--warning);
   }
   .hard {
-    color: var(--bad);
+    color: var(--error);
   }
   .chip.easy,
   .chip.medium,
   .chip.hard {
-    color: var(--muted);
+    color: var(--subtle);
   }
   .chip.easy[aria-pressed="true"] {
-    color: var(--ok);
+    color: var(--success);
   }
   .chip.medium[aria-pressed="true"] {
-    color: var(--warn);
+    color: var(--warning);
   }
   .chip.hard[aria-pressed="true"] {
-    color: var(--bad);
+    color: var(--error);
   }
   .empty {
     padding: 16px;
-    color: var(--muted);
+    color: var(--subtle);
   }
   .tags {
     margin-left: 8px;
-    font-family: var(--mono);
-    font-size: 12px;
+    font-family: var(--font);
+    font-size: var(--text-xs);
   }
   .count {
     margin: 0;
-    color: var(--muted);
-    font-size: 12px;
+    color: var(--subtle);
+    font-size: var(--text-xs);
   }
   .table {
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    border: 1px solid var(--overlay);
     overflow: hidden;
   }
   .row {
@@ -330,7 +326,7 @@ function onkeydown(e: KeyboardEvent) {
     gap: 12px;
     align-items: baseline;
     padding: 10px 16px;
-    color: var(--fg);
+    color: var(--text);
     border-left: 3px solid transparent;
   }
   ol {
@@ -338,62 +334,60 @@ function onkeydown(e: KeyboardEvent) {
     padding: 0;
     list-style: none;
   }
-  li {
-    border-top: 1px solid var(--border);
+  .table li {
+    border-top: 1px solid var(--overlay);
   }
   .row:hover {
     text-decoration: none;
   }
   .head {
-    background: var(--panel);
-    color: var(--muted);
-    font-size: 12px;
+    background: var(--raise);
+    color: var(--subtle);
+    font-size: var(--text-xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
   .selected {
-    background: var(--panel);
-    border-left-color: var(--cursor);
+    border-left-color: var(--accent);
   }
   .title {
-    font-weight: 600;
+    font-weight: 700;
   }
   .lang {
-    color: var(--muted);
-    font-family: var(--mono);
-    font-size: 12px;
+    color: var(--subtle);
+    font-family: var(--font);
+    font-size: var(--text-xs);
   }
   .num {
     text-align: right;
-    font-family: var(--mono);
+    font-family: var(--font);
     font-variant-numeric: tabular-nums;
   }
   .best small {
-    color: var(--muted);
+    color: var(--subtle);
   }
   .none {
-    color: var(--muted);
+    color: var(--subtle);
   }
   .detail {
     min-height: 1.4em;
-    color: var(--muted);
+    color: var(--subtle);
   }
   .errors h2 {
-    font-size: 14px;
-    color: var(--bad);
+    font-size: var(--text-sm);
+    color: var(--error);
   }
   .errors pre {
     white-space: pre-wrap;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    background: var(--raise);
+    border: 1px solid var(--overlay);
     padding: 8px 12px;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   footer {
     margin-top: 32px;
-    color: var(--muted);
-    font-size: 12px;
+    color: var(--subtle);
+    font-size: var(--text-xs);
   }
   footer p {
     margin: 0 0 8px;

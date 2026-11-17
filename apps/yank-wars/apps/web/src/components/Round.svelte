@@ -70,7 +70,7 @@ onDestroy(() => {
   .footer {
     position: relative;
     min-height: 72px;
-    border-top: 1px solid var(--border);
-    background: var(--panel);
+    border-top: 1px solid var(--overlay);
+    background: var(--base);
   }
 </style>

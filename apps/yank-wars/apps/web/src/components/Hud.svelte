@@ -65,8 +65,8 @@ function keepFocus(e: MouseEvent) {
     align-items: center;
     gap: 16px;
     padding: 10px 16px 14px;
-    background: var(--panel);
-    border-bottom: 1px solid var(--border);
+    background: var(--raise);
+    border-bottom: 1px solid var(--overlay);
   }
   .left,
   .right {
@@ -79,56 +79,55 @@ function keepFocus(e: MouseEvent) {
     justify-content: flex-end;
   }
   .back {
-    color: var(--muted);
-    font-size: 12px;
+    color: var(--subtle);
+    font-size: var(--text-xs);
     white-space: nowrap;
   }
   h1 {
     margin: 0;
-    font-size: 16px;
+    font-size: var(--text-md);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
   .chip {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--muted);
-    border: 1px solid var(--border);
-    border-radius: 999px;
+    font-family: var(--font);
+    font-size: var(--text-xs);
+    color: var(--subtle);
+    border: 1px solid var(--overlay);
     padding: 1px 8px;
   }
   .score {
     display: flex;
     align-items: baseline;
     gap: 8px;
-    font-family: var(--mono);
+    font-family: var(--font);
     font-variant-numeric: tabular-nums;
   }
   .keys {
-    font-size: 44px;
+    font-size: var(--text-display);
     font-weight: 700;
     line-height: 1;
   }
   .par {
-    color: var(--muted);
-    font-size: 16px;
+    color: var(--subtle);
+    font-size: var(--text-md);
   }
   .over .keys,
   .delta {
-    color: var(--warn);
+    color: var(--warning);
   }
   .delta {
-    font-size: 16px;
-    font-weight: 600;
+    font-size: var(--text-md);
+    font-weight: 700;
   }
   .runs {
-    color: var(--muted);
-    font-size: 12px;
+    color: var(--subtle);
+    font-size: var(--text-xs);
   }
   .clock {
-    font-family: var(--mono);
-    font-size: 20px;
+    font-family: var(--font);
+    font-size: var(--text-lg);
     font-variant-numeric: tabular-nums;
     min-width: 6ch;
     text-align: right;
@@ -139,13 +138,13 @@ function keepFocus(e: MouseEvent) {
     right: 0;
     bottom: 0;
     height: 3px;
-    background: var(--border);
+    background: var(--overlay);
   }
   .fill {
     height: 100%;
     background: var(--accent);
   }
   .fill.low {
-    background: var(--bad);
+    background: var(--error);
   }
 </style>

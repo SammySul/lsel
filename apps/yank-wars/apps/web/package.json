@@ -12,8 +12,8 @@
     "@codemirror/language": "catalog:",
     "@codemirror/merge": "6.12.3",
     "@codemirror/state": "catalog:",
-    "@codemirror/theme-one-dark": "6.1.3",
     "@codemirror/view": "catalog:",
+    "@lezer/highlight": "1.2.5",
     "@yank-wars/engine": "workspace:*",
     "svelte": "5.57.3"
   },

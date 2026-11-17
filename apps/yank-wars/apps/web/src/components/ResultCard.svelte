@@ -151,25 +151,22 @@ function onkeydown(e: KeyboardEvent) {
     display: grid;
     place-items: center;
     padding: 16px;
-    background: rgba(13, 17, 23, 0.7);
   }
   .card {
     width: min(560px, 100%);
     max-height: 100%;
     overflow: auto;
     padding: 20px 24px;
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    background: var(--base);
+    border: 1px solid var(--overlay);
   }
   h2 {
     margin: 0 0 12px;
-    font-size: 22px;
-    color: var(--warn);
+    font-size: var(--text-lg);
+    color: var(--warning);
   }
   h2.ok {
-    color: var(--ok);
+    color: var(--success);
   }
   .stats {
     display: grid;
@@ -178,29 +175,29 @@ function onkeydown(e: KeyboardEvent) {
     margin: 0 0 16px;
   }
   dt {
-    font-size: 11px;
+    font-size: var(--text-xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
-    color: var(--muted);
+    color: var(--subtle);
   }
   dd {
     margin: 0;
-    font-family: var(--mono);
+    font-family: var(--font);
     font-variant-numeric: tabular-nums;
   }
   .big {
-    font-size: 24px;
+    font-size: var(--text-xl);
     font-weight: 700;
   }
   .delta {
     display: block;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .over {
-    color: var(--warn);
+    color: var(--warning);
   }
   .under {
-    color: var(--ok);
+    color: var(--success);
   }
   .notation .row {
     display: flex;
@@ -210,8 +207,8 @@ function onkeydown(e: KeyboardEvent) {
   }
   .label,
   summary {
-    font-size: 12px;
-    color: var(--muted);
+    font-size: var(--text-xs);
+    color: var(--subtle);
   }
   summary {
     cursor: pointer;
@@ -222,29 +219,28 @@ function onkeydown(e: KeyboardEvent) {
     white-space: pre-wrap;
     word-break: break-all;
     user-select: text;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
+    background: var(--base);
+    border: 1px solid var(--overlay);
   }
   details pre {
     margin-top: 6px;
   }
   .source {
-    font-size: 12px;
-    color: var(--muted);
+    font-size: var(--text-xs);
+    color: var(--subtle);
   }
   .selfcheck {
-    font-family: var(--mono);
-    font-size: 12px;
+    font-family: var(--font);
+    font-size: var(--text-xs);
   }
   .selfcheck.ok {
-    color: var(--ok);
+    color: var(--success);
   }
   .selfcheck.pending {
-    color: var(--muted);
+    color: var(--subtle);
   }
   .selfcheck.mismatch {
-    color: var(--bad);
+    color: var(--error);
   }
   .actions {
     display: flex;

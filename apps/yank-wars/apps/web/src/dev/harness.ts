@@ -4,6 +4,7 @@ import { observe } from "@yank-wars/engine/oracle/observe";
 import type { Observed, OracleCase } from "@yank-wars/engine/oracle/types";
 import { createPlayerView, type PlayerView } from "../editor/playerView.ts";
 import { FORFEIT_KEY, NUMBERS_KEY, RESET_KEY } from "../lib/chords.ts";
+import "../lsel/tokens.css";
 import "../app.css";
 
 export interface HarnessState extends Observed {

@@ -27,20 +27,19 @@ let { onDismiss }: Props = $props();
   }
   h1 {
     margin: 24px 0 12px;
-    font-family: var(--mono);
-    font-size: 22px;
+    font-family: var(--font);
+    font-size: var(--text-lg);
   }
   p {
-    color: var(--muted);
+    color: var(--subtle);
     line-height: 1.5;
   }
   button {
     margin-top: 16px;
     padding: 8px 16px;
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    background: var(--panel);
-    color: var(--fg);
+    border: 1px solid var(--overlay);
+    background: var(--raise);
+    color: var(--text);
     font: inherit;
     cursor: pointer;
   }
