@@ -1,0 +1,17 @@
+{
+  "id": "count-to-eight",
+  "title": "Count to eight",
+  "difficulty": "hard",
+  "description": "The ids run from 1 to 8.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const ids = [\n  1,\n];",
+  "target": "const ids = [\n  1,\n  2,\n  3,\n  4,\n  5,\n  6,\n  7,\n  8,\n];",
+  "solution": "jqqyyp<C-a>q6@q",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["macro"]
+}

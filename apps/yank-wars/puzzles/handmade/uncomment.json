@@ -1,0 +1,17 @@
+{
+  "id": "uncomment",
+  "title": "Uncomment the cache",
+  "difficulty": "easy",
+  "description": "Bring the two commented lines back.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "def get(key):\n    # if key in cache:\n    #     return cache[key]\n    return load(key)",
+  "target": "def get(key):\n    if key in cache:\n        return cache[key]\n    return load(key)",
+  "solution": "j^2xj.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat"]
+}

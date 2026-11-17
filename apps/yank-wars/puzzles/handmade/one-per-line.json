@@ -1,0 +1,17 @@
+{
+  "id": "one-per-line",
+  "title": "One per line",
+  "difficulty": "medium",
+  "description": "Split the list at the commas.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "apples, pears, plums, figs",
+  "target": "apples\npears\nplums\nfigs",
+  "solution": ":s/, /\\r/g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

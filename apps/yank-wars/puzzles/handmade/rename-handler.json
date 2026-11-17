@@ -1,0 +1,17 @@
+{
+  "id": "rename-handler",
+  "title": "Rename the handler",
+  "difficulty": "easy",
+  "description": "Call the function serve.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "func handle(w http.ResponseWriter, r *http.Request) {\n\tfmt.Fprintln(w, \"ok\")\n}",
+  "target": "func serve(w http.ResponseWriter, r *http.Request) {\n\tfmt.Fprintln(w, \"ok\")\n}",
+  "solution": "wcwserve",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change"]
+}

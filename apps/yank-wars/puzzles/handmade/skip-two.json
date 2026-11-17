@@ -1,0 +1,17 @@
+{
+  "id": "skip-two",
+  "title": "Skip two",
+  "difficulty": "easy",
+  "description": "Delete the line that prints two.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tfmt.Println(\"one\")\n\tfmt.Println(\"two\")\n\tfmt.Println(\"three\")\n}",
+  "target": "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tfmt.Println(\"one\")\n\tfmt.Println(\"three\")\n}",
+  "solution": "7Gdd",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["goto-line"]
+}

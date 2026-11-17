@@ -1,0 +1,17 @@
+{
+  "id": "fewer-zeros",
+  "title": "Fewer zeros",
+  "difficulty": "easy",
+  "description": "A tenth of a second is enough.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "delay_ms = 10000",
+  "target": "delay_ms = 100",
+  "solution": "$2X",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

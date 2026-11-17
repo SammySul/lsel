@@ -1,0 +1,17 @@
+{
+  "id": "shebang-first",
+  "title": "Shebang on top",
+  "difficulty": "easy",
+  "description": "The interpreter line must come first.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "import sys\n\nprint(sys.argv)\n#!/usr/bin/env python3",
+  "target": "#!/usr/bin/env python3\nimport sys\n\nprint(sys.argv)",
+  "solution": "G:m0<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["ex"]
+}

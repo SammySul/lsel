@@ -1,0 +1,17 @@
+{
+  "id": "optional-name",
+  "title": "Name is optional",
+  "difficulty": "easy",
+  "description": "Not every user has a name.",
+  "language": "typescript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "interface User {\n  id: number;\n  name: string;\n}",
+  "target": "interface User {\n  id: number;\n  name?: string;\n}",
+  "solution": "jjf:i?",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

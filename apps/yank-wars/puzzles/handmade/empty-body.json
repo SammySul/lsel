@@ -1,0 +1,17 @@
+{
+  "id": "empty-body",
+  "title": "Empty the body",
+  "difficulty": "easy",
+  "description": "noop does nothing.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "func noop() {\n\tlog.Println(\"start\")\n\twork()\n}",
+  "target": "func noop() {\n}",
+  "solution": "jdi{",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object"]
+}

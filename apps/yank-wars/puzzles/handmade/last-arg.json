@@ -1,0 +1,17 @@
+{
+  "id": "last-arg",
+  "title": "Too many arguments",
+  "difficulty": "easy",
+  "description": "fetch takes two.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const res = await fetch(url, opts, retries);",
+  "target": "const res = await fetch(url, opts);",
+  "solution": "2f,dt)",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["find"]
+}

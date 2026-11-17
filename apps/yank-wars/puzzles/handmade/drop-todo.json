@@ -1,0 +1,17 @@
+{
+  "id": "drop-todo",
+  "title": "Drop the TODO",
+  "difficulty": "easy",
+  "description": "Remove the trailing comment.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "function clamp(n, lo, hi) {\n  if (n < lo) return lo; // TODO: is this right?\n  return Math.min(n, hi);\n}",
+  "target": "function clamp(n, lo, hi) {\n  if (n < lo) return lo;\n  return Math.min(n, hi);\n}",
+  "solution": "jf;lD",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

@@ -515,8 +515,10 @@ for (const name of browserNames()) {
       await page.keyboard.press("/");
       await page.keyboard.type("rust");
       expect(await page.locator(".search").inputValue()).toBe("rust");
-      expect(await titles(page)).toEqual(["One line"]);
-      expect(await text(page, ".count")).toBe(`1 of ${puzzles.length} puzzles`);
+      const easyRust = ofDifficulty("easy").filter((p) => p.language === "rust");
+      expect(easyRust.length).toBeGreaterThan(1);
+      expect(await titles(page)).toEqual(easyRust.map((p) => p.title));
+      expect(await text(page, ".count")).toBe(`${easyRust.length} of ${puzzles.length} puzzles`);
       await page.keyboard.type("x");
       expect(await titles(page)).toEqual([]);
       expect(await text(page, "li.empty")).toContain("No puzzles match.");

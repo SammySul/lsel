@@ -1,0 +1,17 @@
+{
+  "id": "quote-name",
+  "title": "It's a string",
+  "difficulty": "easy",
+  "description": "alice is a name, not a variable.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const name = alice;\nconsole.log(name);",
+  "target": "const name = \"alice\";\nconsole.log(name);",
+  "solution": "f;i\"<Esc>bi\"",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

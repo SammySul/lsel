@@ -1,0 +1,17 @@
+{
+  "id": "underline",
+  "title": "Underline the title",
+  "difficulty": "medium",
+  "description": "One = under every letter.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "Release notes\n\n- faster startup",
+  "target": "Release notes\n=============\n\n- faster startup",
+  "solution": "yypVr=",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["yank-put"]
+}

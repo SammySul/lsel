@@ -1,0 +1,17 @@
+{
+  "id": "five-seconds",
+  "title": "Five seconds each",
+  "difficulty": "medium",
+  "description": "Every limit is five seconds.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "var limits = Limits{\n\tRead:  0,\n\tWrite: 0,\n\tIdle:  0,\n}",
+  "target": "var limits = Limits{\n\tRead:  5,\n\tWrite: 5,\n\tIdle:  5,\n}",
+  "solution": "jf0<C-v>jjr5",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block"]
+}

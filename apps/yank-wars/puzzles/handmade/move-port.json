@@ -1,0 +1,17 @@
+{
+  "id": "move-port",
+  "title": "Move the port",
+  "difficulty": "easy",
+  "description": "The service moved to port 9090.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\n  \"name\": \"api\",\n  \"port\": 8080,\n  \"debug\": false\n}",
+  "target": "{\n  \"name\": \"api\",\n  \"port\": 9090,\n  \"debug\": false\n}",
+  "solution": "jj1010<C-a>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["increment"]
+}

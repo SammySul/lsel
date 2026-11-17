@@ -1,0 +1,17 @@
+{
+  "id": "drop-mut",
+  "title": "It never changes",
+  "difficulty": "easy",
+  "description": "count is never reassigned.",
+  "language": "rust",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "fn main() {\n    let mut count = 0;\n    println!(\"{count}\");\n}",
+  "target": "fn main() {\n    let count = 0;\n    println!(\"{count}\");\n}",
+  "solution": "jwwdw",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

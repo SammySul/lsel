@@ -1,0 +1,17 @@
+{
+  "id": "no-comments",
+  "title": "No comments",
+  "difficulty": "medium",
+  "description": "Delete every comment line.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "def area(w, h):\n    # width times height\n    result = w * h\n    # that's it\n    return result",
+  "target": "def area(w, h):\n    result = w * h\n    return result",
+  "solution": ":g/#/d<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global"]
+}

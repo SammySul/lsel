@@ -1,0 +1,17 @@
+{
+  "id": "same-margin",
+  "title": "Same for margin",
+  "difficulty": "medium",
+  "description": "Add a margin to match the padding.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".btn {\n  padding: 4px;\n}",
+  "target": ".btn {\n  padding: 4px;\n  margin: 4px;\n}",
+  "solution": "jyypcwmargin",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["yank-put"]
+}

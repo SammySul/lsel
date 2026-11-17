@@ -1,0 +1,17 @@
+{
+  "id": "stdlib-first",
+  "title": "Standard library first",
+  "difficulty": "easy",
+  "description": "The app import goes last.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "from app import db\nimport os\nimport sys",
+  "target": "import os\nimport sys\nfrom app import db",
+  "solution": "ddGp",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["move"]
+}

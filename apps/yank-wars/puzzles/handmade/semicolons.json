@@ -1,0 +1,17 @@
+{
+  "id": "semicolons",
+  "title": "Semicolons, please",
+  "difficulty": "easy",
+  "description": "End every statement with a semicolon.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "let total = 0\ntotal += price\ntotal *= 1.2",
+  "target": "let total = 0;\ntotal += price;\ntotal *= 1.2;",
+  "solution": "A;<Esc>j.j.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "shout-sql",
+  "title": "Shout the keywords",
+  "difficulty": "medium",
+  "description": "SQL keywords in capitals.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "select id, name from users where active = 1",
+  "target": "SELECT id, name FROM users WHERE active = 1",
+  "solution": "gUiw4w.2w.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["case", "repeat"]
+}

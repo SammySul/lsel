@@ -1,0 +1,17 @@
+{
+  "id": "api-url",
+  "title": "Point at the API",
+  "difficulty": "easy",
+  "description": "Use the relative path instead of localhost.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const BASE = \"http://localhost:3000\";\nexport default BASE;",
+  "target": "const BASE = \"/api\";\nexport default BASE;",
+  "solution": "ci\"/api",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "show-result",
+  "title": "Show the result",
+  "difficulty": "medium",
+  "description": "Print the last expression.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "x = 3\ny = 4\nx * x + y * y",
+  "target": "x = 3\ny = 4\nprint(x * x + y * y)",
+  "solution": "GIprint(<Esc>A)",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}
