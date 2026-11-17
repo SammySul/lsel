@@ -22,7 +22,7 @@ testers.runNixOSTest {
       inherit package;
       autoUpdate = {
         enable = true;
-        repo = "example/typ";
+        url = "https://git.example.com/owner/typ";
       };
     };
     system.extraDependencies = [ release ];
@@ -37,7 +37,7 @@ testers.runNixOSTest {
     machine.fail("curl -sf http://127.0.0.1:7200/nope")
     machine.succeed("systemctl show -p DynamicUser --value typ | grep -qx yes")
 
-    with subtest("an updater that can't reach GitHub fails without touching the running server"):
+    with subtest("an updater that can't reach the repository fails without touching the running server"):
         machine.succeed("systemctl list-timers typ-update.timer | grep -q typ-update")
         machine.fail("systemctl start typ-update.service")
         machine.fail("test -e /var/lib/typ-updater/current")

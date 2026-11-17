@@ -219,7 +219,7 @@ function onkeydown(e: KeyboardEvent) {
 
   <footer>
     typ <span class="version">v{version}</span> ·
-    <a href="https://github.com/SammySul/typ">source</a> · MIT
+    <a href="https://git.sammysul.com/SammySul/typ">source</a> · MIT
   </footer>
 </main>
 

@@ -25,4 +25,6 @@ bun run test:e2e     # dist/ in Chromium, Firefox and WebKit
 | `TYP_HOST`, `TYP_PORT` | `127.0.0.1`, `7200`   |                          |
 
 Deploying is the NixOS module in `nix/module.nix` (`services.typ`); a version
-bump in `package.json` releases it.
+bump in `package.json` releases it. The repository lives at
+[git.sammysul.com/SammySul/typ](https://git.sammysul.com/SammySul/typ), where CI
+runs; GitHub is a mirror.
