@@ -239,18 +239,34 @@ Visual-block `I`, `A`, `c`, `s`, `C`, `D`, `X` and `Y` follow vim since 2026-11-
 ## Project
 
 Public repo on Sammy's personal GitHub account, **MIT**. Matches the other
-projects, keeps the upstream engine PR and puzzle-source credits simple.
+projects, keeps the upstream engine PR and puzzle-source credits simple. It goes
+public at v1; until then `origin` is `/srv/git/yank-wars.git` on `twelve`.
+
+**Releases (2026-11-17).** The root `package.json` `version` is the only
+version: the Nix package and the page footer read it. A push to `main` that
+changes it runs the full checks, then CI tags `vX.Y.Z` and publishes a GitHub
+release listing the commit subjects since the last tag; a push without a bump
+releases nothing. Deploy stays manual: update the `yank-wars` input in
+`squares`, then `deploy twelve`. *Rejected:* auto-deploy (CI would need a way
+into `twelve`, or `twelve` would rebuild itself from whatever was pushed last).
 
 ## Build order
 
 0. Done (2026-10-30): `nix build .#headless-replay` packages the spike with
    bun2nix; a throwaway `bun patch` proved patches survive the route
-1. Solo, client-only: editor, split view, live diff, key counter, reset key,
-   lock-in, study window; ~10 handmade puzzles
-2. Server: rooms via invite link, grace timer, round cap, reconnect, headless
-   replay with mismatch logging, Better Auth anonymous sessions on `bun:sqlite`,
-   upstream PRs for the core patch, NixOS module on `twelve` as `yankwars.app`
-3. Puzzle pack: many handmade puzzles ordered easy to hard, daily puzzle page
-4. Matchmaking queue with daily/solo fallback
-5. Only if people rematch: GitHub login + linking, ratings (Glicko-2 /
+1. Done (2026-11-11): solo, client-only: editor, split view, live diff, key
+   counter, reset key, lock-in, study window; ~10 handmade puzzles
+2. Done (2026-11-17): `yankwars.app` live from `twelve` (step 2 part 1:
+   static server, Nix package, NixOS module)
+3. **v1, the solo release** (moved ahead of rooms 2026-11-17): puzzle
+   difficulty and a list filter, ~50 handmade puzzles (about 30 easy, 15
+   medium, 5 hard), favicon and share card, a needs-a-keyboard screen on touch
+   devices, how-it-works on the front page, progress marks, a share line on the
+   result card, footer with source and version, public GitHub repo, release
+   automation, `v1.0.0`. The daily puzzle page comes after v1
+4. Rooms (step 2 parts 2 and 3): invite links, grace timer, round cap,
+   reconnect, headless replay with mismatch logging, Better Auth anonymous
+   sessions on `bun:sqlite`, upstream PRs for the core patch
+5. Matchmaking queue with daily/solo fallback
+6. Only if people rematch: GitHub login + linking, ratings (Glicko-2 /
    OpenSkill), ghosts

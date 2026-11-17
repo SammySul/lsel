@@ -37,7 +37,7 @@ describes, fix or delete the note.
 - **Comments: one line or none**, only for a why the code can't show.
 - **Commits: subject line only.** No body, no Co-Authored-By trailer.
 - Don't build ahead of the build order in `docs/decisions.md`: no GitHub
-  login, ratings or ghosts before step 5.
+  login, ratings or ghosts before step 6.
 
 ## Workspace traps
 
