@@ -12,7 +12,6 @@ packages/engine/   pure TS, no I/O: puzzle + protocol types, key notation,
 apps/web/          Svelte 5 + Vite SPA, CodeMirror 6 + @replit/codemirror-vim
 apps/server/       Bun.serve: static files, WebSocket rooms, matchmaker
 puzzles/           handmade puzzles as JSON (data, not code)
-spikes/            throwaway proofs; never imported
 ```
 
 ## What a CLAUDE.md is for
@@ -105,8 +104,8 @@ describes, fix or delete the note.
 
 ## Engine traps (codemirror-vim, headless)
 
-Found in `spikes/headless-replay/index.ts` and step 1; each needs a test in
-`engine` before it is "handled".
+Found while building the engine; each needs a test in `engine` before it is
+"handled".
 
 - **Vim state is process-global** (registers, macros, search, last `:s`),
   shared by every editor in the process. `createSession` resets it, so never

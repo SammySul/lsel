@@ -1,6 +1,6 @@
 import { EditorView } from "@codemirror/view";
 
-// Fallbacks for the page tokens (spec 4.7), so the editor renders right even before app.css defines them.
+// Fallbacks for the page tokens, so the editor renders right even before app.css defines them.
 const tokens = {
   bg: "#0d1117",
   border: "#30363d",

@@ -24,12 +24,12 @@ export const DEVIATION_GROUPS: Readonly<Record<string, DeviationGroup>> = {
   "virtual-window": {
     kind: "accepted",
     reason: "<C-d> <C-u> <C-f> <C-b> and H M L use a fixed 30-line window, not vim's scrolling",
-    link: "docs/step1-spec.md#8-known-deviations-and-deferrals",
+    link: DECISIONS,
   },
   "replace-bs": {
     kind: "accepted",
     reason: "replace-mode <BS> and <C-w> move left without restoring the replaced text",
-    link: "docs/step1-spec.md#8-known-deviations-and-deferrals",
+    link: DECISIONS,
   },
   "replace-mode": {
     kind: "bug",
@@ -40,7 +40,7 @@ export const DEVIATION_GROUPS: Readonly<Record<string, DeviationGroup>> = {
     kind: "accepted",
     reason:
       "insert-mode completion and digraphs (<C-n> <C-p> <C-x> <C-k>) and literal <C-v> are no-ops",
-    link: "docs/step1-spec.md#8-known-deviations-and-deferrals",
+    link: DECISIONS,
   },
   "insert-ctrl": {
     kind: "bug",

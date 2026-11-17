@@ -29,13 +29,13 @@ export default defineCases([
     id: "seed-Vc",
     start: "a\nb\nc",
     keys: "Vjcx<Esc>",
-    note: "spec 8: Vc joins with the next line",
+    note: "Vc joins with the next line",
   },
   {
     id: "seed-ddp-dot-undo",
     start: "one\ntwo\nthree",
     keys: "ddp.ux",
-    note: "spec 8: cursor after u",
+    note: "cursor after u",
   },
   // insert, replace, visual
   { id: "seed-ends-in-insert", start: "abc", keys: "Ahello" },

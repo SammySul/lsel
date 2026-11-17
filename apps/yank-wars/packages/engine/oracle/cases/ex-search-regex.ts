@@ -14,7 +14,7 @@ const rows = (prefix: string, list: readonly Row[]): OracleCase[] =>
 const N8 = "1\n2\n3\n4\n5\n6\n7\n8";
 const XY = "x1\ny1\nx2\ny2\nx3";
 const OFF = "foo bar foobar baz";
-const APPEND_ONLY = "spec 8: the command line is append-only";
+const APPEND_ONLY = "the command line is append-only";
 
 // :s, its flags, counts and the repeat forms (:s, :&, :&&, :~, &, g&, @:)
 const substitute = rows("s", [
@@ -252,12 +252,7 @@ const global = rows("g", [
   ["norm", "x\ny\nx", ":g/x/norm A;<CR>"],
   ["normal-long", "x\ny\nx", ":g/x/normal 0iZ<CR>"],
   ["norm-dd", "x\nx\ny\nx", ":g/x/norm dd<CR>"],
-  [
-    "norm-undo-one-step",
-    "x\ny\nx",
-    ":g/x/norm Aa<CR>u",
-    "spec 8: :normal inside :g is one undo step",
-  ],
+  ["norm-undo-one-step", "x\ny\nx", ":g/x/norm Aa<CR>u", ":normal inside :g is one undo step"],
   ["norm-macro", "a\nb\nc", "qqA!<Esc>q:2,$g/./norm @q<CR>"],
   ["v-norm", "a\n#b\nc", ":v/^#/norm I# <CR>"],
   ["j", "a\n1\nb\n2", ":g/[a-z]/j<CR>"],

@@ -63,7 +63,7 @@ client-only.
 A JS reimplementation of vim, actively maintained (6.4.0, July 2026), with an
 API to intercept and replay keys (`Vim.handleKey`, `Vim.defineEx`).
 
-Spike result (`spikes/headless-replay/index.ts`, 17/19 cases): motions, text objects,
+Spike result (2026-10-30, spike since removed; its 19 cases live on in `replay.test.ts`, 17/19 passed): motions, text objects,
 `.`, undo, `:s`, `:g`, `:sort`, `:norm`, search, visual block and non-recursive
 macros all replay correctly headless under Bun + happy-dom. Failures: macros
 don't abort on a failed motion, and recursive macros overflow the stack. Both
@@ -145,7 +145,7 @@ come later on the same data.
 ## Step 1 design (2026-10-31)
 
 From the design workflow (3 researchers, 3 proposals, 3 judges, 1 synthesis);
-the full spec is `docs/step1-spec.md`. "Parity by construction" won on every
+the spec, `docs/step1-spec.md`, was removed once built (2026-11-17; it is in git history). "Parity by construction" won on every
 judge's card over observing codemirror-vim natively.
 
 **Key capture: the browser is one more replayer.** A `Prec.highest` keydown handler owned by the engine prevents every keydown and calls the same `feedKey()` the headless replay uses; codemirror-vim's own keydown handler, native insert-mode typing and its `<input>` command line never run. *Rejected:* observing the adapter and emulating native behaviour in the replayer (insert text would be labelled differently, prompt keys are DOM events on a panel input, Cmd+A moves the selection unlogged). *Revisit* only if an upstream API makes the adapter itself drivable without DOM.
@@ -230,7 +230,7 @@ The deviations from vim behave the same in the browser and in the replay: they c
 
 Every case of the oracle corpus that still differs from vim is pinned in `packages/engine/oracle/deviations.json` (written only by `oracle/pin.ts`, after deciding the difference stays) under a group of `oracle/deviations.ts`; the suite fails if a pinned case changes or starts matching vim. 758 pinned (212 corpus, 546 fuzz) at the end of step 1, down from 2570 failing cases when the oracle first ran; 769 (223 corpus, 546 fuzz) after the verification pass added the `command-index` and `puzzles` categories (keys from `:help index` no case typed, and each handmade puzzle's reference solution); 686 (183 corpus, 503 fuzz) after the visual-block fix added the `visual-block` category. 183 (all corpus) after the fuzz corpus was removed on 2026-11-17: its 503 remaining pins were never reduced to a cause, and the hand-written corpus covers what golfers type.
 
-*Accepted:* `virtual-window` (fixed 30-line window for `<C-d>`/`<C-f>`/`H`/`L`, step1-spec §8), `replace-bs` (replace-mode `<BS>` does not restore), `insert-keys` (completion `<C-n>/<C-p>/<C-x>`, digraphs `<C-k>`, literal `<C-v>`), `expression` (`\=` knows only `expr.ts`'s subset: numbers, strings, arithmetic, `.`, comparisons, `?:`, `submatch line col printf toupper tolower repeat len str2nr`).
+*Accepted:* `virtual-window` (fixed 30-line window for `<C-d>`/`<C-f>`/`H`/`L`), `replace-bs` (replace-mode `<BS>` does not restore), `insert-keys` (completion `<C-n>/<C-p>/<C-x>`, digraphs `<C-k>`, literal `<C-v>`), `expression` (`\=` knows only `expr.ts`'s subset: numbers, strings, arithmetic, `.`, comparisons, `?:`, `submatch line col printf toupper tolower repeat len str2nr`).
 
 *Bugs, not fixed in step 1* (most likely for golfers first): `visual-block` (block `p`/`P`, `r` repeated by `.`, `gv` after a block, a count on a blockwise `P`), `curswant` (`$` then `v`/`<C-v>` loses the end-of-line column), `visual` (`.` after a multi-line visual op, `A` in `v`/`V`, `p`/`P` over a selection, `3V`), `text-objects` (word/paragraph objects on blank lines and counts past the end, brackets inside quotes), `sentence`, `registers` (`"1` shifting for `d%`/`d/`/`"xdd`, `"1p.`, `"A` appends, a count before `"x`, `".`), `marks` (vim marks keep their column and die with their line; `` `[ `] `^ `. `` `` `( `) `{ `} ``, jump list), `dot-repeat`, `macro` (`@` of a linewise register runs its line break in vim; `<Esc>` on a command line replayed by `@` runs it in vim, the engine cancels it), `insert-ctrl` (`<C-a> <C-@> <C-r><C-r>`, `^<C-d>`, `<C-d>`/`<C-t>` rounding, insert `<Up>/<Down>` curswant), `replace-mode`, `gi-gv`, `forced-motion` (`dvj`, `dVl`), `line-undo` (`U`), `undo-tree` (`g-`/`g+`), `percent` (quotes, `/* */`, `#if`), `cursor` (buffer right, cursor elsewhere), `other` (`gN` from inside a match: `/foo<CR>$gNd`; `cw` on an empty line joins; `2D.`).
 
@@ -261,8 +261,8 @@ that the next `deploy twelve` rolls back).
 
 ## Build order
 
-0. Done (2026-10-30): `nix build .#headless-replay` packages the spike with
-   bun2nix; a throwaway `bun patch` proved patches survive the route
+0. Done (2026-10-30): a throwaway spike, packaged with bun2nix, proved the
+   Bun-in-Nix route and that `bun patch` patches survive it (spike removed 2026-11-17)
 1. Done (2026-11-11): solo, client-only: editor, split view, live diff, key
    counter, reset key, lock-in, study window; ~10 handmade puzzles
 2. Done (2026-11-17): `yankwars.app` live from `twelve` (step 2 part 1:

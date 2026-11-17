@@ -38,10 +38,6 @@
         in
         {
           default = pkgs.callPackage ./nix/package.nix { bun2nix = bun2nixFor system; };
-          # step 0 of docs/decisions.md: proves the Bun-in-Nix route
-          headless-replay = pkgs.callPackage ./spikes/headless-replay/package.nix {
-            bun2nix = bun2nixFor system;
-          };
         }
       );
 
