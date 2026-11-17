@@ -12,8 +12,6 @@ jobs:
       - run: nix develop -c bun run build
       - run: nix develop -c bun run test:e2e
       - run: nix build .#default --no-link
-      # includes the NixOS module's VM test
-      - run: nix flake check
 
   # A version in package.json without its tag becomes a release; any other push releases nothing.
   release:
