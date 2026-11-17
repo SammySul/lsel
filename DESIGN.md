@@ -50,9 +50,11 @@ the interface around it still uses these variables.
 ## Elements
 
 `tokens.css` styles buttons (outlined on `--base`; a pressed toggle has an
-accent border), selects, inputs, `kbd`, links, `h1`/`h2` and tables. Apps use
-those elements as they are and keep their own CSS to layout; a component may
-extend an element (a column's alignment), never restyle it.
+accent border), selects, inputs, `kbd`, links, `h1`/`h2`, `pre` blocks and
+tables. Apps use those elements as they are and keep their own CSS to layout; a
+component may extend an element (a column's alignment, a color that carries
+meaning), never restyle it. `bun run sync --check` fails on app CSS that sets
+an element's background, border, padding or font.
 
 ## Interaction
 

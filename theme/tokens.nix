@@ -141,6 +141,14 @@ p: ''
   code {
     font-family: var(--font);
   }
+  pre {
+    margin: 0;
+    padding: var(--space-2) var(--space-3);
+    background: var(--base);
+    border: var(--border);
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
 
   table {
     border-collapse: collapse;
