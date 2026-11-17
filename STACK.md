@@ -43,6 +43,8 @@ release or updater: `package.nix` builds the unpacked extension and a desktop
 host loads it from `squares` (`localExtensions` on tanaka), so a change ships by
 updating that flake input and deploying the host. The manifest's `key` pins the
 extension id, which the extension's storage belongs to.
+An extension nobody installs through `squares` ships as a zip on a Forgejo
+release instead (dontstudy: a `v*` tag runs its `release.yml`).
 
 ## Release
 
