@@ -1,0 +1,23 @@
+{
+  "name": "project",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --bun vite",
+    "build": "bun --bun vite build",
+    "check": "tsc --noEmit && svelte-check --tsconfig ./tsconfig.json --output human && biome check . && grep -q '\"preset\": \"recommended\"' biome.json",
+    "test": "bun test ./tests",
+    "postinstall": "bun2nix -o bun.nix"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "7.3.1",
+    "@types/bun": "1.4.4",
+    "@types/chrome": "0.2.9",
+    "svelte": "5.57.3",
+    "svelte-check": "4.7.7",
+    "typescript": "5.9.3",
+    "vite": "8.3.5",
+    "vite-plugin-web-extension": "4.5.1"
+  }
+}

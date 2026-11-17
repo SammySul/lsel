@@ -1,0 +1,5 @@
+{
+  "assets": "src/popup/lsel",
+  "template": "web",
+  "files": [".envrc", "LICENSE", "CLAUDE.md", "biome.json", "nix/bun2nix-lockfile-v2.patch"]
+}

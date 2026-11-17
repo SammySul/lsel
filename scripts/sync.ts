@@ -1,7 +1,9 @@
-// bun run sync [--check]: writes lsel's assets into the template and every projects/<name>/ that has an lsel.json.
-// lsel.json: { "assets": "<dir inside the project>" }; that directory belongs to lsel, so extra files are removed.
+// bun run sync [--check]: writes lsel's shared files into the template and every projects/<name>/ that has an lsel.json.
+// lsel.json: { "assets": "<dir>", "template": "web" | "extension", "files": ["<path>", …] }. The assets directory
+// belongs to lsel, so extra files there are removed; each path in "files" is kept identical to that template's
+// file at the same path ("web" when no template is named).
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 
 const root = join(import.meta.dir, "..");
 const check = process.argv.includes("--check");
@@ -9,40 +11,49 @@ const check = process.argv.includes("--check");
 const built = Bun.spawnSync(["nix", "build", "--no-link", "--print-out-paths", ".#assets"], { cwd: root });
 if (built.exitCode !== 0) throw new Error(`nix build .#assets failed:\n${built.stderr}`);
 const assets = built.stdout.toString().trim();
-const files = (await readdir(assets)).sort();
+const assetFiles = (await readdir(assets)).sort();
 
-let drift = 0;
 const projects = (await readdir(join(root, "projects"), { withFileTypes: true }).catch(() => []))
   .filter((d) => d.isDirectory())
   .map((d) => join("projects", d.name))
   .sort();
-// the template carries the assets too, so it builds as shipped and CI catches a palette change it missed
-for (const name of ["templates/web", ...projects]) {
+
+let drift = 0;
+// the templates carry the assets too, so they build as shipped and CI catches a palette change they missed
+for (const name of ["templates/web", "templates/extension", ...projects]) {
   const project = join(root, name);
-  const config = await readFile(join(project, "lsel.json"), "utf8").catch(() => undefined);
-  if (config === undefined) continue;
-  const assetsDir = (JSON.parse(config) as { assets: string }).assets;
-  const target = join(project, assetsDir);
-  const present = await readdir(target).catch(() => [] as string[]);
-  const changed: string[] = [];
-  for (const f of files) {
-    const want = await readFile(join(assets, f));
-    const have = await readFile(join(target, f)).catch(() => undefined);
-    if (have === undefined || !want.equals(have)) changed.push(f);
+  const raw = await readFile(join(project, "lsel.json"), "utf8").catch(() => undefined);
+  if (raw === undefined) continue;
+  const config = JSON.parse(raw) as { assets: string; template?: string; files?: string[] };
+  const template = join(root, "templates", config.template ?? "web");
+  const wanted = [
+    ...assetFiles.map((f) => ({ from: join(assets, f), to: join(config.assets, f) })),
+    ...(config.files ?? []).map((f) => ({ from: join(template, f), to: f })),
+  ];
+  const changed: typeof wanted = [];
+  for (const w of wanted) {
+    const want = await readFile(w.from);
+    const have = await readFile(join(project, w.to)).catch(() => undefined);
+    if (have === undefined || !want.equals(have)) changed.push(w);
   }
-  const extra = present.filter((f) => !files.includes(f));
-  if (changed.length + extra.length === 0) {
+  const extra = (await readdir(join(project, config.assets)).catch(() => [] as string[]))
+    .filter((f) => !assetFiles.includes(f))
+    .map((f) => join(config.assets, f));
+  const list = [...changed.map((w) => w.to), ...extra.map((f) => `-${f}`)].join(", ");
+  if (list === "") {
     console.log(`${name}: up to date`);
     continue;
   }
   if (check) {
     drift++;
-    console.log(`${name}: out of date (${[...changed, ...extra.map((f) => `-${f}`)].join(", ")})`);
+    console.log(`${name}: out of date (${list})`);
     continue;
   }
-  await mkdir(target, { recursive: true });
-  for (const f of changed) await writeFile(join(target, f), await readFile(join(assets, f)));
-  for (const f of extra) await rm(join(target, f));
-  console.log(`${name}: wrote ${[...changed, ...extra.map((f) => `-${f}`)].join(", ")}`);
+  for (const w of changed) {
+    await mkdir(dirname(join(project, w.to)), { recursive: true });
+    await writeFile(join(project, w.to), await readFile(w.from));
+  }
+  for (const f of extra) await rm(join(project, f));
+  console.log(`${name}: wrote ${list}`);
 }
 if (drift > 0) process.exit(1);

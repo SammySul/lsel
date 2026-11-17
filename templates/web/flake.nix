@@ -1,6 +1,4 @@
 {
-  description = "a project in lsel";
-
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     bun2nix = {

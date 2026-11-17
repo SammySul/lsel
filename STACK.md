@@ -36,7 +36,8 @@ and tests it.
 
 ## Browser extension
 
-rssism is the reference. Svelte 5 + Vite with `vite-plugin-web-extension`,
+`templates/extension/` (`nix flake init -t ../..#extension`), also built and
+tested by lsel's CI. Svelte 5 + Vite with `vite-plugin-web-extension`,
 styled by `tokens.css` like any app (`lsel.json` points at the popup), checked
 and tested the same way; the popup keeps its own width. No server and no
 updater. It releases like everything else (Release, below), and the release

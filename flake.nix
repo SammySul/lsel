@@ -78,6 +78,11 @@
         }
       );
 
+      templates.extension = {
+        path = ./templates/extension;
+        description = "A browser extension with a Svelte popup: dev shell, Nix package and CI that releases a zip on a version bump";
+      };
+
       templates.web = {
         path = ./templates/web;
         description = "A Svelte page served by Bun: dev shell, Nix package, browser tests and CI that releases on a version bump";

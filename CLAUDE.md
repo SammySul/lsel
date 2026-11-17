@@ -58,8 +58,18 @@ describes, fix or delete the note.
   scroll handler moves content: a test that fails on console warnings must
   ignore exactly that one.
 - **bun2nix 2.1.2 rejects bun ≥ 1.3's lockfile** ("Unsupported lockfile
-  version"): the template's `flake.nix` applies `nix/bun2nix-lockfile-v2.patch`
-  until a release has upstream PR #110; then drop it there and in each project.
+  version"): the templates' `flake.nix` applies `nix/bun2nix-lockfile-v2.patch`
+  until a release has upstream PR #110; then drop it there and `bun run sync`.
+- **A path in a project's `lsel.json` `files` is the template's file**: edit it
+  in `templates/` and `bun run sync`, or the next sync overwrites the edit. A
+  project that must differ drops the path from its list.
+- **The CSP is `default-src 'self'` with no inline styles**: an inline `<style>`
+  in `index.html` or a `style` attribute string breaks the page. Svelte's
+  `style:` directive and anything set through the DOM is allowed.
+- Vite's root is `src/web`, so `public/` and `index.html` live there; the build
+  lands in `dist/` at the repo root, which `bun run test:e2e` needs first.
+- **Extension icons reach `dist/` only through Vite's `public/`**:
+  vite-plugin-web-extension does not copy the files the manifest names.
 - `cloudflared tunnel route dns` writes into the zone its cert was issued for;
   for any other zone it silently creates `<host>.<that zone>`. The certs are
   `~/.cloudflared/cert-<zone>.pem` (one per zone; `ls ~/.cloudflared`):

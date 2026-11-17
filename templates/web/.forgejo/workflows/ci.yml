@@ -1,4 +1,4 @@
-# Runs on twelve's own Forgejo runner with the host's Nix.
+# Runs on twelve's own Forgejo runner with the host's Nix; a public repository's GitHub copy is only a mirror.
 name: ci
 on: { pull_request: {}, push: { branches: [main] } }
 jobs:
