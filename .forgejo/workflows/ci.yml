@@ -1,0 +1,10 @@
+# Runs on twelve's own runner, with the host's Nix.
+name: ci
+on: { pull_request: {}, push: { branches: [main] } }
+jobs:
+  check:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v7
+      - run: nix develop -c bun run test
+      - run: nix flake check
