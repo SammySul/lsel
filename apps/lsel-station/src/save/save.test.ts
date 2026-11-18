@@ -19,15 +19,14 @@ describe("a save", () => {
     const text = exportString(toDocument(state, 1_800_000_000_000));
     expect([text.startsWith("lsel-station:"), importString(text)]).toEqual([
       true,
-      { ok: true, doc: { game: "lsel-station", version: 1, savedAt: 1_800_000_000_000, state } },
+      { ok: true, doc: { game: "lsel-station", version: 2, savedAt: 1_800_000_000_000, state } },
     ]);
   });
 
   test("goes through JSON and comes back as the same game", () => {
     const state = played();
     state.revealed.push(2 as never);
-    state.owned.push(2 as never);
-    state.outposts[2] = { spec: "mine", modules: ["depot"], stored: 0.25 };
+    state.outposts.push({ sector: 2 as never, spec: "mine", modules: ["depot"], stored: 0.25 });
     state.beds = [{ crop: "algae", progressMs: 1000 }, null];
     const doc = toDocument(state, 5);
     expect(parseDocument(JSON.parse(JSON.stringify(doc)))).toEqual({ ok: true, doc });
@@ -60,7 +59,7 @@ describe("a save", () => {
       importString("hello"),
       importString("lsel-station:%%%"),
       broken((d) => {
-        d.version = 2;
+        d.version = 3;
       }),
       broken((d) => {
         delete d.savedAt;
@@ -79,15 +78,18 @@ describe("a save", () => {
         };
       }),
       broken((d) => {
-        (d.state as { owned: number[] }).owned.push(9);
+        (d.state as { outposts: unknown[] }).outposts.push({ sector: 9, ...OUTPOST });
       }),
       broken((d) => {
-        (d.state as { owned: number[] }).owned.push(99);
+        (d.state as { outposts: unknown[] }).outposts.push({ sector: 99, ...OUTPOST });
+      }),
+      broken((d) => {
+        (d.state as { outposts: unknown[] }).outposts.push({ sector: 0, ...OUTPOST });
       }),
     ]).toEqual([
       { ok: false, reason: "not a Lsel save" },
       { ok: false, reason: "the text is damaged" },
-      { ok: false, reason: "version: Invalid type: Expected 1 but received 2" },
+      { ok: false, reason: "version: Invalid type: Expected 2 but received 3" },
       { ok: false, reason: "savedAt is missing" },
       {
         ok: false,
@@ -96,8 +98,40 @@ describe("a save", () => {
       },
       { ok: false, reason: "state.items.iron-ore: Invalid value: Expected >=0 but received -1" },
       { ok: false, reason: "state: a job belongs to someone not on the roster" },
-      { ok: false, reason: "state: a sector is owned but not on the map" },
-      { ok: false, reason: "state.owned.1: Invalid value: Expected <=35 but received 99" },
+      { ok: false, reason: "state: an outpost is in a sector not on the map" },
+      {
+        ok: false,
+        reason: "state.outposts.0.sector: Invalid value: Expected <=35 but received 99",
+      },
+      { ok: false, reason: "state: two outposts share a sector, or one is at home" },
+    ]);
+  });
+});
+
+const OUTPOST = { spec: null, modules: [], stored: 0 };
+
+describe("an older save", () => {
+  test("version 1 keeps its outposts, in the order they were taken", () => {
+    const state = played();
+    const { outposts: _, ...rest } = state;
+    const v1 = {
+      game: "lsel-station",
+      version: 1,
+      savedAt: 5,
+      state: {
+        ...rest,
+        revealed: [0, 2, 3, 7],
+        owned: [0, 7, 2],
+        outposts: { 2: { spec: "farm", modules: [], stored: 0 }, 7: { ...OUTPOST, stored: 0.5 } },
+      },
+    };
+    const parsed = parseDocument(JSON.parse(JSON.stringify(v1)));
+    expect(parsed.ok && [parsed.doc.version, parsed.doc.state.outposts]).toEqual<unknown>([
+      2,
+      [
+        { sector: 7, spec: null, modules: [], stored: 0.5 },
+        { sector: 2, spec: "farm", modules: [], stored: 0 },
+      ],
     ]);
   });
 });

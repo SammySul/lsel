@@ -5,6 +5,7 @@ import { MODULE_IDS, type ModuleId } from "../content/modules.ts";
 import type { UnlockId } from "../content/unlocks.ts";
 import { LEVELS } from "./levels.ts";
 import type { SectorId } from "./map.ts";
+import { ownedSectors } from "./rules.ts";
 import type { Snapshot } from "./state.ts";
 
 /** What changed while the player was away: the "While you were away" panel. */
@@ -45,7 +46,7 @@ export function summarize(before: Snapshot, after: Snapshot, awayMs: number): Su
     unlocks: added(before.unlocks, after.unlocks),
     crew: added(before.crew, after.crew),
     charted: added(before.revealed, after.revealed),
-    claimed: added(before.owned, after.owned),
+    claimed: added(ownedSectors(before), ownedSectors(after)),
   };
 }
 

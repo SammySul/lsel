@@ -8,7 +8,7 @@ import type { ModuleId } from "../content/modules.ts";
 import { OUTPOST_MODULES, SPECS } from "../content/outposts.ts";
 import { type Effect, UNLOCKS, type UnlockId } from "../content/unlocks.ts";
 import { LEVELS } from "./levels.ts";
-import { mapOf, type SectorId, sectorOf } from "./map.ts";
+import { HOME, mapOf, type SectorId, sectorOf } from "./map.ts";
 import { MASTERY, masteryChance, POOL_CHECKPOINTS, POOL_FILL } from "./mastery.ts";
 import type { Snapshot } from "./state.ts";
 
@@ -39,17 +39,21 @@ const sum = (bonuses: readonly { bonus: number }[]) => bonuses.reduce((t, e) => 
 /** One job at first, one more per Habitat level. */
 export const crewSlots = (state: Snapshot) => 1 + moduleLevel(state, "habitat");
 
-/** The outposts of a game with their sectors, in the order the sectors were taken. */
-export function outposts(state: Snapshot) {
-  return state.owned.flatMap((sector) => {
-    const outpost = state.outposts[sector];
-    return outpost === undefined ? [] : [{ sector, outpost }];
-  });
-}
+/** The sectors that are yours: home, then each outpost's, in the order they were taken. */
+export const ownedSectors = (state: Snapshot): SectorId[] => [
+  HOME,
+  ...state.outposts.map((outpost) => outpost.sector),
+];
+
+export const outpostAt = (state: Snapshot, sector: SectorId) =>
+  state.outposts.find((outpost) => outpost.sector === sector);
+
+const isYours = (state: Snapshot, sector: SectorId) =>
+  sector === HOME || outpostAt(state, sector) !== undefined;
 
 const specTotal = (state: Snapshot, of: "beds" | "routes") =>
-  outposts(state).reduce(
-    (sum, { outpost }) => sum + (outpost.spec === null ? 0 : SPECS[outpost.spec][of]),
+  state.outposts.reduce(
+    (sum, outpost) => sum + (outpost.spec === null ? 0 : SPECS[outpost.spec][of]),
     0,
   );
 
@@ -65,11 +69,11 @@ export const routes = (state: Snapshot) =>
 
 /** Who holds a sector now. */
 export function ownerOf(state: Snapshot, sector: SectorId): Owner {
-  return state.owned.includes(sector) ? "you" : sectorOf(mapOf(state.seed), sector).holder;
+  return isYours(state, sector) ? "you" : sectorOf(mapOf(state.seed), sector).holder;
 }
 
 const bordersYours = (state: Snapshot, sector: SectorId) =>
-  sectorOf(mapOf(state.seed), sector).lanes.some((lane) => state.owned.includes(lane));
+  sectorOf(mapOf(state.seed), sector).lanes.some((lane) => isYours(state, lane));
 
 /** The sector the next chart puts on the map: the lowest-numbered hidden one a lane from yours. */
 export function chartTarget(state: Snapshot): SectorId | undefined {
@@ -91,9 +95,11 @@ export const marketOpen = (state: Snapshot, faction: FactionId) =>
 /** How much an outpost's output is multiplied: its own add-ons, and relays on the outposts next to it. */
 export function outputBoost(state: Snapshot, sector: SectorId): number {
   let boost = 1;
-  for (const module of state.outposts[sector]?.modules ?? []) boost += OUTPOST_MODULES[module].own;
+  for (const module of outpostAt(state, sector)?.modules ?? []) {
+    boost += OUTPOST_MODULES[module].own;
+  }
   for (const lane of sectorOf(mapOf(state.seed), sector).lanes) {
-    for (const module of state.outposts[lane]?.modules ?? []) {
+    for (const module of outpostAt(state, lane)?.modules ?? []) {
       boost += OUTPOST_MODULES[module].neighbors;
     }
   }

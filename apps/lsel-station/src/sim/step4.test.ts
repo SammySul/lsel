@@ -13,6 +13,7 @@ import {
   claimable,
   marketOpen,
   outputBoost,
+  ownedSectors,
   ownerOf,
   routes,
 } from "./rules.ts";
@@ -140,9 +141,9 @@ describe("claiming", () => {
       claim(RING_2),
       claim(RING_2),
     ]).toEqual([false, true, false, [], [], [{ kind: "sector-claimed", sector: RING_2 }], []]);
-    expect([state.owned, state.outposts, state.items, ownerOf(state, RING_2)]).toEqual([
+    expect([ownedSectors(state), state.outposts, state.items, ownerOf(state, RING_2)]).toEqual([
       [HOME, RING_2],
-      { 2: { spec: null, modules: [], stored: 0 } },
+      [{ sector: RING_2, spec: null, modules: [], stored: 0 }],
       { "claim-beacon": 0 },
       "you",
     ]);
@@ -154,7 +155,7 @@ describe("claiming", () => {
       [],
       undefined,
     ]);
-    state.owned.push(RING_2);
+    state.outposts.push({ sector: RING_2, spec: null, modules: [], stored: 0 });
     expect(chartTarget(state)).toBe(6 as SectorId);
   });
 });
@@ -165,8 +166,7 @@ describe("outposts", () => {
       {},
       {
         revealed: [HOME, RING_2],
-        owned: [HOME, RING_2],
-        outposts: { [RING_2]: { spec: null, modules: [], stored: 0 } },
+        outposts: [{ sector: RING_2, spec: null, modules: [], stored: 0 }],
         ...setup,
       },
     );
@@ -201,8 +201,7 @@ describe("outposts", () => {
 
   test("a relay adds a quarter to the outposts a lane away", () => {
     const state = withOutpost({ items: { "relay-kit": 1 } });
-    state.owned.push(BELT_3);
-    state.outposts[BELT_3] = { spec: null, modules: [], stored: 0 };
+    state.outposts.push({ sector: BELT_3, spec: null, modules: [], stored: 0 });
     apply(state, { kind: "install", sector: BELT_3, module: "relay" });
     expect([outputBoost(state, RING_2), outputBoost(state, BELT_3)]).toEqual([1.25, 1]);
   });
@@ -213,7 +212,7 @@ describe("outposts", () => {
       apply(state, { kind: "specialize", sector: RING_2, spec });
     expect([set("mine").length, set("mine"), set("farm")]).toEqual([1, [], []]);
     state.items.credits = 250;
-    expect([set("farm").length, state.items, state.outposts[RING_2]?.spec]).toEqual([
+    expect([set("farm").length, state.items, state.outposts[0]?.spec]).toEqual([
       1,
       { credits: 50 },
       "farm",

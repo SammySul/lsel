@@ -9,7 +9,7 @@ import {
   SPECS,
 } from "../../content/outposts.ts";
 import { HOME, mapOf, type SectorId } from "../../sim/map.ts";
-import { claimable, ownerOf } from "../../sim/rules.ts";
+import { claimable, outpostAt, ownerOf } from "../../sim/rules.ts";
 import type { Game } from "../game.svelte.ts";
 import { stacks } from "./format.ts";
 import { isGameKey } from "./keys.ts";
@@ -49,7 +49,7 @@ function onkeydown(event: KeyboardEvent): void {
     {#each shown as sector (sector.id)}
       {@const here = sector.id === selected}
       {@const owner = ownerOf(snapshot, sector.id)}
-      {@const outpost = snapshot.outposts[sector.id]}
+      {@const outpost = outpostAt(snapshot, sector.id)}
       <li class:selected={here} aria-current={here}>
         <div class="line">
           <button type="button" aria-pressed={here} onclick={() => (selected = sector.id)}>

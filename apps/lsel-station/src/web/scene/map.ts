@@ -1,6 +1,6 @@
 import type { Owner } from "../../content/factions.ts";
 import { mapOf, type Sector, type SectorId } from "../../sim/map.ts";
-import { ownerOf } from "../../sim/rules.ts";
+import { outpostAt, ownerOf } from "../../sim/rules.ts";
 import type { Snapshot } from "../../sim/state.ts";
 import { drawPlanet } from "./bodies.ts";
 import { dither, hash } from "./noise.ts";
@@ -166,7 +166,7 @@ export function mapScene(opts: { seed: number; width: number; height: number }):
       const px = 3;
       const py = height - planet.height - 3;
       ctx.drawImage(planet, px, py);
-      if (state.outposts[selected] !== undefined) {
+      if (outpostAt(state, selected) !== undefined) {
         for (const p of OUTPOST.pixels) {
           ctx.fillStyle = PALETTE[p.color];
           ctx.fillRect(px + planet.width - 6 + p.x, py + 2 + p.y, 1, 1);

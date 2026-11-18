@@ -34,8 +34,7 @@ const FRESH: GameState = {
   beds: [],
   fed: {},
   revealed: [HOME],
-  owned: [HOME],
-  outposts: {},
+  outposts: [],
   glut: {},
 };
 

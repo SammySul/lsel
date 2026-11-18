@@ -65,14 +65,13 @@ const CLAIM_COST = [{ item: "claim-beacon", amount: 1 }] as const;
 
 function claim(state: GameState, sector: SectorId): readonly GameEvent[] {
   if (!claimable(state, sector) || !pay(state, CLAIM_COST)) return NO_EVENTS;
-  state.owned.push(sector);
-  state.outposts[sector] = { spec: null, modules: [], stored: 0 };
+  state.outposts.push({ sector, spec: null, modules: [], stored: 0 });
   return [{ kind: "sector-claimed", sector }];
 }
 
 /** Sets what an outpost does: free the first time, for credits after. Beds follow the number of Farms. */
 function specialize(state: GameState, sector: SectorId, spec: SpecId): readonly GameEvent[] {
-  const outpost = state.outposts[sector];
+  const outpost = state.outposts.find((o) => o.sector === sector);
   if (outpost === undefined || outpost.spec === spec) return NO_EVENTS;
   if (outpost.spec !== null && !pay(state, RESPEC_COST)) return NO_EVENTS;
   outpost.spec = spec;
@@ -86,7 +85,7 @@ function install(
   sector: SectorId,
   module: OutpostModuleId,
 ): readonly GameEvent[] {
-  const outpost = state.outposts[sector];
+  const outpost = state.outposts.find((o) => o.sector === sector);
   if (outpost === undefined || outpost.modules.length >= OUTPOST_SLOTS) return NO_EVENTS;
   if (!pay(state, [{ item: OUTPOST_MODULES[module].kit, amount: 1 }])) return NO_EVENTS;
   outpost.modules.push(module);

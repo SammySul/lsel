@@ -7,7 +7,7 @@ import { DEPARTMENT_IDS, DEPARTMENTS, type DepartmentId } from "../content/depar
 import { ITEM_IDS, ITEMS, type ItemId } from "../content/items.ts";
 import { type SaveDocument, toDocument } from "../save/document.ts";
 import { HOME, mapOf } from "../sim/map.ts";
-import { departmentLevel, departmentOpen, working } from "../sim/rules.ts";
+import { departmentLevel, departmentOpen, ownedSectors, working } from "../sim/rules.ts";
 import { newGame } from "../sim/state.ts";
 import { startGame } from "./game.svelte.ts";
 import { createSound } from "./sound/sound.svelte.ts";
@@ -188,7 +188,7 @@ function onkeydown(event: KeyboardEvent): void {
       {/each}
       <button type="button" aria-pressed={view === "map"} onclick={() => select("map")}>
         <span><kbd>m</kbd> Map</span>
-        <span>{game.snapshot.owned.length}</span>
+        <span>{ownedSectors(game.snapshot).length}</span>
       </button>
     </nav>
 

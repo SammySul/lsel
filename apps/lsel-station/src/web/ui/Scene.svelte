@@ -2,7 +2,7 @@
 import { OWNER_NAMES } from "../../content/factions.ts";
 import { MODULE_IDS } from "../../content/modules.ts";
 import { mapOf, type SectorId, sectorOf } from "../../sim/map.ts";
-import { ownerOf } from "../../sim/rules.ts";
+import { ownedSectors, ownerOf } from "../../sim/rules.ts";
 import type { Game } from "../game.svelte.ts";
 import { activityOf, describeScene } from "../scene/frame.ts";
 import { mapScene } from "../scene/map.ts";
@@ -28,7 +28,7 @@ const label = $derived.by(() => {
   const sector = sectorOf(mapOf(seed), selected);
   const owner = OWNER_NAMES[ownerOf(game.snapshot, selected)].toLowerCase();
   const charted = game.snapshot.revealed.length;
-  return `The sector map: ${charted} ${charted === 1 ? "sector" : "sectors"} charted, ${game.snapshot.owned.length} yours. Selected: ${sector.name}, ${owner}.`;
+  return `The sector map: ${charted} ${charted === 1 ? "sector" : "sectors"} charted, ${ownedSectors(game.snapshot).length} yours. Selected: ${sector.name}, ${owner}.`;
 });
 
 $effect(() => {

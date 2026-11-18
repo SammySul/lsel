@@ -7,12 +7,12 @@ import { ITEM_IDS } from "../content/items.ts";
 import { MODULE_IDS } from "../content/modules.ts";
 import { OUTPOST_MODULE_IDS, SPEC_IDS } from "../content/outposts.ts";
 import { UNLOCK_IDS } from "../content/unlocks.ts";
-import { mapOf, type SectorId } from "../sim/map.ts";
+import { HOME, mapOf, type SectorId } from "../sim/map.ts";
 import type { GameState } from "../sim/state.ts";
 import { TICK_MS } from "../sim/tick.ts";
 
 /** The save format's version. A change to GameState bumps it and adds a step to MIGRATIONS. */
-export const SAVE_VERSION = 1;
+export const SAVE_VERSION = 2;
 
 /** Saves larger than this are refused, here and by the sync service. */
 export const MAX_SAVE_BYTES = 64 * 1024;
@@ -54,10 +54,9 @@ const State = v.pipe(
     beds: v.array(v.nullable(v.object({ crop: v.picklist(CROP_IDS), progressMs: amount }))),
     fed: v.record(v.picklist(CREW_IDS), whole),
     revealed: v.array(sector),
-    owned: v.array(sector),
-    outposts: v.record(
-      v.pipe(v.string(), v.regex(/^\d{1,2}$/)),
+    outposts: v.array(
       v.object({
+        sector,
         spec: v.nullable(v.picklist(SPEC_IDS)),
         modules: v.array(v.picklist(OUTPOST_MODULE_IDS)),
         stored: amount,
@@ -70,8 +69,14 @@ const State = v.pipe(
     "a job belongs to someone not on the roster",
   ),
   v.check(
-    (state) => state.owned.every((id) => state.revealed.includes(id)),
-    "a sector is owned but not on the map",
+    (state) => state.outposts.every(({ sector }) => state.revealed.includes(sector)),
+    "an outpost is in a sector not on the map",
+  ),
+  v.check(
+    (state) =>
+      new Set([HOME, ...state.outposts.map(({ sector }) => sector)]).size ===
+      state.outposts.length + 1,
+    "two outposts share a sector, or one is at home",
   ),
 );
 
@@ -93,7 +98,22 @@ export type SaveDocument = {
 /** One step per version: MIGRATIONS[n] turns a version n document into version n + 1. */
 const MIGRATIONS: Readonly<
   Record<number, (doc: Record<string, unknown>) => Record<string, unknown>>
-> = {};
+> = {
+  // 1 to 2: `owned` and `outposts` by sector become one list of outposts that know their sector
+  1: (doc) => {
+    if (!isRecord(doc.state)) return doc;
+    const { owned, outposts, ...state } = doc.state;
+    if (!Array.isArray(owned) || !isRecord(outposts)) return doc;
+    const list = owned
+      .filter((sector) => sector !== HOME)
+      .map((sector) => ({ sector, ...(isRecord(outposts[sector]) ? outposts[sector] : {}) }));
+    return { ...doc, state: { ...state, outposts: list } };
+  },
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
 
 export function toDocument(state: GameState, savedAt: number): SaveDocument {
   return { game: "lsel-station", version: SAVE_VERSION, savedAt, state };

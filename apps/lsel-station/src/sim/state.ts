@@ -18,8 +18,9 @@ export type Job = {
 /** A planted Greenhouse bed. An empty bed is null. */
 export type Bed = { crop: CropId; progressMs: number };
 
-/** What stands in a sector of yours. It works with nobody assigned. */
+/** What stands in a sector of yours other than home. It works with nobody assigned. */
 export type Outpost = {
+  sector: SectorId;
   /** Null until it is first set up. */
   spec: SpecId | null;
   modules: OutpostModuleId[];
@@ -55,10 +56,8 @@ export type GameState = {
   fed: Partial<Record<CrewId, number>>;
   /** Sectors on the map so far, home first. The map itself comes from the seed. */
   revealed: SectorId[];
-  /** Sectors that are yours, home first. */
-  owned: SectorId[];
-  /** One per owned sector other than home, by sector id. */
-  outposts: Partial<Record<number, Outpost>>;
+  /** One per sector of yours other than home, in the order they were taken. */
+  outposts: Outpost[];
   /** How far each sale's price has fallen from selling it repeatedly, 0 to 0.3. A missing key is zero. */
   glut: Partial<Record<ActionId, number>>;
 };
@@ -88,8 +87,7 @@ export function newGame(seed: number): GameState {
     beds: [],
     fed: {},
     revealed: [HOME],
-    owned: [HOME],
-    outposts: {},
+    outposts: [],
     glut: {},
   };
 }

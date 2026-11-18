@@ -150,11 +150,9 @@ function begin(state: GameState, action: Action): boolean {
 
 /** Outposts give their yields with nobody assigned. */
 function trickle(state: GameState): void {
-  for (const sector of state.owned) {
-    const outpost = state.outposts[sector];
-    if (outpost === undefined || outpost.spec === null) continue;
-    if (SPECS[outpost.spec].yields.length === 0) continue;
-    outpost.stored += outputBoost(state, sector) / TRICKLE_TICKS;
+  for (const outpost of state.outposts) {
+    if (outpost.spec === null || SPECS[outpost.spec].yields.length === 0) continue;
+    outpost.stored += outputBoost(state, outpost.sector) / TRICKLE_TICKS;
     while (outpost.stored >= 1) {
       outpost.stored -= 1;
       for (const item of SPECS[outpost.spec].yields) give(state, item, 1);
