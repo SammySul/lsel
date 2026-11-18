@@ -10,6 +10,12 @@ traps.
 - The scene's draw effect must read only values that rarely change (`seed`,
   `size`, `still`): reading `game.snapshot` there repaints the planet and
   starfield on every tick.
+- A view change must not wait for `hashchange`: the event arrives a task
+  later, and a key pressed right after `5` acted on the old department.
+  `select` sets the state first and the address second.
+- The game's seed is random per page load, so anything rolled (mastery's
+  double output, kept input) differs between runs: a browser test asserts
+  those amounts with a pattern, and exact numbers only before mastery 10.
 - **An `AudioContext` is created only inside a key press or click** that
   counts as an activation (`navigator.userActivation`; Esc does not). Made any
   earlier, Firefox logs a console warning, which fails the quiet-console test.

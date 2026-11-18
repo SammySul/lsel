@@ -1,5 +1,5 @@
 import { dither, fbm, hash, noise } from "./noise.ts";
-import type { Put } from "./palette.ts";
+import type { Color, Put } from "./palette.ts";
 
 export type Body = {
   readonly x: number;
@@ -40,7 +40,11 @@ export function drawPlanet(put: Put, { x: cx, y: cy, radius, seed }: Body): void
 export const ASTEROID_RELIEF = 0.32;
 
 /** A lumpy rock: its outline comes from noise around the rim. No outline, as nothing natural has one. */
-export function drawAsteroid(put: Put, { x: cx, y: cy, radius, seed }: Body): void {
+export function drawAsteroid(
+  put: Put,
+  { x: cx, y: cy, radius, seed }: Body,
+  [light, middle, dark]: readonly [Color, Color, Color] = ["rockLight", "rock", "rockDark"],
+): void {
   const reach = Math.ceil(radius * (1 + ASTEROID_RELIEF));
   for (let y = cy - reach; y <= cy + reach; y++) {
     for (let x = cx - reach; x <= cx + reach; x++) {
@@ -51,7 +55,7 @@ export function drawAsteroid(put: Put, { x: cx, y: cy, radius, seed }: Body): vo
       if (Math.hypot(dx, dy) >= radius * (1 + lump * 2 * ASTEROID_RELIEF)) continue;
       const t = (dx * LIGHT.x + dy * LIGHT.y) / (radius * 1.1) + (dither(x, y) - 0.5) * 0.3;
       const pit = hash(x >> 1, y >> 1, seed) > 0.9;
-      put(x, y, pit || t <= -0.2 ? "rockDark" : t > 0.25 ? "rockLight" : "rock");
+      put(x, y, pit || t <= -0.2 ? dark : t > 0.25 ? light : middle);
     }
   }
 }

@@ -5,7 +5,8 @@ frontier. You train departments, build the station out module by module, send
 fleets to take sectors, and manage standing with four factions.
 
 Status: design agreed in five question rounds on 2026-11-16, defaults confirmed
-on 2026-11-18. Step 0 of the build order (section 15) is built.
+on 2026-11-18. Steps 0 and 2 of the build order (section 15) and sound are
+built; step 1 is not.
 
 How to read this document:
 
@@ -106,6 +107,10 @@ Locked decisions:
   specialty: a bonus to speed, yield or XP in one department.
 - You start with one generalist. Others are hired for credits when a faction's
   standing reaches the required rank. The Co-op offers the most.
+- Until hiring is built (step 6), each Habitat level brings the next crew
+  member for free. After that only Habitat I does.
+- A job that is taken off a started bar gets its inputs back. A module project
+  is paid for once and keeps its progress while nobody is on it.
 - About 24 crew exist in total. Sample roster in appendix A.
 - **Rations:** each working crew member eats one ration an hour if any are in
   stock, giving the Fed buff (+10% job speed, more for better rations). With no
@@ -169,6 +174,10 @@ Thirteen module types, each with levels I to V. A level-up is a Construction
 project. Each module has a fixed place in the station layout, so there is no
 placement puzzle, and it has three visual stages (levels I, III and V).
 
+Level N of a module is built from tier N materials, so crew slots and the
+other module bonuses arrive with the tiers. The Core's level caps every other
+module's.
+
 | Module        | Effect per level                                        |
 | ------------- | ------------------------------------------------------- |
 | Core          | Present at start; gates the level cap of other modules  |
@@ -196,6 +205,13 @@ placement puzzle, and it has three visual stages (levels I, III and V).
 - A share of all mastery XP also fills the **department pool**. Pool checkpoints
   at 10%, 25%, 50% and 95% give department-wide bonuses, and pool XP can be
   spent to raise any item's mastery in that department.
+- Numbers, all tunable: a second of an action is one mastery XP; the next
+  mastery level costs `round(6 × 1.08^(level − 1))`, about 141,000 to reach
+  99. The thresholds give a 5, 10, 15, 20 and 30% chance: of double output in
+  Mining, of keeping the input in Refining. Half of all mastery XP also goes
+  to the pool, which is full at half of its items' mastery to 99; its
+  checkpoints give +3% speed, +5% chance, +5% speed and +10% chance.
+- Things built once, such as station modules, have no mastery.
 
 ---
 
@@ -475,8 +491,10 @@ below; the rail becomes a drawer.
   The offline summary is a panel in the middle column, not a dialog; the only
   dialog is an event the player opened.
 - Keyboard: `1` to `0` select departments, `j` and `k` move through the list,
-  `Enter` assigns, `m` opens the map, `i` opens the inbox, `s` turns sound on or
-  off, `Esc` backs out, `?` lists the keys. Every key is shown next to its action.
+  `Enter` assigns whoever is free and fastest, `x` stops, `p` raises mastery
+  from the pool, `m` opens the map, `i` opens the inbox, `s` turns sound on or
+  off, `Esc` backs out, `?` lists the keys. Every key is shown next to its
+  action.
 - With `prefers-reduced-motion` the scene is drawn as still frames; there is no
   setting for it.
 - Factions are told apart by icon shape as well as color.
@@ -666,16 +684,16 @@ three-month target is checked without three months of play.
 
 Each step ends with something playable.
 
-| Step | Contents                                                                                                                    |
-| ---- | --------------------------------------------------------------------------------------------------------------------------- |
-| 0    | Project from lsel's `web` template, tick loop, one job (Mining iron), the station scene with a drone and a generated planet |
-| 1    | Save format, local saves, export and import, sync API, the app's entry in `squares`, first deploy to twelve                 |
-| 2    | Crew slots, Refining, Construction with modules appearing in the scene, mastery, offline catch-up and summary               |
-| 3    | Fabrication, Salvage, Hydroponics and rations, Skimming, Survey, Research                                                   |
-| 4    | Sector map, claim beacons, outposts, Trade and credits                                                                      |
-| 5    | Ships, fleets, battles, patrol zones, garrisons, strongholds, the fleet scene                                               |
-| 6    | Factions: standing, contracts, bounties, recruits, events, war, raids, absorbing                                            |
-| 7    | Content filled out to tier 6, balance pass with the simulator, completion log, phone layout, polish                         |
+| Step | Contents                                                                                                                                  |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| 0    | Project from lsel's `web` template, tick loop, one job (Mining iron), the station scene with a drone and a generated planet               |
+| 1    | Save format, local saves, export and import, offline catch-up and summary, sync API, the app's entry in `squares`, first deploy to twelve |
+| 2    | Crew slots, Refining, Construction with modules appearing in the scene, mastery                                                           |
+| 3    | Fabrication, Salvage, Hydroponics and rations, Skimming, Survey, Research                                                                 |
+| 4    | Sector map, claim beacons, outposts, Trade and credits                                                                                    |
+| 5    | Ships, fleets, battles, patrol zones, garrisons, strongholds, the fleet scene                                                             |
+| 6    | Factions: standing, contracts, bounties, recruits, events, war, raids, absorbing                                                          |
+| 7    | Content filled out to tier 6, balance pass with the simulator, completion log, phone layout, polish                                       |
 
 ---
 

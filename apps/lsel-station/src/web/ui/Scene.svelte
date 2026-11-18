@@ -1,7 +1,7 @@
 <script lang="ts">
-import { ACTIONS } from "../../content/actions.ts";
-import { CREW_IDS } from "../../content/crew.ts";
+import { MODULE_IDS } from "../../content/modules.ts";
 import type { Game } from "../game.svelte.ts";
+import { activityOf, describeScene } from "../scene/frame.ts";
 import { stationScene } from "../scene/station.ts";
 
 // one whole-number scale: a larger panel shows more space, never larger pixels
@@ -15,27 +15,10 @@ let canvas: HTMLCanvasElement | undefined = $state();
 let size = $state.raw({ width: 0, height: 0 });
 let still = $state(false);
 
+// plain values, so the draw effect reruns only when what is built or what is shown changes
 const seed = $derived(game.snapshot.seed);
-const mining = $derived(
-  CREW_IDS.some((crew) => {
-    const job = game.snapshot.jobs[crew];
-    return job !== undefined && ACTIONS[job.action].department === "mining";
-  }),
-);
-
-/** How far the mining bar is right now, between ticks included. */
-function miningProgress(): number | null {
-  const { state, sinceTickMs } = game.frame();
-  for (const crew of CREW_IDS) {
-    const job = state.jobs[crew];
-    if (job === undefined) continue;
-    const action = ACTIONS[job.action];
-    if (action.department === "mining") {
-      return Math.min((job.progressMs + sinceTickMs) / action.durationMs, 1);
-    }
-  }
-  return null;
-}
+const built = $derived(MODULE_IDS.map((id) => game.snapshot.modules[id] ?? 0).join());
+const label = $derived(describeScene(game.snapshot));
 
 $effect(() => {
   if (box === undefined) return;
@@ -64,11 +47,16 @@ $effect(() => {
   if (size.width === 0 || size.height === 0) return;
   canvas.width = size.width;
   canvas.height = size.height;
-  const scene = stationScene({ seed, ...size });
-  const draw = (timeMs: number) => scene.draw(ctx, { timeMs, mining: miningProgress(), still });
+  void built;
+  const { modules } = game.frame().state;
+  const scene = stationScene({ seed, ...size, modules });
+  const draw = (timeMs: number) => {
+    const { state, sinceTickMs } = game.frame();
+    scene.draw(ctx, { ...activityOf(state, sinceTickMs), timeMs, still });
+  };
   if (still) {
     // a still frame is redrawn only when what it shows changes
-    void mining;
+    void label;
     draw(0);
     return;
   }
@@ -85,14 +73,7 @@ $effect(() => {
 });
 </script>
 
-<div
-  class="scene"
-  bind:this={box}
-  role="img"
-  aria-label={mining
-    ? "The station in orbit above a planet. A drone is mining the iron asteroid."
-    : "The station in orbit above a planet. The drone is docked."}
->
+<div class="scene" bind:this={box} role="img" aria-label={label}>
   <canvas
     bind:this={canvas}
     style:width="{size.width * SCALE}px"

@@ -166,3 +166,63 @@ export const SPINE = sprite([
 ]);
 
 export const DRONE = sprite(["#####", "#LLa#", "#hLL#", "#####"]);
+export const REFINERY = sprite([
+  "........######..",
+  "........#hddd#..",
+  "........#hddd#..",
+  "........#hddd#..",
+  "#########hddd###",
+  "#LLLLLLLLLLLLLd#",
+  "#Lhhhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhhhd#",
+  "#Lhddddddddddhd#",
+  "#Lhhhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhhhd#",
+  "#Lhddddddddddhd#",
+  "#Lhhhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhhhd#",
+  "#Lhddddddddddhd#",
+  "#Lhhhhhhhhhhhhd#",
+  "#Lhaaaaaaaaaahd#",
+  "#Lhhhhhhhhhhhhd#",
+  "#dddddddddddddd#",
+  "################",
+]);
+
+export const HABITAT = sprite([
+  "##############",
+  "#LLLLLLLLLLLd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhwhhwhhwhhd#",
+  "#Lhwhhwhhwhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhwhhwhhwhhd#",
+  "#Lhwhhwhhwhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhaaaaaaaahd#",
+  "#Lhhhhhhhhhhd#",
+  "#dddddddddddd#",
+  "##############",
+]);
+
+export const REACTOR = sprite([
+  ".....#dd#.....",
+  ".....#dd#.....",
+  "##############",
+  "#LLLLLLLLLLLd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhh######hhd#",
+  "#Lhh#gggg#hhd#",
+  "#Lhh#gaag#hhd#",
+  "#Lhh#gaag#hhd#",
+  "#Lhh#gggg#hhd#",
+  "#Lhh######hhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#dddddddddddd#",
+  "##############",
+]);

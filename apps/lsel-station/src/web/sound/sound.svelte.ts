@@ -9,6 +9,8 @@ const STORAGE_KEY = "lsel-station.sound";
 const MASTER = 0.3;
 const FADE_S = 0.02;
 const MIN_GAP_S = 0.05;
+// fanfares further behind than this are dropped: a sound is for now, not for later
+const MAX_WAIT_S = 2;
 
 type Graph = {
   ctx: AudioContext;
@@ -35,6 +37,7 @@ export function createSound() {
   let resting: ReturnType<typeof setTimeout> | undefined;
   const buffers = new Map<SoundName, AudioBuffer>();
   const lastPlayed = new Map<SoundName, number>();
+  let fanfareEnd = 0;
 
   const audible = () => !settings.muted && document.visibilityState === "visible";
 
@@ -87,7 +90,7 @@ export function createSound() {
     const last = lastPlayed.get(name);
     if (last !== undefined && now - last < MIN_GAP_S) return;
     lastPlayed.set(name, now);
-    const { synth, vary } = SOUNDS[name];
+    const { synth, vary, fanfare } = SOUNDS[name];
     let buffer = buffers.get(name);
     if (buffer === undefined) {
       const samples = buildSamples(synth);
@@ -95,11 +98,14 @@ export function createSound() {
       buffer.copyToChannel(samples, 0);
       buffers.set(name, buffer);
     }
+    const when = fanfare ? Math.max(now, fanfareEnd) : now;
+    if (when - now > MAX_WAIT_S) return;
+    if (fanfare) fanfareEnd = when + buffer.duration * 0.7;
     const source = ctx.createBufferSource();
     source.buffer = buffer;
     source.playbackRate.value = 1 + (Math.random() * 2 - 1) * vary;
     source.connect(effects);
-    source.start();
+    source.start(when);
   }
 
   function change(next: SoundSettings): void {

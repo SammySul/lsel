@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
+import { apply } from "../../sim/commands.ts";
+import { newGame } from "../../sim/state.ts";
+import { tick } from "../../sim/tick.ts";
 import { ASTEROID_RELIEF, drawAsteroid, drawPlanet } from "./bodies.ts";
+import { activityOf, describeScene } from "./frame.ts";
 import type { Color, Put } from "./palette.ts";
 import { sprite } from "./sprites.ts";
 
@@ -62,5 +66,49 @@ describe("a sprite grid", () => {
   test("refuses a ragged row and a color outside the legend", () => {
     expect(() => sprite(["##", "#"])).toThrow("sprite row 1 is 1 wide, not 2");
     expect(() => sprite(["#x"])).toThrow('sprite row 0 has an unknown color "x"');
+  });
+});
+
+describe("what the scene shows", () => {
+  test("an idle station shows no job", () => {
+    const state = newGame(7);
+    expect([activityOf(state, 0), describeScene(state)]).toEqual([
+      { drones: [], refining: false, building: [] },
+      "The station in orbit above a planet.",
+    ]);
+  });
+
+  test("a mining job is a drone as far along as its bar, between ticks too", () => {
+    const state = newGame(7);
+    apply(state, { kind: "assign", crew: "ana-petrov", action: "iron-asteroid" });
+    expect(activityOf(state, 0).drones).toEqual([{ action: "iron-asteroid", progress: null }]);
+    for (let i = 0; i < 5; i++) tick(state);
+    // 5 ticks of Ana's 206 ms, then half a tick more, of a 3,000 ms bar
+    expect([activityOf(state, 100).drones, describeScene(state)]).toEqual([
+      [{ action: "iron-asteroid", progress: 1133 / 3000 }],
+      "The station in orbit above a planet. A drone is mining the iron asteroid.",
+    ]);
+  });
+
+  test("refining shows only while it has ore, and a project shows being built or half built", () => {
+    const state = newGame(7);
+    state.crew.push("ines-duarte");
+    state.modules.habitat = 1;
+    state.items = { "iron-plate": 30, water: 15 };
+    state.xp.construction = 279;
+    apply(state, { kind: "assign", crew: "ana-petrov", action: "iron-plate" });
+    apply(state, { kind: "assign", crew: "ines-duarte", action: "reactor-1" });
+    tick(state);
+    expect([activityOf(state, 0), describeScene(state)]).toEqual([
+      { drones: [], refining: false, building: [{ module: "reactor", active: true }] },
+      "The station in orbit above a planet. Reactor I is being built.",
+    ]);
+    state.items["iron-ore"] = 2;
+    apply(state, { kind: "unassign", crew: "ines-duarte" });
+    tick(state);
+    expect([activityOf(state, 0), describeScene(state)]).toEqual([
+      { drones: [], refining: true, building: [{ module: "reactor", active: false }] },
+      "The station in orbit above a planet. The refinery is running. Reactor I is half built.",
+    ]);
   });
 });

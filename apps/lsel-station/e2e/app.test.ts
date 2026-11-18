@@ -99,6 +99,19 @@ function scene(page: Page) {
   });
 }
 
+/** The texts of these places on the page, with whitespace collapsed. */
+async function texts(page: Page, ...selectors: string[]): Promise<string[]> {
+  const out: string[] = [];
+  for (const selector of selectors) {
+    for (const text of await page.locator(selector).allTextContents()) {
+      out.push(text.replace(/\s+/g, " ").trim());
+    }
+  }
+  return out;
+}
+
+const seconds = (page: Page, s: number) => page.clock.fastForward(s * 1000);
+
 for (const name of names) {
   describe(name, () => {
     let browser: Browser;
@@ -126,53 +139,136 @@ for (const name of names) {
     );
 
     test(
-      "Enter puts the crew on the iron asteroid: 1 ore every 3 s, level 2 after 12",
+      "Enter puts Ana on the iron asteroid: an ore every 3 s, level 2 after 12, and x stops her",
       async () => {
         const page = await browser.newPage();
         const problems = await open(page);
-        const read = async () =>
-          (await page.locator(".stock, section header, .xp, footer").allTextContents()).map((t) =>
-            t.replace(/\s+/g, " ").trim(),
-          );
-        expect(await read()).toEqual([
-          "Iron ore 0",
-          "Mining Lv 1",
-          "xp 0 / 60",
-          "Ana Petrov › idle",
+        const read = () =>
+          texts(page, ".stock", "section > header", ".facts span >> nth=0", "footer");
+        const idle = "Ana Petrov everything +3% › idle";
+        const mining = "Ana Petrov everything +3% › Mining";
+        expect(await texts(page, "nav button")).toEqual([
+          "1 Mining 1",
+          "5 Refining 1",
+          "7 Construction 1",
         ]);
+        expect(await read()).toEqual(["", "Mining Lv 1", "xp 0 / 60", idle]);
 
         await page.keyboard.press("Enter");
         await page.clock.fastForward(2800);
-        expect(await read()).toEqual([
-          "Iron ore 0",
-          "Mining Lv 1",
-          "xp 0 / 60",
-          "Ana Petrov › Mining",
-        ]);
+        expect(await read()).toEqual(["", "Mining Lv 1", "xp 0 / 60", mining]);
         await page.clock.fastForward(200);
-        expect(await read()).toEqual([
-          "Iron ore 1",
-          "Mining Lv 1",
-          "xp 5 / 60",
-          "Ana Petrov › Mining",
-        ]);
+        expect(await read()).toEqual(["Iron ore 1", "Mining Lv 1", "xp 5 / 60", mining]);
         await page.clock.fastForward(33_000);
-        expect(await read()).toEqual([
-          "Iron ore 12",
-          "Mining Lv 2",
-          "xp 60 / 126",
-          "Ana Petrov › Mining",
+        expect(await read()).toEqual(["Iron ore 12", "Mining Lv 2", "xp 60 / 126", mining]);
+
+        await page.keyboard.press("x");
+        await page.clock.fastForward(6000);
+        expect(await read()).toEqual(["Iron ore 12", "Mining Lv 2", "xp 60 / 126", idle]);
+        expect(problems).toEqual([]);
+      },
+      TIMEOUT,
+    );
+
+    test(
+      "ore is refined until it runs out, a Habitat is built from plate and water, and Ines joins",
+      async () => {
+        const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+        const problems = await open(page);
+        const key = (k: string) => page.keyboard.press(k);
+        const selected = async () => (await texts(page, "li[aria-current=true]"))[0] ?? "";
+
+        // enough ore and ice for 20 plate and 10 water
+        await key("Enter");
+        await seconds(page, 130);
+        await key("x");
+        await key("j");
+        await key("Enter");
+        await seconds(page, 70);
+        await key("x");
+
+        // refining stops by itself when the ore is gone, and says what it waits for
+        await key("5");
+        await key("Enter");
+        await seconds(page, 120);
+        expect(await selected()).toMatch(
+          /^Iron plate 4\.0 s 2 iron ore → 1 iron plate .*Ana Petrov, waiting for [12] iron ore Stop x/,
+        );
+        await key("x");
+        await key("j");
+        await key("Enter");
+        await seconds(page, 60);
+        expect(await selected()).toMatch(/Ana Petrov, waiting for [12] ice Stop x/);
+        await key("x");
+
+        // the project is paid for at once and shows in the scene while it is built
+        await key("7");
+        expect(await selected()).toBe(
+          "Habitat I 10:00 20 iron plate, 10 water Assign Ana Petrov Enter",
+        );
+        await key("Enter");
+        await seconds(page, 300);
+        const scene = page.getByRole("img");
+        expect([
+          await selected(),
+          await page
+            .locator("li[aria-current=true] [role=progressbar]")
+            .getAttribute("aria-valuenow"),
+          await scene.getAttribute("aria-label"),
+        ]).toEqual([
+          "Habitat I 10:00 20 iron plate, 10 water Ana Petrov Stop x",
+          "52",
+          "The station in orbit above a planet. Habitat I is being built.",
         ]);
 
-        await page.getByRole("button", { name: "Stop" }).click();
-        await page.clock.fastForward(6000);
-        expect(await read()).toEqual([
-          "Iron ore 12",
-          "Mining Lv 2",
-          "xp 60 / 126",
-          "Ana Petrov › idle",
+        // finished while watching: the module, the recruit and the level are announced and sounded
+        await seconds(page, 280);
+        await page.clock.runFor(3000);
+        expect(await texts(page, ".notices p")).toEqual([
+          "Habitat I built",
+          "Ines Duarte joined the crew",
+          "Construction level 5",
         ]);
+        expect((await audio(page)).shots.slice(-3)).toEqual([880, 460, 620]);
+        // what is left over after the Habitat depends on the seed's mastery rolls
+        expect((await texts(page, "section li >> nth=0"))[0]).toMatch(
+          /^Reactor I 15:00 30 iron plate, 15 water Short of \d+ iron plate, \d+ water Assign Ana Petrov Enter$/,
+        );
+        expect(await texts(page, "section li >> nth=1", "footer .crew")).toEqual([
+          "Core II 2:00:00 60 copper wire, 30 glass Construction level 15",
+          "Ana Petrov everything +3% › idle",
+          "Ines Duarte mining +10% › idle",
+        ]);
+
+        // two slots: the faster miner is offered first, then whoever is left
+        await key("1");
+        await key("Enter");
+        await key("j");
+        await key("Enter");
+        expect(await texts(page, "footer .crew")).toEqual([
+          "Ana Petrov everything +3% › Mining",
+          "Ines Duarte mining +10% › Mining",
+        ]);
+        expect(await scene.getAttribute("aria-label")).toBe(
+          "The station in orbit above a planet. A drone waits to mine the ice asteroid. A drone waits to mine the iron asteroid.",
+        );
         expect(problems).toEqual([]);
+      },
+      TIMEOUT,
+    );
+
+    test(
+      "a department's address survives a reload",
+      async () => {
+        const page = await browser.newPage();
+        await open(page);
+        await page.keyboard.press("5");
+        expect([new URL(page.url()).hash, await texts(page, "section > header")]).toEqual([
+          "#/refining",
+          ["Refining Lv 1"],
+        ]);
+        await page.reload({ waitUntil: "networkidle" });
+        expect(await texts(page, "section > header")).toEqual(["Refining Lv 1"]);
       },
       TIMEOUT,
     );
@@ -183,7 +279,7 @@ for (const name of names) {
         const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
         await open(page);
         const label = () => page.getByRole("img").getAttribute("aria-label");
-        expect(await label()).toBe("The station in orbit above a planet. The drone is docked.");
+        expect(await label()).toBe("The station in orbit above a planet.");
 
         const palette: string[] = Object.values(PALETTE);
         const idle = await scene(page);
@@ -228,7 +324,7 @@ for (const name of names) {
         const before = await scene(page);
         await page.clock.fastForward(4000);
         const after = await scene(page);
-        expect(await page.locator(".stock").textContent()).toContain("1");
+        expect(await texts(page, ".stock")).toEqual(["Iron ore 1"]);
         expect([before.colors.includes(PALETTE.beam), after.sum]).toEqual([true, before.sum]);
       },
       TIMEOUT,
@@ -251,7 +347,7 @@ for (const name of names) {
 
         // ten more bars and a level-up, caught up in one jump: silence
         await page.clock.fastForward(33_000);
-        expect(await page.locator(".stock").textContent()).toContain("12");
+        expect(await texts(page, ".stock")).toEqual(["Iron ore 12"]);
         expect((await audio(page)).shots).toEqual([115, 82]);
 
         await page.keyboard.press("s");

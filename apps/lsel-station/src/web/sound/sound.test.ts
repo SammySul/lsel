@@ -52,8 +52,13 @@ describe("the game's sounds", () => {
     expect(facts).toEqual([
       ["assign", 5071, true],
       ["stop", 5071, true],
-      ["done", 3616, true],
+      ["waiting", 7276, true],
+      ["mined", 3616, true],
+      ["refined", 3616, true],
       ["levelUp", 27342, true],
+      ["mastery", 11686, true],
+      ["built", 38808, true],
+      ["joined", 20286, true],
     ]);
   });
 
@@ -64,13 +69,31 @@ describe("the game's sounds", () => {
     ]).toEqual([67, 53]);
   });
 
-  test("each event has its sound", () => {
+  test("each event has its sound, and a finished project leaves it to the module's fanfare", () => {
+    const crew = "ana-petrov";
     expect([
-      cueFor({ kind: "job-started", crew: "ana-petrov", action: "iron-asteroid" }),
-      cueFor({ kind: "job-stopped", crew: "ana-petrov" }),
-      cueFor({ kind: "action-done", crew: "ana-petrov", action: "iron-asteroid" }),
+      cueFor({ kind: "job-started", crew, action: "iron-asteroid" }),
+      cueFor({ kind: "job-stopped", crew }),
+      cueFor({ kind: "job-waiting", crew, action: "iron-plate" }),
+      cueFor({ kind: "action-done", crew, action: "iron-asteroid" }),
+      cueFor({ kind: "action-done", crew, action: "water" }),
+      cueFor({ kind: "action-done", crew, action: "habitat-1" }),
       cueFor({ kind: "level-up", department: "mining", level: 2 }),
-    ]).toEqual(["assign", "stop", "done", "levelUp"]);
+      cueFor({ kind: "mastery-step", action: "iron-asteroid", level: 10 }),
+      cueFor({ kind: "module-built", module: "habitat", level: 1 }),
+      cueFor({ kind: "crew-joined", crew: "ines-duarte" }),
+    ]).toEqual([
+      "assign",
+      "stop",
+      "waiting",
+      "mined",
+      "refined",
+      null,
+      "levelUp",
+      "mastery",
+      "built",
+      "joined",
+    ]);
   });
 });
 

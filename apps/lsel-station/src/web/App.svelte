@@ -1,45 +1,68 @@
 <script lang="ts">
 import { onDestroy } from "svelte";
 import { ACTIONS } from "../content/actions.ts";
-import { CREW, CREW_IDS } from "../content/crew.ts";
+import { CREW } from "../content/crew.ts";
 import { DEPARTMENT_IDS, DEPARTMENTS, type DepartmentId } from "../content/departments.ts";
 import { ITEM_IDS, ITEMS } from "../content/items.ts";
-import { levelOf } from "../sim/levels.ts";
+import { departmentLevel, departmentOpen } from "../sim/rules.ts";
 import { startGame } from "./game.svelte.ts";
 import { createSound } from "./sound/sound.svelte.ts";
 import Department from "./ui/Department.svelte";
-import { count } from "./ui/format.ts";
+import { count, percent } from "./ui/format.ts";
 import { isGameKey } from "./ui/keys.ts";
+import { createNotices } from "./ui/notices.svelte.ts";
 import Scene from "./ui/Scene.svelte";
 
 const [seed = 0] = crypto.getRandomValues(new Uint32Array(1));
 const sound = createSound();
-const game = startGame(seed, sound.hear);
+const notices = createNotices();
+const game = startGame(seed, (event) => {
+  sound.hear(event);
+  notices.hear(event);
+});
 onDestroy(() => {
   game.stop();
   sound.stop();
+  notices.stop();
 });
 
-let department: DepartmentId = $state("mining");
+/** The department a `#/…` address names, so reload and the back button keep the view. */
+const fromHash = () => DEPARTMENT_IDS.find((id) => `#/${id}` === location.hash);
+
+let department: DepartmentId = $state(fromHash() ?? "mining");
 let keysOpen = $state(false);
+
+const open = $derived(DEPARTMENT_IDS.filter((id) => departmentOpen(game.snapshot, id)));
+const stock = $derived(ITEM_IDS.filter((id) => game.snapshot.items[id] !== undefined).slice(0, 4));
+const busy = (id: DepartmentId) =>
+  game.snapshot.crew.some((crew) => {
+    const job = game.snapshot.jobs[crew];
+    return job !== undefined && ACTIONS[job.action].department === id;
+  });
+
+/** Shows a department now; the address follows, so the next key press already acts on the new view. */
+function select(id: DepartmentId): void {
+  department = id;
+  location.hash = `/${id}`;
+}
 
 function onkeydown(event: KeyboardEvent): void {
   if (!isGameKey(event)) return;
-  const picked = DEPARTMENT_IDS.find((id) => DEPARTMENTS[id].key === event.key);
-  if (picked !== undefined) department = picked;
+  const picked = open.find((id) => DEPARTMENTS[id].key === event.key);
+  if (picked !== undefined) select(picked);
   else if (event.key === "s") sound.toggle();
   else if (event.key === "?") keysOpen = !keysOpen;
   else if (event.key === "Escape") keysOpen = false;
 }
 </script>
 
-<svelte:window {onkeydown} />
+<svelte:window {onkeydown} onhashchange={() => (department = fromHash() ?? department)} />
 
 <main>
   <header>
     <h1>Lsel</h1>
     <ul class="stock">
-      {#each ITEM_IDS as id (id)}
+      {#each stock as id (id)}
         <li><span class="dim">{ITEMS[id].name}</span> {count(game.snapshot.items[id] ?? 0)}</li>
       {/each}
     </ul>
@@ -53,10 +76,17 @@ function onkeydown(event: KeyboardEvent): void {
 
   <div class="body">
     <nav aria-label="Departments">
-      {#each DEPARTMENT_IDS as id (id)}
-        <button type="button" aria-pressed={id === department} onclick={() => (department = id)}>
+      {#each open as id (id)}
+        <button
+          type="button"
+          aria-pressed={id === department}
+          onclick={() => select(id)}
+        >
           <span><kbd>{DEPARTMENTS[id].key}</kbd> {DEPARTMENTS[id].name}</span>
-          <span>{levelOf(game.snapshot.xp[id] ?? 0)}</span>
+          <span>
+            {#if busy(id)}<span class="busy" aria-label="running">•</span>{/if}
+            {departmentLevel(game.snapshot, id)}
+          </span>
         </button>
       {/each}
     </nav>
@@ -65,14 +95,18 @@ function onkeydown(event: KeyboardEvent): void {
       {#if keysOpen}
         <section class="keys lsel-appear" aria-label="Keys and volume">
           <dl>
-            {#each DEPARTMENT_IDS as id (id)}
+            {#each open as id (id)}
               <dt><kbd>{DEPARTMENTS[id].key}</kbd></dt>
               <dd>{DEPARTMENTS[id].name}</dd>
             {/each}
             <dt><kbd>j</kbd> <kbd>k</kbd></dt>
             <dd>Move through the list</dd>
             <dt><kbd>Enter</kbd></dt>
-            <dd>Assign or stop</dd>
+            <dd>Assign whoever is free</dd>
+            <dt><kbd>x</kbd></dt>
+            <dd>Stop</dd>
+            <dt><kbd>p</kbd></dt>
+            <dd>Raise mastery from the pool</dd>
             <dt><kbd>s</kbd></dt>
             <dd>Sound on or off</dd>
             <dt><kbd>?</kbd></dt>
@@ -105,11 +139,17 @@ function onkeydown(event: KeyboardEvent): void {
   </div>
 
   <footer>
-    {#each CREW_IDS as id (id)}
+    {#each game.snapshot.crew as id (id)}
       {@const job = game.snapshot.jobs[id]}
-      <span>
-        {CREW[id].name}
-        <span class="dim">›</span>
+      {@const { name, specialty } = CREW[id]}
+      <span class="crew lsel-appear">
+        {name}
+        <span class="dim">
+          {specialty.department === "all"
+            ? "everything"
+            : DEPARTMENTS[specialty.department].name.toLowerCase()}
+          +{percent(specialty.bonus)} ›
+        </span>
         {#if job === undefined}
           <span class="dim">idle</span>
         {:else}
@@ -118,10 +158,17 @@ function onkeydown(event: KeyboardEvent): void {
       </span>
     {/each}
   </footer>
+
+  <div class="notices" aria-live="polite">
+    {#each notices.list as notice (notice.id)}
+      <p class="lsel-appear">{notice.text}</p>
+    {/each}
+  </div>
 </main>
 
 <style>
   main {
+    position: relative;
     max-width: 1600px;
     height: calc(100dvh - 2 * var(--space-5));
     display: grid;
@@ -131,7 +178,8 @@ function onkeydown(event: KeyboardEvent): void {
   footer {
     display: flex;
     align-items: center;
-    gap: var(--space-5);
+    flex-wrap: wrap;
+    gap: var(--space-2) var(--space-5);
     padding: var(--space-3) var(--space-4);
   }
   header {
@@ -145,15 +193,19 @@ function onkeydown(event: KeyboardEvent): void {
     margin: 0 auto 0 0;
     padding: 0;
     display: flex;
-    gap: var(--space-5);
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-5);
     font-variant-numeric: tabular-nums;
   }
   .dim {
     color: var(--subtle);
   }
+  .busy {
+    color: var(--accent);
+  }
   .body {
     display: grid;
-    grid-template-columns: 200px minmax(280px, 380px) minmax(0, 1fr);
+    grid-template-columns: 240px minmax(300px, 400px) minmax(0, 1fr);
     min-height: 0;
   }
   nav {
@@ -191,6 +243,22 @@ function onkeydown(event: KeyboardEvent): void {
   }
   dd {
     margin: 0;
+  }
+  .notices {
+    position: absolute;
+    right: var(--space-4);
+    bottom: var(--space-7);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--space-2);
+    pointer-events: none;
+  }
+  .notices p {
+    margin: 0;
+    padding: var(--space-2) var(--space-3);
+    background: var(--raise);
+    border: var(--border);
   }
   @media (max-width: 600px) {
     main {
