@@ -73,7 +73,7 @@ describe("what the scene shows", () => {
   test("an idle station shows no job", () => {
     const state = newGame(7);
     expect([activityOf(state, 0), describeScene(state)]).toEqual([
-      { drones: [], tugs: [], skimmers: [], running: [], beds: [], building: [] },
+      { drones: [], tugs: [], skimmers: [], freighters: [], running: [], beds: [], building: [] },
       "The station in orbit above a planet.",
     ]);
   });
@@ -104,6 +104,7 @@ describe("what the scene shows", () => {
         drones: [],
         tugs: [],
         skimmers: [],
+        freighters: [],
         running: [],
         beds: [],
         building: [{ module: "reactor", active: true }],
@@ -118,6 +119,7 @@ describe("what the scene shows", () => {
         drones: [],
         tugs: [],
         skimmers: [],
+        freighters: [],
         running: ["refinery"],
         beds: [],
         building: [{ module: "reactor", active: false }],

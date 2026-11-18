@@ -23,4 +23,9 @@ export function duration(ms: number): string {
 
 /** Stacks as "20 iron plate, 10 water". */
 export const stacks = (list: readonly Stack[]) =>
-  list.map(({ item, amount }) => `${count(amount)} ${ITEMS[item].name.toLowerCase()}`).join(", ");
+  list
+    .map(({ item, amount }) => {
+      const { name, one } = ITEMS[item];
+      return `${count(amount)} ${(amount === 1 ? (one ?? name) : name).toLowerCase()}`;
+    })
+    .join(", ");

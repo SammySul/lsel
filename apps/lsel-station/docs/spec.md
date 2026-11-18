@@ -5,7 +5,7 @@ frontier. You train departments, build the station out module by module, send
 fleets to take sectors, and manage standing with four factions.
 
 Status: design agreed in five question rounds on 2026-11-16, defaults confirmed
-on 2026-11-18. Steps 0, 2 and 3 of the build order (section 15) and sound are
+on 2026-11-18. Steps 0, 2, 3 and 4 of the build order (section 15) and sound are
 built; step 1 is not.
 
 How to read this document:
@@ -316,6 +316,24 @@ standing, credits and bounty tokens spent in that faction's shop.
 36 sectors joined by lanes. Unexplored sectors are hidden until Surveyed from a
 neighboring sector you own or have visited.
 
+As built in step 4:
+
+- **The map is generated per game** from its seed: a column per tier, the
+  table's holders shuffled within each tier, lanes mostly between neighboring
+  tiers, and every sector reachable from home. Only the seed is stored.
+  `?seed=<n>` in the address fixes the seed, for tests and for sharing a map.
+- **Charting** is a 2-minute Survey job, from level 2, that puts the
+  lowest-numbered hidden sector next to one of yours on the map.
+- **Tier 2 materials** are bought at the Co-op's market until a tier 2 sector
+  is taken (fleets, step 5). A faction's market opens once one of its sectors
+  is charted.
+- **Trade** runs earn credits only; standing and contracts come with factions
+  (step 6). Each sale of a good lowers its price 3%, to at most 30%, and it
+  recovers 3% every 5 minutes. One run at a time per Market office level and
+  Trade hub.
+- The map scene marks each holder with its own shape as well as color, tints
+  held space, and shows the selected sector's planet in the corner.
+
 | Tier | Sectors | Held by                   |
 | ---- | ------- | ------------------------- |
 | 1    | 5       | Home, 3 empty, 1 pirate   |
@@ -352,6 +370,12 @@ fastest source.
 | Trade hub      | Passive credits and one more route                           |
 | Listening post | Data trickle, faster Survey, raid warning                    |
 | Farm           | Extra grow beds                                              |
+
+As built in step 4: Mine (1 iron ore and 1 ice every 20 s), Trade hub (a
+credit every 20 s and a route) and Farm (two beds). The yard comes with fleets
+and the listening post with raids. A depot adds half again, a relay a quarter to
+each neighboring outpost; kits are Construction jobs. The first set-up is free,
+a change costs 200 credits.
 
 Outpost modules: turret (raid defense), depot (more output), relay (bonus to
 neighboring outposts).
@@ -510,7 +534,8 @@ below; the rail becomes a drawer.
   dialog is an event the player opened.
 - Keyboard: `1` to `0` select departments, `j` and `k` move through the list,
   `Enter` assigns whoever is free and fastest, `x` stops, `p` raises mastery
-  from the pool, `b` plants an empty bed, `m` opens the map, `i` opens the inbox, `s` turns sound on or
+  from the pool, `b` plants an empty bed, `m` opens the map (`j`, `k` and `Enter` move
+  and claim there), `0` is Trade, `i` opens the inbox, `s` turns sound on or
   off, `Esc` backs out, `?` lists the keys. Every key is shown next to its
   action.
 - With `prefers-reduced-motion` the scene is drawn as still frames; there is no

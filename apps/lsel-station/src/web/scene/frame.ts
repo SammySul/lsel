@@ -14,6 +14,8 @@ export type Activity = {
   readonly tugs: readonly number[];
   /** How far along each skimming job's bar is: the skimmer's trip out of the frame and back. */
   readonly skimmers: readonly number[];
+  /** How far along each Trade run's bar is: the freighter's trip to a market and back. */
+  readonly freighters: readonly number[];
   /** Modules with someone working inside. */
   readonly running: readonly ModuleId[];
   /** How grown each bed is, 0 to 1, or null when it is empty. */
@@ -27,6 +29,7 @@ export function activityOf(state: Snapshot, sinceTickMs: number): Activity {
   const drones: { action: ActionId; progress: number | null }[] = [];
   const tugs: number[] = [];
   const skimmers: number[] = [];
+  const freighters: number[] = [];
   const running: ModuleId[] = [];
   const building: { module: ModuleId; active: boolean }[] = [];
   for (const crew of state.crew) {
@@ -43,6 +46,7 @@ export function activityOf(state: Snapshot, sinceTickMs: number): Activity {
     } else if (!working) continue;
     else if (action.department === "salvage") tugs.push(progress);
     else if (action.department === "skimming") skimmers.push(progress);
+    else if (action.department === "trade") freighters.push(progress);
     else {
       // a fabricated unlock such as the tug is made in the Workshop, a study in the Lab
       const { needs } = DEPARTMENTS[action.department];
@@ -58,7 +62,7 @@ export function activityOf(state: Snapshot, sinceTickMs: number): Activity {
   const beds = state.beds.map((bed) =>
     bed === null ? null : Math.min(bed.progressMs / CROPS[bed.crop].growMs, 1),
   );
-  return { drones, tugs, skimmers, running, beds, building };
+  return { drones, tugs, skimmers, freighters, running, beds, building };
 }
 
 const RUNNING: Readonly<Partial<Record<ModuleId, string>>> = {
@@ -71,7 +75,7 @@ const RUNNING: Readonly<Partial<Record<ModuleId, string>>> = {
 
 /** The scene in words, for anyone who cannot see it: nothing is shown only in the picture. */
 export function describeScene(state: Snapshot): string {
-  const { drones, tugs, skimmers, running, beds, building } = activityOf(state, 0);
+  const { drones, tugs, skimmers, freighters, running, beds, building } = activityOf(state, 0);
   const lines = ["The station in orbit above a planet."];
   for (const drone of drones) {
     const rock = ACTIONS[drone.action].name.toLowerCase();
@@ -83,6 +87,7 @@ export function describeScene(state: Snapshot): string {
   }
   for (const _ of tugs) lines.push("A tug is hauling wreck pieces in.");
   for (const _ of skimmers) lines.push("A skimmer is out at the gas giant.");
+  for (const _ of freighters) lines.push("A freighter is on a trade run.");
   for (const module of running) {
     const line = RUNNING[module];
     if (line !== undefined) lines.push(line);

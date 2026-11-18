@@ -59,12 +59,14 @@ describe("the game's sounds", () => {
       ["cooked", 3616, true],
       ["refined", 3616, true],
       ["made", 3616, true],
+      ["sold", 8070, true],
       ["scanned", 10672, true],
       ["harvested", 6835, true],
       ["levelUp", 27342, true],
       ["mastery", 11686, true],
       ["built", 38808, true],
       ["ready", 31311, true],
+      ["claimed", 41013, true],
       ["joined", 20286, true],
     ]);
   });

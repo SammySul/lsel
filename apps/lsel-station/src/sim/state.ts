@@ -4,7 +4,9 @@ import type { CropId } from "../content/crops.ts";
 import type { DepartmentId } from "../content/departments.ts";
 import type { ItemId } from "../content/items.ts";
 import { type ModuleId, STARTING_MODULES } from "../content/modules.ts";
+import type { OutpostModuleId, SpecId } from "../content/outposts.ts";
 import type { UnlockId } from "../content/unlocks.ts";
+import { HOME, type SectorId } from "./map.ts";
 
 export type Job = {
   action: ActionId;
@@ -15,6 +17,15 @@ export type Job = {
 
 /** A planted Greenhouse bed. An empty bed is null. */
 export type Bed = { crop: CropId; progressMs: number };
+
+/** What stands in a sector of yours. It works with nobody assigned. */
+export type Outpost = {
+  /** Null until it is first set up. */
+  spec: SpecId | null;
+  modules: OutpostModuleId[];
+  /** How far along the next trickle is, 0 to under 1. */
+  stored: number;
+};
 
 export type GameState = {
   seed: number;
@@ -42,9 +53,20 @@ export type GameState = {
   beds: (Bed | null)[];
   /** Ticks of work each crew member is still fed for. A missing key is zero. */
   fed: Partial<Record<CrewId, number>>;
+  /** Sectors on the map so far, home first. The map itself comes from the seed. */
+  revealed: SectorId[];
+  /** Sectors that are yours, home first. */
+  owned: SectorId[];
+  /** One per owned sector other than home, by sector id. */
+  outposts: Partial<Record<number, Outpost>>;
+  /** How far each sale's price has fallen from selling it repeatedly, 0 to 0.3. A missing key is zero. */
+  glut: Partial<Record<ActionId, number>>;
 };
 
-type DeepReadonly<T> = T extends object ? { readonly [K in keyof T]: DeepReadonly<T[K]> } : T;
+// primitives first: a branded number is also an object type, and must stay a number
+type DeepReadonly<T> = T extends string | number | boolean | null | undefined
+  ? T
+  : { readonly [K in keyof T]: DeepReadonly<T[K]> };
 
 /** What the interface and the scene read; only `tick` and `apply` change a game. */
 export type Snapshot = DeepReadonly<GameState>;
@@ -65,5 +87,9 @@ export function newGame(seed: number): GameState {
     projects: {},
     beds: [],
     fed: {},
+    revealed: [HOME],
+    owned: [HOME],
+    outposts: {},
+    glut: {},
   };
 }

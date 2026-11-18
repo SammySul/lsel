@@ -2,9 +2,25 @@ import { ACTIONS, type ActionId, isOnce } from "../content/actions.ts";
 import type { CrewId } from "../content/crew.ts";
 import { CROPS, type CropId } from "../content/crops.ts";
 import { DEPARTMENTS } from "../content/departments.ts";
+import {
+  OUTPOST_MODULES,
+  OUTPOST_SLOTS,
+  type OutpostModuleId,
+  RESPEC_COST,
+  type SpecId,
+} from "../content/outposts.ts";
 import { type GameEvent, NO_EVENTS } from "./events.ts";
+import type { SectorId } from "./map.ts";
 import { isMasteryStep, MASTERY } from "./mastery.ts";
-import { actionLock, actionShown, crewSlots, poolCost } from "./rules.ts";
+import {
+  actionLock,
+  actionShown,
+  bedCount,
+  claimable,
+  crewSlots,
+  poolCost,
+  routes,
+} from "./rules.ts";
 import type { GameState } from "./state.ts";
 import { give, pay } from "./stock.ts";
 
@@ -12,7 +28,10 @@ export type Command =
   | { kind: "assign"; crew: CrewId; action: ActionId }
   | { kind: "unassign"; crew: CrewId }
   | { kind: "spend-pool"; action: ActionId }
-  | { kind: "plant"; bed: number; crop: CropId };
+  | { kind: "plant"; bed: number; crop: CropId }
+  | { kind: "claim"; sector: SectorId }
+  | { kind: "specialise"; sector: SectorId; spec: SpecId }
+  | { kind: "install"; sector: SectorId; module: OutpostModuleId };
 
 /** Takes a crew member off their job: a started bar gives its inputs back, a once-made project keeps its progress. */
 function release(state: GameState, crew: CrewId): boolean {
@@ -33,6 +52,12 @@ function assign(state: GameState, crew: CrewId, id: ActionId): readonly GameEven
   if (!actionShown(state, id) || actionLock(state, id) !== null) return NO_EVENTS;
   const others = state.crew.filter((c) => c !== crew && state.jobs[c] !== undefined);
   if (current === undefined && others.length >= crewSlots(state)) return NO_EVENTS;
+  // a route per Market office level and Trade hub
+  const trading = others.filter((c) => {
+    const job = state.jobs[c];
+    return job !== undefined && ACTIONS[job.action].department === "trade";
+  });
+  if (ACTIONS[id].department === "trade" && trading.length >= routes(state)) return NO_EVENTS;
   // one project per crew member
   if (isOnce(ACTIONS[id]) && others.some((c) => state.jobs[c]?.action === id)) return NO_EVENTS;
 
@@ -58,6 +83,40 @@ function spendPool(state: GameState, id: ActionId): readonly GameEvent[] {
   return isMasteryStep(level) ? [{ kind: "mastery-step", action: id, level }] : NO_EVENTS;
 }
 
+const CLAIM_COST = [{ item: "claim-beacon", amount: 1 }] as const;
+
+function claim(state: GameState, sector: SectorId): readonly GameEvent[] {
+  if (!claimable(state, sector) || !pay(state, CLAIM_COST)) return NO_EVENTS;
+  state.owned.push(sector);
+  state.outposts[sector] = { spec: null, modules: [], stored: 0 };
+  return [{ kind: "sector-claimed", sector }];
+}
+
+/** Sets what an outpost does: free the first time, for credits after. Beds follow the number of Farms. */
+function specialise(state: GameState, sector: SectorId, spec: SpecId): readonly GameEvent[] {
+  const outpost = state.outposts[sector];
+  if (outpost === undefined || outpost.spec === spec) return NO_EVENTS;
+  if (outpost.spec !== null && !pay(state, RESPEC_COST)) return NO_EVENTS;
+  outpost.spec = spec;
+  outpost.stored = 0;
+  const beds = bedCount(state);
+  while (state.beds.length < beds) state.beds.push(null);
+  state.beds.length = beds;
+  return [{ kind: "outpost-changed", sector }];
+}
+
+function install(
+  state: GameState,
+  sector: SectorId,
+  module: OutpostModuleId,
+): readonly GameEvent[] {
+  const outpost = state.outposts[sector];
+  if (outpost === undefined || outpost.modules.length >= OUTPOST_SLOTS) return NO_EVENTS;
+  if (!pay(state, [{ item: OUTPOST_MODULES[module].kit, amount: 1 }])) return NO_EVENTS;
+  outpost.modules.push(module);
+  return [{ kind: "outpost-changed", sector }];
+}
+
 function plant(state: GameState, bed: number, crop: CropId): readonly GameEvent[] {
   if (state.beds[bed] !== null || !pay(state, CROPS[crop].cost)) return NO_EVENTS;
   state.beds[bed] = { crop, progressMs: 0 };
@@ -75,6 +134,12 @@ export function apply(state: GameState, command: Command): readonly GameEvent[] 
         : NO_EVENTS;
     case "spend-pool":
       return spendPool(state, command.action);
+    case "claim":
+      return claim(state, command.sector);
+    case "specialise":
+      return specialise(state, command.sector, command.spec);
+    case "install":
+      return install(state, command.sector, command.module);
     case "plant":
       return plant(state, command.bed, command.crop);
     default: {

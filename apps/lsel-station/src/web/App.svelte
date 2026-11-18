@@ -5,18 +5,28 @@ import { CREW } from "../content/crew.ts";
 import { CROP_IDS, CROPS } from "../content/crops.ts";
 import { DEPARTMENT_IDS, DEPARTMENTS, type DepartmentId } from "../content/departments.ts";
 import { ITEM_IDS, ITEMS, type ItemId } from "../content/items.ts";
+import { HOME, mapOf } from "../sim/map.ts";
 import { departmentLevel, departmentOpen } from "../sim/rules.ts";
 import { startGame } from "./game.svelte.ts";
 import { createSound } from "./sound/sound.svelte.ts";
 import Department from "./ui/Department.svelte";
 import { count, percent } from "./ui/format.ts";
 import { isGameKey } from "./ui/keys.ts";
+import MapView from "./ui/MapView.svelte";
 import { createNotices } from "./ui/notices.svelte.ts";
 import Scene from "./ui/Scene.svelte";
 
-const [seed = 0] = crypto.getRandomValues(new Uint32Array(1));
+/** A game's seed: `?seed=7` in the address picks it, otherwise it is random. */
+function pickSeed(): number {
+  const asked = new URLSearchParams(location.search).get("seed");
+  if (asked !== null && /^\d{1,9}$/.test(asked)) return Number(asked);
+  const [random = 0] = crypto.getRandomValues(new Uint32Array(1));
+  return random;
+}
+
+const seed = pickSeed();
 const sound = createSound();
-const notices = createNotices();
+const notices = createNotices(mapOf(seed));
 const game = startGame(seed, (event) => {
   sound.hear(event);
   notices.hear(event);
@@ -27,24 +37,29 @@ onDestroy(() => {
   notices.stop();
 });
 
-/** The department a `#/…` address names, so reload and the back button keep the view. */
-const fromHash = () => DEPARTMENT_IDS.find((id) => `#/${id}` === location.hash);
+type View = DepartmentId | "map";
 
-let department: DepartmentId = $state(fromHash() ?? "mining");
+/** The view a `#/…` address names, so reload and the back button keep it. */
+const fromHash = (): View | undefined =>
+  location.hash === "#/map" ? "map" : DEPARTMENT_IDS.find((id) => `#/${id}` === location.hash);
+
+let view: View = $state(fromHash() ?? "mining");
+let sector = $state(HOME);
 let keysOpen = $state(false);
 
 const open = $derived(DEPARTMENT_IDS.filter((id) => departmentOpen(game.snapshot, id)));
 /** Every item the selected department takes or makes, and rations, which everyone eats. */
 const touched = $derived.by(() => {
+  if (view === "map") return new Set<ItemId>(["credits", "claim-beacon", "depot-kit", "relay-kit"]);
   const items = new Set<ItemId>(["ration"]);
   for (const id of ACTION_IDS) {
     const { department: of, inputs, result } = ACTIONS[id];
-    if (of !== department) continue;
+    if (of !== view) continue;
     for (const { item } of inputs) items.add(item);
     if (result.kind === "items") for (const { item } of result.outputs) items.add(item);
     if (result.kind === "loot") for (const { item } of result.table) items.add(item);
   }
-  if (department === "hydroponics") {
+  if (view === "hydroponics") {
     for (const id of CROP_IDS) {
       items.add(CROPS[id].item);
       for (const { item } of CROPS[id].cost) items.add(item);
@@ -62,23 +77,24 @@ const busy = (id: DepartmentId) =>
     return job !== undefined && ACTIONS[job.action].department === id;
   });
 
-/** Shows a department now; the address follows, so the next key press already acts on the new view. */
-function select(id: DepartmentId): void {
-  department = id;
-  location.hash = `/${id}`;
+/** Shows a view now; the address follows, so the next key press already acts on the new view. */
+function select(to: View): void {
+  view = to;
+  location.hash = `/${to}`;
 }
 
 function onkeydown(event: KeyboardEvent): void {
   if (!isGameKey(event)) return;
   const picked = open.find((id) => DEPARTMENTS[id].key === event.key);
   if (picked !== undefined) select(picked);
+  else if (event.key === "m") select("map");
   else if (event.key === "s") sound.toggle();
   else if (event.key === "?") keysOpen = !keysOpen;
   else if (event.key === "Escape") keysOpen = false;
 }
 </script>
 
-<svelte:window {onkeydown} onhashchange={() => (department = fromHash() ?? department)} />
+<svelte:window {onkeydown} onhashchange={() => (view = fromHash() ?? view)} />
 
 <main>
   <header>
@@ -101,7 +117,7 @@ function onkeydown(event: KeyboardEvent): void {
       {#each open as id (id)}
         <button
           type="button"
-          aria-pressed={id === department}
+          aria-pressed={id === view}
           onclick={() => select(id)}
         >
           <span><kbd>{DEPARTMENTS[id].key}</kbd> {DEPARTMENTS[id].name}</span>
@@ -111,6 +127,10 @@ function onkeydown(event: KeyboardEvent): void {
           </span>
         </button>
       {/each}
+      <button type="button" aria-pressed={view === "map"} onclick={() => select("map")}>
+        <span><kbd>m</kbd> Map</span>
+        <span>{game.snapshot.owned.length}</span>
+      </button>
     </nav>
 
     <div class="middle">
@@ -131,6 +151,8 @@ function onkeydown(event: KeyboardEvent): void {
             <dd>Raise mastery from the pool</dd>
             <dt><kbd>b</kbd></dt>
             <dd>Plant an empty bed</dd>
+            <dt><kbd>m</kbd></dt>
+            <dd>Map</dd>
             <dt><kbd>s</kbd></dt>
             <dd>Sound on or off</dd>
             <dt><kbd>?</kbd></dt>
@@ -154,12 +176,16 @@ function onkeydown(event: KeyboardEvent): void {
           </div>
         </section>
       {/if}
-      {#key department}
-        <Department {game} {department} />
-      {/key}
+      {#if view === "map"}
+        <MapView {game} bind:selected={sector} />
+      {:else}
+        {#key view}
+          <Department {game} department={view} />
+        {/key}
+      {/if}
     </div>
 
-    <Scene {game} />
+    <Scene {game} view={view === "map" ? "map" : "station"} selected={sector} />
   </div>
 
   <footer>

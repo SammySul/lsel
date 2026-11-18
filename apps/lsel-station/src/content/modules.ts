@@ -13,6 +13,7 @@ const table = {
   scanner: { name: "Scanner" },
   lab: { name: "Lab" },
   "skimmer-bay": { name: "Skimmer bay" },
+  "market-office": { name: "Market office" },
 } as const satisfies Record<string, Module>;
 
 export type ModuleId = keyof typeof table;

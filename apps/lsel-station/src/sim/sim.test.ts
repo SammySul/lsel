@@ -3,6 +3,7 @@ import type { ActionId } from "../content/actions.ts";
 import { apply, type Command } from "./commands.ts";
 import type { GameEvent } from "./events.ts";
 import { levelOf, xpForNext, xpToReachNext } from "./levels.ts";
+import { HOME } from "./map.ts";
 import { MASTERY, masteryChance } from "./mastery.ts";
 import {
   actionLock,
@@ -32,6 +33,10 @@ const FRESH: GameState = {
   projects: {},
   beds: [],
   fed: {},
+  revealed: [HOME],
+  owned: [HOME],
+  outposts: {},
+  glut: {},
 };
 
 /** Ticks `n` times and returns everything that happened. */

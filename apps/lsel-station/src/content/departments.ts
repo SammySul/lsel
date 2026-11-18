@@ -46,6 +46,7 @@ const table = {
   construction: { name: "Construction", key: "7", needs: built("core"), mastery: null },
   survey: { name: "Survey", key: "8", needs: built("scanner"), mastery: "extra-output" },
   research: { name: "Research", key: "9", needs: built("lab"), mastery: null },
+  trade: { name: "Trade", key: "0", needs: built("market-office"), mastery: "extra-output" },
 } as const satisfies Record<string, Department>;
 
 export type DepartmentId = keyof typeof table;

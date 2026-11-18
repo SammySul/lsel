@@ -16,6 +16,11 @@ traps.
 - The game's seed is random per page load, so anything rolled (mastery's
   double output, kept input) differs between runs: a browser test asserts
   those amounts with a pattern, and exact numbers only before mastery 10.
+- The map is never saved, only the seed: changing `generateMap` moves every
+  existing game's sectors. Once saves exist (step 1), a change to it needs a
+  save migration or a version check on the map.
+- `?seed=<n>` fixes a game's seed; the browser tests use seed 7 wherever they
+  assert sector names or rolled amounts.
 - **An `AudioContext` is created only inside a key press or click** that
   counts as an activation (`navigator.userActivation`; Esc does not). Made any
   earlier, Firefox logs a console warning, which fails the quiet-console test.

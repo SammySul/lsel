@@ -1,8 +1,9 @@
-import { ACTIONS, type Action, type ActionId, isOnce } from "../content/actions.ts";
+import { ACTION_IDS, ACTIONS, type Action, type ActionId, isOnce } from "../content/actions.ts";
 import { type CrewId, HABITAT_RECRUITS } from "../content/crew.ts";
 import { CROPS } from "../content/crops.ts";
 import { DEPARTMENTS, type DepartmentId } from "../content/departments.ts";
 import type { Stack } from "../content/items.ts";
+import { SPECS, TRICKLE_TICKS } from "../content/outposts.ts";
 import { type GameEvent, NO_EVENTS } from "./events.ts";
 import { levelOf } from "./levels.ts";
 import { isMasteryStep, MASTERY, POOL_SHARE } from "./mastery.ts";
@@ -10,8 +11,10 @@ import { nextRandom } from "./rng.ts";
 import {
   bedCount,
   bonusChance,
+  chartTarget,
   FED_TICKS,
   growthSpeed,
+  outputBoost,
   poolCap,
   replants,
   speedOf,
@@ -20,6 +23,11 @@ import type { GameState } from "./state.ts";
 import { give, pay } from "./stock.ts";
 
 export const TICK_MS = 200;
+
+/** Each sale of a good lowers its price by this much, down to GLUT_MAX off; it recovers one step in 5 minutes. */
+export const GLUT_STEP = 0.03;
+export const GLUT_MAX = 0.3;
+const GLUT_RECOVERY = GLUT_STEP / 1500;
 
 /** The next roll of the game's generator, 0 to under 1. */
 function random(state: GameState): number {
@@ -80,6 +88,20 @@ function finish(state: GameState, crew: CrewId, id: ActionId, events: GameEvent[
         give(state, item, amount);
       }
       break;
+    case "sale": {
+      const glut = state.glut[id] ?? 0;
+      give(state, "credits", Math.round(result.credits * (1 - glut)) * (lucky ? 2 : 1));
+      state.glut[id] = Math.min(glut + GLUT_STEP, GLUT_MAX);
+      break;
+    }
+    case "reveal": {
+      const sector = chartTarget(state);
+      if (sector !== undefined) {
+        state.revealed.push(sector);
+        events.push({ kind: "sector-revealed", sector });
+      }
+      break;
+    }
     case "module": {
       state.modules[result.module] = result.level;
       events.push({ kind: "module-built", module: result.module, level: result.level });
@@ -120,6 +142,32 @@ function grow(state: GameState, events: GameEvent[]): void {
   });
 }
 
+/** Whether a bar can start: there is something left to chart, and its inputs are taken. */
+function begin(state: GameState, action: Action): boolean {
+  if (action.result.kind === "reveal" && chartTarget(state) === undefined) return false;
+  return pay(state, action.inputs);
+}
+
+/** Outposts trickle with nobody assigned, and prices recover. */
+function idle(state: GameState): void {
+  for (const sector of state.owned) {
+    const outpost = state.outposts[sector];
+    if (outpost === undefined || outpost.spec === null) continue;
+    if (SPECS[outpost.spec].yields.length === 0) continue;
+    outpost.stored += outputBoost(state, sector) / TRICKLE_TICKS;
+    while (outpost.stored >= 1) {
+      outpost.stored -= 1;
+      for (const item of SPECS[outpost.spec].yields) give(state, item, 1);
+    }
+  }
+  for (const id of ACTION_IDS) {
+    const glut = state.glut[id];
+    if (glut === undefined) continue;
+    if (glut <= GLUT_RECOVERY) delete state.glut[id];
+    else state.glut[id] = glut - GLUT_RECOVERY;
+  }
+}
+
 /** The only function that advances a game: one fixed step of TICK_MS. Returns what happened in it. */
 export function tick(state: GameState): readonly GameEvent[] {
   const events: GameEvent[] = [];
@@ -130,7 +178,7 @@ export function tick(state: GameState): readonly GameEvent[] {
     if (job === undefined) continue;
     const action = ACTIONS[job.action];
     if (job.phase !== "working") {
-      if (pay(state, action.inputs)) job.phase = "working";
+      if (begin(state, action)) job.phase = "working";
       else {
         if (job.phase === "new") events.push({ kind: "job-waiting", crew, action: job.action });
         job.phase = "waiting";
@@ -153,7 +201,7 @@ export function tick(state: GameState): readonly GameEvent[] {
         break;
       }
       job.progressMs -= action.durationMs;
-      if (!pay(state, action.inputs)) {
+      if (!begin(state, action)) {
         job.progressMs = 0;
         job.phase = "waiting";
         events.push({ kind: "job-waiting", crew, action: job.action });
@@ -162,5 +210,6 @@ export function tick(state: GameState): readonly GameEvent[] {
     }
   }
   grow(state, events);
+  idle(state);
   return events.length > 0 ? events : NO_EVENTS;
 }

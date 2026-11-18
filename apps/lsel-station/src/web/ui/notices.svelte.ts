@@ -1,4 +1,5 @@
 import type { GameEvent } from "../../sim/events.ts";
+import type { GameMap } from "../../sim/map.ts";
 import { noticeFor } from "./notices.ts";
 
 const SHOWN_MS = 4000;
@@ -6,7 +7,7 @@ const SHOWN_MS = 4000;
 export type Notices = ReturnType<typeof createNotices>;
 
 /** Short toasts for what just happened. Each clears itself; none needs dismissing. */
-export function createNotices() {
+export function createNotices(map: GameMap) {
   let list = $state.raw<readonly { id: number; text: string }[]>([]);
   let next = 0;
   const timers = new Set<ReturnType<typeof setTimeout>>();
@@ -15,7 +16,7 @@ export function createNotices() {
       return list;
     },
     hear(event: GameEvent): void {
-      const text = noticeFor(event);
+      const text = noticeFor(event, map);
       if (text === null) return;
       const id = next++;
       list = [...list, { id, text }];

@@ -62,8 +62,8 @@ async function contextState(page: Page, wanted: AudioContextState): Promise<Audi
   return (await audio(page)).contexts;
 }
 
-/** Opens the game with its clock stopped, so a test moves time by exact amounts. */
-async function open(page: Page): Promise<string[]> {
+/** Opens the game with its clock stopped, so a test moves time by exact amounts. `query` can fix the seed. */
+async function open(page: Page, query = ""): Promise<string[]> {
   const problems: string[] = [];
   page.on("console", (m) => {
     if (m.type() === "error" || m.type() === "warning") problems.push(`${m.type()}: ${m.text()}`);
@@ -71,7 +71,7 @@ async function open(page: Page): Promise<string[]> {
   page.on("pageerror", (e) => problems.push(`uncaught: ${e.message}`));
   await page.addInitScript(spyOnAudio);
   await page.clock.install({ time: 0 });
-  await page.goto(server.url.href, { waitUntil: "networkidle" });
+  await page.goto(server.url.href + query, { waitUntil: "networkidle" });
   await page.evaluate(() => document.fonts.ready);
   await page.clock.pauseAt(60_000);
   return problems;
@@ -151,6 +151,7 @@ for (const name of names) {
           "1 Mining 1",
           "5 Refining 1",
           "7 Construction 1",
+          "m Map 1",
         ]);
         expect(await read()).toEqual(["", "Mining Lv 1", "xp 0 / 60", idle]);
 
@@ -240,6 +241,10 @@ for (const name of names) {
           "Scanner I 20:00 20 basic parts, 30 iron plate Construction level 8",
           "Lab I 25:00 30 basic parts, 30 iron plate, 10 water Construction level 10",
           "Skimmer bay I 30:00 40 basic parts, 40 iron plate Construction level 12",
+          "Market office I 30:00 30 basic parts, 40 iron plate Construction level 14",
+          "Claim beacon 10:00 10 basic parts, 20 iron plate → 1 claim beacon Construction level 8",
+          "Depot kit 8:00 15 basic parts, 20 iron plate → 1 depot kit Construction level 10",
+          "Relay kit 8:00 20 basic parts, 10 iron plate → 1 relay kit Construction level 12",
           "Core II 2:00:00 60 copper wire, 30 glass Construction level 15",
           "Habitat II 1:00:00 40 copper wire, 20 glass Construction level 15",
         ]);
@@ -297,12 +302,14 @@ for (const name of names) {
           "1 Mining 16",
           "5 Refining 14",
           "7 Construction 5",
+          "m Map 1",
         ]);
 
         await work("7", "Workshop I", 705);
-        expect((await texts(page, "nav button")).slice(-2)).toEqual([
+        expect((await texts(page, "nav button")).slice(-3)).toEqual([
           "6 Fabrication 1",
           "7 Construction 8",
+          "m Map 1",
         ]);
 
         // basic parts, then the tug, which is made once and stays
@@ -351,6 +358,99 @@ for (const name of names) {
           (await texts(page, ".stock li")).at(0),
         ]).toEqual(["Bed 1, empty Plant algae for 2 water b", "Algae 4"]);
         expect(problems).toEqual([]);
+      },
+      TIMEOUT,
+    );
+
+    test(
+      "on seed 7 a lane is charted, Ring 2 is claimed as a Mine, and the Co-op buys iron plate",
+      async () => {
+        const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+        const problems = await open(page, "?seed=7");
+        const key = (k: string) => page.keyboard.press(k);
+        const row = (name: string) =>
+          page
+            .locator("section li", { has: page.locator(".line >> nth=0", { hasText: name }) })
+            .first();
+        const work = async (department: string, name: string, s: number) => {
+          await key(department);
+          await row(name)
+            .getByRole("button", { name: /Assign/ })
+            .click();
+          await seconds(page, s);
+          const stop = row(name).getByRole("button", { name: /Stop/ });
+          if ((await stop.count()) > 0) await stop.first().click();
+        };
+        const scene = () => page.getByRole("img").getAttribute("aria-label");
+
+        // the map starts with home alone
+        await key("m");
+        expect([
+          new URL(page.url()).hash,
+          await texts(page, "section > header", "section li"),
+          await scene(),
+        ]).toEqual([
+          "#/map",
+          ["Map 1 of 36 charted", "Home Home ring, yours Your station."],
+          "The sector map: 1 sector charted, 1 yours. Selected: Home, yours.",
+        ]);
+
+        await work("1", "Iron asteroid", 700);
+        await work("1", "Ice asteroid", 150);
+        await work("5", "Iron plate", 420);
+        await work("5", "Water", 80);
+        await work("7", "Habitat I", 590);
+        await key("1");
+        await row("Iron asteroid")
+          .getByRole("button", { name: /Assign/ })
+          .click();
+        await work("7", "Workshop I", 705);
+        await work("5", "Iron plate", 800);
+        await work("6", "Basic parts", 300);
+        await work("7", "Scanner I", 1180);
+        await work("8", "Home ring scan", 40);
+        await work("8", "Chart a lane", 480);
+        await key("m");
+        expect(await texts(page, "section li > .line:first-child")).toEqual([
+          "Home Home ring, yours",
+          "Ring 1 Home ring, pirates",
+          "Ring 2 Home ring, unclaimed",
+          "Ring 3 Home ring, unclaimed",
+          "Ring 4 Home ring, unclaimed",
+        ]);
+
+        // a beacon claims the selected sector with Enter, and the outpost is set up as a Mine
+        await work("7", "Claim beacon", 590);
+        await key("m");
+        await key("j");
+        await key("j");
+        expect((await texts(page, "li[aria-current=true]"))[0]).toBe(
+          "Ring 2 Home ring, unclaimed Claim with a beacon Enter",
+        );
+        await key("Enter");
+        await page.getByRole("button", { name: "Mine", exact: true }).click();
+        await page.clock.runFor(3000);
+        expect([
+          (await texts(page, "li[aria-current=true]"))[0],
+          await texts(page, ".notices p"),
+          await scene(),
+        ]).toEqual([
+          // grouped buttons are laid out by CSS, with no text between them
+          "Ring 2 Home ring, yours MineTrade hubFarm A trickle of iron ore and ice. A change costs 200 credits. Install a depot (0)Install a relay (0) 0 of 3 add-ons",
+          ["Ring 2 is yours"],
+          "The sector map: 5 sectors charted, 2 yours. Selected: Ring 2, yours.",
+        ]);
+
+        // charting from Ring 2 finds the Co-op, whose market buys plate once there is a Market office
+        await work("8", "Chart a lane", 360);
+        await work("7", "Market office I", 1790);
+        await key("0");
+        expect((await texts(page, "section li"))[0]).toBe(
+          "Sell 10 iron plate 30.0 s 10 iron plate → 40 credits mastery 1 Assign Ana Petrov Enter",
+        );
+        await key("Enter");
+        await seconds(page, 31);
+        expect([await texts(page, ".stock li >> nth=0"), problems]).toEqual([["Credits 40"], []]);
       },
       TIMEOUT,
     );

@@ -5,6 +5,7 @@ import {
   BED_PLOTS,
   DRAW_ORDER,
   droneHome,
+  FREIGHTER_TRIP,
   LAB_LIGHTS,
   MODULE_PLACES,
   type Point,
@@ -21,6 +22,7 @@ import { type Color, PALETTE, type Put } from "./palette.ts";
 import {
   ANTENNA,
   DRONE,
+  FREIGHTER,
   SKIMMER,
   SOLAR_PANEL,
   SPINE,
@@ -141,7 +143,7 @@ export function stationScene(opts: {
   );
 
   return {
-    draw(ctx, { timeMs, still, drones, tugs, skimmers, running, beds, building }) {
+    draw(ctx, { timeMs, still, drones, tugs, skimmers, freighters, running, beds, building }) {
       ctx.putImageData(image, 0, 0);
       const fill = (x: number, y: number, w: number, h: number, color: Color) => {
         ctx.fillStyle = PALETTE[color];
@@ -275,16 +277,27 @@ export function stationScene(opts: {
         if (flight.there && !still) sparks({ x: at.x + TUG.width + 2, y: at.y + 2 }, 5, 11 + slot);
       });
 
-      // the skimmer leaves the frame for the gas giant and comes back with full tanks
-      skimmers.forEach((progress, slot) => {
+      // the skimmer leaves the frame for the gas giant, and the freighter for a market; both come back
+      const away = (
+        sprite: Sprite,
+        trip: { home: Point; away: Point },
+        progress: number,
+        slot: number,
+      ) => {
         const out = progress < 0.5;
         const reach = smooth(out ? progress * 2 : (1 - progress) * 2);
-        const home = { x: SKIMMER_TRIP.home.x, y: SKIMMER_TRIP.home.y + slot * 5 };
-        const at = between(home, SKIMMER_TRIP.away, still ? 0 : reach);
-        stamp(SKIMMER, at, out ? 1 : -1);
+        const home = { x: trip.home.x, y: trip.home.y + slot * (sprite.height + 1) };
+        const at = between(home, trip.away, still ? 0 : reach);
+        stamp(sprite, at, out ? 1 : -1);
         if (!still && flicker % 2 === 1) {
-          fill(out ? at.x - 1 : at.x + SKIMMER.width, at.y + 2, 1, 1, "glow");
+          fill(out ? at.x - 1 : at.x + sprite.width, at.y + (sprite.height >> 1), 1, 1, "glow");
         }
+      };
+      skimmers.forEach((progress, slot) => {
+        away(SKIMMER, SKIMMER_TRIP, progress, slot);
+      });
+      freighters.forEach((progress, slot) => {
+        away(FREIGHTER, FREIGHTER_TRIP, progress, slot);
       });
     },
   };

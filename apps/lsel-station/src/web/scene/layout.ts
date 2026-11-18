@@ -7,6 +7,7 @@ import {
   GREENHOUSE,
   HABITAT,
   LAB,
+  MARKET_OFFICE,
   REACTOR,
   REFINERY,
   SCANNER,
@@ -26,6 +27,7 @@ export const DRAW_ORDER: readonly ModuleId[] = [
   "greenhouse",
   "lab",
   "skimmer-bay",
+  "market-office",
   "reactor",
   "refinery",
   "habitat",
@@ -46,6 +48,7 @@ export const MODULE_PLACES: Readonly<Record<ModuleId, Point & { sprite: Sprite }
   workshop: { sprite: WORKSHOP, x: 15, y: 3 },
   lab: { sprite: LAB, x: 30, y: 3 },
   "skimmer-bay": { sprite: SKIMMER_BAY, x: 45, y: 3 },
+  "market-office": { sprite: MARKET_OFFICE, x: 61, y: 3 },
 };
 
 export type Site = Point & {
@@ -97,6 +100,8 @@ export const WRECKS: readonly Point[] = [
 /** A trip between two points: the tug's from under the Workshop to the wrecks, the skimmer's out of the frame. */
 export const TUG_TRIP = { home: { x: 19, y: 27 }, away: { x: 60, y: 40 } };
 export const SKIMMER_TRIP = { home: { x: 48, y: 27 }, away: { x: 190, y: 120 } };
+/** The freighter docks under the Market office and leaves along the lane, out of the frame. */
+export const FREIGHTER_TRIP = { home: { x: 61, y: 27 }, away: { x: 175, y: 64 } };
 
 /** Where the Workshop throws sparks, the Scanner's dish pings from, and the Lab's lights are. */
 export const WORKSHOP_SPARKS: Point = { x: 21, y: 15 };

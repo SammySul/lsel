@@ -4,6 +4,7 @@ import type { CropId } from "../content/crops.ts";
 import type { DepartmentId } from "../content/departments.ts";
 import type { ModuleId } from "../content/modules.ts";
 import type { UnlockId } from "../content/unlocks.ts";
+import type { SectorId } from "./map.ts";
 
 /** What a tick or a command made happen, for whoever shows or sounds it. The state never depends on these. */
 export type GameEvent =
@@ -17,6 +18,9 @@ export type GameEvent =
   | { readonly kind: "unlocked"; readonly unlock: UnlockId }
   | { readonly kind: "crew-joined"; readonly crew: CrewId }
   | { readonly kind: "planted"; readonly bed: number; readonly crop: CropId }
-  | { readonly kind: "harvested"; readonly bed: number; readonly crop: CropId };
+  | { readonly kind: "harvested"; readonly bed: number; readonly crop: CropId }
+  | { readonly kind: "sector-revealed"; readonly sector: SectorId }
+  | { readonly kind: "sector-claimed"; readonly sector: SectorId }
+  | { readonly kind: "outpost-changed"; readonly sector: SectorId };
 
 export const NO_EVENTS: readonly GameEvent[] = [];

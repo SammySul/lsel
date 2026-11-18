@@ -71,6 +71,20 @@ const table = {
   cooked: { synth: tick(700, 1), vary: 0.03, fanfare: false },
   refined: { synth: tick(620, 1), vary: 0.03, fanfare: false },
   made: { synth: tick(480, 5), vary: 0.03, fanfare: false },
+  sold: {
+    synth: {
+      volume: 0.35,
+      randomness: 0,
+      frequency: 1320,
+      attack: 0.003,
+      sustain: 0.03,
+      release: 0.15,
+      pitchJump: 660,
+      pitchJumpTime: 0.05,
+    },
+    vary: 0,
+    fanfare: false,
+  },
   scanned: {
     synth: {
       volume: 0.25,
@@ -160,6 +174,22 @@ const table = {
     vary: 0,
     fanfare: true,
   },
+  claimed: {
+    synth: {
+      volume: 0.6,
+      randomness: 0,
+      frequency: 349.23,
+      attack: 0.01,
+      sustain: 0.3,
+      release: 0.5,
+      shape: 1,
+      pitchJump: 174.02,
+      pitchJumpTime: 0.15,
+      delay: 0.12,
+    },
+    vary: 0,
+    fanfare: true,
+  },
   joined: {
     synth: {
       volume: 0.5,
@@ -190,6 +220,7 @@ const DONE: Readonly<Record<DepartmentId, SoundName | null>> = {
   construction: null,
   survey: "scanned",
   research: null,
+  trade: "sold",
 };
 
 /** The sound an event makes, if any. */
@@ -215,6 +246,13 @@ export function cueFor(event: GameEvent): SoundName | null {
       return "assign";
     case "harvested":
       return "harvested";
+    case "sector-claimed":
+      return "claimed";
+    case "outpost-changed":
+      return "assign";
+    case "sector-revealed":
+      // the chart's own bar has just sounded
+      return null;
     case "crew-joined":
       return "joined";
     default: {

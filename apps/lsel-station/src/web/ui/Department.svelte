@@ -104,6 +104,10 @@ function gives(result: (typeof ACTIONS)[keyof typeof ACTIONS]["result"]): string
       return `one of ${result.table.map((entry) => ITEMS[entry.item].name.toLowerCase()).join(", ")}`;
     case "unlock":
       return UNLOCKS[result.unlock].gives;
+    case "sale":
+      return `${count(result.credits)} credits`;
+    case "reveal":
+      return "the next sector on the map";
     case "module":
       return "";
     default: {
@@ -262,6 +266,8 @@ function onkeydown(event: KeyboardEvent): void {
               {DEPARTMENTS[department].name} level {row.lock.level}
             {:else if row.lock?.kind === "core"}
               Needs Core {numeral(row.lock.level)}
+            {:else if row.lock?.kind === "charted"}
+              Nothing in range: claim a sector to reach further
             {:else if row.paused !== undefined}
               Paused
             {:else if row.once && row.workers.length === 0 && row.short.length > 0}

@@ -220,13 +220,12 @@ export const REACTOR = sprite([
 ]);
 
 export const SPINE = sprite([
-  "################################################################################################################",
-  "#dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd#",
-  "#dhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddh#",
-  "#dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd#",
-  "################################################################################################################",
+  "################################################################################################################################",
+  "#dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd#",
+  "#dhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddh#",
+  "#dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd#",
+  "################################################################################################################################",
 ]);
-
 export const WORKSHOP = sprite([
   ".....#dd#.....",
   ".....#dd#.....",
@@ -366,4 +365,50 @@ export const WRECK = sprite([
   "#ddddddd#..",
   "########...",
   "...........",
+]);
+
+export const MARKET_OFFICE = sprite([
+  ".....#dd#.....",
+  ".....#dd#.....",
+  ".....#dd#.....",
+  ".....#dd#.....",
+  ".....#dd#.....",
+  ".....#dd#.....",
+  "##############",
+  "#LLLLLLLLLLLd#",
+  "#Lhhhhhhhhhhd#",
+  "#LSSSSSSSSSSd#",
+  "#LSSSSSSSSSSd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhwwhwwhwwhd#",
+  "#Lhwwhwwhwwhd#",
+  "#Lhwwhwwhwwhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhaaaaaaaahd#",
+  "#Lhhhhhhhhhhd#",
+  "#dddddddddddd#",
+  "##############",
+]);
+
+export const FREIGHTER = sprite([
+  "..........####",
+  "###########LL#",
+  "#LLLLLLLLL#La#",
+  "#hddhddhddhhh#",
+  "#hddhddhddhhh#",
+  "##############",
+  "..............",
+]);
+
+export const OUTPOST = sprite([
+  "....##....",
+  "....##....",
+  "##########",
+  "#LLLLLLLd#",
+  "#Lhahhahd#",
+  "#Lhhhhhhd#",
+  "#dddddddd#",
+  "##########",
 ]);

@@ -1,5 +1,6 @@
 import type { DepartmentId } from "./departments.ts";
-import type { ItemId, Stack } from "./items.ts";
+import type { FactionId } from "./factions.ts";
+import { ITEMS, type ItemId, type Stack } from "./items.ts";
 import type { ModuleId } from "./modules.ts";
 import { idsOf } from "./table.ts";
 import type { UnlockId } from "./unlocks.ts";
@@ -11,6 +12,8 @@ export type Action = {
   readonly level: number;
   /** Unlocks that must be owned before it is listed. */
   readonly requires?: readonly UnlockId[];
+  /** The faction whose market it is run to: listed once one of that faction's sectors is on the map. */
+  readonly market?: FactionId;
   readonly durationMs: number;
   /** Taken when a bar starts. */
   readonly inputs: readonly Stack[];
@@ -19,6 +22,10 @@ export type Action = {
   readonly result:
     | { readonly kind: "items"; readonly outputs: readonly Stack[] }
     | { readonly kind: "loot"; readonly table: readonly (Stack & { readonly weight: number })[] }
+    /** Credits for the inputs; less as the same good is sold again and again. */
+    | { readonly kind: "sale"; readonly credits: number }
+    /** Puts the nearest uncharted sector on the map. */
+    | { readonly kind: "reveal" }
     | { readonly kind: "module"; readonly module: ModuleId; readonly level: number }
     | { readonly kind: "unlock"; readonly unlock: UnlockId };
 };
@@ -45,6 +52,27 @@ function build(opts: {
     // half an XP per second of building
     xp: opts.minutes * 30,
     result: { kind: "module", module: opts.module, level: opts.tier },
+  };
+}
+
+/** A run to a market and back: sells `goods` for credits, or buys them. */
+function route(
+  market: FactionId,
+  way: "sell" | "buy",
+  amount: number,
+  item: ItemId,
+  credits: number,
+): Action {
+  const goods = of([amount, item]);
+  return {
+    name: `${way === "sell" ? "Sell" : "Buy"} ${amount} ${ITEMS[item].name.toLowerCase()}`,
+    department: "trade",
+    level: 1,
+    market,
+    durationMs: 30_000,
+    inputs: way === "sell" ? goods : of([credits, "credits"]),
+    xp: 40,
+    result: way === "sell" ? { kind: "sale", credits } : { kind: "items", outputs: goods },
   };
 }
 
@@ -223,6 +251,41 @@ const table = {
     minutes: 30,
     inputs: of([40, "basic-parts"], [40, "iron-plate"]),
   }),
+  "market-office-1": build({
+    module: "market-office",
+    tier: 1,
+    name: "Market office I",
+    level: 14,
+    minutes: 30,
+    inputs: of([30, "basic-parts"], [40, "iron-plate"]),
+  }),
+  "claim-beacon": {
+    name: "Claim beacon",
+    department: "construction",
+    level: 8,
+    durationMs: 10 * MINUTE,
+    inputs: of([10, "basic-parts"], [20, "iron-plate"]),
+    xp: 300,
+    result: one("claim-beacon"),
+  },
+  "depot-kit": {
+    name: "Depot kit",
+    department: "construction",
+    level: 10,
+    durationMs: 8 * MINUTE,
+    inputs: of([15, "basic-parts"], [20, "iron-plate"]),
+    xp: 240,
+    result: one("depot-kit"),
+  },
+  "relay-kit": {
+    name: "Relay kit",
+    department: "construction",
+    level: 12,
+    durationMs: 8 * MINUTE,
+    inputs: of([20, "basic-parts"], [10, "iron-plate"]),
+    xp: 240,
+    result: one("relay-kit"),
+  },
   "core-2": build({
     module: "core",
     tier: 2,
@@ -256,6 +319,21 @@ const table = {
     xp: 10,
     result: one("data"),
   },
+  chart: {
+    name: "Chart a lane",
+    department: "survey",
+    level: 2,
+    durationMs: 2 * MINUTE,
+    inputs: [],
+    xp: 60,
+    result: { kind: "reveal" },
+  },
+  "sell-plate": route("co-op", "sell", 10, "iron-plate", 40),
+  "sell-parts": route("co-op", "sell", 5, "basic-parts", 60),
+  "sell-rations": route("co-op", "sell", 5, "ration", 75),
+  "sell-fuel": route("co-op", "sell", 10, "fuel-cell", 60),
+  "buy-wire": route("co-op", "buy", 5, "copper-wire", 100),
+  "buy-glass": route("co-op", "buy", 5, "glass", 80),
   "drone-tuning": study({
     unlock: "drone-tuning",
     name: "Drone tuning",
