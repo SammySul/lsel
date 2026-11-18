@@ -26,10 +26,7 @@ export const HOME = 0 as SectorId;
 const COLUMN = 26;
 const ROW = 20;
 
-/**
- * The 36 sectors of a game: home, then one column per tier with that region's holders in a shuffled order, then
- * the Foundry alone at the far end. Every sector has a lane back toward home, so all of it can be reached.
- */
+/** The 36 sectors of a game, a column per tier; every sector has a lane back toward home, so all of it can be reached. */
 export function generateMap(seed: number): GameMap {
   // the map has its own generator, so drawing it never moves the game's
   let rng = (seed ^ 0x5ec70a) | 0;

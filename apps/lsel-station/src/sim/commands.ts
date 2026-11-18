@@ -29,7 +29,7 @@ export type Command =
   | { kind: "spend-pool"; action: ActionId }
   | { kind: "plant"; bed: number; crop: CropId }
   | { kind: "claim"; sector: SectorId }
-  | { kind: "specialise"; sector: SectorId; spec: SpecId }
+  | { kind: "specialize"; sector: SectorId; spec: SpecId }
   | { kind: "install"; sector: SectorId; module: OutpostModuleId };
 
 /** Takes a crew member off their job: a started bar gives its inputs back, a once-made project keeps its progress. */
@@ -92,7 +92,7 @@ function claim(state: GameState, sector: SectorId): readonly GameEvent[] {
 }
 
 /** Sets what an outpost does: free the first time, for credits after. Beds follow the number of Farms. */
-function specialise(state: GameState, sector: SectorId, spec: SpecId): readonly GameEvent[] {
+function specialize(state: GameState, sector: SectorId, spec: SpecId): readonly GameEvent[] {
   const outpost = state.outposts[sector];
   if (outpost === undefined || outpost.spec === spec) return NO_EVENTS;
   if (outpost.spec !== null && !pay(state, RESPEC_COST)) return NO_EVENTS;
@@ -133,8 +133,8 @@ export function apply(state: GameState, command: Command): readonly GameEvent[] 
       return spendPool(state, command.action);
     case "claim":
       return claim(state, command.sector);
-    case "specialise":
-      return specialise(state, command.sector, command.spec);
+    case "specialize":
+      return specialize(state, command.sector, command.spec);
     case "install":
       return install(state, command.sector, command.module);
     case "plant":

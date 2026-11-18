@@ -16,8 +16,7 @@ import {
   WORKSHOP,
 } from "./sprites.ts";
 
-// World coordinates are art pixels with the Core's center at 0, 0. Every module has one fixed place:
-// on the spine, or hung under it on a strut.
+// world coordinates are art pixels from the Core's center; every module has one fixed place, on the spine or under it
 
 export type Point = { readonly x: number; readonly y: number };
 

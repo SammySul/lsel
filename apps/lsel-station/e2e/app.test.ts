@@ -1,5 +1,4 @@
-// The built game in real browsers, served by the real server.
-// Run `bun run build` first. Env: BROWSERS=chromium,firefox,webkit
+// The built game in real browsers on the real server: `bun run build` first; BROWSERS=chromium,firefox,webkit picks.
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
@@ -30,11 +29,7 @@ afterAll(() => {
 
 type AudioSpy = { contexts: AudioContext[]; shots: number[]; calls: string[] };
 
-/**
- * Runs in the page before the game: records each audio context made, each resume and suspend asked of one, and
- * each one-shot sound started, in ms. Whether a context then runs is the browser's: one with no audio device
- * (the CI runner) stays suspended, so tests assert what the game asked for.
- */
+/** Records the game's audio calls: a context with no audio device (the CI runner) stays suspended, so tests assert those. */
 function spyOnAudio(): void {
   const spy: AudioSpy = { contexts: [], shots: [], calls: [] };
   Object.assign(window, { audioSpy: spy });

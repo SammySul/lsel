@@ -99,10 +99,7 @@ export function departmentOpen(state: Snapshot, department: DepartmentId): boole
 export const departmentLevel = (state: Snapshot, department: DepartmentId) =>
   levelOf(state.xp[department] ?? 0);
 
-/**
- * Whether an action is listed: its department is open and what it requires is owned.
- * A module level is listed only while it is next, and an unlock until it is owned.
- */
+/** Whether an action is listed: a module level only while it is next, and an unlock until it is owned. */
 export function actionShown(state: Snapshot, id: ActionId): boolean {
   const { department, result, requires, market } = ACTIONS[id];
   if (!departmentOpen(state, department)) return false;

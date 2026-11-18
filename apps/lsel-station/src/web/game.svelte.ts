@@ -33,12 +33,7 @@ function yieldToBrowser(): Promise<void> {
 
 export type Game = ReturnType<typeof startGame>;
 
-/**
- * Runs a game on the wall clock: the sim owns the state, the interface reads snapshots of it.
- * A loaded game first catches up on the time since `savedAt`, up to a day. `hear` gets what happens live, and
- * nothing of what is caught up on; `save` is called with the state whenever it should be kept. A read-only game
- * (another tab has it) neither runs nor saves.
- */
+/** Runs a game on the wall clock, catching up from `savedAt` first; `hear` gets only what happens live. */
 export function startGame(opts: {
   state: GameState;
   savedAt: number | null;

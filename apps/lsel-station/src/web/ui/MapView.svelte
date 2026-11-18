@@ -77,7 +77,7 @@ function onkeydown(event: KeyboardEvent): void {
               <button
                 type="button"
                 aria-pressed={outpost.spec === spec}
-                onclick={() => game.send({ kind: "specialise", sector: sector.id, spec })}
+                onclick={() => game.send({ kind: "specialize", sector: sector.id, spec })}
               >
                 {SPECS[spec].name}
               </button>

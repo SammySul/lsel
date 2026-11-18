@@ -2,10 +2,7 @@
 
 export const SAMPLE_RATE = 44100;
 
-/**
- * One sound, in the order ZzFX's designer lists its numbers; a field left out is a hole in that list.
- * Shapes: 0 sine, 1 triangle, 2 saw, 3 tan, 4 noise, 5 square. Times are seconds, `slide` is 500 Hz per second.
- */
+/** One sound, in the order ZzFX's designer lists its numbers (a field left out is a hole); times are seconds. */
 export type Zzfx = {
   readonly volume?: number;
   readonly randomness?: number;
@@ -13,8 +10,10 @@ export type Zzfx = {
   readonly attack?: number;
   readonly sustain?: number;
   readonly release?: number;
+  /** 0 sine, 1 triangle, 2 saw, 3 tan, 4 noise, 5 square */
   readonly shape?: 0 | 1 | 2 | 3 | 4 | 5;
   readonly shapeCurve?: number;
+  /** In 500 Hz per second. */
   readonly slide?: number;
   readonly deltaSlide?: number;
   readonly pitchJump?: number;

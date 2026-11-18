@@ -8,8 +8,7 @@ const LOCK = "lsel-station.game";
 
 const run = (readOnly: boolean) => mount(App, { target, props: { readOnly } });
 
-// Leaving the page lets go of the lock at once, so a waiting tab takes over without waiting for teardown.
-// A page brought back from the back-forward cache no longer holds it, so it starts over.
+// leaving lets go of the lock at once, so a waiting tab takes over; a page back from the bfcache starts over
 const leaving = new AbortController();
 window.addEventListener("pagehide", () => leaving.abort(), { once: true });
 window.addEventListener("pageshow", (event) => {

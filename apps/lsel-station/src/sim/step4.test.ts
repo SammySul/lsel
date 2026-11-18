@@ -33,8 +33,7 @@ function station(modules: GameState["modules"], setup: Partial<GameState> = {}):
 const assign = (state: GameState, action: ActionId, crew: CrewId = "ana-petrov") =>
   apply(state, { kind: "assign", crew, action });
 
-// On the map of seed 7, home has lanes to Ring 1 (pirates) and Rings 2 to 4 (unclaimed);
-// Ring 2 has lanes on to Belt 2 (pirates), Belt 3 (Co-op) and Belt 4 (pirates).
+// seed 7: home has lanes to Ring 1 (pirates) and Rings 2 to 4; Ring 2 on to Belt 3 (Co-op) and Belts 2 and 4 (pirates)
 const [RING_1, RING_2, RING_3, BELT_3] = [1, 2, 3, 7] as SectorId[];
 if (RING_1 === undefined || RING_2 === undefined || RING_3 === undefined || BELT_3 === undefined) {
   throw new Error("unreachable");
@@ -176,7 +175,7 @@ describe("outposts", () => {
     const state = withOutpost();
     expect(run(state, 200)).toEqual([]);
     expect(state.items).toEqual({});
-    expect(apply(state, { kind: "specialise", sector: RING_2, spec: "mine" })).toEqual([
+    expect(apply(state, { kind: "specialize", sector: RING_2, spec: "mine" })).toEqual([
       { kind: "outpost-changed", sector: RING_2 },
     ]);
     run(state, 99);
@@ -187,7 +186,7 @@ describe("outposts", () => {
 
   test("a depot is installed from a kit and adds half again, up to three add-ons", () => {
     const state = withOutpost({ items: { "depot-kit": 4 } });
-    apply(state, { kind: "specialise", sector: RING_2, spec: "mine" });
+    apply(state, { kind: "specialize", sector: RING_2, spec: "mine" });
     const install = () => apply(state, { kind: "install", sector: RING_2, module: "depot" });
     expect([install().length, outputBoost(state, RING_2)]).toEqual([1, 1.5]);
     run(state, 210);
@@ -211,7 +210,7 @@ describe("outposts", () => {
   test("the first set-up is free and a change costs 200 credits", () => {
     const state = withOutpost();
     const set = (spec: "mine" | "farm") =>
-      apply(state, { kind: "specialise", sector: RING_2, spec });
+      apply(state, { kind: "specialize", sector: RING_2, spec });
     expect([set("mine").length, set("mine"), set("farm")]).toEqual([1, [], []]);
     state.items.credits = 250;
     expect([set("farm").length, state.items, state.outposts[RING_2]?.spec]).toEqual([
@@ -224,10 +223,10 @@ describe("outposts", () => {
   test("a Farm given up keeps what is planted where beds remain, and refunds what no longer fits", () => {
     const state = withOutpost({ items: { credits: 200, water: 6 } });
     state.modules.greenhouse = 1;
-    apply(state, { kind: "specialise", sector: RING_2, spec: "farm" });
+    apply(state, { kind: "specialize", sector: RING_2, spec: "farm" });
     for (const bed of [0, 2, 3]) apply(state, { kind: "plant", bed, crop: "algae" });
     run(state, 10);
-    apply(state, { kind: "specialise", sector: RING_2, spec: "mine" });
+    apply(state, { kind: "specialize", sector: RING_2, spec: "mine" });
     expect([state.beds, state.items]).toEqual([
       [
         { crop: "algae", progressMs: 2000 },
@@ -241,10 +240,10 @@ describe("outposts", () => {
     const state = withOutpost({ beds: [null, null] });
     state.modules.greenhouse = 1;
     state.modules["market-office"] = 1;
-    apply(state, { kind: "specialise", sector: RING_2, spec: "farm" });
+    apply(state, { kind: "specialize", sector: RING_2, spec: "farm" });
     expect([bedCount(state), state.beds, routes(state)]).toEqual([4, [null, null, null, null], 1]);
     state.items.credits = 200;
-    apply(state, { kind: "specialise", sector: RING_2, spec: "trade-hub" });
+    apply(state, { kind: "specialize", sector: RING_2, spec: "trade-hub" });
     run(state, 100);
     expect([bedCount(state), state.beds, routes(state), state.items]).toEqual([
       2,

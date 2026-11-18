@@ -36,10 +36,7 @@ function drift(ctx: AudioContext, hz: number, depth: number, target: AudioParam)
   return lfo;
 }
 
-/**
- * The station's quiet bed, into `out`: a low hum of filtered noise that drifts, and now and then a soft note with
- * an echo. It follows the context, so it rests whenever the context is suspended.
- */
+/** The station's quiet bed: a drifting hum and now and then a soft note; it rests while the context is suspended. */
 export function startAmbience(ctx: AudioContext, out: AudioNode): { stop(): void } {
   const hum = ctx.createBufferSource();
   hum.buffer = noiseLoop(ctx);

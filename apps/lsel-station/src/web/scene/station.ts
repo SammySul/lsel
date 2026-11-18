@@ -84,10 +84,7 @@ const between = (from: Point, to: Point, reach: number): Point => ({
   y: Math.round(from.y + (to.y - from.y) * reach),
 });
 
-/**
- * The orbit view, `width` × `height` art pixels, of a station with these module levels.
- * Everything that never moves is painted once, here.
- */
+/** The orbit view of a station, in art pixels; everything that never moves is painted once, here. */
 export function stationScene(opts: {
   seed: number;
   width: number;

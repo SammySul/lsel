@@ -57,10 +57,7 @@ export function openSaves(path: string) {
     get,
     /** Whether a save stamped `savedAt` was stored lately: a device whose last send went unanswered asks. */
     landed: (id: string, savedAt: number) => landed.get(id, savedAt) !== null,
-    /**
-     * Stores `data` if the save is still at `base` (0 for a new one). Otherwise nothing changes and the result
-     * says what is there now, so the device can ask which to keep.
-     */
+    /** Stores `data` if the save is still at `base` (0 for a new one); otherwise returns what is there, to ask which to keep. */
     put(
       id: string,
       base: number,

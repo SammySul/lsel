@@ -2,7 +2,7 @@ import type { ItemId, Stack } from "./items.ts";
 import { idsOf } from "./table.ts";
 
 /** What an outpost is set up to do. It works with nobody assigned. */
-export type Specialisation = {
+export type Specialization = {
   readonly name: string;
   readonly gives: string;
   /** Per trickle: one of each, every 20 seconds at the base rate. */
@@ -29,10 +29,10 @@ const specs = {
     routes: 1,
   },
   farm: { name: "Farm", gives: "Two more grow beds", yields: [], beds: 2, routes: 0 },
-} as const satisfies Record<string, Specialisation>;
+} as const satisfies Record<string, Specialization>;
 
 export type SpecId = keyof typeof specs;
-export const SPECS: Readonly<Record<SpecId, Specialisation>> = specs;
+export const SPECS: Readonly<Record<SpecId, Specialization>> = specs;
 export const SPEC_IDS = idsOf(specs);
 
 /** An outpost add-on, installed from a kit that Construction makes. */
@@ -72,5 +72,5 @@ export const OUTPOST_SLOTS = 3;
 /** Ticks between two trickles at the base rate: 20 seconds. */
 export const TRICKLE_TICKS = 100;
 
-/** The first specialisation is free; changing it costs this. */
+/** The first specialization is free; changing it costs this. */
 export const RESPEC_COST: readonly Stack[] = [{ item: "credits", amount: 200 }];
