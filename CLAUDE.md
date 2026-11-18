@@ -26,7 +26,11 @@ describes, fix or delete the note.
   on Forgejo (`twelve:<name>.git`, git.sammysul.com); public ones are mirrored
   to `github.com/SammySul/<name>` by Forgejo's push mirror, MIT, `Copyright (c) <year> SammySul`. A repo
   goes public only with a history free of older names and emails (fresh, or
-  rewritten), since a public history can't be taken back.
+  rewritten), since a public history can't be taken back. Set the mirror up
+  yourself with the keychain's tokens (`security find-generic-password -s <item>
+  -w`, never printed): `github-mirror` creates the GitHub repo (all SammySul
+  repos, administration and contents), `forgejo` adds the push mirror
+  (repository read/write).
 - **Specs are deleted once built**; `docs/decisions.md` keeps the why.
 - **When Sammy has to act** (a login, `sudo`, a dashboard), one step per
   message, then wait.

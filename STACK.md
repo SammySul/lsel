@@ -55,8 +55,7 @@ storage belongs to, so every copy shares it.
    `nix build .#default` for the package). A version without its
    `v<version>` tag becomes a Forgejo release listing the commit subjects since
    the last tag; any other push releases nothing. A public repo gets a push
-   mirror to GitHub (the `github-mirror` token in the keychain covers the
-   mirrored repos; add a new one to it), with no workflows there.
+   mirror to GitHub, with no workflows there.
 3. On `twelve`, the app's updater (`squares`, `hosts/twelve/apps.nix`: one
    module for every app) sees the new tag within 5 minutes, builds it, restarts
    only that service and rolls back if `/healthz` fails. A tag that fails is
