@@ -455,6 +455,9 @@ for (const name of names) {
         );
         await key("Enter");
         await seconds(page, 31);
+        expect(await texts(page, ".stock li >> nth=0")).toEqual(["Credits 40"]);
+        // credits stay in the top bar on every view
+        await key("1");
         expect([await texts(page, ".stock li >> nth=0"), problems]).toEqual([["Credits 40"], []]);
       },
       TIMEOUT,

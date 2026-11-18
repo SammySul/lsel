@@ -1,7 +1,6 @@
 import { ACTIONS, type ActionId, isOnce } from "../content/actions.ts";
 import type { CrewId } from "../content/crew.ts";
 import { CROPS, type CropId } from "../content/crops.ts";
-import { DEPARTMENTS } from "../content/departments.ts";
 import {
   OUTPOST_MODULES,
   OUTPOST_SLOTS,
@@ -12,7 +11,15 @@ import {
 import { type GameEvent, NO_EVENTS } from "./events.ts";
 import type { SectorId } from "./map.ts";
 import { isMasteryStep, MASTERY } from "./mastery.ts";
-import { actionLock, actionShown, claimable, crewSlots, poolCost, routes } from "./rules.ts";
+import {
+  actionLock,
+  actionShown,
+  claimable,
+  crewSlots,
+  masterable,
+  poolCost,
+  routes,
+} from "./rules.ts";
 import type { GameState } from "./state.ts";
 import { fitBeds, give, pay } from "./stock.ts";
 
@@ -67,7 +74,7 @@ function spendPool(state: GameState, id: ActionId): readonly GameEvent[] {
   const action = ACTIONS[id];
   const cost = poolCost(state, id);
   const pool = state.pool[action.department] ?? 0;
-  if (DEPARTMENTS[action.department].mastery === null || isOnce(action)) return NO_EVENTS;
+  if (!masterable(id)) return NO_EVENTS;
   if (cost === null || pool < cost) return NO_EVENTS;
   state.pool[action.department] = pool - cost;
   state.mastery[id] = (state.mastery[id] ?? 0) + cost;

@@ -89,7 +89,7 @@ let savesOpen = $state(false);
 const open = $derived(DEPARTMENT_IDS.filter((id) => departmentOpen(game.snapshot, id)));
 /** Every item the selected department takes or makes, and rations, which everyone eats. */
 const touched = $derived.by(() => {
-  if (view === "map") return new Set<ItemId>(["credits", "claim-beacon", "depot-kit", "relay-kit"]);
+  if (view === "map") return new Set<ItemId>(["claim-beacon", "depot-kit", "relay-kit"]);
   const items = new Set<ItemId>(["ration"]);
   for (const id of ACTION_IDS) {
     const { department: of, inputs, result } = ACTIONS[id];
@@ -106,9 +106,11 @@ const touched = $derived.by(() => {
   }
   return items;
 });
-// the top bar follows the view: what this department works with, of the things already seen
+// the top bar has credits once there are any, then follows the view: what this department works with
 const stock = $derived(
-  ITEM_IDS.filter((id) => touched.has(id) && game.snapshot.items[id] !== undefined),
+  ITEM_IDS.filter(
+    (id) => (id === "credits" || touched.has(id)) && game.snapshot.items[id] !== undefined,
+  ),
 );
 const busy = (id: DepartmentId) =>
   game.snapshot.crew.some((crew) => {

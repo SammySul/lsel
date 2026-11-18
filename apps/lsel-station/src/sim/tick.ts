@@ -13,6 +13,7 @@ import {
   chartTarget,
   FED_TICKS,
   growthSpeed,
+  masterable,
   outputBoost,
   poolCap,
   replants,
@@ -120,7 +121,7 @@ function finish(state: GameState, crew: CrewId, id: ActionId, events: GameEvent[
       const _exhaustive: never = result;
     }
   }
-  if (style !== null && !isOnce(action)) gainMastery(state, id, action, events);
+  if (masterable(id)) gainMastery(state, id, action, events);
   events.push({ kind: "action-done", crew, action: id });
   gainXp(state, action.department, action.xp, events);
 }

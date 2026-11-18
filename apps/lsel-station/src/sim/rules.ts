@@ -140,14 +140,18 @@ export const missingInputs = (state: Snapshot, action: Action) => missing(state,
 export const masteryLevel = (state: Snapshot, id: ActionId) =>
   MASTERY.levelOf(state.mastery[id] ?? 0);
 
-/** The actions of a department that repeat, which are the ones that can be mastered. */
-export const masterable = (department: DepartmentId) =>
-  DEPARTMENTS[department].mastery === null
-    ? []
-    : ACTION_IDS.filter((id) => ACTIONS[id].department === department && !isOnce(ACTIONS[id]));
+/** Whether an action can be mastered: it repeats, and its department's mastery does something for it. */
+export function masterable(id: ActionId): boolean {
+  const action = ACTIONS[id];
+  const style = DEPARTMENTS[action.department].mastery;
+  if (style === null || isOnce(action)) return false;
+  return style !== "extra-credits" || action.result.kind === "sale";
+}
 
 export const poolCap = (department: DepartmentId) =>
-  POOL_FILL * masterable(department).length * MASTERY.total;
+  POOL_FILL *
+  ACTION_IDS.filter((id) => ACTIONS[id].department === department && masterable(id)).length *
+  MASTERY.total;
 
 /** How full a department's mastery pool is, 0 to 1. */
 export function poolShare(state: Snapshot, department: DepartmentId): number {
@@ -204,9 +208,10 @@ export const replants = (state: Snapshot) =>
 
 /** The chance that a finished bar pays its department's mastery bonus. */
 export function bonusChance(state: Snapshot, id: ActionId): number {
-  const action = ACTIONS[id];
-  if (DEPARTMENTS[action.department].mastery === null || isOnce(action)) return 0;
-  return masteryChance(masteryLevel(state, id)) + poolBonus(state, action.department, "chance");
+  if (!masterable(id)) return 0;
+  return (
+    masteryChance(masteryLevel(state, id)) + poolBonus(state, ACTIONS[id].department, "chance")
+  );
 }
 
 /** Pool XP it costs to raise an item's mastery by one level, or null at the cap. */

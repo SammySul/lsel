@@ -14,6 +14,7 @@ import {
   crewSlots,
   departmentLevel,
   growthSpeed,
+  masterable,
   masteryLevel,
   missing,
   missingInputs,
@@ -62,7 +63,7 @@ const rows = $derived(
           }
         }
       }
-      const cost = style !== null && !once ? poolCost(snapshot, id) : null;
+      const cost = masterable(id) ? poolCost(snapshot, id) : null;
       return {
         id,
         action,
@@ -72,7 +73,7 @@ const rows = $derived(
         paused: snapshot.projects[id],
         candidate,
         short: missingInputs(snapshot, action),
-        mastery: style !== null && !once ? masteryLevel(snapshot, id) : null,
+        mastery: masterable(id) ? masteryLevel(snapshot, id) : null,
         chance: bonusChance(snapshot, id),
         raise: cost !== null && (snapshot.pool[department] ?? 0) >= cost ? cost : null,
       };

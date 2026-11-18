@@ -8,6 +8,7 @@ import {
   actionLock,
   actionShown,
   bedCount,
+  bonusChance,
   chartTarget,
   claimable,
   marketOpen,
@@ -301,6 +302,24 @@ describe("trade", () => {
     assign(state, "buy-wire");
     run(state, 146);
     expect(state.items).toEqual({ credits: 0, "copper-wire": 5 });
+  });
+
+  test("mastery doubles a sale's credits, and never a purchase: buys cannot be mastered", () => {
+    const top = 141_370;
+    const selling = market({ items: { "iron-plate": 100 }, mastery: { "sell-plate": top } });
+    const buying = market({ items: { credits: 1000 }, mastery: { "buy-wire": top } });
+    assign(selling, "sell-plate");
+    assign(buying, "buy-wire");
+    run(selling, 1460);
+    run(buying, 1460);
+    expect([
+      bonusChance(selling, "sell-plate"),
+      selling.items.credits,
+      bonusChance(buying, "buy-wire"),
+      buying.items,
+      buying.mastery,
+      // ten sales are 351 credits undoubled; seed 7 doubles three of them
+    ]).toEqual([0.3, 462, 0, { credits: 0, "copper-wire": 50 }, { "buy-wire": top }]);
   });
 
   test("one Market office level is one run at a time", () => {
