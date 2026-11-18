@@ -2,12 +2,21 @@
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import type { Browser, BrowserContext, Page } from "playwright-core";
+import { keyId } from "../src/save/key.ts";
 import { BROWSERS, names, serveBuilt, TIMEOUT } from "./setup.ts";
 
 // noon on a fixed day, so the saved times are the same in every run
 const NOON = Date.UTC(2026, 10, 18, 12);
 
 const address = serveBuilt();
+
+/** The synced save's revision, as the service holds it now. */
+async function revision(key: string): Promise<number> {
+  const response = await fetch(`${address()}/save/${await keyId(key)}`, {
+    headers: { authorization: `Bearer ${key}` },
+  });
+  return ((await response.json()) as { revision: number }).revision;
+}
 
 /** Opens the game in a context and watches its console; the context's clock is left as the caller set it. */
 async function open(context: BrowserContext, query = "") {
@@ -254,11 +263,13 @@ for (const name of names) {
         await other.getByRole("button", { name: "Link this device" }).click();
         await other.getByRole("button", { name: "Use the synced one" }).click();
         await other.getByText("Iron ore 10").waitFor();
-        // the second device moves on: Ana stops mining, and that is sent at once
+        // the second device moves on: Ana stops mining, and the tab closes while that is still being sent
+        const before = await revision(key);
         await other.keyboard.press("x");
-        await other.getByText(/, synced$/).waitFor();
         expect(await texts(other, "footer .crew")).toEqual(["Ana Petrov everything +3% › idle"]);
         await other.close();
+        // nobody waits for a send from a closed page, so the test waits for the service to have it
+        while ((await revision(key)) === before) await Bun.sleep(50);
 
         // back on the first device, whose own save has not moved since it synced
         await first.clock.setSystemTime(now + 5 * 60_000);

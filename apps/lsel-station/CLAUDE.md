@@ -37,6 +37,8 @@ traps.
   game's own calls (`audioSpy`), never `ctx.state === "running"`.
 - In a sound test, `fastForward` is a catch-up, which is silent by design; use
   `runFor` for the few seconds of live play it needs.
-- **The send as a page closes never gets its answer** (`keepalive`): the
+- **Every send is `keepalive` and may outlive its page unanswered**: the
   link's `sent` and the service's `?sent=` settle it on the next load. Moving
   the link forward before an answer loses a save whose send failed.
+- A browser test that closes a page must wait on the service for its last send
+  (`revision` in `e2e/saves.test.ts`): the page's ", synced" may be from before.

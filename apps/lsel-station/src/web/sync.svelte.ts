@@ -13,7 +13,7 @@ const Link = v.object({
   revision: v.pipe(v.number(), v.integer(), v.minValue(0)),
   /** The savedAt of the save it agreed on: a local save later than this has moved on since. */
   syncedAt: v.number(),
-  /** A save sent as the page went away, whose answer never came: if the service has it, it is this device's. */
+  /** The savedAt of a save sent whose answer has not come, as when its page closed: if the service has it, it is this device's. */
   sent: v.optional(v.number()),
 });
 type Link = v.InferOutput<typeof Link>;
@@ -67,6 +67,7 @@ export function createSync(opts: {
   const loadedAt = opts.latest().savedAt;
   let lastPush = 0;
   let busy = false;
+  let again = false;
 
   function learnId(key: string): void {
     void keyId(key).then((found) => {
@@ -118,16 +119,22 @@ export function createSync(opts: {
     };
   }
 
-  /** Sends this device's latest save, from the revision it last agreed with. */
-  async function push(keepalive = false): Promise<void> {
-    if (link === null || busy || status.kind === "conflict") return;
+  /** Sends this device's latest save, from the revision it last agreed with; one asked for meanwhile follows it. */
+  async function push(): Promise<void> {
+    if (link === null || status.kind === "conflict") return;
+    if (busy) {
+      again = true;
+      return;
+    }
     busy = true;
+    again = false;
     lastPush = Date.now();
     const doc = opts.latest();
-    if (keepalive) remember({ ...link, sent: doc.savedAt });
+    // a send outlives its page, so one under way as the page closes still lands: `sent` lets the next load learn whether it did
+    remember({ ...link, sent: doc.savedAt });
     const reply = await call("PUT", {
       body: { base: link.revision, data: exportString(doc) },
-      keepalive,
+      keepalive: true,
     });
     busy = false;
     if (link === null) return;
@@ -140,6 +147,7 @@ export function createSync(opts: {
     ) {
       remember({ key: link.key, revision: Number(reply.body.revision), syncedAt: doc.savedAt });
       status = { kind: "synced", at: Date.now() };
+      if (again) return push();
     } else if (reply.kind === "answer" && reply.status === 409) {
       const theirs = v.safeParse(Stored, reply.body);
       if (theirs.success) conflict(theirs.output);
@@ -208,8 +216,9 @@ export function createSync(opts: {
     /** After every save: sends it when the page is going away, or when the last send is a while ago. */
     saved(): void {
       if (link === null) return;
-      if (document.visibilityState === "hidden") void push(true);
-      else if (Date.now() - lastPush >= PUSH_EVERY_MS) void push();
+      if (document.visibilityState === "hidden" || Date.now() - lastPush >= PUSH_EVERY_MS) {
+        void push();
+      }
     },
     syncNow: () =>
       status.kind === "conflict" ? Promise.resolve() : pull(false, opts.latest().savedAt),
