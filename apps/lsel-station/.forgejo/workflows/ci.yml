@@ -1,0 +1,35 @@
+# Runs on twelve's own Forgejo runner with the host's Nix; a public repository's GitHub copy is only a mirror.
+name: ci
+on: { pull_request: {}, push: { branches: [main] } }
+jobs:
+  check:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v7
+      - run: nix develop -c bun install --frozen-lockfile
+      - run: nix develop -c bun run check
+      - run: nix develop -c bun run test
+      - run: nix develop -c bun run build
+      - run: nix develop -c bun run test:e2e
+      - run: nix build .#default --no-link
+
+  # A version in package.json without its tag becomes a release; any other push releases nothing.
+  release:
+    needs: check
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v7
+        with: { fetch-depth: 0 }
+      - env: { TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
+        run: |
+          tag="v$(jq -r .version package.json)"
+          if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+            echo "$tag is already released"
+            exit 0
+          fi
+          prev=$(git describe --tags --abbrev=0 2>/dev/null || true)
+          jq -n --arg tag "$tag" --arg sha "$GITHUB_SHA" --arg notes "$(git log --format='- %s' "${prev:+$prev..}HEAD")" \
+            '{tag_name: $tag, target_commitish: $sha, name: $tag, body: $notes}' |
+            curl -fsS -X POST -H "Authorization: token $TOKEN" -H "Content-Type: application/json" --data @- \
+              "$GITHUB_SERVER_URL/api/v1/repos/$GITHUB_REPOSITORY/releases" | jq -r '"released \(.tag_name)"'

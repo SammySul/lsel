@@ -5,7 +5,7 @@ frontier. You train departments, build the station out module by module, send
 fleets to take sectors, and manage standing with four factions.
 
 Status: design agreed in five question rounds on 2026-11-16, defaults confirmed
-on 2026-11-18. Nothing is built.
+on 2026-11-18. Step 0 of the build order (section 15) is built.
 
 How to read this document:
 
@@ -35,39 +35,39 @@ https://claude.ai/artifact/JWPqdE2nQU7nQEB1fhrKHq
 
 Locked decisions:
 
-| Area | Decision |
-|---|---|
-| Players | Single-player, AI factions |
-| Role of conquest | The gate between resource tiers, not the whole game |
-| Art style | "Deep Field": limited-palette pixel art, dithered shading |
-| Scene | Orbit view of the station, with the sector map as a second tab |
-| Premise | Frontier salvager: you claim a derelict station between rival factions |
-| Parallelism | Crew slots: one job at first, more crew means more jobs at once |
-| Departments | Ten (section 5), plus fleets |
-| Crew | Named, each with one specialty; no crew levels |
-| Territory | Never lost; hostile neighbors can raid a sector and cut its output |
-| Outposts | Each sector gets a small specialised outpost |
-| Battles | Automatic, on timers, watched in the scene |
-| Factions | The Company, the Navy, the Archive, the Co-op; pirates and strays are always hostile |
-| Faction endgame | Conquer or absorb |
-| Rivalries | Sides matter: Company against Co-op, Navy against Archive |
-| Events | Queued choice events that never expire |
-| Length | About three months of real time to finish everything |
-| Audience | Personal on twelve, built so it could be opened to anyone later |
-| Saves | Local saves plus a sync service from the first deployed version |
-| Folder | `lsel/projects/lsel-station` (`lsel` is the home base) |
+| Area             | Decision                                                                             |
+| ---------------- | ------------------------------------------------------------------------------------ |
+| Players          | Single-player, AI factions                                                           |
+| Role of conquest | The gate between resource tiers, not the whole game                                  |
+| Art style        | "Deep Field": limited-palette pixel art, dithered shading                            |
+| Scene            | Orbit view of the station, with the sector map as a second tab                       |
+| Premise          | Frontier salvager: you claim a derelict station between rival factions               |
+| Parallelism      | Crew slots: one job at first, more crew means more jobs at once                      |
+| Departments      | Ten (section 5), plus fleets                                                         |
+| Crew             | Named, each with one specialty; no crew levels                                       |
+| Territory        | Never lost; hostile neighbors can raid a sector and cut its output                   |
+| Outposts         | Each sector gets a small specialised outpost                                         |
+| Battles          | Automatic, on timers, watched in the scene                                           |
+| Factions         | The Company, the Navy, the Archive, the Co-op; pirates and strays are always hostile |
+| Faction endgame  | Conquer or absorb                                                                    |
+| Rivalries        | Sides matter: Company against Co-op, Navy against Archive                            |
+| Events           | Queued choice events that never expire                                               |
+| Length           | About three months of real time to finish everything                                 |
+| Audience         | Personal on twelve, built so it could be opened to anyone later                      |
+| Saves            | Local saves plus a sync service from the first deployed version                      |
+| Folder           | `lsel/projects/lsel-station` (`lsel` is the home base)                               |
 
 ---
 
 ## 2. Core loops
 
-| Loop | Length | What happens |
-|---|---|---|
-| Action | 2 to 15 s | A job's bar fills: inputs are consumed, outputs, department XP and mastery XP are granted |
-| Session | minutes | Collect, reassign crew, queue a module, send a fleet, answer an event |
-| Unlock | hours | A level or module opens a new item, recipe, crew slot or department |
-| Tier | days to weeks | A sector falls or a faction grants access; a new resource tier opens |
-| Arc | months | Four factions resolved, stray space cleared, completion log filled |
+| Loop    | Length        | What happens                                                                              |
+| ------- | ------------- | ----------------------------------------------------------------------------------------- |
+| Action  | 2 to 15 s     | A job's bar fills: inputs are consumed, outputs, department XP and mastery XP are granted |
+| Session | minutes       | Collect, reassign crew, queue a module, send a fleet, answer an event                     |
+| Unlock  | hours         | A level or module opens a new item, recipe, crew slot or department                       |
+| Tier    | days to weeks | A sector falls or a faction grants access; a new resource tier opens                      |
+| Arc     | months        | Four factions resolved, stray space cleared, completion log filled                        |
 
 ---
 
@@ -93,12 +93,12 @@ Locked decisions:
   inputs return.
 - **Crew slots** set how many jobs run at once.
 
-| Slot | Source |
-|---|---|
-| 1 | Start |
+| Slot   | Source                       |
+| ------ | ---------------------------- |
+| 1      | Start                        |
 | 2 to 6 | Habitat module levels I to V |
-| 7 | Research: Shift rota |
-| 8 | Co-op capstone: Open hiring |
+| 7      | Research: Shift rota         |
+| 8      | Co-op capstone: Open hiring  |
 
 - The roster can hold more crew than there are slots (a bench of 4), so
   specialists can be swapped in.
@@ -130,14 +130,14 @@ Raw resources of tier N exist only in tier N sectors. You get access by owning
 a sector there, by holding a protectorate, or through mining rights from the
 faction that owns it (rank Trusted).
 
-| Tier | Region | Ore | Gas | Wrecks | Crop | Refined | Component | Ship class |
-|---|---|---|---|---|---|---|---|---|
-| 1 | Home ring | Iron ore, ice | Hydrogen | Cargo wrecks | Algae | Iron plate, water | Basic parts | Scout |
-| 2 | Inner belt | Copper ore, silicate | Methane | Mining rigs | Beans | Copper wire, glass | Circuits | Corvette |
-| 3 | The lanes | Titanium ore | Helium | Freighters | Grain | Titanium plate, coolant | Servos | Frigate |
-| 4 | Borderlands | Cobalt ore | Ammonia | Warships | Peppers | Cobalt alloy, fertiliser | Power cores | Destroyer |
-| 5 | Deep field | Iridium ore | Deuterium | Old stations | Fruit | Iridium plate, fusion fuel | Processors | Cruiser |
-| 6 | Stray space | Stray shell | Xenon | Stray hulks | Lichen | Stray alloy, ion fuel | Stray cores | Battleship |
+| Tier | Region      | Ore                  | Gas       | Wrecks       | Crop    | Refined                    | Component   | Ship class |
+| ---- | ----------- | -------------------- | --------- | ------------ | ------- | -------------------------- | ----------- | ---------- |
+| 1    | Home ring   | Iron ore, ice        | Hydrogen  | Cargo wrecks | Algae   | Iron plate, water          | Basic parts | Scout      |
+| 2    | Inner belt  | Copper ore, silicate | Methane   | Mining rigs  | Beans   | Copper wire, glass         | Circuits    | Corvette   |
+| 3    | The lanes   | Titanium ore         | Helium    | Freighters   | Grain   | Titanium plate, coolant    | Servos      | Frigate    |
+| 4    | Borderlands | Cobalt ore           | Ammonia   | Warships     | Peppers | Cobalt alloy, fertiliser   | Power cores | Destroyer  |
+| 5    | Deep field  | Iridium ore          | Deuterium | Old stations | Fruit   | Iridium plate, fusion fuel | Processors  | Cruiser    |
+| 6    | Stray space | Stray shell          | Xenon     | Stray hulks  | Lichen  | Stray alloy, ion fuel      | Stray cores | Battleship |
 
 Credits are the currency. They come from trade, loot and contracts, and are
 spent on hiring, market purchases, tribute and some module costs.
@@ -146,18 +146,18 @@ There are no storage caps on anything.
 
 ### 5.2 The ten departments
 
-| # | Department | Needs module | Job | Special mechanic | Seen in the scene as |
-|---|---|---|---|---|---|
-| 1 | Mining | Drone bay | Drone trip to an asteroid type; yields ore | Small chance of a geode (sell, or give to Research) | Drones fly out to the rock and back |
-| 2 | Salvage | Drone bay II | Strip a wreck type; each action rolls a loot table | Rare blueprints unlock recipes found nowhere else; very rare relics for the Archive | A tug hauls wreck pieces in |
-| 3 | Skimming | Skimmer bay | Skim a gas giant; yields fuel gas | Gas feeds fuel cells, which fleets burn to travel | A skimmer leaves and returns with full tanks |
-| 4 | Hydroponics | Greenhouse | Grow beds run on timers with no crew; the crew job is Galley, cooking crops into rations | Beds per greenhouse level; auto-replant from Research | Greenhouse glows and fills in |
-| 5 | Refining | Refinery | Ore, ice and gas into plate, water, fuel cells | Mastery gives a chance to keep the input | Refinery vents |
-| 6 | Fabrication | Workshop | Components, drones (the tool tier for gathering), weapons, shields, armor, repair kits | Mastery gives a chance of a double | Workshop sparks |
-| 7 | Construction | Core | Long projects: station modules, outpost modules, ship hulls, claim beacons | One project per assigned crew; 10 minutes to 12 hours | Scaffold and welders on the dashed slot, then the module appears |
-| 8 | Survey | Scanner | Scan a sector: reveals map nodes, resource sites, wreck fields, strongholds; yields data | Per-sector mastery raises that sector's yields | Dish sweeps, a ping ring goes out |
-| 9 | Research | Lab | Spend data on tech tree projects (about 60 nodes in four branches: industry, station, fleet, diplomacy) | Permanent unlocks, for example auto-replant, Shift rota, third fleet, extra outpost slot | Lab lights pulse |
-| 10 | Trade | Market office | Run a route to a faction market: sell what they want for credits and standing; buy what you lack | Selling one good repeatedly lowers its price by up to 30%, recovering over time; delivery contracts | A freighter docks and leaves |
+| #   | Department   | Needs module  | Job                                                                                                     | Special mechanic                                                                                    | Seen in the scene as                                             |
+| --- | ------------ | ------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| 1   | Mining       | Drone bay     | Drone trip to an asteroid type; yields ore                                                              | Small chance of a geode (sell, or give to Research)                                                 | Drones fly out to the rock and back                              |
+| 2   | Salvage      | Drone bay II  | Strip a wreck type; each action rolls a loot table                                                      | Rare blueprints unlock recipes found nowhere else; very rare relics for the Archive                 | A tug hauls wreck pieces in                                      |
+| 3   | Skimming     | Skimmer bay   | Skim a gas giant; yields fuel gas                                                                       | Gas feeds fuel cells, which fleets burn to travel                                                   | A skimmer leaves and returns with full tanks                     |
+| 4   | Hydroponics  | Greenhouse    | Grow beds run on timers with no crew; the crew job is Galley, cooking crops into rations                | Beds per greenhouse level; auto-replant from Research                                               | Greenhouse glows and fills in                                    |
+| 5   | Refining     | Refinery      | Ore, ice and gas into plate, water, fuel cells                                                          | Mastery gives a chance to keep the input                                                            | Refinery vents                                                   |
+| 6   | Fabrication  | Workshop      | Components, drones (the tool tier for gathering), weapons, shields, armor, repair kits                  | Mastery gives a chance of a double                                                                  | Workshop sparks                                                  |
+| 7   | Construction | Core          | Long projects: station modules, outpost modules, ship hulls, claim beacons                              | One project per assigned crew; 10 minutes to 12 hours                                               | Scaffold and welders on the dashed slot, then the module appears |
+| 8   | Survey       | Scanner       | Scan a sector: reveals map nodes, resource sites, wreck fields, strongholds; yields data                | Per-sector mastery raises that sector's yields                                                      | Dish sweeps, a ping ring goes out                                |
+| 9   | Research     | Lab           | Spend data on tech tree projects (about 60 nodes in four branches: industry, station, fleet, diplomacy) | Permanent unlocks, for example auto-replant, Shift rota, third fleet, extra outpost slot            | Lab lights pulse                                                 |
+| 10  | Trade        | Market office | Run a route to a faction market: sell what they want for credits and standing; buy what you lack        | Selling one good repeatedly lowers its price by up to 30%, recovering over time; delivery contracts | A freighter docks and leaves                                     |
 
 Opening order: Mining, Refining and Construction are available from the start.
 The rest open as their modules are built, in roughly this order: Fabrication,
@@ -169,21 +169,21 @@ Thirteen module types, each with levels I to V. A level-up is a Construction
 project. Each module has a fixed place in the station layout, so there is no
 placement puzzle, and it has three visual stages (levels I, III and V).
 
-| Module | Effect per level |
-|---|---|
-| Core | Present at start; gates the level cap of other modules |
-| Habitat | +1 crew slot |
-| Drone bay | Opens Mining; II opens Salvage; raises drone tier limit |
-| Refinery | Opens Refining tiers |
-| Workshop | Opens Fabrication tiers |
-| Greenhouse | Opens Hydroponics; +2 grow beds |
-| Skimmer bay | Opens Skimming tiers |
-| Scanner | Opens Survey; raises scan range |
-| Lab | Opens Research branches |
-| Market office | Opens Trade; +1 concurrent route |
-| Dock | Opens fleets; levels III and V give fleets 2 and 3 |
-| Shipyard | Raises the ship class that can be built |
-| Reactor | +2% speed to all jobs |
+| Module        | Effect per level                                        |
+| ------------- | ------------------------------------------------------- |
+| Core          | Present at start; gates the level cap of other modules  |
+| Habitat       | +1 crew slot                                            |
+| Drone bay     | Opens Mining; II opens Salvage; raises drone tier limit |
+| Refinery      | Opens Refining tiers                                    |
+| Workshop      | Opens Fabrication tiers                                 |
+| Greenhouse    | Opens Hydroponics; +2 grow beds                         |
+| Skimmer bay   | Opens Skimming tiers                                    |
+| Scanner       | Opens Survey; raises scan range                         |
+| Lab           | Opens Research branches                                 |
+| Market office | Opens Trade; +1 concurrent route                        |
+| Dock          | Opens fleets; levels III and V give fleets 2 and 3      |
+| Shipyard      | Raises the ship class that can be built                 |
+| Reactor       | +2% speed to all jobs                                   |
 
 ---
 
@@ -217,11 +217,11 @@ placement puzzle, and it has three visual stages (levels I, III and V).
 Three weapon types and three defense types. Every enemy leans on one defense,
 so you read the enemy and fit accordingly.
 
-| Weapon | Strong against (×1.5) | Weak against (×0.75) |
-|---|---|---|
-| Guns | Shields | Evasion |
-| Beams | Armor | Shields |
-| Missiles | Evasion | Armor |
+| Weapon   | Strong against (×1.5) | Weak against (×0.75) |
+| -------- | --------------------- | -------------------- |
+| Guns     | Shields               | Evasion              |
+| Beams    | Armor                 | Shields              |
+| Missiles | Evasion               | Armor                |
 
 Each weapon tier has a rapid and a heavy variant. Twelve unique pieces drop
 from strongholds.
@@ -244,12 +244,12 @@ victories).
 
 ### 7.4 Where fleets fight
 
-| Type | What it is | Reward |
-|---|---|---|
-| Patrol zone | Endless enemy groups in a sector you can reach | Steady loot and XP |
-| Stronghold | A fixed run of waves ending in a boss; twelve in total, two per tier | First-clear reward and a unique piece |
-| Garrison | The waves defending a sector | The sector becomes yours |
-| Raid | Hostiles hitting one of your sectors | Restores the sector's output |
+| Type        | What it is                                                           | Reward                                |
+| ----------- | -------------------------------------------------------------------- | ------------------------------------- |
+| Patrol zone | Endless enemy groups in a sector you can reach                       | Steady loot and XP                    |
+| Stronghold  | A fixed run of waves ending in a boss; twelve in total, two per tier | First-clear reward and a unique piece |
+| Garrison    | The waves defending a sector                                         | The sector becomes yours              |
+| Raid        | Hostiles hitting one of your sectors                                 | Restores the sector's output          |
 
 Strongholds: Scrap Cove, the Tollgate (tier 1); Rig 9, Cutter's Rest (2);
 the Blockade, Dead Freighter (3); Gun Line, the Breakers (4); Quiet Station,
@@ -282,25 +282,25 @@ standing, credits and bounty tokens spent in that faction's shop.
 36 sectors joined by lanes. Unexplored sectors are hidden until Surveyed from a
 neighboring sector you own or have visited.
 
-| Tier | Sectors | Held by |
-|---|---|---|
-| 1 | 5 | Home, 3 empty, 1 pirate |
-| 2 | 6 | 4 Co-op, 2 pirate |
-| 3 | 6 | 4 Company, 2 pirate |
-| 4 | 6 | 4 Navy, 2 pirate |
-| 5 | 6 | 4 Archive, 2 stray |
-| 6 | 7 | 6 stray, plus the Foundry |
+| Tier | Sectors | Held by                   |
+| ---- | ------- | ------------------------- |
+| 1    | 5       | Home, 3 empty, 1 pirate   |
+| 2    | 6       | 4 Co-op, 2 pirate         |
+| 3    | 6       | 4 Company, 2 pirate       |
+| 4    | 6       | 4 Navy, 2 pirate          |
+| 5    | 6       | 4 Archive, 2 stray        |
+| 6    | 7       | 6 stray, plus the Foundry |
 
 Every tier has at least two sectors that belong to no faction, so progress
 never requires going to war with one.
 
 ### 8.2 Taking a sector
 
-| Sector is | How it becomes yours |
-|---|---|
-| Empty | Build a claim beacon (Construction) |
-| Pirate or stray | Beat its garrison |
-| Faction | Beat its garrison, which means war; or absorb the whole faction (section 9.4) |
+| Sector is       | How it becomes yours                                                          |
+| --------------- | ----------------------------------------------------------------------------- |
+| Empty           | Build a claim beacon (Construction)                                           |
+| Pirate or stray | Beat its garrison                                                             |
+| Faction         | Beat its garrison, which means war; or absorb the whole faction (section 9.4) |
 
 The map is complete when every sector is owned or is a protectorate.
 
@@ -311,13 +311,13 @@ from Research) and one specialisation, changeable for credits. Outposts produce
 without crew, so passive income grows as you expand, while crew jobs stay the
 fastest source.
 
-| Specialisation | Gives |
-|---|---|
-| Mine | A steady trickle of the sector's raw resources |
-| Yard | Faster ship repair and a second Construction queue for hulls |
-| Trade hub | Passive credits and one more route |
-| Listening post | Data trickle, faster Survey, raid warning |
-| Farm | Extra grow beds |
+| Specialisation | Gives                                                        |
+| -------------- | ------------------------------------------------------------ |
+| Mine           | A steady trickle of the sector's raw resources               |
+| Yard           | Faster ship repair and a second Construction queue for hulls |
+| Trade hub      | Passive credits and one more route                           |
+| Listening post | Data trickle, faster Survey, raid warning                    |
+| Farm           | Extra grow beds                                              |
 
 Outpost modules: turret (raid defense), depot (more output), relay (bonus to
 neighboring outposts).
@@ -331,12 +331,12 @@ planet generated from that sector's seed.
 
 ### 9.1 Who they are
 
-| Faction | Who | Values | Offers | Rival |
-|---|---|---|---|---|
-| The Company | Corporate trading league | Trade volume, kept contracts | Components, market access, best prices | The Co-op |
-| The Navy | Military of a fallen state, still holding its old borders | Bounties, shows of strength | Weapons, ship blueprints | The Archive |
-| The Archive | Scholars studying pre-collapse relics | Data and relics | Research, rare tech | The Navy |
-| The Co-op | Independent stations and miners | Supplies, mutual aid | Crew, basic goods | The Company |
+| Faction     | Who                                                       | Values                       | Offers                                 | Rival       |
+| ----------- | --------------------------------------------------------- | ---------------------------- | -------------------------------------- | ----------- |
+| The Company | Corporate trading league                                  | Trade volume, kept contracts | Components, market access, best prices | The Co-op   |
+| The Navy    | Military of a fallen state, still holding its old borders | Bounties, shows of strength  | Weapons, ship blueprints               | The Archive |
+| The Archive | Scholars studying pre-collapse relics                     | Data and relics              | Research, rare tech                    | The Navy    |
+| The Co-op   | Independent stations and miners                           | Supplies, mutual aid         | Crew, basic goods                      | The Company |
 
 Pirates and strays (rogue drones left over from before the collapse) are always
 hostile and have no standing.
@@ -345,33 +345,33 @@ hostile and have no standing.
 
 Standing runs from −100 to +100 for each faction.
 
-| Rank | Range | Opens |
-|---|---|---|
-| Hostile | −100 to −50 | Nothing; they raid you if you share a border |
-| Wary | −49 to −10 | Market at poor prices |
-| Neutral | −9 to 24 | Market, contracts, bounties |
-| Trusted | 25 to 69 | Crew recruits, blueprints, mining rights, passage through their lanes |
-| Allied | 70 to 100 | Best prices, the capstone, the charter contracts |
+| Rank    | Range       | Opens                                                                 |
+| ------- | ----------- | --------------------------------------------------------------------- |
+| Hostile | −100 to −50 | Nothing; they raid you if you share a border                          |
+| Wary    | −49 to −10  | Market at poor prices                                                 |
+| Neutral | −9 to 24    | Market, contracts, bounties                                           |
+| Trusted | 25 to 69    | Crew recruits, blueprints, mining rights, passage through their lanes |
+| Allied  | 70 to 100   | Best prices, the capstone, the charter contracts                      |
 
-| Action | Effect |
-|---|---|
-| Trade run, contract, bounty | Small to medium gain |
-| Gift of goods they value | Small gain, with diminishing returns per day |
-| Event choices | Stated on the choice |
-| Attacking their sector | Large loss and war |
-| Gaining standing with their rival | Lose a quarter of what the rival gained |
+| Action                            | Effect                                       |
+| --------------------------------- | -------------------------------------------- |
+| Trade run, contract, bounty       | Small to medium gain                         |
+| Gift of goods they value          | Small gain, with diminishing returns per day |
+| Event choices                     | Stated on the choice                         |
+| Attacking their sector            | Large loss and war                           |
+| Gaining standing with their rival | Lose a quarter of what the rival gained      |
 
 **Sides matter:** standing with a faction cannot rise above 69 while you are
 Allied with its rival. In each pair you end up with at most one ally.
 
 ### 9.3 Capstones
 
-| Faction | Capstone at Allied |
-|---|---|
-| The Company | Trade charter: every route pays double |
-| The Navy | Dreadnought blueprint: a battleship variant |
+| Faction     | Capstone at Allied                          |
+| ----------- | ------------------------------------------- |
+| The Company | Trade charter: every route pays double      |
+| The Navy    | Dreadnought blueprint: a battleship variant |
 | The Archive | Stray decoder: stray garrisons are weakened |
-| The Co-op | Open hiring: the eighth crew slot |
+| The Co-op   | Open hiring: the eighth crew slot           |
 
 If a faction is conquered instead, its capstone can drop as a blueprint from its
 home garrison, so nothing is locked out of the completion log.
@@ -410,15 +410,15 @@ requests (Construction).
 
 Target timeline for a player who checks in a few times a day:
 
-| When | Where the player is |
-|---|---|
-| 10 minutes | First module built, second department open |
-| 1 hour | Second crew slot, first scout, first patrol |
-| Days 1 to 3 | Tier 1 well under way, first sector claimed, tier 2 open |
-| Weeks 1 to 2 | Tiers 2 to 3, first faction at Trusted, second fleet |
-| Month 1 | Tier 4, first faction absorbed or first war |
-| Month 2 | Tier 5, both rival pairs resolved |
-| Month 3 | Tier 6, stray space cleared, the Foundry, completion |
+| When         | Where the player is                                      |
+| ------------ | -------------------------------------------------------- |
+| 10 minutes   | First module built, second department open               |
+| 1 hour       | Second crew slot, first scout, first patrol              |
+| Days 1 to 3  | Tier 1 well under way, first sector claimed, tier 2 open |
+| Weeks 1 to 2 | Tiers 2 to 3, first faction at Trusted, second fleet     |
+| Month 1      | Tier 4, first faction absorbed or first war              |
+| Month 2      | Tier 5, both rival pairs resolved                        |
+| Month 3      | Tier 6, stray space cleared, the Foundry, completion     |
 
 - No prestige or reset.
 - A **completion log** tracks items found, masteries, enemies beaten, sectors,
@@ -504,39 +504,39 @@ below; the rail becomes a drawer.
 
 ### 12.2 Palette
 
-| Use | Colors |
-|---|---|
-| Space | `#0b1020` `#141b33` |
-| Stars | `#e8ecf7` `#5a6791` |
-| Hull | `#c9d2e6` `#7f8cab` `#414a6b`, outline `#05070f` |
-| Warm accent (windows, yours on the map) | `#ffb347` `#ffd27a` |
-| Alert, the Navy | `#e0523f` |
-| Beam, the Archive | `#7ef0ff` |
-| Solar, the Company | `#2b4a8c` `#6f9be0` |
-| Green, the Co-op, crops | `#5fd16a` `#2f8f4a` |
-| Planet ramp | `#0f2a3a` `#1b5560` `#2f8f86` `#a6e3c5` |
-| Land, crates, pirates | `#d98a4a` `#8a5a3a` |
-| Rock | `#9a8f8a` `#6b6064` `#3b3440` |
-| Ghost slot | `#4a5788` |
+| Use                                     | Colors                                           |
+| --------------------------------------- | ------------------------------------------------ |
+| Space                                   | `#0b1020` `#141b33`                              |
+| Stars                                   | `#e8ecf7` `#5a6791`                              |
+| Hull                                    | `#c9d2e6` `#7f8cab` `#414a6b`, outline `#05070f` |
+| Warm accent (windows, yours on the map) | `#ffb347` `#ffd27a`                              |
+| Alert, the Navy                         | `#e0523f`                                        |
+| Beam, the Archive                       | `#7ef0ff`                                        |
+| Solar, the Company                      | `#2b4a8c` `#6f9be0`                              |
+| Green, the Co-op, crops                 | `#5fd16a` `#2f8f4a`                              |
+| Planet ramp                             | `#0f2a3a` `#1b5560` `#2f8f86` `#a6e3c5`          |
+| Land, crates, pirates                   | `#d98a4a` `#8a5a3a`                              |
+| Rock                                    | `#9a8f8a` `#6b6064` `#3b3440`                    |
+| Ghost slot                              | `#4a5788`                                        |
 
 Other planet types reuse these ramps in different orders, plus at most four
 more colors for lava and ice worlds.
 
 ### 12.3 What is made, and how
 
-| Asset | How | Count |
-|---|---|---|
-| Starfield and nebula | Generated from a seed | per sector |
-| Planets | Generated: sphere shading plus noise, six types (rock, ice, ocean, gas giant, lava, dead). May port the Pixel Planets shaders (MIT), credited | per sector |
-| Asteroids, wreck pieces | Generated outlines with dithered shading | per type |
-| Station modules | Drawn by hand as palette grids, 16 to 32 px | 13 × 3 stages |
-| Outposts | Hand-drawn base plus module add-ons | 5 + 3 |
-| Ships | Generator: mirrored mask per class, palette and silhouette rules per owner (you, four factions, pirates, strays); good seeds are picked and fixed | 6 classes × 7 owners |
-| Drones, tug, skimmer, freighter | Hand-drawn, tiny | about 8 |
-| Effects | Code: beams, tracers, missiles, sparks, shield flicker, explosions, scan ping | — |
-| Map | Code: diamond nodes, dotted lanes, dithered territory tint, fleet markers, fog | — |
-| Item icons | About 12 hand-drawn templates (ore, plate, canister, crate, part, weapon and so on), recolored per item | about 12 |
-| Department and faction icons | Hand-drawn, 12 px | about 20 |
+| Asset                           | How                                                                                                                                               | Count                |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------- |
+| Starfield and nebula            | Generated from a seed                                                                                                                             | per sector           |
+| Planets                         | Generated: sphere shading plus noise, six types (rock, ice, ocean, gas giant, lava, dead). May port the Pixel Planets shaders (MIT), credited     | per sector           |
+| Asteroids, wreck pieces         | Generated outlines with dithered shading                                                                                                          | per type             |
+| Station modules                 | Drawn by hand as palette grids, 16 to 32 px                                                                                                       | 13 × 3 stages        |
+| Outposts                        | Hand-drawn base plus module add-ons                                                                                                               | 5 + 3                |
+| Ships                           | Generator: mirrored mask per class, palette and silhouette rules per owner (you, four factions, pirates, strays); good seeds are picked and fixed | 6 classes × 7 owners |
+| Drones, tug, skimmer, freighter | Hand-drawn, tiny                                                                                                                                  | about 8              |
+| Effects                         | Code: beams, tracers, missiles, sparks, shield flicker, explosions, scan ping                                                                     | —                    |
+| Map                             | Code: diamond nodes, dotted lanes, dithered territory tint, fleet markers, fog                                                                    | —                    |
+| Item icons                      | About 12 hand-drawn templates (ore, plate, canister, crate, part, weapon and so on), recolored per item                                           | about 12             |
+| Department and faction icons    | Hand-drawn, 12 px                                                                                                                                 | about 20             |
 
 ### 12.4 What moves in the station scene
 
@@ -602,8 +602,9 @@ tools/       balance simulator.
   state and send commands (assign crew, start project, send fleet).
 - Everything in the game is data in `content`. Adding an item means adding a
   record, not code.
-- Ids are branded types. Variants (job kinds, sector owners, event effects) are
-  discriminated unions handled exhaustively. Saves and imports are parsed and
+- Ids are literal types derived from the content tables, so a reference to a
+  record that does not exist fails to compile. Variants (job kinds, sector
+  owners, event effects) are discriminated unions handled exhaustively. Saves and imports are parsed and
   validated at the boundary with Valibot.
 
 ### 14.3 Tick and offline catch-up
@@ -653,16 +654,16 @@ three-month target is checked without three months of play.
 
 Each step ends with something playable.
 
-| Step | Contents |
-|---|---|
-| 0 | Project from lsel's `web` template, tick loop, one job (Mining iron), the station scene with a drone and a generated planet |
-| 1 | Save format, local saves, export and import, sync API, the app's entry in `squares`, first deploy to twelve |
-| 2 | Crew slots, Refining, Construction with modules appearing in the scene, mastery, offline catch-up and summary |
-| 3 | Fabrication, Salvage, Hydroponics and rations, Skimming, Survey, Research |
-| 4 | Sector map, claim beacons, outposts, Trade and credits |
-| 5 | Ships, fleets, battles, patrol zones, garrisons, strongholds, the fleet scene |
-| 6 | Factions: standing, contracts, bounties, recruits, events, war, raids, absorbing |
-| 7 | Content filled out to tier 6, balance pass with the simulator, completion log, phone layout, polish |
+| Step | Contents                                                                                                                    |
+| ---- | --------------------------------------------------------------------------------------------------------------------------- |
+| 0    | Project from lsel's `web` template, tick loop, one job (Mining iron), the station scene with a drone and a generated planet |
+| 1    | Save format, local saves, export and import, sync API, the app's entry in `squares`, first deploy to twelve                 |
+| 2    | Crew slots, Refining, Construction with modules appearing in the scene, mastery, offline catch-up and summary               |
+| 3    | Fabrication, Salvage, Hydroponics and rations, Skimming, Survey, Research                                                   |
+| 4    | Sector map, claim beacons, outposts, Trade and credits                                                                      |
+| 5    | Ships, fleets, battles, patrol zones, garrisons, strongholds, the fleet scene                                               |
+| 6    | Factions: standing, contracts, bounties, recruits, events, war, raids, absorbing                                            |
+| 7    | Content filled out to tier 6, balance pass with the simulator, completion log, phone layout, polish                         |
 
 ---
 
@@ -687,32 +688,32 @@ These were decided without a question and confirmed on 2026-11-18.
 
 ## Appendix A: sample crew
 
-| Name | From | Specialty |
-|---|---|---|
-| Ines Duarte | Co-op | Mining speed +10% |
-| Tomas Greer | Co-op | Construction speed +10% |
-| Bea Lindqvist | Co-op | Hydroponics yield +15% |
-| Sam Oyelaran | Co-op | Salvage: better loot rolls |
-| Yusra Haddad | Company | Trade prices +8% |
-| Dev Malhotra | Company | Fabrication: +5% chance of a double |
-| Carla Voss | Company | Refining speed +10% |
-| Jun Sato | Navy | Construction: ship hulls 15% faster |
-| Marek Bilal | Navy | Fabrication: weapons 15% faster |
-| Ruth Adeyemi | Archive | Research speed +10% |
-| Leo Fontaine | Archive | Survey data +15% |
-| Nadia Khoury | Archive | Salvage: relic chance doubled |
-| Olu Bright | None (event) | Skimming yield +15% |
-| Pat Hollis | None (event) | Mining: geode chance doubled |
-| Kit Moreno | None (bounty shop) | Refining: +5% chance to keep input |
-| Ana Petrov | None (start) | Generalist: +3% to everything |
+| Name          | From               | Specialty                           |
+| ------------- | ------------------ | ----------------------------------- |
+| Ines Duarte   | Co-op              | Mining speed +10%                   |
+| Tomas Greer   | Co-op              | Construction speed +10%             |
+| Bea Lindqvist | Co-op              | Hydroponics yield +15%              |
+| Sam Oyelaran  | Co-op              | Salvage: better loot rolls          |
+| Yusra Haddad  | Company            | Trade prices +8%                    |
+| Dev Malhotra  | Company            | Fabrication: +5% chance of a double |
+| Carla Voss    | Company            | Refining speed +10%                 |
+| Jun Sato      | Navy               | Construction: ship hulls 15% faster |
+| Marek Bilal   | Navy               | Fabrication: weapons 15% faster     |
+| Ruth Adeyemi  | Archive            | Research speed +10%                 |
+| Leo Fontaine  | Archive            | Survey data +15%                    |
+| Nadia Khoury  | Archive            | Salvage: relic chance doubled       |
+| Olu Bright    | None (event)       | Skimming yield +15%                 |
+| Pat Hollis    | None (event)       | Mining: geode chance doubled        |
+| Kit Moreno    | None (bounty shop) | Refining: +5% chance to keep input  |
+| Ana Petrov    | None (start)       | Generalist: +3% to everything       |
 
 ## Appendix B: sample events
 
-| Event | Choices |
-|---|---|
-| **Mayday.** A Company freighter has lost power nearby. | Tow it in: Company +6, one crew member busy for 30 minutes. Strip it: scrap and parts, Company −10. Leave it: nothing. |
-| **Asylum.** A Navy officer asks to stay. | Take her in: gain crew member Jun Sato, Navy −8. Send her back: Navy +5. |
-| **Short harvest.** The Co-op is low on food. | Send 200 rations: Co-op +8. Sell them at double price: credits, Co-op −4, Company +2. Decline: nothing. |
-| **Reading room.** The Archive wants to copy your survey logs. | Share: Archive +6, lose 100 data. Sell: credits, Archive +2. Refuse: Navy +2. |
-| **Toll.** Pirates want payment for a lane. | Pay: credits lost, no raids from that sector for a day. Refuse: a raid starts. |
-| **Stray signal.** A dormant drone is transmitting from a wreck field. | Recover it: a relic. Report it to the Navy: Navy +5. Report it to the Archive: Archive +5. |
+| Event                                                                 | Choices                                                                                                                |
+| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **Mayday.** A Company freighter has lost power nearby.                | Tow it in: Company +6, one crew member busy for 30 minutes. Strip it: scrap and parts, Company −10. Leave it: nothing. |
+| **Asylum.** A Navy officer asks to stay.                              | Take her in: gain crew member Jun Sato, Navy −8. Send her back: Navy +5.                                               |
+| **Short harvest.** The Co-op is low on food.                          | Send 200 rations: Co-op +8. Sell them at double price: credits, Co-op −4, Company +2. Decline: nothing.                |
+| **Reading room.** The Archive wants to copy your survey logs.         | Share: Archive +6, lose 100 data. Sell: credits, Archive +2. Refuse: Navy +2.                                          |
+| **Toll.** Pirates want payment for a lane.                            | Pay: credits lost, no raids from that sector for a day. Refuse: a raid starts.                                         |
+| **Stray signal.** A dormant drone is transmitting from a wreck field. | Recover it: a relic. Report it to the Navy: Navy +5. Report it to the Archive: Archive +5.                             |
