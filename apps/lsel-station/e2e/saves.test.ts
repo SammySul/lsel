@@ -1,38 +1,13 @@
 // Saves, catch-up, tabs and sync, in real browsers against the real server. Run `bun run build` first.
-import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { existsSync } from "node:fs";
-import { join } from "node:path";
-import {
-  type Browser,
-  type BrowserContext,
-  chromium,
-  firefox,
-  type Page,
-  webkit,
-} from "playwright-core";
-import { openSaves } from "../src/server/saves.ts";
-import { handler } from "../src/server/server.ts";
 
-const DIST = join(import.meta.dir, "../dist");
-const ALL = { chromium, firefox, webkit };
-const names = (process.env.BROWSERS?.split(",") ?? Object.keys(ALL)) as (keyof typeof ALL)[];
-const TIMEOUT = 30_000;
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import type { Browser, BrowserContext, Page } from "playwright-core";
+import { BROWSERS, names, serveBuilt, TIMEOUT } from "./setup.ts";
+
 // noon on a fixed day, so the saved times are the same in every run
 const NOON = Date.UTC(2026, 10, 18, 12);
 
-let server: ReturnType<typeof Bun.serve>;
-
-beforeAll(() => {
-  if (!existsSync(join(DIST, "index.html"))) throw new Error("no dist/: run `bun run build` first");
-  server = Bun.serve({
-    port: 0,
-    fetch: handler({ staticDir: DIST, saves: openSaves(":memory:") }),
-  });
-});
-
-afterAll(() => {
-  server?.stop(true);
-});
+const address = serveBuilt();
 
 /** Opens the game in a context and watches its console; the context's clock is left as the caller set it. */
 async function open(context: BrowserContext, query = "") {
@@ -42,7 +17,7 @@ async function open(context: BrowserContext, query = "") {
     if (m.type() === "error" || m.type() === "warning") problems.push(`${m.type()}: ${m.text()}`);
   });
   page.on("pageerror", (e) => problems.push(`uncaught: ${e.message}`));
-  await page.goto(server.url.href + query, { waitUntil: "networkidle" });
+  await page.goto(address() + query, { waitUntil: "networkidle" });
   return { page, problems };
 }
 
@@ -62,7 +37,7 @@ for (const name of names) {
   describe(name, () => {
     let browser: Browser;
     beforeAll(async () => {
-      browser = await ALL[name].launch({ headless: true });
+      browser = await BROWSERS[name].launch({ headless: true });
     });
     afterAll(async () => {
       await browser?.close();

@@ -1,31 +1,11 @@
 // The built game in real browsers on the real server: `bun run build` first; BROWSERS=chromium,firefox,webkit picks.
+
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { existsSync } from "node:fs";
-import { join } from "node:path";
-import { type Browser, chromium, firefox, type Page, webkit } from "playwright-core";
-import { openSaves } from "../src/server/saves.ts";
-import { handler } from "../src/server/server.ts";
+import type { Browser, Page } from "playwright-core";
 import { PALETTE } from "../src/web/scene/palette.ts";
+import { BROWSERS, names, serveBuilt, TIMEOUT } from "./setup.ts";
 
-const DIST = join(import.meta.dir, "../dist");
-const ALL = { chromium, firefox, webkit };
-const names = (process.env.BROWSERS?.split(",") ?? Object.keys(ALL)) as (keyof typeof ALL)[];
-
-const TIMEOUT = 30_000;
-
-let server: ReturnType<typeof Bun.serve>;
-
-beforeAll(() => {
-  if (!existsSync(join(DIST, "index.html"))) throw new Error("no dist/: run `bun run build` first");
-  server = Bun.serve({
-    port: 0,
-    fetch: handler({ staticDir: DIST, saves: openSaves(":memory:") }),
-  });
-});
-
-afterAll(() => {
-  server?.stop(true);
-});
+const address = serveBuilt();
 
 type AudioSpy = { contexts: AudioContext[]; shots: number[]; calls: string[] };
 
@@ -71,7 +51,7 @@ async function open(page: Page, query = ""): Promise<string[]> {
   page.on("pageerror", (e) => problems.push(`uncaught: ${e.message}`));
   await page.addInitScript(spyOnAudio);
   await page.clock.install({ time: 0 });
-  await page.goto(server.url.href + query, { waitUntil: "networkidle" });
+  await page.goto(address() + query, { waitUntil: "networkidle" });
   await page.evaluate(() => document.fonts.ready);
   await page.clock.pauseAt(60_000);
   return problems;
@@ -116,7 +96,7 @@ for (const name of names) {
   describe(name, () => {
     let browser: Browser;
     beforeAll(async () => {
-      browser = await ALL[name].launch({ headless: true });
+      browser = await BROWSERS[name].launch({ headless: true });
     });
     afterAll(async () => {
       await browser?.close();
