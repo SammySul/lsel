@@ -6,7 +6,7 @@ fleets to take sectors, and manage standing with four factions.
 
 Status: design agreed in five question rounds on 2026-11-16, defaults confirmed
 on 2026-11-18. Steps 0 to 4 of the build order (section 15) and sound are
-built and live at lsel-station.sammysul.com (v0.1.0).
+built and live at lsel-station.sammysul.com (v0.2.0).
 
 How to read this document:
 
