@@ -1,14 +1,20 @@
 import { apply, type Command } from "../sim/commands.ts";
+import type { GameEvent } from "../sim/events.ts";
 import { newGame, type Snapshot } from "../sim/state.ts";
 import { TICK_MS, tick } from "../sim/tick.ts";
 
 // a tab that slept is credited a day at most when it wakes
 const CATCH_UP_TICKS = (24 * 60 * 60 * 1000) / TICK_MS;
+// more ticks than this at once is catching up, which happens in silence
+const LIVE_TICKS = 2;
 
 export type Game = ReturnType<typeof startGame>;
 
-/** Runs a new game on the wall clock: the sim owns the state, the interface reads snapshots of it. */
-export function startGame(seed: number) {
+/**
+ * Runs a new game on the wall clock: the sim owns the state, the interface reads snapshots of it.
+ * `hear` gets what happens as it happens, and nothing of what is caught up on later.
+ */
+export function startGame(seed: number, hear: (event: GameEvent) => void) {
   const state = newGame(seed);
   let snapshot = $state.raw<Snapshot>(structuredClone(state));
   let last = performance.now();
@@ -21,7 +27,10 @@ export function startGame(seed: number) {
     const due = Math.floor(owedMs / TICK_MS);
     if (due === 0) return;
     owedMs -= due * TICK_MS;
-    for (let i = 0; i < Math.min(due, CATCH_UP_TICKS); i++) tick(state);
+    for (let i = 0; i < Math.min(due, CATCH_UP_TICKS); i++) {
+      const events = tick(state);
+      if (due <= LIVE_TICKS) events.forEach(hear);
+    }
     snapshot = structuredClone(state);
   }
   const timer = setInterval(advance, TICK_MS / 2);
@@ -37,7 +46,7 @@ export function startGame(seed: number) {
     },
     send(command: Command): void {
       advance();
-      apply(state, command);
+      apply(state, command).forEach(hear);
       snapshot = structuredClone(state);
     },
     stop(): void {

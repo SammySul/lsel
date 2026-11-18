@@ -14,10 +14,7 @@ for (let level = 1, total = 0; level < MAX_LEVEL; level++) {
 
 export function levelOf(xp: number): number {
   let level = 1;
-  for (const reach of REACH.slice(1)) {
-    if (xp < reach) break;
-    level++;
-  }
+  while (level < MAX_LEVEL && xp >= (REACH[level] ?? Number.POSITIVE_INFINITY)) level++;
   return level;
 }
 

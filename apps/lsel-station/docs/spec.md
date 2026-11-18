@@ -475,8 +475,8 @@ below; the rail becomes a drawer.
   The offline summary is a panel in the middle column, not a dialog; the only
   dialog is an event the player opened.
 - Keyboard: `1` to `0` select departments, `j` and `k` move through the list,
-  `Enter` assigns, `m` opens the map, `i` opens the inbox, `Esc` backs out, `?`
-  lists the keys. Every key is shown next to its action.
+  `Enter` assigns, `m` opens the map, `i` opens the inbox, `s` turns sound on or
+  off, `Esc` backs out, `?` lists the keys. Every key is shown next to its action.
 - With `prefers-reduced-motion` the scene is drawn as still frames; there is no
   setting for it.
 - Factions are told apart by icon shape as well as color.
@@ -558,7 +558,19 @@ bars mirrored from the text panel.
 
 ### 12.5 Sound
 
-None in the first version.
+- Everything is synthesized in code on the Web Audio API: no audio files and no
+  framework (`docs/research-sound.md` has the why).
+- **Effects** are short and retro: each is a list of ZzFX parameters, tuned by
+  ear in ZzFX's designer. Every step of the build order adds the sounds for
+  what it adds.
+- **Ambience** is a low hum that drifts, with a soft note now and then. It is
+  generated, so it never loops audibly.
+- Sound starts with the first key press or click, as browsers require, and is on
+  by default at a low level. `s` mutes everything; effects and ambience have
+  their own volumes. The settings are kept per device, not in the save.
+- Only what happens live is heard: nothing plays while the tab is hidden, and
+  what is caught up on afterwards is silent.
+- Sound never draws from the game's seeded generator.
 
 ---
 
@@ -671,7 +683,7 @@ Each step ends with something playable.
 
 These were decided without a question and confirmed on 2026-11-18.
 
-1. No sound in the first version.
+1. Sound is on by default at a low level, synthesized in code (changed from "no sound" on 2026-11-18).
 2. Station modules have fixed positions; the player does not place them.
 3. No storage caps and no power system.
 4. Fleets do not use crew slots and have no named captains.

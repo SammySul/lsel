@@ -6,14 +6,19 @@ import { DEPARTMENT_IDS, DEPARTMENTS, type DepartmentId } from "../content/depar
 import { ITEM_IDS, ITEMS } from "../content/items.ts";
 import { levelOf } from "../sim/levels.ts";
 import { startGame } from "./game.svelte.ts";
+import { createSound } from "./sound/sound.svelte.ts";
 import Department from "./ui/Department.svelte";
 import { count } from "./ui/format.ts";
 import { isGameKey } from "./ui/keys.ts";
 import Scene from "./ui/Scene.svelte";
 
 const [seed = 0] = crypto.getRandomValues(new Uint32Array(1));
-const game = startGame(seed);
-onDestroy(game.stop);
+const sound = createSound();
+const game = startGame(seed, sound.hear);
+onDestroy(() => {
+  game.stop();
+  sound.stop();
+});
 
 let department: DepartmentId = $state("mining");
 let keysOpen = $state(false);
@@ -22,6 +27,7 @@ function onkeydown(event: KeyboardEvent): void {
   if (!isGameKey(event)) return;
   const picked = DEPARTMENT_IDS.find((id) => DEPARTMENTS[id].key === event.key);
   if (picked !== undefined) department = picked;
+  else if (event.key === "s") sound.toggle();
   else if (event.key === "?") keysOpen = !keysOpen;
   else if (event.key === "Escape") keysOpen = false;
 }
@@ -37,8 +43,11 @@ function onkeydown(event: KeyboardEvent): void {
         <li><span class="dim">{ITEMS[id].name}</span> {count(game.snapshot.items[id] ?? 0)}</li>
       {/each}
     </ul>
+    <button type="button" aria-pressed={!sound.settings.muted} onclick={sound.toggle}>
+      Sound <kbd>s</kbd>
+    </button>
     <button type="button" aria-pressed={keysOpen} onclick={() => (keysOpen = !keysOpen)}>
-      Keys <kbd>?</kbd>
+      Keys and volume <kbd>?</kbd>
     </button>
   </header>
 
@@ -54,7 +63,7 @@ function onkeydown(event: KeyboardEvent): void {
 
     <div class="middle">
       {#if keysOpen}
-        <section class="keys lsel-appear" aria-label="Keys">
+        <section class="keys lsel-appear" aria-label="Keys and volume">
           <dl>
             {#each DEPARTMENT_IDS as id (id)}
               <dt><kbd>{DEPARTMENTS[id].key}</kbd></dt>
@@ -64,11 +73,27 @@ function onkeydown(event: KeyboardEvent): void {
             <dd>Move through the list</dd>
             <dt><kbd>Enter</kbd></dt>
             <dd>Assign or stop</dd>
+            <dt><kbd>s</kbd></dt>
+            <dd>Sound on or off</dd>
             <dt><kbd>?</kbd></dt>
             <dd>List the keys</dd>
             <dt><kbd>Esc</kbd></dt>
             <dd>Back out</dd>
           </dl>
+          <div class="levels">
+            {#each ["effects", "ambience"] as const as bus (bus)}
+              <label for="level-{bus}">{bus === "effects" ? "Effects" : "Ambience"}</label>
+              <input
+                id="level-{bus}"
+                type="range"
+                min="0"
+                max="1"
+                step="0.05"
+                value={sound.settings[bus]}
+                oninput={(event) => sound.setLevel(bus, event.currentTarget.valueAsNumber)}
+              />
+            {/each}
+          </div>
         </section>
       {/if}
       {#key department}
@@ -152,11 +177,16 @@ function onkeydown(event: KeyboardEvent): void {
   .keys {
     padding: var(--space-4);
     border-bottom: var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
   }
-  dl {
+  dl,
+  .levels {
     margin: 0;
     display: grid;
     grid-template-columns: auto 1fr;
+    align-items: center;
     gap: var(--space-2) var(--space-4);
   }
   dd {

@@ -80,6 +80,43 @@ describe("commands", () => {
   });
 });
 
+describe("events", () => {
+  test("a tick reports the bar that finished in it, and nothing otherwise", () => {
+    const state = mining();
+    run(state, 2800);
+    expect([tick(state), tick(state)]).toEqual([
+      [{ kind: "action-done", crew: "ana-petrov", action: "iron-asteroid" }],
+      [],
+    ]);
+  });
+
+  test("the bar that brings mining to 60 XP also reports level 2", () => {
+    const state = mining();
+    run(state, 35_800);
+    expect(tick(state)).toEqual([
+      { kind: "action-done", crew: "ana-petrov", action: "iron-asteroid" },
+      { kind: "level-up", department: "mining", level: 2 },
+    ]);
+  });
+
+  test("a command reports the job it started or stopped, and nothing when it changed nothing", () => {
+    const state = newGame(7);
+    const assign = { kind: "assign", crew: "ana-petrov", action: "iron-asteroid" } as const;
+    const unassign = { kind: "unassign", crew: "ana-petrov" } as const;
+    expect([
+      apply(state, unassign),
+      apply(state, assign),
+      apply(state, assign),
+      apply(state, unassign),
+    ]).toEqual([
+      [],
+      [{ kind: "job-started", crew: "ana-petrov", action: "iron-asteroid" }],
+      [],
+      [{ kind: "job-stopped", crew: "ana-petrov" }],
+    ]);
+  });
+});
+
 describe("levels", () => {
   test("the next level costs round(60 × 1.1^(level − 1))", () => {
     expect([1, 2, 15, 98].map(xpForNext)).toEqual([60, 66, 228, 621_215]);
