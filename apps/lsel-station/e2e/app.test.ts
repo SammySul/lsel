@@ -28,11 +28,15 @@ afterAll(() => {
   server?.stop(true);
 });
 
-type AudioSpy = { contexts: AudioContext[]; shots: number[] };
+type AudioSpy = { contexts: AudioContext[]; shots: number[]; calls: string[] };
 
-/** Runs in the page before the game: records each audio context made and each one-shot sound started, in ms. */
+/**
+ * Runs in the page before the game: records each audio context made, each resume and suspend asked of one, and
+ * each one-shot sound started, in ms. Whether a context then runs is the browser's: one with no audio device
+ * (the CI runner) stays suspended, so tests assert what the game asked for.
+ */
 function spyOnAudio(): void {
-  const spy: AudioSpy = { contexts: [], shots: [] };
+  const spy: AudioSpy = { contexts: [], shots: [], calls: [] };
   Object.assign(window, { audioSpy: spy });
   const Real = window.AudioContext;
   window.AudioContext = class extends Real {
@@ -41,6 +45,13 @@ function spyOnAudio(): void {
       spy.contexts.push(this);
     }
   };
+  for (const method of ["resume", "suspend"] as const) {
+    const real = AudioContext.prototype[method];
+    AudioContext.prototype[method] = function () {
+      spy.calls.push(method);
+      return real.call(this);
+    };
+  }
   const start = AudioBufferSourceNode.prototype.start;
   AudioBufferSourceNode.prototype.start = function (...args) {
     if (!this.loop) spy.shots.push(Math.round((this.buffer?.duration ?? 0) * 1000));
@@ -51,19 +62,9 @@ function spyOnAudio(): void {
 /** What the page has done with audio so far. */
 function audio(page: Page) {
   return page.evaluate(() => {
-    const { contexts, shots } = (window as unknown as { audioSpy: AudioSpy }).audioSpy;
-    return { contexts: contexts.map((c) => c.state), shots };
+    const { contexts, shots, calls } = (window as unknown as { audioSpy: AudioSpy }).audioSpy;
+    return { contexts: contexts.length, shots, calls: [...calls] };
   });
-}
-
-/** The contexts once they all reach a state, waited for in real time: the audio clock ignores the stopped one. */
-async function contextState(page: Page, wanted: AudioContextState): Promise<AudioContextState[]> {
-  for (let i = 0; i < 60; i++) {
-    const { contexts } = await audio(page);
-    if (contexts.every((state) => state === wanted)) return contexts;
-    await Bun.sleep(50);
-  }
-  return (await audio(page)).contexts;
 }
 
 /** Opens the game with its clock stopped, so a test moves time by exact amounts. `query` can fix the seed. */
@@ -539,13 +540,15 @@ for (const name of names) {
         const problems = await open(page);
         const soundOn = () =>
           page.getByRole("button", { name: "Sound" }).getAttribute("aria-pressed");
-        expect([await audio(page), await soundOn()]).toEqual([{ contexts: [], shots: [] }, "true"]);
+        expect([await audio(page), await soundOn()]).toEqual([
+          { contexts: 0, shots: [], calls: [] },
+          "true",
+        ]);
 
-        // the assign blip, then the bar finishing 3 s later
+        // the key press makes and starts the one context; the assign blip, then the bar finishing 3 s later
         await page.keyboard.press("Enter");
         await page.clock.runFor(3000);
-        expect(await contextState(page, "running")).toEqual(["running"]);
-        expect((await audio(page)).shots).toEqual([115, 82]);
+        expect(await audio(page)).toEqual({ contexts: 1, shots: [115, 82], calls: ["resume"] });
 
         // ten more bars and a level-up, caught up in one jump: silence
         await page.clock.fastForward(33_000);
@@ -554,19 +557,25 @@ for (const name of names) {
 
         await page.keyboard.press("s");
         await page.clock.runFor(3000);
-        expect(await contextState(page, "suspended")).toEqual(["suspended"]);
-        expect([(await audio(page)).shots, await soundOn()]).toEqual([[115, 82], "false"]);
+        // a context the browser could not start is asked again on every key press, so count only the end
+        const muted = await audio(page);
+        expect([muted.contexts, muted.shots, muted.calls.at(-1), await soundOn()]).toEqual([
+          1,
+          [115, 82],
+          "suspend",
+          "false",
+        ]);
 
         // the setting is kept on this device, and a muted game never opens audio
         await page.reload({ waitUntil: "networkidle" });
         await page.keyboard.press("Enter");
         expect([await audio(page), await soundOn()]).toEqual([
-          { contexts: [], shots: [] },
+          { contexts: 0, shots: [], calls: [] },
           "false",
         ]);
         await page.keyboard.press("s");
-        expect([await contextState(page, "running"), await soundOn()]).toEqual([
-          ["running"],
+        expect([await audio(page), await soundOn()]).toEqual([
+          { contexts: 1, shots: [], calls: ["resume"] },
           "true",
         ]);
         expect(problems).toEqual([]);

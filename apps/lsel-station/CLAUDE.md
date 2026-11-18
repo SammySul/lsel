@@ -32,6 +32,8 @@ traps.
 - **An `AudioContext` is created only inside a key press or click** that
   counts as an activation (`navigator.userActivation`; Esc does not). Made any
   earlier, Firefox logs a console warning, which fails the quiet-console test.
-- The audio clock ignores `page.clock`: a browser test waits for a context's
-  state in real time (`contextState`), and a `fastForward` is a catch-up, which
-  is silent by design; use `runFor` for the few seconds a sound test needs.
+- **CI on twelve has no audio device**: Firefox's and WebKit's AudioContext
+  stays suspended there (Chromium fakes a device), so a sound test asserts the
+  game's own calls (`audioSpy`), never `ctx.state === "running"`.
+- In a sound test, `fastForward` is a catch-up, which is silent by design; use
+  `runFor` for the few seconds of live play it needs.
