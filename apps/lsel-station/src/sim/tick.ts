@@ -9,7 +9,6 @@ import { levelOf } from "./levels.ts";
 import { isMasteryStep, MASTERY, POOL_SHARE } from "./mastery.ts";
 import { nextRandom } from "./rng.ts";
 import {
-  bedCount,
   bonusChance,
   chartTarget,
   FED_TICKS,
@@ -20,7 +19,7 @@ import {
   speedOf,
 } from "./rules.ts";
 import type { GameState } from "./state.ts";
-import { give, pay } from "./stock.ts";
+import { fitBeds, give, pay } from "./stock.ts";
 
 export const TICK_MS = 200;
 
@@ -105,7 +104,7 @@ function finish(state: GameState, crew: CrewId, id: ActionId, events: GameEvent[
     case "module": {
       state.modules[result.module] = result.level;
       events.push({ kind: "module-built", module: result.module, level: result.level });
-      while (state.beds.length < bedCount(state)) state.beds.push(null);
+      fitBeds(state);
       const recruit = result.module === "habitat" ? HABITAT_RECRUITS[result.level - 1] : undefined;
       if (recruit !== undefined && !state.crew.includes(recruit)) {
         state.crew.push(recruit);

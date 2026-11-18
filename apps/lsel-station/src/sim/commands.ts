@@ -12,17 +12,9 @@ import {
 import { type GameEvent, NO_EVENTS } from "./events.ts";
 import type { SectorId } from "./map.ts";
 import { isMasteryStep, MASTERY } from "./mastery.ts";
-import {
-  actionLock,
-  actionShown,
-  bedCount,
-  claimable,
-  crewSlots,
-  poolCost,
-  routes,
-} from "./rules.ts";
+import { actionLock, actionShown, claimable, crewSlots, poolCost, routes } from "./rules.ts";
 import type { GameState } from "./state.ts";
-import { give, pay } from "./stock.ts";
+import { fitBeds, give, pay } from "./stock.ts";
 
 export type Command =
   | { kind: "assign"; crew: CrewId; action: ActionId }
@@ -99,9 +91,7 @@ function specialise(state: GameState, sector: SectorId, spec: SpecId): readonly 
   if (outpost.spec !== null && !pay(state, RESPEC_COST)) return NO_EVENTS;
   outpost.spec = spec;
   outpost.stored = 0;
-  const beds = bedCount(state);
-  while (state.beds.length < beds) state.beds.push(null);
-  state.beds.length = beds;
+  fitBeds(state);
   return [{ kind: "outpost-changed", sector }];
 }
 

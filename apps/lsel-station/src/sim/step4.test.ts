@@ -220,6 +220,22 @@ describe("outposts", () => {
     ]);
   });
 
+  test("a Farm given up keeps what is planted where beds remain, and refunds what no longer fits", () => {
+    const state = withOutpost({ items: { credits: 200, water: 6 } });
+    state.modules.greenhouse = 1;
+    apply(state, { kind: "specialise", sector: RING_2, spec: "farm" });
+    for (const bed of [0, 2, 3]) apply(state, { kind: "plant", bed, crop: "algae" });
+    run(state, 10);
+    apply(state, { kind: "specialise", sector: RING_2, spec: "mine" });
+    expect([state.beds, state.items]).toEqual([
+      [
+        { crop: "algae", progressMs: 2000 },
+        { crop: "algae", progressMs: 2000 },
+      ],
+      { credits: 0, water: 2 },
+    ]);
+  });
+
   test("a Farm adds two beds to a Greenhouse, and a Trade hub a route and a trickle of credits", () => {
     const state = withOutpost({ beds: [null, null] });
     state.modules.greenhouse = 1;
