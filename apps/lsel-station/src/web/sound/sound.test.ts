@@ -54,10 +54,17 @@ describe("the game's sounds", () => {
       ["stop", 5071, true],
       ["waiting", 7276, true],
       ["mined", 3616, true],
+      ["salvaged", 3616, true],
+      ["skimmed", 3616, true],
+      ["cooked", 3616, true],
       ["refined", 3616, true],
+      ["made", 3616, true],
+      ["scanned", 10672, true],
+      ["harvested", 6835, true],
       ["levelUp", 27342, true],
       ["mastery", 11686, true],
       ["built", 38808, true],
+      ["ready", 31311, true],
       ["joined", 20286, true],
     ]);
   });
@@ -82,6 +89,12 @@ describe("the game's sounds", () => {
       cueFor({ kind: "mastery-step", action: "iron-asteroid", level: 10 }),
       cueFor({ kind: "module-built", module: "habitat", level: 1 }),
       cueFor({ kind: "crew-joined", crew: "ines-duarte" }),
+      cueFor({ kind: "action-done", crew, action: "cargo-wreck" }),
+      cueFor({ kind: "action-done", crew, action: "scan-home" }),
+      cueFor({ kind: "action-done", crew, action: "salvage-tug" }),
+      cueFor({ kind: "unlocked", unlock: "salvage-tug" }),
+      cueFor({ kind: "planted", bed: 0, crop: "algae" }),
+      cueFor({ kind: "harvested", bed: 0, crop: "algae" }),
     ]).toEqual([
       "assign",
       "stop",
@@ -93,6 +106,12 @@ describe("the game's sounds", () => {
       "mastery",
       "built",
       "joined",
+      "salvaged",
+      "scanned",
+      null,
+      "ready",
+      "assign",
+      "harvested",
     ]);
   });
 });

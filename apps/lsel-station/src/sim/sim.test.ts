@@ -26,9 +26,12 @@ const FRESH: GameState = {
   mastery: {},
   pool: {},
   modules: { core: 1, "drone-bay": 1, refinery: 1 },
+  unlocks: [],
   crew: ["ana-petrov"],
   jobs: {},
   projects: {},
+  beds: [],
+  fed: {},
 };
 
 /** Ticks `n` times and returns everything that happened. */

@@ -1,4 +1,4 @@
-import { ACTIONS } from "../../content/actions.ts";
+import { ACTIONS, isOnce } from "../../content/actions.ts";
 import type { DepartmentId } from "../../content/departments.ts";
 import type { GameEvent } from "../../sim/events.ts";
 import type { Zzfx } from "./zzfx.ts";
@@ -11,7 +11,7 @@ export type Sound = {
   readonly fanfare: boolean;
 };
 
-const tick = (frequency: number, shape: 0 | 1): Zzfx => ({
+const tick = (frequency: number, shape: NonNullable<Zzfx["shape"]>): Zzfx => ({
   volume: 0.25,
   randomness: 0,
   frequency,
@@ -66,7 +66,39 @@ const table = {
     fanfare: false,
   },
   mined: { synth: tick(1040, 0), vary: 0.03, fanfare: false },
+  salvaged: { synth: tick(300, 2), vary: 0.05, fanfare: false },
+  skimmed: { synth: tick(820, 0), vary: 0.03, fanfare: false },
+  cooked: { synth: tick(700, 1), vary: 0.03, fanfare: false },
   refined: { synth: tick(620, 1), vary: 0.03, fanfare: false },
+  made: { synth: tick(480, 5), vary: 0.03, fanfare: false },
+  scanned: {
+    synth: {
+      volume: 0.25,
+      randomness: 0,
+      frequency: 1400,
+      attack: 0.002,
+      sustain: 0.01,
+      release: 0.15,
+      delay: 0.08,
+    },
+    vary: 0,
+    fanfare: false,
+  },
+  harvested: {
+    synth: {
+      volume: 0.3,
+      randomness: 0,
+      frequency: 660,
+      attack: 0.005,
+      sustain: 0.03,
+      release: 0.12,
+      shape: 1,
+      pitchJump: 220,
+      pitchJumpTime: 0.04,
+    },
+    vary: 0,
+    fanfare: false,
+  },
   levelUp: {
     synth: {
       volume: 0.6,
@@ -113,6 +145,21 @@ const table = {
     vary: 0,
     fanfare: true,
   },
+  ready: {
+    synth: {
+      volume: 0.6,
+      randomness: 0,
+      frequency: 440,
+      attack: 0.01,
+      sustain: 0.2,
+      release: 0.4,
+      pitchJump: 219.26,
+      pitchJumpTime: 0.1,
+      delay: 0.1,
+    },
+    vary: 0,
+    fanfare: true,
+  },
   joined: {
     synth: {
       volume: 0.5,
@@ -132,11 +179,17 @@ const table = {
 export type SoundName = keyof typeof table;
 export const SOUNDS: Readonly<Record<SoundName, Sound>> = table;
 
-// a module's own fanfare covers a finished project
+// what is made once has its own fanfare, so its last bar stays quiet
 const DONE: Readonly<Record<DepartmentId, SoundName | null>> = {
   mining: "mined",
+  salvage: "salvaged",
+  skimming: "skimmed",
+  hydroponics: "cooked",
   refining: "refined",
+  fabrication: "made",
   construction: null,
+  survey: "scanned",
+  research: null,
 };
 
 /** The sound an event makes, if any. */
@@ -149,13 +202,19 @@ export function cueFor(event: GameEvent): SoundName | null {
     case "job-waiting":
       return "waiting";
     case "action-done":
-      return DONE[ACTIONS[event.action].department];
+      return isOnce(ACTIONS[event.action]) ? null : DONE[ACTIONS[event.action].department];
     case "level-up":
       return "levelUp";
     case "mastery-step":
       return "mastery";
     case "module-built":
       return "built";
+    case "unlocked":
+      return "ready";
+    case "planted":
+      return "assign";
+    case "harvested":
+      return "harvested";
     case "crew-joined":
       return "joined";
     default: {

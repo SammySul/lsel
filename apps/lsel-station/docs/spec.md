@@ -5,7 +5,7 @@ frontier. You train departments, build the station out module by module, send
 fleets to take sectors, and manage standing with four factions.
 
 Status: design agreed in five question rounds on 2026-11-16, defaults confirmed
-on 2026-11-18. Steps 0 and 2 of the build order (section 15) and sound are
+on 2026-11-18. Steps 0, 2 and 3 of the build order (section 15) and sound are
 built; step 1 is not.
 
 How to read this document:
@@ -151,18 +151,36 @@ There are no storage caps on anything.
 
 ### 5.2 The ten departments
 
-| #   | Department   | Needs module  | Job                                                                                                     | Special mechanic                                                                                    | Seen in the scene as                                             |
-| --- | ------------ | ------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
-| 1   | Mining       | Drone bay     | Drone trip to an asteroid type; yields ore                                                              | Small chance of a geode (sell, or give to Research)                                                 | Drones fly out to the rock and back                              |
-| 2   | Salvage      | Drone bay II  | Strip a wreck type; each action rolls a loot table                                                      | Rare blueprints unlock recipes found nowhere else; very rare relics for the Archive                 | A tug hauls wreck pieces in                                      |
-| 3   | Skimming     | Skimmer bay   | Skim a gas giant; yields fuel gas                                                                       | Gas feeds fuel cells, which fleets burn to travel                                                   | A skimmer leaves and returns with full tanks                     |
-| 4   | Hydroponics  | Greenhouse    | Grow beds run on timers with no crew; the crew job is Galley, cooking crops into rations                | Beds per greenhouse level; auto-replant from Research                                               | Greenhouse glows and fills in                                    |
-| 5   | Refining     | Refinery      | Ore, ice and gas into plate, water, fuel cells                                                          | Mastery gives a chance to keep the input                                                            | Refinery vents                                                   |
-| 6   | Fabrication  | Workshop      | Components, drones (the tool tier for gathering), weapons, shields, armor, repair kits                  | Mastery gives a chance of a double                                                                  | Workshop sparks                                                  |
-| 7   | Construction | Core          | Long projects: station modules, outpost modules, ship hulls, claim beacons                              | One project per assigned crew; 10 minutes to 12 hours                                               | Scaffold and welders on the dashed slot, then the module appears |
-| 8   | Survey       | Scanner       | Scan a sector: reveals map nodes, resource sites, wreck fields, strongholds; yields data                | Per-sector mastery raises that sector's yields                                                      | Dish sweeps, a ping ring goes out                                |
-| 9   | Research     | Lab           | Spend data on tech tree projects (about 60 nodes in four branches: industry, station, fleet, diplomacy) | Permanent unlocks, for example auto-replant, Shift rota, third fleet, extra outpost slot            | Lab lights pulse                                                 |
-| 10  | Trade        | Market office | Run a route to a faction market: sell what they want for credits and standing; buy what you lack        | Selling one good repeatedly lowers its price by up to 30%, recovering over time; delivery contracts | A freighter docks and leaves                                     |
+| #   | Department   | Needs module   | Job                                                                                                     | Special mechanic                                                                                    | Seen in the scene as                                             |
+| --- | ------------ | -------------- | ------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| 1   | Mining       | Drone bay      | Drone trip to an asteroid type; yields ore                                                              | Small chance of a geode (sell, or give to Research)                                                 | Drones fly out to the rock and back                              |
+| 2   | Salvage      | Drone bay, tug | Strip a wreck type; each action rolls a loot table                                                      | Rare blueprints unlock recipes found nowhere else; very rare relics for the Archive                 | A tug hauls wreck pieces in                                      |
+| 3   | Skimming     | Skimmer bay    | Skim a gas giant; yields fuel gas                                                                       | Gas feeds fuel cells, which fleets burn to travel                                                   | A skimmer leaves and returns with full tanks                     |
+| 4   | Hydroponics  | Greenhouse     | Grow beds run on timers with no crew; the crew job is Galley, cooking crops into rations                | Beds per greenhouse level; auto-replant from Research                                               | Greenhouse glows and fills in                                    |
+| 5   | Refining     | Refinery       | Ore, ice and gas into plate, water, fuel cells                                                          | Mastery gives a chance to keep the input                                                            | Refinery vents                                                   |
+| 6   | Fabrication  | Workshop       | Components, drones (the tool tier for gathering), weapons, shields, armor, repair kits                  | Mastery gives a chance of a double                                                                  | Workshop sparks                                                  |
+| 7   | Construction | Core           | Long projects: station modules, outpost modules, ship hulls, claim beacons                              | One project per assigned crew; 10 minutes to 12 hours                                               | Scaffold and welders on the dashed slot, then the module appears |
+| 8   | Survey       | Scanner        | Scan a sector: reveals map nodes, resource sites, wreck fields, strongholds; yields data                | Per-sector mastery raises that sector's yields                                                      | Dish sweeps, a ping ring goes out                                |
+| 9   | Research     | Lab            | Spend data on tech tree projects (about 60 nodes in four branches: industry, station, fleet, diplomacy) | Permanent unlocks, for example auto-replant, Shift rota, third fleet, extra outpost slot            | Lab lights pulse                                                 |
+| 10  | Trade        | Market office  | Run a route to a faction market: sell what they want for credits and standing; buy what you lack        | Selling one good repeatedly lowers its price by up to 30%, recovering over time; delivery contracts | A freighter docks and leaves                                     |
+
+As built so far (tier 1), with what was decided on the way:
+
+- **Salvage** opens with a salvage tug, made once in Fabrication from basic
+  parts, not with Drone bay II: level II needs tier 2 materials and cargo
+  wrecks are tier 1.
+- **Survey** scans the home ring for data until the map exists (step 4).
+- **Only what has a use is built:** fleet gear and fuel use arrive with fleets
+  (step 5), drone tiers with tier 2, and Research has the eight studies that
+  affect systems that exist. Skimming and fuel cells are built, though nothing
+  burns fuel yet.
+- **Hydroponics:** a bed is planted for 2 water, grows algae in 5 minutes and
+  empties when harvested; rations are 2 algae and 1 water. Crops have no
+  mastery yet.
+- **Things made once** (a module level, the tug, a study) share one mechanism:
+  paid for once, one crew member, progress kept while paused.
+- **The top bar** shows the items the selected department works with, and
+  rations; pinning four comes later.
 
 Opening order: Mining, Refining and Construction are available from the start.
 The rest open as their modules are built, in roughly this order: Fabrication,
@@ -178,21 +196,21 @@ Level N of a module is built from tier N materials, so crew slots and the
 other module bonuses arrive with the tiers. The Core's level caps every other
 module's.
 
-| Module        | Effect per level                                        |
-| ------------- | ------------------------------------------------------- |
-| Core          | Present at start; gates the level cap of other modules  |
-| Habitat       | +1 crew slot                                            |
-| Drone bay     | Opens Mining; II opens Salvage; raises drone tier limit |
-| Refinery      | Opens Refining tiers                                    |
-| Workshop      | Opens Fabrication tiers                                 |
-| Greenhouse    | Opens Hydroponics; +2 grow beds                         |
-| Skimmer bay   | Opens Skimming tiers                                    |
-| Scanner       | Opens Survey; raises scan range                         |
-| Lab           | Opens Research branches                                 |
-| Market office | Opens Trade; +1 concurrent route                        |
-| Dock          | Opens fleets; levels III and V give fleets 2 and 3      |
-| Shipyard      | Raises the ship class that can be built                 |
-| Reactor       | +2% speed to all jobs                                   |
+| Module        | Effect per level                                       |
+| ------------- | ------------------------------------------------------ |
+| Core          | Present at start; gates the level cap of other modules |
+| Habitat       | +1 crew slot                                           |
+| Drone bay     | Opens Mining; raises drone tier limit                  |
+| Refinery      | Opens Refining tiers                                   |
+| Workshop      | Opens Fabrication tiers                                |
+| Greenhouse    | Opens Hydroponics; +2 grow beds                        |
+| Skimmer bay   | Opens Skimming tiers                                   |
+| Scanner       | Opens Survey; raises scan range                        |
+| Lab           | Opens Research branches                                |
+| Market office | Opens Trade; +1 concurrent route                       |
+| Dock          | Opens fleets; levels III and V give fleets 2 and 3     |
+| Shipyard      | Raises the ship class that can be built                |
+| Reactor       | +2% speed to all jobs                                  |
 
 ---
 
@@ -492,7 +510,7 @@ below; the rail becomes a drawer.
   dialog is an event the player opened.
 - Keyboard: `1` to `0` select departments, `j` and `k` move through the list,
   `Enter` assigns whoever is free and fastest, `x` stops, `p` raises mastery
-  from the pool, `m` opens the map, `i` opens the inbox, `s` turns sound on or
+  from the pool, `b` plants an empty bed, `m` opens the map, `i` opens the inbox, `s` turns sound on or
   off, `Esc` backs out, `?` lists the keys. Every key is shown next to its
   action.
 - With `prefers-reduced-motion` the scene is drawn as still frames; there is no

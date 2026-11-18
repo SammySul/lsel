@@ -1,9 +1,10 @@
 <script lang="ts">
 import { onDestroy } from "svelte";
-import { ACTIONS } from "../content/actions.ts";
+import { ACTION_IDS, ACTIONS } from "../content/actions.ts";
 import { CREW } from "../content/crew.ts";
+import { CROP_IDS, CROPS } from "../content/crops.ts";
 import { DEPARTMENT_IDS, DEPARTMENTS, type DepartmentId } from "../content/departments.ts";
-import { ITEM_IDS, ITEMS } from "../content/items.ts";
+import { ITEM_IDS, ITEMS, type ItemId } from "../content/items.ts";
 import { departmentLevel, departmentOpen } from "../sim/rules.ts";
 import { startGame } from "./game.svelte.ts";
 import { createSound } from "./sound/sound.svelte.ts";
@@ -33,7 +34,28 @@ let department: DepartmentId = $state(fromHash() ?? "mining");
 let keysOpen = $state(false);
 
 const open = $derived(DEPARTMENT_IDS.filter((id) => departmentOpen(game.snapshot, id)));
-const stock = $derived(ITEM_IDS.filter((id) => game.snapshot.items[id] !== undefined).slice(0, 4));
+/** Every item the selected department takes or makes, and rations, which everyone eats. */
+const touched = $derived.by(() => {
+  const items = new Set<ItemId>(["ration"]);
+  for (const id of ACTION_IDS) {
+    const { department: of, inputs, result } = ACTIONS[id];
+    if (of !== department) continue;
+    for (const { item } of inputs) items.add(item);
+    if (result.kind === "items") for (const { item } of result.outputs) items.add(item);
+    if (result.kind === "loot") for (const { item } of result.table) items.add(item);
+  }
+  if (department === "hydroponics") {
+    for (const id of CROP_IDS) {
+      items.add(CROPS[id].item);
+      for (const { item } of CROPS[id].cost) items.add(item);
+    }
+  }
+  return items;
+});
+// the top bar follows the view: what this department works with, of the things already seen
+const stock = $derived(
+  ITEM_IDS.filter((id) => touched.has(id) && game.snapshot.items[id] !== undefined),
+);
 const busy = (id: DepartmentId) =>
   game.snapshot.crew.some((crew) => {
     const job = game.snapshot.jobs[crew];
@@ -107,6 +129,8 @@ function onkeydown(event: KeyboardEvent): void {
             <dd>Stop</dd>
             <dt><kbd>p</kbd></dt>
             <dd>Raise mastery from the pool</dd>
+            <dt><kbd>b</kbd></dt>
+            <dd>Plant an empty bed</dd>
             <dt><kbd>s</kbd></dt>
             <dd>Sound on or off</dd>
             <dt><kbd>?</kbd></dt>
@@ -148,7 +172,7 @@ function onkeydown(event: KeyboardEvent): void {
           {specialty.department === "all"
             ? "everything"
             : DEPARTMENTS[specialty.department].name.toLowerCase()}
-          +{percent(specialty.bonus)} ›
+          +{percent(specialty.bonus)}{(game.snapshot.fed[id] ?? 0) > 0 ? ", fed" : ""} ›
         </span>
         {#if job === undefined}
           <span class="dim">idle</span>

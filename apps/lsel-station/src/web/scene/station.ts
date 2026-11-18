@@ -1,25 +1,51 @@
 import type { ModuleId } from "../../content/modules.ts";
 import { type Body, drawAsteroid, drawPlanet } from "./bodies.ts";
 import type { Activity } from "./frame.ts";
-import { DRAW_ORDER, droneHome, MODULE_PLACES, SITES, VENT } from "./layout.ts";
+import {
+  BED_PLOTS,
+  DRAW_ORDER,
+  droneHome,
+  LAB_LIGHTS,
+  MODULE_PLACES,
+  type Point,
+  SCANNER_DISH,
+  SITES,
+  SKIMMER_TRIP,
+  TUG_TRIP,
+  VENT,
+  WORKSHOP_SPARKS,
+  WRECKS,
+} from "./layout.ts";
 import { dither, fbm, hash } from "./noise.ts";
 import { type Color, PALETTE, type Put } from "./palette.ts";
-import { ANTENNA, DRONE, SOLAR_PANEL, SPINE, type Sprite, STRUT } from "./sprites.ts";
+import {
+  ANTENNA,
+  DRONE,
+  SKIMMER,
+  SOLAR_PANEL,
+  SPINE,
+  type Sprite,
+  STRUT,
+  TUG,
+  WRECK,
+} from "./sprites.ts";
 
-const CAMERA = { x: 8, y: 6 };
+const CAMERA = { x: 18, y: 6 };
 const PLANET = { x: -72, y: 102, radius: 80 };
-// the frame every module hangs on: it is there from the start
-const FRAME: readonly { sprite: Sprite; x: number; y: number }[] = [
+// the frame every module hangs on, and the wrecks adrift nearby: they are there from the start
+const FIXED: readonly (Point & { sprite: Sprite })[] = [
   { sprite: SPINE, x: -51, y: -2 },
   { sprite: STRUT, x: -41, y: -17 },
   { sprite: STRUT, x: -41, y: 3 },
   { sprite: SOLAR_PANEL, x: -52, y: -33 },
   { sprite: SOLAR_PANEL, x: -52, y: 18 },
   { sprite: ANTENNA, x: -5, y: -30 },
+  ...WRECKS.map((at) => ({ sprite: WRECK, ...at })),
 ];
 const BEAM_LENGTH = 7;
+const PING_REACH = 26;
 
-// share of a mining bar spent flying out, and the share at which the drone turns back
+// share of a bar a craft spends flying out, and the share at which it turns back
 const OUT = 0.3;
 const BACK = 0.7;
 
@@ -38,6 +64,23 @@ function abgr(hex: string): number {
   const n = Number.parseInt(hex.slice(1), 16);
   return (0xff000000 | ((n & 0xff) << 16) | (n & 0xff00) | (n >> 16)) >>> 0;
 }
+
+/** Where a craft is on its trip out and back, for how far along its job's bar is. */
+function leg(progress: number, still: boolean) {
+  if (still || (progress >= OUT && progress < BACK)) {
+    return { reach: 1, facing: 1 as const, moving: false, there: true };
+  }
+  if (progress < OUT) {
+    return { reach: smooth(progress / OUT), facing: 1 as const, moving: true, there: false };
+  }
+  const reach = smooth((1 - progress) / (1 - BACK));
+  return { reach, facing: -1 as const, moving: true, there: false };
+}
+
+const between = (from: Point, to: Point, reach: number): Point => ({
+  x: Math.round(from.x + (to.x - from.x) * reach),
+  y: Math.round(from.y + (to.y - from.y) * reach),
+});
 
 /**
  * The orbit view, `width` × `height` art pixels, of a station with these module levels.
@@ -85,7 +128,7 @@ export function stationScene(opts: {
     drawAsteroid(put, { ...site, seed: seed + 4 + i }, site.shades);
   });
   const built = DRAW_ORDER.filter((id) => (modules[id] ?? 0) > 0).map((id) => MODULE_PLACES[id]);
-  const parts = [...FRAME, ...built];
+  const parts = [...FIXED, ...built];
   for (const part of parts) {
     for (const p of part.sprite.pixels) put(part.x + p.x, part.y + p.y, p.color);
   }
@@ -98,14 +141,28 @@ export function stationScene(opts: {
   );
 
   return {
-    draw(ctx, { timeMs, still, drones, refining, building }) {
+    draw(ctx, { timeMs, still, drones, tugs, skimmers, running, beds, building }) {
       ctx.putImageData(image, 0, 0);
       const fill = (x: number, y: number, w: number, h: number, color: Color) => {
         ctx.fillStyle = PALETTE[color];
         ctx.fillRect(x + ox, y + oy, w, h);
       };
+      const stamp = (sprite: Sprite, at: Point, facing: 1 | -1) => {
+        for (const p of sprite.pixels) {
+          fill(at.x + (facing === 1 ? p.x : sprite.width - 1 - p.x), at.y + p.y, 1, 1, p.color);
+        }
+      };
       const t = timeMs / 1000;
-      const flicker = Math.floor(t * 10);
+      const flicker = still ? 0 : Math.floor(t * 10);
+      /** A few sparks around a point, new ones every flicker. */
+      const sparks = (at: Point, spread: number, salt: number) => {
+        for (let i = 0; i < 3; i++) {
+          if (!still && (flicker + i) % 3 === 0) continue;
+          const sx = Math.floor(hash(flicker, i, seed + salt) * spread) - (spread >> 1);
+          const sy = Math.floor(hash(i, flicker, seed + salt) * spread) - (spread >> 1);
+          fill(at.x + sx, at.y + sy, 1, 1, i === 0 ? "warm" : "glow");
+        }
+      };
 
       if (!still) {
         ctx.fillStyle = PALETTE.starDim;
@@ -119,6 +176,14 @@ export function stationScene(opts: {
       if (still || Math.floor(t * 1.5) % 2 === 0) {
         for (const b of beacons) fill(b.x, b.y, 1, 1, "alert");
       }
+
+      // crops grow up their pane: dark while young, bright once half grown
+      beds.forEach((grown, index) => {
+        const plot = BED_PLOTS[index];
+        if (grown === null || plot === undefined) return;
+        const tall = 1 + Math.floor(grown * 3);
+        fill(plot.x, plot.y - tall + 1, 3, tall, grown >= 0.5 ? "green" : "greenDark");
+      });
 
       // a module being built: its dashed slot, and sparks while someone is welding
       for (const { module, active } of building) {
@@ -135,71 +200,90 @@ export function stationScene(opts: {
             fill(x + sprite.width - 1, y + i, 1, 1, "ghost");
           }
         }
-        if (!active) continue;
-        const beat = still ? 0 : flicker;
-        for (let i = 0; i < 3; i++) {
-          if (!still && (beat + i) % 3 === 0) continue;
-          const sx = 2 + Math.floor(hash(beat, i, seed + 7) * (sprite.width - 4));
-          const sy = 2 + Math.floor(hash(i, beat, seed + 7) * (sprite.height - 4));
-          fill(x + sx, y + sy, 1, 1, i === 0 ? "warm" : "glow");
+        if (active) {
+          sparks({ x: x + (sprite.width >> 1), y: y + (sprite.height >> 1) }, sprite.width - 4, 7);
         }
       }
 
-      // the Refinery vents while it runs
-      if (refining) {
-        const beat = still ? 0 : Math.floor(t * 4);
-        const puffs: readonly Color[] = ["hullLight", "hull", "starDim"];
-        puffs.forEach((color, i) => {
-          const rise = (beat + i * 2) % 6;
-          const sway = Math.floor(hash(beat + i, rise, seed + 8) * 3) - 1;
-          fill(VENT.x + sway, VENT.y - rise, 1, 1, color);
-        });
+      for (const module of running) {
+        if (module === "refinery") {
+          // the stack vents while it runs
+          const beat = still ? 0 : Math.floor(t * 4);
+          const puffs: readonly Color[] = ["hullLight", "hull", "starDim"];
+          puffs.forEach((color, i) => {
+            const rise = (beat + i * 2) % 6;
+            const sway = Math.floor(hash(beat + i, rise, seed + 8) * 3) - 1;
+            fill(VENT.x + sway, VENT.y - rise, 1, 1, color);
+          });
+        } else if (module === "workshop") sparks(WORKSHOP_SPARKS, 5, 9);
+        else if (module === "greenhouse") {
+          const { x, y } = MODULE_PLACES.greenhouse;
+          fill(x + 6, y + 7, 2, 1, still || flicker % 4 < 2 ? "warm" : "glow");
+        } else if (module === "lab") {
+          LAB_LIGHTS.forEach((light, i) => {
+            if (still || (Math.floor(t * 3) + i) % 3 !== 0) fill(light.x, light.y, 2, 2, "beam");
+          });
+        } else if (module === "scanner") {
+          // a ring goes out from the dish every two seconds
+          const radius = still ? PING_REACH / 2 : ((t % 2) / 2) * PING_REACH;
+          const steps = Math.max(8, Math.round(radius * 3));
+          for (let i = 0; i < steps; i += 2) {
+            const angle = (i / steps) * Math.PI * 2;
+            fill(
+              SCANNER_DISH.x + Math.round(Math.cos(angle) * radius),
+              SCANNER_DISH.y + Math.round(Math.sin(angle) * radius),
+              1,
+              1,
+              "beam",
+            );
+          }
+        }
       }
 
       // each drone flies the job that is running: out, at the rock with its beam on, and back
       drones.forEach(({ action, progress }, slot) => {
         const home = droneHome(slot);
         const site = SITES[action];
-        let reach = 0;
-        let facing: 1 | -1 = 1;
-        let moving = false;
-        let firing = false;
-        if (site !== undefined && progress !== null) {
-          if (still || (progress >= OUT && progress < BACK)) {
-            reach = 1;
-            firing = true;
-          } else {
-            moving = true;
-            if (progress < OUT) reach = smooth(progress / OUT);
-            else {
-              reach = smooth((1 - progress) / (1 - BACK));
-              facing = -1;
-            }
-          }
+        const flight = site === undefined || progress === null ? null : leg(progress, still);
+        const at = flight === null ? home : between(home, site?.drone ?? home, flight.reach);
+        stamp(DRONE, at, flight?.facing ?? 1);
+        if (flight === null || site === undefined) return;
+        if (flight.moving && flicker % 2 === 1) {
+          fill(flight.facing === 1 ? at.x - 1 : at.x + DRONE.width, at.y + 2, 1, 1, "glow");
         }
-        const at = site?.drone ?? home;
-        const dx = Math.round(home.x + (at.x - home.x) * reach);
-        const dy = Math.round(home.y + (at.y - home.y) * reach);
-        for (const p of DRONE.pixels) {
-          fill(dx + (facing === 1 ? p.x : DRONE.width - 1 - p.x), dy + p.y, 1, 1, p.color);
-        }
-        if (moving && flicker % 2 === 1) {
-          fill(facing === 1 ? dx - 1 : dx + DRONE.width, dy + 2, 1, 1, "glow");
-        }
-        if (!firing || site === undefined) return;
+        if (!flight.there) return;
         for (let i = 0; i < BEAM_LENGTH; i++) {
           if (still || (i + flicker) % 3 !== 0) {
-            fill(dx + DRONE.width + i, dy + 1 - Math.round(i * site.climb), 1, 1, "beam");
+            fill(at.x + DRONE.width + i, at.y + 1 - Math.round(i * site.climb), 1, 1, "beam");
           }
         }
+        if (still) return;
         const hit = {
-          x: dx + DRONE.width + BEAM_LENGTH,
-          y: dy + 1 - Math.round(BEAM_LENGTH * site.climb),
+          x: at.x + DRONE.width + BEAM_LENGTH,
+          y: at.y + 1 - Math.round(BEAM_LENGTH * site.climb),
         };
-        for (let i = 0; i < 3 && !still; i++) {
-          const sx = Math.floor(hash(flicker, i + slot * 3, seed) * 5) - 2;
-          const sy = Math.floor(hash(i + slot * 3, flicker, seed) * 5) - 2;
-          fill(hit.x + sx, hit.y + sy, 1, 1, "glow");
+        sparks(hit, 5, slot);
+      });
+
+      // the tug goes to the wrecks, cuts a piece loose and hauls it back
+      tugs.forEach((progress, slot) => {
+        const flight = leg(progress, still);
+        const home = { x: TUG_TRIP.home.x, y: TUG_TRIP.home.y + slot * 6 };
+        const at = between(home, TUG_TRIP.away, flight.reach);
+        if (flight.facing === -1) fill(at.x + TUG.width, at.y + 2, 3, 2, "hullDark");
+        stamp(TUG, at, flight.facing);
+        if (flight.there && !still) sparks({ x: at.x + TUG.width + 2, y: at.y + 2 }, 5, 11 + slot);
+      });
+
+      // the skimmer leaves the frame for the gas giant and comes back with full tanks
+      skimmers.forEach((progress, slot) => {
+        const out = progress < 0.5;
+        const reach = smooth(out ? progress * 2 : (1 - progress) * 2);
+        const home = { x: SKIMMER_TRIP.home.x, y: SKIMMER_TRIP.home.y + slot * 5 };
+        const at = between(home, SKIMMER_TRIP.away, still ? 0 : reach);
+        stamp(SKIMMER, at, out ? 1 : -1);
+        if (!still && flicker % 2 === 1) {
+          fill(out ? at.x - 1 : at.x + SKIMMER.width, at.y + 2, 1, 1, "glow");
         }
       });
     },

@@ -231,11 +231,19 @@ for (const name of names) {
         ]);
         expect((await audio(page)).shots.slice(-3)).toEqual([880, 460, 620]);
         // what is left over after the Habitat depends on the seed's mastery rolls
-        expect((await texts(page, "section li >> nth=0"))[0]).toMatch(
-          /^Reactor I 15:00 30 iron plate, 15 water Short of \d+ iron plate, \d+ water Assign Ana Petrov Enter$/,
+        const rows = await texts(page, "section li");
+        expect(rows[0]).toMatch(
+          /^Workshop I 12:00 25 iron plate, 10 water Short of \d+ iron plate, \d+ water Assign Ana Petrov Enter$/,
         );
-        expect(await texts(page, "section li >> nth=1", "footer .crew")).toEqual([
+        expect(rows.slice(2)).toEqual([
+          "Greenhouse I 15:00 10 basic parts, 20 iron plate, 20 water Construction level 6",
+          "Scanner I 20:00 20 basic parts, 30 iron plate Construction level 8",
+          "Lab I 25:00 30 basic parts, 30 iron plate, 10 water Construction level 10",
+          "Skimmer bay I 30:00 40 basic parts, 40 iron plate Construction level 12",
           "Core II 2:00:00 60 copper wire, 30 glass Construction level 15",
+          "Habitat II 1:00:00 40 copper wire, 20 glass Construction level 15",
+        ]);
+        expect(await texts(page, "footer .crew")).toEqual([
           "Ana Petrov everything +3% › idle",
           "Ines Duarte mining +10% › idle",
         ]);
@@ -252,6 +260,96 @@ for (const name of names) {
         expect(await scene.getAttribute("aria-label")).toBe(
           "The station in orbit above a planet. A drone waits to mine the ice asteroid. A drone waits to mine the iron asteroid.",
         );
+        expect(problems).toEqual([]);
+      },
+      TIMEOUT,
+    );
+
+    test(
+      "a Workshop opens Fabrication, its tug opens Salvage, and a Greenhouse bed grows algae by itself",
+      async () => {
+        const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+        const problems = await open(page);
+        const row = (name: string) =>
+          page
+            .locator("section li", { has: page.locator(".line >> nth=0", { hasText: name }) })
+            .first();
+        const rowText = async (name: string) =>
+          (await texts(page, "section li")).find((t) => t.startsWith(name));
+        /** Puts whoever is free on a row for a while, then takes them off if they are still on it. */
+        const work = async (department: string, name: string, s: number) => {
+          await page.keyboard.press(department);
+          await row(name)
+            .getByRole("button", { name: /Assign/ })
+            .click();
+          await seconds(page, s);
+          const stop = row(name).getByRole("button", { name: /Stop/ });
+          if ((await stop.count()) > 0) await stop.first().click();
+        };
+
+        // 291 and 96 bars of mining, then 144 and 45 of refining: less than was mined, whatever was rolled
+        await work("1", "Iron asteroid", 850);
+        await work("1", "Ice asteroid", 280);
+        await work("5", "Iron plate", 560);
+        await work("5", "Water", 175);
+        await work("7", "Habitat I", 590);
+        expect(await texts(page, "nav button")).toEqual([
+          "1 Mining 16",
+          "5 Refining 14",
+          "7 Construction 5",
+        ]);
+
+        await work("7", "Workshop I", 705);
+        expect((await texts(page, "nav button")).slice(-2)).toEqual([
+          "6 Fabrication 1",
+          "7 Construction 8",
+        ]);
+
+        // basic parts, then the tug, which is made once and stays
+        await work("6", "Basic parts", 130);
+        expect(await rowText("Salvage tug")).toMatch(
+          /^Salvage tug 8:00 15 basic parts, 10 iron plate → Opens Salvage Assign (Ana Petrov|Ines Duarte)$/,
+        );
+        await page.keyboard.press("6");
+        await row("Salvage tug")
+          .getByRole("button", { name: /Assign/ })
+          .click();
+        // a job takes its inputs on the next tick, and shows from then on
+        await seconds(page, 1);
+        expect(await page.getByRole("img").getAttribute("aria-label")).toBe(
+          "The station in orbit above a planet. The workshop is at work.",
+        );
+        await seconds(page, 463);
+        await page.clock.runFor(3000);
+        expect(
+          await texts(page, ".notices p >> nth=0", "[aria-label=Done] li", "nav button >> nth=1"),
+        ).toEqual(["Salvage tug ready", "Salvage tug Opens Salvage", "2 Salvage 1"]);
+        expect((await audio(page)).shots.at(-2)).toBe(710);
+        await page.keyboard.press("2");
+        expect(await texts(page, "section li")).toEqual([
+          "Cargo wreck 5.0 s one of iron plate, water, basic parts, hydrogen mastery 1 Assign Ana Petrov Enter",
+        ]);
+
+        // a bed is planted with a key and harvested with nobody on it
+        await work("7", "Greenhouse I", 880);
+        await page.keyboard.press("4");
+        expect(await texts(page, "[aria-label=Beds] li")).toEqual([
+          "Bed 1, empty Plant algae for 2 water b",
+          "Bed 2, empty Plant algae for 2 water",
+        ]);
+        await page.keyboard.press("b");
+        expect([
+          await texts(page, "[aria-label=Beds] li"),
+          await page.getByRole("img").getAttribute("aria-label"),
+        ]).toEqual([
+          ["Bed 1, algae 5:00", "Bed 2, empty Plant algae for 2 water b"],
+          "The station in orbit above a planet. 1 bed is growing.",
+        ]);
+        await seconds(page, 300);
+        expect([
+          (await texts(page, "[aria-label=Beds] li"))[0],
+          (await texts(page, ".stock li")).at(0),
+        ]).toEqual(["Bed 1, empty Plant algae for 2 water b", "Algae 4"]);
         expect(problems).toEqual([]);
       },
       TIMEOUT,

@@ -157,14 +157,6 @@ export const ANTENNA = sprite([
   "....#h#....",
 ]);
 
-export const SPINE = sprite([
-  "############################################################################################",
-  "#dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd#",
-  "#dhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddh#",
-  "#dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd#",
-  "############################################################################################",
-]);
-
 export const DRONE = sprite(["#####", "#LLa#", "#hLL#", "#####"]);
 export const REFINERY = sprite([
   "........######..",
@@ -225,4 +217,153 @@ export const REACTOR = sprite([
   "#Lhhhhhhhhhhd#",
   "#dddddddddddd#",
   "##############",
+]);
+
+export const SPINE = sprite([
+  "################################################################################################################",
+  "#dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd#",
+  "#dhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddhdddh#",
+  "#dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd#",
+  "################################################################################################################",
+]);
+
+export const WORKSHOP = sprite([
+  ".....#dd#.....",
+  ".....#dd#.....",
+  ".....#dd#.....",
+  ".....#dd#.....",
+  ".....#dd#.....",
+  ".....#dd#.....",
+  "##############",
+  "#LLLLLLLLLLLd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lh########hd#",
+  "#Lh#dddddd#hd#",
+  "#Lh#dddddd#hd#",
+  "#Lh#dddddd#hd#",
+  "#Lh########hd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhaaaaaaaahd#",
+  "#Lhhhhhhhhhhd#",
+  "#dddddddddddd#",
+  "##############",
+]);
+
+export const GREENHOUSE = sprite([
+  ".....#dd#.....",
+  ".....#dd#.....",
+  ".....#dd#.....",
+  ".....#dd#.....",
+  ".....#dd#.....",
+  ".....#dd#.....",
+  "##############",
+  "#LLLLLLLLLLLd#",
+  "#L##########d#",
+  "#L#sss##sss#d#",
+  "#L#sss##sss#d#",
+  "#L#sss##sss#d#",
+  "#L#sss##sss#d#",
+  "#L##########d#",
+  "#L##########d#",
+  "#L#sss##sss#d#",
+  "#L#sss##sss#d#",
+  "#L#sss##sss#d#",
+  "#L#sss##sss#d#",
+  "#L##########d#",
+  "#dddddddddddd#",
+  "##############",
+]);
+
+export const LAB = sprite([
+  ".....#dd#.....",
+  ".....#dd#.....",
+  ".....#dd#.....",
+  ".....#dd#.....",
+  ".....#dd#.....",
+  ".....#dd#.....",
+  "##############",
+  "#LLLLLLLLLLLd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhddhddhddhd#",
+  "#Lhddhddhddhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#LhSSSSSSSShd#",
+  "#Lhhhhhhhhhhd#",
+  "#LhSSSSShhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#dddddddddddd#",
+  "##############",
+]);
+
+export const SKIMMER_BAY = sprite([
+  ".....#dd#.....",
+  ".....#dd#.....",
+  ".....#dd#.....",
+  ".....#dd#.....",
+  ".....#dd#.....",
+  ".....#dd#.....",
+  "##############",
+  "#LLLLLLLLLLLd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhaaaaaaaahd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#L##########d#",
+  "#L#dddddddd#d#",
+  "#L#dddddddd#d#",
+  "#L#dddddddd#d#",
+  "#d#dddddddd#d#",
+  "###dddddddd###",
+]);
+
+export const SCANNER = sprite([
+  "..##########..",
+  "..#LLLLLLLL#..",
+  "..#LLLLLLLL#..",
+  "..####hh####..",
+  ".....#hh#.....",
+  ".....#hh#.....",
+  ".....#hh#.....",
+  ".....#hh#.....",
+  "##############",
+  "#LLLLLLLLLLLd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lh########hd#",
+  "#Lh#ssssss#hd#",
+  "#Lh#ssssss#hd#",
+  "#Lh########hd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhaaaaaaaahd#",
+  "#Lhhhhhhhhhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#dddddddddddd#",
+  "##############",
+]);
+
+export const TUG = sprite(["#######", "#LLLLL#", "#hhhha#", "#dhhhh#", "#######"]);
+
+export const SKIMMER = sprite(["########", "#LLLLLa#", "#SSSLLL#", "########"]);
+
+export const WRECK = sprite([
+  ".......####",
+  ".#######hh#",
+  "#hhhhdd#hh#",
+  "#ddaddd####",
+  "#ddddddd#..",
+  "########...",
+  "...........",
 ]);

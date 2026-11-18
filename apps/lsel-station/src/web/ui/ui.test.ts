@@ -25,11 +25,13 @@ describe("notices", () => {
       noticeFor({ kind: "mastery-step", action: "iron-asteroid", level: 10 }),
       noticeFor({ kind: "module-built", module: "habitat", level: 1 }),
       noticeFor({ kind: "crew-joined", crew: "ines-duarte" }),
+      noticeFor({ kind: "unlocked", unlock: "salvage-tug" }),
     ]).toEqual([
       "Construction level 5",
       "Iron asteroid mastery 10",
       "Habitat I built",
       "Ines Duarte joined the crew",
+      "Salvage tug ready",
     ]);
   });
 
@@ -39,6 +41,8 @@ describe("notices", () => {
       noticeFor({ kind: "job-started", crew: "ana-petrov", action: "iron-asteroid" }),
       noticeFor({ kind: "job-stopped", crew: "ana-petrov" }),
       noticeFor({ kind: "job-waiting", crew: "ana-petrov", action: "iron-plate" }),
-    ]).toEqual([null, null, null, null]);
+      noticeFor({ kind: "planted", bed: 0, crop: "algae" }),
+      noticeFor({ kind: "harvested", bed: 0, crop: "algae" }),
+    ]).toEqual([null, null, null, null, null, null]);
   });
 });

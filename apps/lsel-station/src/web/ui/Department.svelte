@@ -1,8 +1,11 @@
 <script lang="ts">
-import { ACTION_IDS, ACTIONS } from "../../content/actions.ts";
+import { ACTION_IDS, ACTIONS, isOnce } from "../../content/actions.ts";
 import { CREW, type CrewId } from "../../content/crew.ts";
+import { CROP_IDS, CROPS } from "../../content/crops.ts";
 import { DEPARTMENTS, type DepartmentId } from "../../content/departments.ts";
+import { ITEMS } from "../../content/items.ts";
 import { numeral } from "../../content/modules.ts";
+import { UNLOCKS } from "../../content/unlocks.ts";
 import { xpToReachNext } from "../../sim/levels.ts";
 import {
   actionLock,
@@ -10,8 +13,11 @@ import {
   bonusChance,
   crewSlots,
   departmentLevel,
+  growthSpeed,
   masteryLevel,
+  missing,
   missingInputs,
+  owns,
   poolCost,
   poolShare,
   speedOf,
@@ -31,19 +37,20 @@ const level = $derived(departmentLevel(snapshot, department));
 const next = $derived(xpToReachNext(level));
 const idle = $derived(snapshot.crew.filter((crew) => snapshot.jobs[crew] === undefined));
 const slotFree = $derived(snapshot.crew.length - idle.length < crewSlots(snapshot));
+const mine = $derived(ACTION_IDS.filter((id) => ACTIONS[id].department === department));
 
 const rows = $derived(
-  ACTION_IDS.filter((id) => ACTIONS[id].department === department && actionShown(snapshot, id)).map(
-    (id) => {
+  mine
+    .filter((id) => actionShown(snapshot, id))
+    .map((id) => {
       const action = ACTIONS[id];
-      const once = action.result.kind === "module";
+      const once = isOnce(action);
       const lock = actionLock(snapshot, id);
       const workers = snapshot.crew.flatMap((crew) => {
         const job = snapshot.jobs[crew];
         return job?.action === id ? [{ crew, job }] : [];
       });
-      const paused = snapshot.projects[id];
-      // whoever is free and fastest at this; a module takes one person
+      // whoever is free and fastest at this; something made once takes one person
       let candidate: CrewId | undefined;
       if (lock === null && slotFree && !(once && workers.length > 0)) {
         for (const crew of idle) {
@@ -62,17 +69,49 @@ const rows = $derived(
         once,
         lock,
         workers,
-        paused,
+        paused: snapshot.projects[id],
         candidate,
         short: missingInputs(snapshot, action),
         mastery: style !== null && !once ? masteryLevel(snapshot, id) : null,
         chance: bonusChance(snapshot, id),
         raise: cost !== null && (snapshot.pool[department] ?? 0) >= cost ? cost : null,
       };
-    },
-  ),
+    }),
 );
 const selected = $derived(Math.min(cursor, rows.length - 1));
+
+/** What was made or studied here for good. */
+const owned = $derived(
+  mine.flatMap((id) => {
+    const { result } = ACTIONS[id];
+    return result.kind === "unlock" && owns(snapshot, result.unlock)
+      ? [UNLOCKS[result.unlock]]
+      : [];
+  }),
+);
+
+// beds are Hydroponics' own: they grow on timers with nobody assigned
+const crop = CROP_IDS[0];
+const beds = $derived(department === "hydroponics" ? snapshot.beds : []);
+const emptyBed = $derived(beds.indexOf(null));
+
+/** What a row makes, in words. */
+function gives(result: (typeof ACTIONS)[keyof typeof ACTIONS]["result"]): string {
+  switch (result.kind) {
+    case "items":
+      return stacks(result.outputs);
+    case "loot":
+      return `one of ${result.table.map((entry) => ITEMS[entry.item].name.toLowerCase()).join(", ")}`;
+    case "unlock":
+      return UNLOCKS[result.unlock].gives;
+    case "module":
+      return "";
+    default: {
+      const _exhaustive: never = result;
+      return "";
+    }
+  }
+}
 
 function assign(index: number): void {
   const row = rows[index];
@@ -91,6 +130,10 @@ function raise(index: number): void {
   if (row !== undefined && row.raise !== null) game.send({ kind: "spend-pool", action: row.id });
 }
 
+function plant(bed: number): void {
+  if (crop !== undefined && bed >= 0) game.send({ kind: "plant", bed, crop });
+}
+
 function onkeydown(event: KeyboardEvent): void {
   if (!isGameKey(event)) return;
   if (event.key === "j") cursor = Math.min(selected + 1, rows.length - 1);
@@ -99,6 +142,7 @@ function onkeydown(event: KeyboardEvent): void {
   else if (event.key === "Enter" && !(event.target instanceof HTMLButtonElement)) assign(selected);
   else if (event.key === "x") stop(selected);
   else if (event.key === "p") raise(selected);
+  else if (event.key === "b") plant(emptyBed);
 }
 </script>
 
@@ -119,24 +163,56 @@ function onkeydown(event: KeyboardEvent): void {
       </span>
     {/if}
   </p>
+
+  {#if beds.length > 0 && crop !== undefined}
+    {@const short = missing(snapshot, CROPS[crop].cost)}
+    <ul class="beds" aria-label="Beds">
+      {#each beds as bed, index (index)}
+        <li>
+          {#if bed === null}
+            <div class="line">
+              <span class="dim">Bed {index + 1}, empty</span>
+              <button type="button" disabled={short.length > 0} onclick={() => plant(index)}>
+                Plant {CROPS[crop].name.toLowerCase()} for {stacks(CROPS[crop].cost)}
+                {#if index === emptyBed}<kbd>b</kbd>{/if}
+              </button>
+            </div>
+          {:else}
+            {@const grown = bed.progressMs / CROPS[bed.crop].growMs}
+            {@const left = (CROPS[bed.crop].growMs - bed.progressMs) / growthSpeed(snapshot)}
+            <div class="line">
+              <span>Bed {index + 1}, {CROPS[bed.crop].name.toLowerCase()}</span>
+              <span class="dim">{duration(Math.ceil(left / 1000) * 1000)}</span>
+            </div>
+            <div
+              class="bar"
+              role="progressbar"
+              aria-label="Bed {index + 1}"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow={Math.round(grown * 100)}
+            >
+              <div style:width="{Math.min(grown, 1) * 100}%"></div>
+            </div>
+          {/if}
+        </li>
+      {/each}
+    </ul>
+  {/if}
+
   <ul>
     {#each rows as row, index (row.id)}
       {@const here = index === selected}
+      {@const made = gives(row.action.result)}
       <li class:selected={here} aria-current={here}>
         <div class="line">
           <span>{row.action.name}</span>
           <span class="dim">{duration(row.action.durationMs)}</span>
         </div>
         <div class="line dim">
-          {#if row.action.result.kind === "items"}
-            <span>
-              {row.action.inputs.length > 0 ? `${stacks(row.action.inputs)} → ` : ""}{stacks(
-                row.action.result.outputs,
-              )}
-            </span>
-          {:else}
-            <span>{stacks(row.action.inputs)}</span>
-          {/if}
+          <span>
+            {stacks(row.action.inputs)}{row.action.inputs.length > 0 && made !== "" ? " → " : ""}{made}
+          </span>
           {#if row.mastery !== null}
             <span>
               mastery {row.mastery}{row.chance > 0
@@ -147,9 +223,14 @@ function onkeydown(event: KeyboardEvent): void {
         </div>
 
         {#each row.workers as { crew, job }, w (crew)}
-          <div class="bar" role="progressbar" aria-label="{row.action.name}, {CREW[crew].name}"
-            aria-valuemin="0" aria-valuemax="100"
-            aria-valuenow={Math.round((job.progressMs / row.action.durationMs) * 100)}>
+          <div
+            class="bar"
+            role="progressbar"
+            aria-label="{row.action.name}, {CREW[crew].name}"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow={Math.round((job.progressMs / row.action.durationMs) * 100)}
+          >
             <div style:width="{Math.min(job.progressMs / row.action.durationMs, 1) * 100}%"></div>
           </div>
           <div class="line">
@@ -163,9 +244,14 @@ function onkeydown(event: KeyboardEvent): void {
         {/each}
 
         {#if row.paused !== undefined}
-          <div class="bar" role="progressbar" aria-label="{row.action.name}, paused"
-            aria-valuemin="0" aria-valuemax="100"
-            aria-valuenow={Math.round((row.paused / row.action.durationMs) * 100)}>
+          <div
+            class="bar"
+            role="progressbar"
+            aria-label="{row.action.name}, paused"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow={Math.round((row.paused / row.action.durationMs) * 100)}
+          >
             <div style:width="{(row.paused / row.action.durationMs) * 100}%"></div>
           </div>
         {/if}
@@ -200,6 +286,14 @@ function onkeydown(event: KeyboardEvent): void {
       </li>
     {/each}
   </ul>
+
+  {#if owned.length > 0}
+    <ul class="owned" aria-label="Done">
+      {#each owned as unlock (unlock.name)}
+        <li><span>{unlock.name}</span> <span class="dim">{unlock.gives}</span></li>
+      {/each}
+    </ul>
+  {/if}
 </section>
 
 <style>
@@ -240,6 +334,12 @@ function onkeydown(event: KeyboardEvent): void {
   }
   li.selected {
     border-left-color: var(--accent);
+  }
+  .owned li {
+    flex-direction: row;
+    justify-content: space-between;
+    border: 0;
+    padding: 0;
   }
   .dim {
     color: var(--subtle);

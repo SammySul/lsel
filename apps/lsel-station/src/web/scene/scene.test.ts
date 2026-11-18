@@ -73,7 +73,7 @@ describe("what the scene shows", () => {
   test("an idle station shows no job", () => {
     const state = newGame(7);
     expect([activityOf(state, 0), describeScene(state)]).toEqual([
-      { drones: [], refining: false, building: [] },
+      { drones: [], tugs: [], skimmers: [], running: [], beds: [], building: [] },
       "The station in orbit above a planet.",
     ]);
   });
@@ -100,15 +100,65 @@ describe("what the scene shows", () => {
     apply(state, { kind: "assign", crew: "ines-duarte", action: "reactor-1" });
     tick(state);
     expect([activityOf(state, 0), describeScene(state)]).toEqual([
-      { drones: [], refining: false, building: [{ module: "reactor", active: true }] },
+      {
+        drones: [],
+        tugs: [],
+        skimmers: [],
+        running: [],
+        beds: [],
+        building: [{ module: "reactor", active: true }],
+      },
       "The station in orbit above a planet. Reactor I is being built.",
     ]);
     state.items["iron-ore"] = 2;
     apply(state, { kind: "unassign", crew: "ines-duarte" });
     tick(state);
     expect([activityOf(state, 0), describeScene(state)]).toEqual([
-      { drones: [], refining: true, building: [{ module: "reactor", active: false }] },
+      {
+        drones: [],
+        tugs: [],
+        skimmers: [],
+        running: ["refinery"],
+        beds: [],
+        building: [{ module: "reactor", active: false }],
+      },
       "The station in orbit above a planet. The refinery is running. Reactor I is half built.",
+    ]);
+  });
+
+  test("the new departments each show their own thing", () => {
+    const state = newGame(7);
+    state.crew.push("ines-duarte", "tomas-greer", "carla-voss");
+    state.modules = {
+      ...state.modules,
+      habitat: 3,
+      workshop: 1,
+      greenhouse: 1,
+      scanner: 1,
+      lab: 1,
+    };
+    state.modules["skimmer-bay"] = 1;
+    state.unlocks.push("salvage-tug");
+    state.items = { data: 30 };
+    state.beds = [{ crop: "algae", progressMs: 150_000 }, null];
+    apply(state, { kind: "assign", crew: "ana-petrov", action: "cargo-wreck" });
+    apply(state, { kind: "assign", crew: "ines-duarte", action: "skim-hydrogen" });
+    apply(state, { kind: "assign", crew: "tomas-greer", action: "scan-home" });
+    apply(state, { kind: "assign", crew: "carla-voss", action: "drone-tuning" });
+    for (let i = 0; i < 10; i++) tick(state);
+    const activity = activityOf(state, 0);
+    expect([
+      activity.tugs.map((p) => Math.round(p * 1000)),
+      activity.skimmers.map((p) => Math.round(p * 1000)),
+      activity.running,
+      activity.beds.map((b) => (b === null ? null : Math.round(b * 1000))),
+      describeScene(state),
+    ]).toEqual([
+      [412],
+      [500],
+      ["scanner", "lab"],
+      [507, null],
+      "The station in orbit above a planet. A tug is hauling wreck pieces in. A skimmer is out at the gas giant. The scanner is sweeping. The lab is at work. 1 bed is growing.",
     ]);
   });
 });

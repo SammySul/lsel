@@ -8,6 +8,11 @@ const table = {
   refinery: { name: "Refinery" },
   habitat: { name: "Habitat" },
   reactor: { name: "Reactor" },
+  workshop: { name: "Workshop" },
+  greenhouse: { name: "Greenhouse" },
+  scanner: { name: "Scanner" },
+  lab: { name: "Lab" },
+  "skimmer-bay": { name: "Skimmer bay" },
 } as const satisfies Record<string, Module>;
 
 export type ModuleId = keyof typeof table;

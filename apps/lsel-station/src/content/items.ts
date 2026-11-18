@@ -5,8 +5,14 @@ export type Item = { readonly name: string; readonly tier: number };
 const table = {
   "iron-ore": { name: "Iron ore", tier: 1 },
   ice: { name: "Ice", tier: 1 },
+  hydrogen: { name: "Hydrogen", tier: 1 },
+  algae: { name: "Algae", tier: 1 },
   "iron-plate": { name: "Iron plate", tier: 1 },
   water: { name: "Water", tier: 1 },
+  "fuel-cell": { name: "Fuel cells", tier: 1 },
+  "basic-parts": { name: "Basic parts", tier: 1 },
+  ration: { name: "Rations", tier: 1 },
+  data: { name: "Data", tier: 1 },
   "copper-wire": { name: "Copper wire", tier: 2 },
   glass: { name: "Glass", tier: 2 },
 } as const satisfies Record<string, Item>;
