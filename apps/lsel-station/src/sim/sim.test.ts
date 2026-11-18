@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import type { ActionId } from "../content/actions.ts";
 import { apply, type Command } from "./commands.ts";
 import type { GameEvent } from "./events.ts";
-import { levelOf, xpForNext, xpToReachNext } from "./levels.ts";
+import { LEVELS } from "./levels.ts";
 import { HOME } from "./map.ts";
 import { MASTERY, masteryChance } from "./mastery.ts";
 import {
@@ -103,12 +103,12 @@ describe("mining the iron asteroid", () => {
   test("an hour is 1,236 bars and level 26; with seed 7, mastery doubles 116 of them", () => {
     const state = game({}, ana("iron-asteroid"));
     run(state, 18_000);
-    expect([state.xp.mining, levelOf(state.xp.mining ?? 0), state.mastery, state.items]).toEqual([
-      6180,
-      26,
-      { "iron-asteroid": 3708 },
-      { "iron-ore": 1352 },
-    ]);
+    expect([
+      state.xp.mining,
+      LEVELS.levelOf(state.xp.mining ?? 0),
+      state.mastery,
+      state.items,
+    ]).toEqual([6180, 26, { "iron-asteroid": 3708 }, { "iron-ore": 1352 }]);
   });
 });
 
@@ -440,20 +440,22 @@ describe("events", () => {
 
 describe("levels", () => {
   test("the next level costs round(60 × 1.1^(level − 1))", () => {
-    expect([1, 2, 3, 4, 15, 98].map(xpForNext)).toEqual([60, 66, 73, 80, 228, 621_215]);
+    expect([1, 2, 3, 4, 15, 98].map(LEVELS.forNext)).toEqual([60, 66, 73, 80, 228, 621_215]);
   });
 
   test("a level starts at the summed cost of the ones before it", () => {
-    expect([0, 59, 60, 125, 126, 279, 1678, 1679].map(levelOf)).toEqual([1, 1, 2, 2, 3, 5, 14, 15]);
+    expect([0, 59, 60, 125, 126, 279, 1678, 1679].map(LEVELS.levelOf)).toEqual([
+      1, 1, 2, 2, 3, 5, 14, 15,
+    ]);
   });
 
   test("level 99 takes 6,832,764 XP and is the cap", () => {
     expect([
-      levelOf(6_832_763),
-      levelOf(6_832_764),
-      levelOf(50_000_000),
-      xpToReachNext(98),
-      xpToReachNext(99),
+      LEVELS.levelOf(6_832_763),
+      LEVELS.levelOf(6_832_764),
+      LEVELS.levelOf(50_000_000),
+      LEVELS.toReachNext(98),
+      LEVELS.toReachNext(99),
     ]).toEqual([98, 99, 99, 6_832_764, null]);
   });
 });

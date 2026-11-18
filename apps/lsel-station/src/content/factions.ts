@@ -1,15 +1,14 @@
 import { idsOf } from "./table.ts";
 
-export type Faction = { readonly name: string; readonly rival: string };
-
 const table = {
   "co-op": { name: "The Co-op", rival: "company" },
   company: { name: "The Company", rival: "co-op" },
   navy: { name: "The Navy", rival: "archive" },
   archive: { name: "The Archive", rival: "navy" },
-} as const satisfies Record<string, Faction>;
+} as const satisfies Record<string, { name: string; rival: string }>;
 
 export type FactionId = keyof typeof table;
+export type Faction = { readonly name: string; readonly rival: FactionId };
 export const FACTIONS: Readonly<Record<FactionId, Faction>> = table;
 export const FACTION_IDS = idsOf(table);
 

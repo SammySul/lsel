@@ -6,8 +6,8 @@ import type { FactionId, Owner } from "../content/factions.ts";
 import type { Stack } from "../content/items.ts";
 import type { ModuleId } from "../content/modules.ts";
 import { OUTPOST_MODULES, SPECS } from "../content/outposts.ts";
-import { UNLOCKS, type UnlockId } from "../content/unlocks.ts";
-import { levelOf } from "./levels.ts";
+import { type Effect, UNLOCKS, type UnlockId } from "../content/unlocks.ts";
+import { LEVELS } from "./levels.ts";
 import { mapOf, type SectorId, sectorOf } from "./map.ts";
 import { MASTERY, masteryChance, POOL_CHECKPOINTS, POOL_FILL } from "./mastery.ts";
 import type { Snapshot } from "./state.ts";
@@ -20,9 +20,21 @@ export const FED_BONUS = 0.1;
 /** Ticks of work one ration lasts: an hour. */
 export const FED_TICKS = 18_000;
 
+/** Each Reactor level makes every job this much faster. */
+export const REACTOR_BONUS = 0.02;
+
 export const moduleLevel = (state: Snapshot, module: ModuleId) => state.modules[module] ?? 0;
 
 export const owns = (state: Snapshot, unlock: UnlockId) => state.unlocks.includes(unlock);
+
+/** The effects of one kind that the unlocks owned give. */
+function effects<K extends Effect["kind"]>(state: Snapshot, kind: K) {
+  return state.unlocks.flatMap((unlock) =>
+    UNLOCKS[unlock].effects.filter((e): e is Extract<Effect, { kind: K }> => e.kind === kind),
+  );
+}
+
+const sum = (bonuses: readonly { bonus: number }[]) => bonuses.reduce((t, e) => t + e.bonus, 0);
 
 /** One job at first, one more per Habitat level. */
 export const crewSlots = (state: Snapshot) => 1 + moduleLevel(state, "habitat");
@@ -91,13 +103,22 @@ export function outputBoost(state: Snapshot, sector: SectorId): number {
 export function departmentOpen(state: Snapshot, department: DepartmentId): boolean {
   const { needs } = DEPARTMENTS[department];
   if (needs.kind === "module") return moduleLevel(state, needs.module) >= needs.level;
-  return state.unlocks.some((unlock) =>
-    UNLOCKS[unlock].effects.some((e) => e.kind === "open" && e.department === department),
-  );
+  return effects(state, "open").some((e) => e.department === department);
 }
 
 export const departmentLevel = (state: Snapshot, department: DepartmentId) =>
-  levelOf(state.xp[department] ?? 0);
+  LEVELS.levelOf(state.xp[department] ?? 0);
+
+/** What the crew other than `crew` are working on. */
+const othersWork = (state: Snapshot, crew: CrewId | null) =>
+  state.crew.flatMap((c) => {
+    const job = state.jobs[c];
+    return c === crew || job === undefined ? [] : [job.action];
+  });
+
+/** Whether someone works in a department now. */
+export const working = (state: Snapshot, department: DepartmentId) =>
+  othersWork(state, null).some((id) => ACTIONS[id].department === department);
 
 /** Whether an action is listed: a module level only while it is next, and an unlock until it is owned. */
 export function actionShown(state: Snapshot, id: ActionId): boolean {
@@ -123,6 +144,19 @@ export function actionLock(
     if (moduleLevel(state, "core") < result.level) return { kind: "core", level: result.level };
   }
   return null;
+}
+
+/** Whether `crew` can be put on an action now: it is open to them, a slot is free, and Trade has a route free. */
+export function canAssign(state: Snapshot, crew: CrewId, id: ActionId): boolean {
+  const current = state.jobs[crew];
+  if (!state.crew.includes(crew) || current?.action === id) return false;
+  if (!actionShown(state, id) || actionLock(state, id) !== null) return false;
+  const others = othersWork(state, crew);
+  if (current === undefined && others.length >= crewSlots(state)) return false;
+  const trading = others.filter((other) => ACTIONS[other].department === "trade").length;
+  if (ACTIONS[id].department === "trade" && trading >= routes(state)) return false;
+  // one person per project
+  return !(isOnce(ACTIONS[id]) && others.includes(id));
 }
 
 /** The stacks of a cost that are still lacking, with the amount short of each. */
@@ -165,16 +199,6 @@ function poolBonus(state: Snapshot, department: DepartmentId, kind: "speed" | "c
   return bonus;
 }
 
-function unlockSpeed(state: Snapshot, department: DepartmentId): number {
-  let bonus = 0;
-  for (const unlock of state.unlocks) {
-    for (const effect of UNLOCKS[unlock].effects) {
-      if (effect.kind === "speed" && effect.department === department) bonus += effect.bonus;
-    }
-  }
-  return bonus;
-}
-
 /** How fast a crew member works an action: 1 is the action's own duration, and bonuses add up. */
 export function speedOf(state: Snapshot, crew: CrewId, id: ActionId): number {
   const { department } = ACTIONS[id];
@@ -184,24 +208,16 @@ export function speedOf(state: Snapshot, crew: CrewId, id: ActionId): number {
     1 +
     (own ? specialty.bonus : 0) +
     ((state.fed[crew] ?? 0) > 0 ? FED_BONUS : 0) +
-    0.02 * moduleLevel(state, "reactor") +
-    unlockSpeed(state, department) +
+    REACTOR_BONUS * moduleLevel(state, "reactor") +
+    sum(effects(state, "speed").filter((e) => e.department === department)) +
     poolBonus(state, department, "speed")
   );
 }
 
 /** How fast beds grow: 1 is the crop's own time. */
-export function growthSpeed(state: Snapshot): number {
-  let bonus = 0;
-  for (const unlock of state.unlocks) {
-    for (const effect of UNLOCKS[unlock].effects)
-      if (effect.kind === "growth") bonus += effect.bonus;
-  }
-  return 1 + bonus;
-}
+export const growthSpeed = (state: Snapshot) => 1 + sum(effects(state, "growth"));
 
-export const replants = (state: Snapshot) =>
-  state.unlocks.some((unlock) => UNLOCKS[unlock].effects.some((e) => e.kind === "auto-replant"));
+export const replants = (state: Snapshot) => effects(state, "auto-replant").length > 0;
 
 /** The chance that a finished bar pays its department's mastery bonus. */
 export function bonusChance(state: Snapshot, id: ActionId): number {

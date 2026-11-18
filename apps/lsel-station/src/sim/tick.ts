@@ -5,7 +5,7 @@ import { DEPARTMENTS, type DepartmentId } from "../content/departments.ts";
 import type { Stack } from "../content/items.ts";
 import { SPECS, TRICKLE_TICKS } from "../content/outposts.ts";
 import { type GameEvent, NO_EVENTS } from "./events.ts";
-import { levelOf } from "./levels.ts";
+import { LEVELS } from "./levels.ts";
 import { isMasteryStep, MASTERY, POOL_SHARE } from "./mastery.ts";
 import { nextRandom } from "./rng.ts";
 import {
@@ -50,8 +50,8 @@ function pick(state: GameState, table: readonly (Stack & { readonly weight: numb
 function gainXp(state: GameState, department: DepartmentId, xp: number, events: GameEvent[]): void {
   const before = state.xp[department] ?? 0;
   state.xp[department] = before + xp;
-  const level = levelOf(before + xp);
-  if (level > levelOf(before)) events.push({ kind: "level-up", department, level });
+  const level = LEVELS.levelOf(before + xp);
+  if (level > LEVELS.levelOf(before)) events.push({ kind: "level-up", department, level });
 }
 
 function gainMastery(state: GameState, id: ActionId, action: Action, events: GameEvent[]): void {
@@ -148,8 +148,8 @@ function begin(state: GameState, action: Action): boolean {
   return pay(state, action.inputs);
 }
 
-/** Outposts trickle with nobody assigned, and prices recover. */
-function idle(state: GameState): void {
+/** Outposts give their yields with nobody assigned. */
+function trickle(state: GameState): void {
   for (const sector of state.owned) {
     const outpost = state.outposts[sector];
     if (outpost === undefined || outpost.spec === null) continue;
@@ -160,6 +160,10 @@ function idle(state: GameState): void {
       for (const item of SPECS[outpost.spec].yields) give(state, item, 1);
     }
   }
+}
+
+/** Each good's price climbs back from repeated sales. */
+function recoverPrices(state: GameState): void {
   for (const id of ACTION_IDS) {
     const glut = state.glut[id];
     if (glut === undefined) continue;
@@ -210,6 +214,7 @@ export function tick(state: GameState): readonly GameEvent[] {
     }
   }
   grow(state, events);
-  idle(state);
+  trickle(state);
+  recoverPrices(state);
   return events.length > 0 ? events : NO_EVENTS;
 }

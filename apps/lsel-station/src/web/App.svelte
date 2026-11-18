@@ -7,7 +7,7 @@ import { DEPARTMENT_IDS, DEPARTMENTS, type DepartmentId } from "../content/depar
 import { ITEM_IDS, ITEMS, type ItemId } from "../content/items.ts";
 import { type SaveDocument, toDocument } from "../save/document.ts";
 import { HOME, mapOf } from "../sim/map.ts";
-import { departmentLevel, departmentOpen } from "../sim/rules.ts";
+import { departmentLevel, departmentOpen, working } from "../sim/rules.ts";
 import { newGame } from "../sim/state.ts";
 import { startGame } from "./game.svelte.ts";
 import { createSound } from "./sound/sound.svelte.ts";
@@ -112,11 +112,6 @@ const stock = $derived(
     (id) => (id === "credits" || touched.has(id)) && game.snapshot.items[id] !== undefined,
   ),
 );
-const busy = (id: DepartmentId) =>
-  game.snapshot.crew.some((crew) => {
-    const job = game.snapshot.jobs[crew];
-    return job !== undefined && ACTIONS[job.action].department === id;
-  });
 
 /** Shows a view now; the address follows, so the next key press already acts on the new view. */
 function select(to: View): void {
@@ -186,7 +181,7 @@ function onkeydown(event: KeyboardEvent): void {
         >
           <span><kbd>{DEPARTMENTS[id].key}</kbd> {DEPARTMENTS[id].name}</span>
           <span>
-            {#if busy(id)}<span class="busy" aria-label="running">•</span>{/if}
+            {#if working(game.snapshot, id)}<span class="busy" aria-label="running">•</span>{/if}
             {departmentLevel(game.snapshot, id)}
           </span>
         </button>

@@ -3,7 +3,7 @@ import { DEPARTMENT_IDS, type DepartmentId } from "../content/departments.ts";
 import { ITEM_IDS, type ItemId } from "../content/items.ts";
 import { MODULE_IDS, type ModuleId } from "../content/modules.ts";
 import type { UnlockId } from "../content/unlocks.ts";
-import { levelOf } from "./levels.ts";
+import { LEVELS } from "./levels.ts";
 import type { SectorId } from "./map.ts";
 import type { Snapshot } from "./state.ts";
 
@@ -36,8 +36,8 @@ export function summarize(before: Snapshot, after: Snapshot, awayMs: number): Su
     })).filter(({ change }) => change !== 0),
     levels: DEPARTMENT_IDS.map((department) => ({
       department,
-      from: levelOf(before.xp[department] ?? 0),
-      to: levelOf(after.xp[department] ?? 0),
+      from: LEVELS.levelOf(before.xp[department] ?? 0),
+      to: LEVELS.levelOf(after.xp[department] ?? 0),
     })).filter(({ from, to }) => to > from),
     modules: MODULE_IDS.filter((m) => (after.modules[m] ?? 0) > (before.modules[m] ?? 0)).map(
       (module) => ({ module, level: after.modules[module] ?? 0 }),

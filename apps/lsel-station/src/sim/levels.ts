@@ -24,8 +24,3 @@ export function curve(base: number, growth: number, max: number) {
 
 /** Department levels: 1 to 99, about 6.8 million XP in all. */
 export const LEVELS = curve(60, 1.1, 99);
-
-export const MAX_LEVEL = LEVELS.max;
-export const xpForNext = LEVELS.forNext;
-export const levelOf = LEVELS.levelOf;
-export const xpToReachNext = LEVELS.toReachNext;

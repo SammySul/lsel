@@ -11,15 +11,7 @@ import {
 import { type GameEvent, NO_EVENTS } from "./events.ts";
 import type { SectorId } from "./map.ts";
 import { isMasteryStep, MASTERY } from "./mastery.ts";
-import {
-  actionLock,
-  actionShown,
-  claimable,
-  crewSlots,
-  masterable,
-  poolCost,
-  routes,
-} from "./rules.ts";
+import { canAssign, claimable, masterable, poolCost } from "./rules.ts";
 import type { GameState } from "./state.ts";
 import { fitBeds, give, pay } from "./stock.ts";
 
@@ -46,20 +38,7 @@ function release(state: GameState, crew: CrewId): boolean {
 }
 
 function assign(state: GameState, crew: CrewId, id: ActionId): readonly GameEvent[] {
-  const current = state.jobs[crew];
-  if (!state.crew.includes(crew) || current?.action === id) return NO_EVENTS;
-  if (!actionShown(state, id) || actionLock(state, id) !== null) return NO_EVENTS;
-  const others = state.crew.filter((c) => c !== crew && state.jobs[c] !== undefined);
-  if (current === undefined && others.length >= crewSlots(state)) return NO_EVENTS;
-  // a route per Market office level and Trade hub
-  const trading = others.filter((c) => {
-    const job = state.jobs[c];
-    return job !== undefined && ACTIONS[job.action].department === "trade";
-  });
-  if (ACTIONS[id].department === "trade" && trading.length >= routes(state)) return NO_EVENTS;
-  // one project per crew member
-  if (isOnce(ACTIONS[id]) && others.some((c) => state.jobs[c]?.action === id)) return NO_EVENTS;
-
+  if (!canAssign(state, crew, id)) return NO_EVENTS;
   release(state, crew);
   const resumed = state.projects[id];
   delete state.projects[id];

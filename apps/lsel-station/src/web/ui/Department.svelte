@@ -6,12 +6,12 @@ import { DEPARTMENTS, type DepartmentId } from "../../content/departments.ts";
 import { ITEMS } from "../../content/items.ts";
 import { numeral } from "../../content/modules.ts";
 import { UNLOCKS } from "../../content/unlocks.ts";
-import { xpToReachNext } from "../../sim/levels.ts";
+import { LEVELS } from "../../sim/levels.ts";
 import {
   actionLock,
   actionShown,
   bonusChance,
-  crewSlots,
+  canAssign,
   departmentLevel,
   growthSpeed,
   masterable,
@@ -35,9 +35,8 @@ const snapshot = $derived(game.snapshot);
 const style = $derived(DEPARTMENTS[department].mastery);
 const xp = $derived(snapshot.xp[department] ?? 0);
 const level = $derived(departmentLevel(snapshot, department));
-const next = $derived(xpToReachNext(level));
+const next = $derived(LEVELS.toReachNext(level));
 const idle = $derived(snapshot.crew.filter((crew) => snapshot.jobs[crew] === undefined));
-const slotFree = $derived(snapshot.crew.length - idle.length < crewSlots(snapshot));
 const mine = $derived(ACTION_IDS.filter((id) => ACTIONS[id].department === department));
 
 const rows = $derived(
@@ -51,16 +50,15 @@ const rows = $derived(
         const job = snapshot.jobs[crew];
         return job?.action === id ? [{ crew, job }] : [];
       });
-      // whoever is free and fastest at this; something made once takes one person
+      // whoever is free and fastest at this
       let candidate: CrewId | undefined;
-      if (lock === null && slotFree && !(once && workers.length > 0)) {
-        for (const crew of idle) {
-          if (
-            candidate === undefined ||
-            speedOf(snapshot, crew, id) > speedOf(snapshot, candidate, id)
-          ) {
-            candidate = crew;
-          }
+      for (const crew of idle) {
+        if (!canAssign(snapshot, crew, id)) continue;
+        if (
+          candidate === undefined ||
+          speedOf(snapshot, crew, id) > speedOf(snapshot, candidate, id)
+        ) {
+          candidate = crew;
         }
       }
       const cost = masterable(id) ? poolCost(snapshot, id) : null;
