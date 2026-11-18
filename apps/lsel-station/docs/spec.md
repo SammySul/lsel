@@ -41,13 +41,13 @@ Locked decisions:
 | Players          | Single-player, AI factions                                                           |
 | Role of conquest | The gate between resource tiers, not the whole game                                  |
 | Art style        | "Deep Field": limited-palette pixel art, dithered shading                            |
-| Scene            | Orbit view of the station, with the sector map as a second tab                       |
+| Scene            | Orbit view of the station; the sector map when Map is picked in the rail             |
 | Premise          | Frontier salvager: you claim a derelict station between rival factions               |
 | Parallelism      | Crew slots: one job at first, more crew means more jobs at once                      |
 | Departments      | Ten (section 5), plus fleets                                                         |
 | Crew             | Named, each with one specialty; no crew levels                                       |
 | Territory        | Never lost; hostile neighbors can raid a sector and cut its output                   |
-| Outposts         | Each sector gets a small specialised outpost                                         |
+| Outposts         | Each sector gets a small specialized outpost                                         |
 | Battles          | Automatic, on timers, watched in the scene                                           |
 | Factions         | The Company, the Navy, the Archive, the Co-op; pirates and strays are always hostile |
 | Faction endgame  | Conquer or absorb                                                                    |
@@ -226,7 +226,8 @@ module's.
 - Numbers, all tunable: a second of an action is one mastery XP; the next
   mastery level costs `round(6 × 1.08^(level − 1))`, about 141,000 to reach
   99. The thresholds give a 5, 10, 15, 20 and 30% chance: of double output in
-  Mining, of keeping the input in Refining. Half of all mastery XP also goes
+  Mining, of keeping the input in Refining, of double credits on a Trade sale
+  (buy runs have no mastery, decided 2026-11-18). Half of all mastery XP also goes
   to the pool, which is full at half of its items' mastery to 99; its
   checkpoints give +3% speed, +5% chance, +5% speed and +10% chance.
 - Things built once, such as station modules, have no mastery.
@@ -359,11 +360,11 @@ The map is complete when every sector is owned or is a protectorate.
 ### 8.3 Outposts
 
 Every owned sector has an outpost with three module slots (a fourth and fifth
-from Research) and one specialisation, changeable for credits. Outposts produce
+from Research) and one specialization, changeable for credits. Outposts produce
 without crew, so passive income grows as you expand, while crew jobs stay the
 fastest source.
 
-| Specialisation | Gives                                                        |
+| Specialization | Gives                                                        |
 | -------------- | ------------------------------------------------------------ |
 | Mine           | A steady trickle of the sector's raw resources               |
 | Yard           | Faster ship repair and a second Construction queue for hulls |
@@ -494,7 +495,7 @@ Target timeline for a player who checks in a few times a day:
 +------------------------------------------------------------------------------+
 | Lsel    credits 12,480   iron plate 1,284   fuel cells 96  saved 2:02 PM ✓   |
 +--------------+-----------------------------+---------------------------------+
-| Mining    14 | Mining               Lv 14  | [Station]  [Map]  [Fleet 1]     |
+| Mining    14 | Mining               Lv 14  |                                 |
 | Salvage    6 | xp 62,300 / 74,000          |                                 |
 | Skimming   - | pool 31%                    |                                 |
 | Hydropon.  4 |                             |          pixel scene            |
@@ -505,6 +506,7 @@ Target timeline for a player who checks in a few times a day:
 | Research   2 | Titanium asteroid   locked  |                                 |
 | Trade      5 |                             |                                 |
 | ------------ |                             |                                 |
+| Map          |                             |                                 |
 | Fleets       |                             |                                 |
 | Factions     |                             |                                 |
 | Log          |                             |                                 |
@@ -514,12 +516,14 @@ Target timeline for a player who checks in a few times a day:
 ```
 
 - **Left rail:** departments with level and a marker for running jobs, then
-  Fleets, Factions and Log.
+  Map, Fleets, Factions and Log.
 - **Middle:** the selected department. All information lives here.
-- **Right:** the scene. Tabs for Station, Map, and each fleet that is out.
-  Nothing is shown only in the scene.
+- **Right:** the scene, which follows the middle: the station for a
+  department, the map for Map, a fleet for that fleet (decided 2026-11-18, in
+  place of tabs). Nothing is shown only in the scene.
 - **Bottom:** who is doing what, and the event inbox.
-- **Top:** credits, up to four pinned resources, save and sync state.
+- **Top:** credits, up to four pinned resources, save and sync state. As
+  built: credits once there are any, then what the selected view works with.
 
 ### 11.2 Phone
 
@@ -686,7 +690,7 @@ tools/       balance simulator.
 - The interface updates text about five times a second and the scene about
   twelve.
 - On load, missed time (up to 24 hours) is run through the same tick in chunks
-  that yield to the browser, behind a progress bar, then summarised.
+  that yield to the browser, behind a progress bar, then summarized.
 - A second tab opens read-only.
 
 ### 14.4 Saves
@@ -697,7 +701,8 @@ tools/       balance simulator.
   away. Never during catch-up.
 - Export and import as a text string: `lsel-station:` and the document in
   base64. Importing replaces the game after showing its play time and date.
-- A save that cannot be read is moved aside (`lsel-station.save.unreadable`),
+- A save that cannot be read is moved aside (`lsel-station.save.unreadable`,
+  then `.2`, `.3` and so on),
   never overwritten, and a new game starts with a notice.
 - One tab runs the game (a Web Lock); another shows it read-only and takes over
   when the first closes.
@@ -728,7 +733,9 @@ As built:
   per address (`CF-Connecting-IP` from the tunnel).
 - A device sends its save every 5 minutes while open and when the page is put
   away. On load, a device whose save has not moved since it last synced takes a
-  newer synced save without asking; otherwise it asks.
+  newer synced save without asking; otherwise it asks. A save sent as the page
+  closes gets no answer, so on its next load the device asks the service
+  whether it arrived; the service remembers the last 20 saves it stored.
 - Saves, sync and the key are in the Saves panel (`o`).
 
 ### 14.6 Tests

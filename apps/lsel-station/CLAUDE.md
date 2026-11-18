@@ -8,8 +8,8 @@ traps.
   bun's 5 s test timeout; bun then kills the browser, and every later test
   fails with "browser has been closed".
 - The scene's draw effect must read only values that rarely change (`seed`,
-  `size`, `still`): reading `game.snapshot` there repaints the planet and
-  starfield on every tick.
+  `size`, `still`, `view`, `built`, `label`): reading `game.snapshot` there
+  repaints the planet and starfield on every tick.
 - A view change must not wait for `hashchange`: the event arrives a task
   later, and a key pressed right after `5` acted on the old department.
   `select` sets the state first and the address second.
@@ -37,3 +37,6 @@ traps.
   game's own calls (`audioSpy`), never `ctx.state === "running"`.
 - In a sound test, `fastForward` is a catch-up, which is silent by design; use
   `runFor` for the few seconds of live play it needs.
+- **The send as a page closes never gets its answer** (`keepalive`): the
+  link's `sent` and the service's `?sent=` settle it on the next load. Moving
+  the link forward before an answer loses a save whose send failed.
