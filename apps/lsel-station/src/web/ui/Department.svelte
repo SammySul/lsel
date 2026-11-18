@@ -4,7 +4,7 @@ import { CREW, type CrewId } from "../../content/crew.ts";
 import { CROP_IDS, CROPS } from "../../content/crops.ts";
 import { DEPARTMENTS, type DepartmentId } from "../../content/departments.ts";
 import { ITEMS } from "../../content/items.ts";
-import { numeral } from "../../content/modules.ts";
+import { MODULES, numeral } from "../../content/modules.ts";
 import { UNLOCKS } from "../../content/unlocks.ts";
 import { LEVELS } from "../../sim/levels.ts";
 import {
@@ -23,6 +23,7 @@ import {
   poolShare,
   speedOf,
 } from "../../sim/rules.ts";
+import { GLUT_MAX, GLUT_STEP } from "../../sim/tick.ts";
 import type { Game } from "../game.svelte.ts";
 import { count, duration, percent, stacks } from "./format.ts";
 import { isGameKey } from "./keys.ts";
@@ -116,6 +117,31 @@ function gives(result: (typeof ACTIONS)[keyof typeof ACTIONS]["result"]): string
   }
 }
 
+/** How a job runs, in one line, for the selected row. */
+function how(action: (typeof ACTIONS)[keyof typeof ACTIONS]): string {
+  const { result } = action;
+  switch (result.kind) {
+    case "items":
+      return action.inputs.length === 0
+        ? "Repeats until you stop it."
+        : "Repeats until you stop it, and waits when short of inputs.";
+    case "loot":
+      return "Repeats until you stop it. Each haul is one of these, at random.";
+    case "sale":
+      return `A run to the market and back. Each sale of a good pays ${percent(GLUT_STEP)} less, down to ${percent(GLUT_MAX)} less, and each step comes back in 5 minutes.`;
+    case "reveal":
+      return "Each run puts the nearest uncharted sector on the map.";
+    case "module":
+      return `Built once. ${MODULES[result.module].does}. Stopping keeps the progress.`;
+    case "unlock":
+      return "Made once and kept for good. Stopping keeps the progress.";
+    default: {
+      const _exhaustive: never = result;
+      return "";
+    }
+  }
+}
+
 function assign(index: number): void {
   const row = rows[index];
   if (row?.candidate !== undefined) {
@@ -156,6 +182,7 @@ function onkeydown(event: KeyboardEvent): void {
     <h2>{DEPARTMENTS[department].name}</h2>
     <span>Lv {level}</span>
   </header>
+  <p class="about">{DEPARTMENTS[department].about}</p>
   <p class="facts">
     <span>xp {count(xp)}{next === null ? "" : ` / ${count(next)}`}</span>
     {#if style !== null}
@@ -224,6 +251,9 @@ function onkeydown(event: KeyboardEvent): void {
             </span>
           {/if}
         </div>
+        {#if here}
+          <p class="how">{how(row.action)}</p>
+        {/if}
 
         {#each row.workers as { crew, job }, w (crew)}
           <div
@@ -347,6 +377,11 @@ function onkeydown(event: KeyboardEvent): void {
     padding: 0;
   }
   .dim {
+    color: var(--subtle);
+  }
+  .about,
+  .how {
+    margin: 0;
     color: var(--subtle);
   }
   .note {

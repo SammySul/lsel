@@ -185,7 +185,7 @@ for (const name of names) {
         // the project is paid for at once and shows in the scene while it is built
         await key("7");
         expect(await selected()).toBe(
-          "Habitat I 10:00 20 iron plate, 10 water Assign Ana Petrov Enter",
+          "Habitat I 10:00 20 iron plate, 10 water Built once. One more job at a time, and a new crew member to work it. Stopping keeps the progress. Assign Ana Petrov Enter",
         );
         await key("Enter");
         await seconds(page, 300);
@@ -197,7 +197,7 @@ for (const name of names) {
             .getAttribute("aria-valuenow"),
           await scene.getAttribute("aria-label"),
         ]).toEqual([
-          "Habitat I 10:00 20 iron plate, 10 water Ana Petrov Stop x",
+          "Habitat I 10:00 20 iron plate, 10 water Built once. One more job at a time, and a new crew member to work it. Stopping keeps the progress. Ana Petrov Stop x",
           "52",
           "The station in orbit above a planet. Habitat I is being built.",
         ]);
@@ -214,7 +214,7 @@ for (const name of names) {
         // what is left over after the Habitat depends on the seed's mastery rolls
         const rows = await texts(page, "section li");
         expect(rows[0]).toMatch(
-          /^Workshop I 12:00 25 iron plate, 10 water Short of \d+ iron plate, \d+ water Assign Ana Petrov Enter$/,
+          /^Workshop I 12:00 25 iron plate, 10 water Built once. Opens Fabrication. Stopping keeps the progress. Short of \d+ iron plate, \d+ water Assign Ana Petrov Enter$/,
         );
         expect(rows.slice(2)).toEqual([
           "Greenhouse I 15:00 10 basic parts, 20 iron plate, 20 water Construction level 6",
@@ -314,7 +314,7 @@ for (const name of names) {
         expect((await audio(page)).shots.at(-2)).toBe(500);
         await page.keyboard.press("2");
         expect(await texts(page, "section li")).toEqual([
-          "Cargo wreck 5.0 s one of iron plate, water, basic parts, hydrogen mastery 1 Assign Ana Petrov Enter",
+          "Cargo wreck 5.0 s one of iron plate, water, basic parts, hydrogen mastery 1 Repeats until you stop it. Each haul is one of these, at random. Assign Ana Petrov Enter",
         ]);
 
         // a bed is planted with a key and harvested with nobody on it
@@ -416,7 +416,7 @@ for (const name of names) {
           await scene(),
         ]).toEqual([
           // grouped buttons are laid out by CSS, with no text between them
-          "Ring 2 Home ring, yours MineTrade hubFarm A trickle of iron ore and ice. A change costs 200 credits. Install a depot (0)Install a relay (0) 0 of 3 add-ons",
+          "Ring 2 Home ring, yours MineTrade hubFarm A trickle of iron ore and ice. A change costs 200 credits. Install a depot (0)Install a relay (0) Depot: half again its output. Relay: a quarter more output for neighboring outposts. Kits come from Construction. 0 of 3 add-ons",
           ["Ring 2 is yours"],
           "The sector map: 5 sectors charted, 2 yours. Selected: Ring 2, yours.",
         ]);
@@ -426,7 +426,7 @@ for (const name of names) {
         await work("7", "Market office I", 1790);
         await key("0");
         expect((await texts(page, "section li"))[0]).toBe(
-          "Sell 10 iron plate 30.0 s 10 iron plate → 40 credits mastery 1 Assign Ana Petrov Enter",
+          "Sell 10 iron plate 30.0 s 10 iron plate → 40 credits mastery 1 A run to the market and back. Each sale of a good pays 3% less, down to 30% less, and each step comes back in 5 minutes. Assign Ana Petrov Enter",
         );
         await key("Enter");
         await seconds(page, 31);

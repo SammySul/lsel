@@ -15,6 +15,7 @@ import { loadSave, writeSave } from "./storage.ts";
 import { createSync } from "./sync.svelte.ts";
 import Department from "./ui/Department.svelte";
 import { clock, count, duration, percent, when } from "./ui/format.ts";
+import { GUIDE } from "./ui/guide.ts";
 import { isGameKey } from "./ui/keys.ts";
 import MapView from "./ui/MapView.svelte";
 import { createNotices } from "./ui/notices.svelte.ts";
@@ -167,7 +168,7 @@ function onkeydown(event: KeyboardEvent): void {
       Sound <kbd>s</kbd>
     </button>
     <button type="button" aria-pressed={keysOpen} onclick={() => (keysOpen = !keysOpen)}>
-      Keys and volume <kbd>?</kbd>
+      Help <kbd>?</kbd>
     </button>
   </header>
 
@@ -261,7 +262,15 @@ function onkeydown(event: KeyboardEvent): void {
         <SavePanel latest={() => latest} {sync} load={replace} />
       {/if}
       {#if keysOpen}
-        <section class="keys lsel-appear" aria-label="Keys and volume">
+        <section class="keys lsel-appear" aria-label="Help">
+          <h2>How it works</h2>
+          <dl class="terms">
+            {#each GUIDE as [term, text] (term)}
+              <dt>{term}</dt>
+              <dd>{text}</dd>
+            {/each}
+          </dl>
+          <h2>Keys</h2>
           <dl>
             {#each open as id (id)}
               <dt><kbd>{DEPARTMENTS[id].key}</kbd></dt>
@@ -284,10 +293,11 @@ function onkeydown(event: KeyboardEvent): void {
             <dt><kbd>s</kbd></dt>
             <dd>Sound on or off</dd>
             <dt><kbd>?</kbd></dt>
-            <dd>List the keys</dd>
+            <dd>This help</dd>
             <dt><kbd>Esc</kbd></dt>
             <dd>Back out</dd>
           </dl>
+          <h2>Volume</h2>
           <div class="levels">
             {#each ["effects", "ambience"] as const as bus (bus)}
               <label for="level-{bus}">{bus === "effects" ? "Effects" : "Ambience"}</label>
@@ -421,6 +431,15 @@ function onkeydown(event: KeyboardEvent): void {
   }
   dd {
     margin: 0;
+  }
+  .keys h2 {
+    margin: 0;
+  }
+  .terms {
+    align-items: baseline;
+  }
+  .terms dd {
+    color: var(--subtle);
   }
   .panel {
     padding: var(--space-4);

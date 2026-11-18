@@ -45,6 +45,9 @@ function onkeydown(event: KeyboardEvent): void {
     <h2>Map</h2>
     <span>{shown.length} of {map.sectors.length} charted</span>
   </header>
+  <p class="dim">
+    The sectors Survey has charted. Select one to claim it with a beacon or set up its outpost.
+  </p>
   <ul>
     {#each shown as sector (sector.id)}
       {@const here = sector.id === selected}
@@ -100,6 +103,10 @@ function onkeydown(event: KeyboardEvent): void {
               </button>
             {/each}
           </div>
+          <p class="dim">
+            {OUTPOST_MODULE_IDS.map((m) => `${OUTPOST_MODULES[m].name}: ${OUTPOST_MODULES[m].gives.toLowerCase()}`).join(". ")}.
+            Kits come from Construction.
+          </p>
           <p class="dim">
             {outpost.modules.length} of {OUTPOST_SLOTS} add-ons{outpost.modules.length > 0
               ? `: ${outpost.modules.map((m) => OUTPOST_MODULES[m].name.toLowerCase()).join(", ")}`

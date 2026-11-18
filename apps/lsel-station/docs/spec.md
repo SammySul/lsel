@@ -540,8 +540,10 @@ below; the rail becomes a drawer.
   `Enter` assigns whoever is free and fastest, `x` stops, `p` raises mastery
   from the pool, `b` plants an empty bed, `m` opens the map (`j`, `k` and `Enter` move
   and claim there), `0` is Trade, `i` opens the inbox, `s` turns sound on or
-  off, `Esc` backs out, `?` lists the keys. Every key is shown next to its
-  action.
+  off, `Esc` backs out, `?` opens help: how the game works, the keys and the
+  volumes. Every key is shown next to its action.
+- Nothing is left to guess: each department and the map open with one line on
+  what they are for and how they work, and the selected job says how it runs.
 - With `prefers-reduced-motion` the scene is drawn as still frames; there is no
   setting for it.
 - Factions are told apart by icon shape as well as color.
