@@ -13,6 +13,8 @@ const Link = v.object({
   revision: v.pipe(v.number(), v.integer(), v.minValue(0)),
   /** The savedAt of the save it agreed on: a local save later than this has moved on since. */
   syncedAt: v.number(),
+  /** A save sent as the page went away, whose answer never came: if the service has it, it is this device's. */
+  sent: v.optional(v.number()),
 });
 type Link = v.InferOutput<typeof Link>;
 
@@ -21,6 +23,7 @@ const Stored = v.object({
   savedAt: v.number(),
   playedMs: v.number(),
   data: v.string(),
+  landed: v.optional(v.boolean()),
 });
 export type Stored = v.InferOutput<typeof Stored>;
 
@@ -58,22 +61,39 @@ export function createSync(opts: {
   // state, so the panel follows sync being turned on and off
   let link = $state.raw<Link | null>(readLink());
   let status = $state.raw<SyncStatus>(link === null ? { kind: "off" } : { kind: "syncing" });
+  // worked out ahead: a send as the page goes away has no time to wait for it
+  let id: { key: string; id: string } | null = null;
+  // the save as this page loaded it, before any catch-up moved it on
+  const loadedAt = opts.latest().savedAt;
   let lastPush = 0;
   let busy = false;
 
+  function learnId(key: string): void {
+    void keyId(key).then((found) => {
+      if (link?.key === key) id = { key, id: found };
+    });
+  }
+  if (link !== null) learnId(link.key);
+
   function remember(next: Link | null): void {
+    if (next !== null && next.key !== link?.key) learnId(next.key);
     link = next;
     writeItem(LINK, next === null ? null : JSON.stringify(next));
   }
 
-  async function call(method: "GET" | "PUT", body?: unknown, keepalive = false): Promise<Reply> {
+  async function call(
+    method: "GET" | "PUT",
+    request: { body?: unknown; keepalive?: boolean; query?: string } = {},
+  ): Promise<Reply> {
     if (link === null) return { kind: "unreachable", reason: "sync is off" };
+    const key = link.key;
     try {
-      const response = await fetch(`/save/${await keyId(link.key)}`, {
+      const path = id?.key === key ? id.id : await keyId(key);
+      const response = await fetch(`/save/${path}${request.query ?? ""}`, {
         method,
-        keepalive,
-        headers: { authorization: `Bearer ${link.key}`, "content-type": "application/json" },
-        ...(body === undefined ? {} : { body: JSON.stringify(body) }),
+        keepalive: request.keepalive ?? false,
+        headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
+        ...(request.body === undefined ? {} : { body: JSON.stringify(request.body) }),
       });
       const json = response.headers.get("content-type") === "application/json";
       return { kind: "answer", status: response.status, body: json ? await response.json() : null };
@@ -104,7 +124,11 @@ export function createSync(opts: {
     busy = true;
     lastPush = Date.now();
     const doc = opts.latest();
-    const reply = await call("PUT", { base: link.revision, data: exportString(doc) }, keepalive);
+    if (keepalive) remember({ ...link, sent: doc.savedAt });
+    const reply = await call("PUT", {
+      body: { base: link.revision, data: exportString(doc) },
+      keepalive,
+    });
     busy = false;
     if (link === null) return;
     if (
@@ -114,7 +138,7 @@ export function createSync(opts: {
       reply.body !== null &&
       "revision" in reply.body
     ) {
-      remember({ ...link, revision: Number(reply.body.revision), syncedAt: doc.savedAt });
+      remember({ key: link.key, revision: Number(reply.body.revision), syncedAt: doc.savedAt });
       status = { kind: "synced", at: Date.now() };
     } else if (reply.kind === "answer" && reply.status === 409) {
       const theirs = v.safeParse(Stored, reply.body);
@@ -123,11 +147,16 @@ export function createSync(opts: {
     } else status = { kind: "failed", reason: reasonOf(reply) };
   }
 
-  /** Reads the synced save: an untouched device takes a newer one, a device that moved on is asked. */
-  async function pull(asking: boolean): Promise<void> {
-    if (link === null) return;
+  /** Reads the synced save: a newer one replaces a save that has not moved since `mine`; otherwise it asks. */
+  async function pull(asking: boolean, mine: number): Promise<void> {
+    if (link === null || busy) return;
     status = { kind: "syncing" };
-    const reply = await call("GET");
+    // no send meanwhile: it would move the service on before this has seen what is there
+    busy = true;
+    const reply = await call("GET", {
+      ...(link.sent === undefined ? {} : { query: `?sent=${link.sent}` }),
+    });
+    busy = false;
     if (link === null) return;
     if (reply.kind === "answer" && reply.status === 404 && link.revision === 0 && !asking) {
       return push();
@@ -143,8 +172,17 @@ export function createSync(opts: {
     }
     const theirs = parsed.output;
     if (asking) return conflict(theirs);
-    if (theirs.revision === link.revision) return push();
-    if (opts.latest().savedAt <= link.syncedAt) return useTheirs(theirs);
+    // the save sent as the page closed arrived: this device agreed with the service then
+    if (link.sent !== undefined && theirs.landed === true) {
+      const revision = theirs.savedAt === link.sent ? theirs.revision : link.revision;
+      remember({ key: link.key, revision, syncedAt: link.sent });
+    }
+    if (theirs.revision === link.revision) {
+      if (mine > link.syncedAt) return push();
+      status = { kind: "synced", at: Date.now() };
+      return;
+    }
+    if (mine <= link.syncedAt) return useTheirs(theirs);
     conflict(theirs);
   }
 
@@ -166,14 +204,15 @@ export function createSync(opts: {
       return link?.key ?? null;
     },
     /** On load: brings this device in line with the synced save, if sync is on. */
-    start: () => pull(false),
+    start: () => pull(false, loadedAt),
     /** After every save: sends it when the page is going away, or when the last send is a while ago. */
     saved(): void {
       if (link === null) return;
       if (document.visibilityState === "hidden") void push(true);
       else if (Date.now() - lastPush >= PUSH_EVERY_MS) void push();
     },
-    syncNow: () => (status.kind === "conflict" ? Promise.resolve() : pull(false)),
+    syncNow: () =>
+      status.kind === "conflict" ? Promise.resolve() : pull(false, opts.latest().savedAt),
     /** Starts a synced save from this device's game, under a new key. */
     async enable(): Promise<void> {
       remember({ key: newKey(), revision: 0, syncedAt: 0 });
@@ -185,7 +224,7 @@ export function createSync(opts: {
       const trimmed = key.trim();
       if (!KEY_PATTERN.test(trimmed)) return "That is not a save key.";
       remember({ key: trimmed, revision: 0, syncedAt: 0 });
-      await pull(true);
+      await pull(true, opts.latest().savedAt);
       if (status.kind === "failed") {
         const reason = status.reason;
         remember(null);

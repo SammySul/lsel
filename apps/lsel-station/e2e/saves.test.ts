@@ -121,6 +121,27 @@ for (const name of names) {
     );
 
     test(
+      "a computer that sleeps with the game open catches up when it wakes",
+      async () => {
+        const context = await stopped(browser, 60_000);
+        const { page, problems } = await open(context, "?seed=7");
+        await page.keyboard.press("Enter");
+        await context.clock.fastForward(1000);
+        // the wall clock jumps while the page's timers and monotonic clock stood still
+        await context.clock.setSystemTime(NOON + 60_000 + 1000 + 2 * 60 * 60_000);
+        await context.clock.fastForward(1000);
+        await page.getByRole("complementary", { name: "While you were away" }).waitFor();
+        expect([
+          await texts(page, "[aria-label='While you were away'] > p"),
+          (await texts(page, "[aria-label='While you were away'] li"))[0],
+          problems,
+        ]).toEqual([[expect.stringMatching(/^2:00:0\d$/)], "Mining level 1 to 33", []]);
+        await context.close();
+      },
+      TIMEOUT,
+    );
+
+    test(
       "a save exported as text replaces the game in another browser",
       async () => {
         const first = await stopped(browser, 60_000);
@@ -236,14 +257,63 @@ for (const name of names) {
     );
 
     test(
+      "devices that take turns hand the game over without asking",
+      async () => {
+        const now = Date.now();
+        const first = await browser.newContext();
+        await first.clock.install({ time: now });
+        await first.clock.pauseAt(now + 1000);
+        const { page } = await open(first, "?seed=7");
+        await page.keyboard.press("Enter");
+        await first.clock.fastForward(30_000);
+        await page.keyboard.press("o");
+        await page.getByRole("button", { name: "Turn on sync" }).click();
+        await page.getByText(/^Synced at/).waitFor();
+        const key = await page.locator("#key").inputValue();
+        await page.close();
+
+        const second = await browser.newContext();
+        const { page: other, problems } = await open(second, "?seed=8");
+        await other.keyboard.press("o");
+        await other.locator("#join").fill(key);
+        await other.getByRole("button", { name: "Link this device" }).click();
+        await other.getByRole("button", { name: "Use the synced one" }).click();
+        await other.getByText("Iron ore 10").waitFor();
+        // the second device moves on: Ana stops mining, and that is sent at once
+        await other.keyboard.press("x");
+        await other.getByText(/, synced$/).waitFor();
+        expect(await texts(other, "footer .crew")).toEqual(["Ana Petrov everything +3% › idle"]);
+        await other.close();
+
+        // back on the first device, whose own save has not moved since it synced
+        await first.clock.setSystemTime(now + 5 * 60_000);
+        const { page: again, problems: later } = await open(first);
+        await again.getByText(/, synced$/).waitFor();
+        expect([
+          await texts(again, "footer .crew"),
+          await again.getByRole("complementary", { name: "Choose a save" }).count(),
+          problems,
+          later,
+        ]).toEqual([["Ana Petrov everything +3% › idle"], 0, [], []]);
+        await first.close();
+        await second.close();
+      },
+      TIMEOUT,
+    );
+
+    test(
       "a save that cannot be read is kept aside, and a new game starts",
       async () => {
         const context = await browser.newContext();
+        // the first load and one reload each find a damaged save
         await context.addInitScript(() => {
-          if (sessionStorage.getItem("seeded") === null) {
-            localStorage.setItem("lsel-station.save", '{"game":"lsel-station","version":1}');
-            sessionStorage.setItem("seeded", "1");
-          }
+          const loads = Number(sessionStorage.getItem("loads") ?? 0);
+          if (loads < 2)
+            localStorage.setItem(
+              "lsel-station.save",
+              `{"game":"lsel-station","version":1,"n":${loads}}`,
+            );
+          sessionStorage.setItem("loads", String(loads + 1));
         });
         const { page, problems } = await open(context);
         expect([
@@ -253,7 +323,17 @@ for (const name of names) {
           [
             "The save in this browser could not be read (savedAt is missing). It is kept aside, and this is a new game.",
           ],
-          '{"game":"lsel-station","version":1}',
+          '{"game":"lsel-station","version":1,"n":0}',
+        ]);
+        await page.reload({ waitUntil: "networkidle" });
+        expect(
+          await page.evaluate(() => [
+            localStorage.getItem("lsel-station.save.unreadable"),
+            localStorage.getItem("lsel-station.save.unreadable.2"),
+          ]),
+        ).toEqual([
+          '{"game":"lsel-station","version":1,"n":0}',
+          '{"game":"lsel-station","version":1,"n":1}',
         ]);
         expect(problems).toEqual([]);
         await context.close();

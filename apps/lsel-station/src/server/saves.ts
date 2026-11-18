@@ -1,6 +1,9 @@
 import { Database } from "bun:sqlite";
 import { importString, MAX_SAVE_BYTES, playedMs } from "../save/document.ts";
 
+// how many of a save's latest revisions it remembers having stored
+const HISTORY = 20;
+
 /** What the service keeps of a save: the text the game exported, and what it shows about it in a conflict. */
 export type Stored = { revision: number; savedAt: number; playedMs: number; data: string };
 
@@ -18,6 +21,12 @@ export function openSaves(path: string) {
     data TEXT NOT NULL,
     updated_at INTEGER NOT NULL
   )`);
+  db.run(`CREATE TABLE IF NOT EXISTS accepted (
+    id TEXT NOT NULL,
+    revision INTEGER NOT NULL,
+    saved_at INTEGER NOT NULL,
+    PRIMARY KEY (id, revision)
+  )`);
   const read = db.query<
     { revision: number; saved_at: number; played_ms: number; data: string },
     [string]
@@ -29,6 +38,14 @@ export function openSaves(path: string) {
     "UPDATE saves SET revision = revision + 1, saved_at = ?, played_ms = ?, data = ?, updated_at = ? WHERE id = ? AND revision = ?",
   );
 
+  const accept = db.query(
+    "INSERT OR REPLACE INTO accepted (id, revision, saved_at) VALUES (?, ?, ?)",
+  );
+  const prune = db.query("DELETE FROM accepted WHERE id = ? AND revision <= ?");
+  const landed = db.query<{ found: number }, [string, number]>(
+    "SELECT 1 AS found FROM accepted WHERE id = ? AND saved_at = ?",
+  );
+
   function get(id: string): Stored | null {
     const row = read.get(id);
     return row === null
@@ -38,6 +55,8 @@ export function openSaves(path: string) {
 
   return {
     get,
+    /** Whether a save stamped `savedAt` was stored lately: a device whose last send went unanswered asks. */
+    landed: (id: string, savedAt: number) => landed.get(id, savedAt) !== null,
     /**
      * Stores `data` if the save is still at `base` (0 for a new one). Otherwise nothing changes and the result
      * says what is there now, so the device can ask which to keep.
@@ -60,7 +79,11 @@ export function openSaves(path: string) {
           ? insert.run(id, savedAt, played, data, now).changes
           : update.run(savedAt, played, data, now, id, base).changes;
       const current = get(id);
-      if (changed === 1 && current !== null) return { ok: true, revision: current.revision };
+      if (changed === 1 && current !== null) {
+        accept.run(id, current.revision, savedAt);
+        prune.run(id, current.revision - HISTORY);
+        return { ok: true, revision: current.revision };
+      }
       if (current === null) return { ok: false, reason: "no such save" };
       return { ok: false, current };
     },

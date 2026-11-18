@@ -50,14 +50,21 @@ export function startGame(opts: {
   let snapshot = $state.raw<Snapshot>(structuredClone(state));
   let catching = $state.raw<{ done: number; total: number; awayMs: number } | null>(null);
   let summary = $state.raw<Summary | null>(null);
-  let last = performance.now();
+  // the wall clock: a monotonic one stands still while the computer sleeps, and that time would be lost
+  let last = Date.now();
   let owedMs = 0;
   let stopped = false;
   let hidden: { at: number; before: GameState } | null = null;
+  // what the last save held: the same game saved again later would look like play since then to sync
+  let saved = { ticks: opts.savedAt === null ? -1 : state.ticks, commands: 0 };
+  let commands = 0;
 
   // a save during catch-up would be stamped now and drop the time not yet caught up on
   function saveNow(): void {
-    if (!readOnly && !stopped && catching === null) opts.save(state, Date.now());
+    if (readOnly || stopped || catching !== null) return;
+    if (state.ticks === saved.ticks && commands === saved.commands) return;
+    saved = { ticks: state.ticks, commands };
+    opts.save(state, Date.now());
   }
 
   /** Runs `ticks` ticks in chunks, behind a progress bar, then shows what changed since `before`. */
@@ -80,8 +87,8 @@ export function startGame(opts: {
 
   function advance(): void {
     if (readOnly || catching !== null || stopped) return;
-    const now = performance.now();
-    owedMs += now - last;
+    const now = Date.now();
+    owedMs += Math.max(now - last, 0);
     last = now;
     const due = Math.floor(owedMs / TICK_MS);
     if (due === 0) return;
@@ -150,11 +157,12 @@ export function startGame(opts: {
     },
     /** The state as it is now and the time since its last tick, for drawing between ticks. */
     frame(): { state: Snapshot; sinceTickMs: number } {
-      return { state, sinceTickMs: Math.min(owedMs + performance.now() - last, TICK_MS) };
+      return { state, sinceTickMs: Math.min(owedMs + Math.max(Date.now() - last, 0), TICK_MS) };
     },
     send(command: Command): void {
       if (readOnly || catching !== null || stopped) return;
       advance();
+      commands++;
       apply(state, command).forEach(hear);
       snapshot = structuredClone(state);
       saveNow();

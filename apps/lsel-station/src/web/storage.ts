@@ -26,7 +26,10 @@ export function loadSave(): Loaded {
   const parsed = parseDocument(json);
   if (parsed.ok) return { kind: "save", doc: parsed.doc };
   try {
-    if (localStorage.getItem(UNREADABLE) === null) localStorage.setItem(UNREADABLE, raw);
+    // an earlier unreadable save keeps its place; this one goes beside it
+    let aside = UNREADABLE;
+    for (let n = 2; localStorage.getItem(aside) !== null; n++) aside = `${UNREADABLE}.${n}`;
+    localStorage.setItem(aside, raw);
     localStorage.removeItem(SAVE);
   } catch {
     // nothing more can be done in a browser that refuses storage

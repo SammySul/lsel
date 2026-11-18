@@ -55,7 +55,13 @@ async function sync(req: Request, id: string, saves: Saves, allowed: (key: strin
 
   if (req.method === "GET") {
     const stored = saves.get(id);
-    return stored === null ? json({ error: "no such save" }, 404) : json(stored, 200);
+    if (stored === null) return json({ error: "no such save" }, 404);
+    // ?sent=<savedAt>: a device asks whether the save it sent as its page closed arrived
+    const sent = Number(new URL(req.url).searchParams.get("sent") ?? Number.NaN);
+    return json(
+      Number.isInteger(sent) ? { ...stored, landed: saves.landed(id, sent) } : stored,
+      200,
+    );
   }
   if (Number(req.headers.get("content-length") ?? 0) > LIMITS.bytes) {
     return json({ error: "save too large" }, 413);

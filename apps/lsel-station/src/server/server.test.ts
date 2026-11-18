@@ -165,6 +165,20 @@ describe("sync", () => {
     ]);
   });
 
+  test("a device whose send went unanswered learns whether one of the last 20 stored was its own", async () => {
+    const { id, call } = await service();
+    for (let ore = 1; ore <= 22; ore++) await call("PUT", { base: ore - 1, data: save(ore) });
+    const landed = async (ore: number) =>
+      (await call("GET", undefined, KEY, `/save/${id}?sent=${1_800_000_000_000 + ore}`)).body
+        .landed;
+    expect([await landed(22), await landed(3), await landed(2), await landed(99)]).toEqual([
+      true,
+      true,
+      false,
+      false,
+    ]);
+  });
+
   test("the wrong key, a bad body, a damaged save and a huge one are refused", async () => {
     const { id, call } = await service();
     expect([
