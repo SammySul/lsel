@@ -1,7 +1,5 @@
 import { SAMPLE_RATE } from "./zzfx.ts";
 
-// A minor pentatonic, A3 to A4: any two of these sound fine together
-const SCALE = [220, 261.63, 293.66, 329.63, 392, 440];
 const LOOP_S = 4;
 const BLEND_S = 0.25;
 
@@ -36,50 +34,24 @@ function drift(ctx: AudioContext, hz: number, depth: number, target: AudioParam)
   return lfo;
 }
 
-/** The station's quiet bed: a drifting hum and now and then a soft note; it rests while the context is suspended. */
+/** The station's quiet bed: a deep rumble that drifts slowly, and nothing else. It rests while the context is suspended. */
 export function startAmbience(ctx: AudioContext, out: AudioNode): { stop(): void } {
   const hum = ctx.createBufferSource();
   hum.buffer = noiseLoop(ctx);
   hum.loop = true;
   const low = ctx.createBiquadFilter();
   low.type = "lowpass";
-  low.frequency.value = 300;
+  low.frequency.value = 180;
+  low.Q.value = 0.5;
   const humLevel = ctx.createGain();
-  humLevel.gain.value = 0.8;
+  humLevel.gain.value = 0.7;
   hum.connect(low).connect(humLevel).connect(out);
   hum.start();
   // two periods that share no multiple, so the bed never audibly repeats
-  const drifts = [drift(ctx, 0.07, 70, low.frequency), drift(ctx, 0.031, 0.15, humLevel.gain)];
-
-  const echo = ctx.createDelay(1);
-  echo.delayTime.value = 0.42;
-  const feedback = ctx.createGain();
-  feedback.gain.value = 0.35;
-  echo.connect(feedback).connect(echo);
-  echo.connect(out);
-
-  let timer: ReturnType<typeof setTimeout>;
-  function note(): void {
-    timer = setTimeout(note, 5000 + Math.random() * 9000);
-    if (ctx.state !== "running") return;
-    const voice = ctx.createOscillator();
-    const level = ctx.createGain();
-    const now = ctx.currentTime;
-    voice.frequency.value = SCALE[Math.floor(Math.random() * SCALE.length)] ?? 220;
-    level.gain.setValueAtTime(0, now);
-    level.gain.linearRampToValueAtTime(0.2, now + 0.6);
-    level.gain.setTargetAtTime(0, now + 0.6, 1.2);
-    voice.connect(level);
-    level.connect(out);
-    level.connect(echo);
-    voice.start(now);
-    voice.stop(now + 8);
-  }
-  timer = setTimeout(note, 4000);
+  const drifts = [drift(ctx, 0.05, 40, low.frequency), drift(ctx, 0.023, 0.12, humLevel.gain)];
 
   return {
     stop() {
-      clearTimeout(timer);
       hum.stop();
       for (const lfo of drifts) lfo.stop();
     },

@@ -625,11 +625,13 @@ bars mirrored from the text panel.
 
 - Everything is synthesized in code on the Web Audio API: no audio files and no
   framework (`docs/research-sound.md` has the why).
-- **Effects** are short and retro: each is a list of ZzFX parameters, tuned by
-  ear in ZzFX's designer. Every step of the build order adds the sounds for
-  what it adds.
-- **Ambience** is a low hum that drifts, with a soft note now and then. It is
-  generated, so it never loops audibly.
+- **Effects** are short, low and soft: sine and triangle tones under 400 Hz,
+  low-passed, with no echo (high, thin blips were tried and rejected on
+  2026-11-18). A finished job is a muted knock; a milestone is two notes.
+  Each is a list of ZzFX parameters, tuned by ear in ZzFX's designer. Every
+  step of the build order adds the sounds for what it adds.
+- **Ambience** is a deep, quiet rumble that drifts, and nothing else: no
+  notes (rejected on 2026-11-18). It is generated, so it never loops audibly.
 - Sound starts with the first key press or click, as browsers require, and is on
   by default at a low level. `s` mutes everything; effects and ambience have
   their own volumes. The settings are kept per device, not in the save.

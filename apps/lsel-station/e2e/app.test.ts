@@ -210,7 +210,7 @@ for (const name of names) {
           "Ines Duarte joined the crew",
           "Construction level 5",
         ]);
-        expect((await audio(page)).shots.slice(-3)).toEqual([880, 460, 620]);
+        expect((await audio(page)).shots.slice(-3)).toEqual([680, 500, 440]);
         // what is left over after the Habitat depends on the seed's mastery rolls
         const rows = await texts(page, "section li");
         expect(rows[0]).toMatch(
@@ -311,7 +311,7 @@ for (const name of names) {
         expect(
           await texts(page, ".notices p >> nth=0", "[aria-label=Done] li", "nav button >> nth=1"),
         ).toEqual(["Salvage tug ready", "Salvage tug Opens Salvage", "2 Salvage 1"]);
-        expect((await audio(page)).shots.at(-2)).toBe(710);
+        expect((await audio(page)).shots.at(-2)).toBe(500);
         await page.keyboard.press("2");
         expect(await texts(page, "section li")).toEqual([
           "Cargo wreck 5.0 s one of iron plate, water, basic parts, hydrogen mastery 1 Assign Ana Petrov Enter",
@@ -526,12 +526,12 @@ for (const name of names) {
         // the key press makes and starts the one context; the assign blip, then the bar finishing 3 s later
         await page.keyboard.press("Enter");
         await page.clock.runFor(3000);
-        expect(await audio(page)).toEqual({ contexts: 1, shots: [115, 82], calls: ["resume"] });
+        expect(await audio(page)).toEqual({ contexts: 1, shots: [106, 114], calls: ["resume"] });
 
         // ten more bars and a level-up, caught up in one jump: silence
         await page.clock.fastForward(33_000);
         expect(await texts(page, ".stock")).toEqual(["Iron ore 12"]);
-        expect((await audio(page)).shots).toEqual([115, 82]);
+        expect((await audio(page)).shots).toEqual([106, 114]);
 
         await page.keyboard.press("s");
         await page.clock.runFor(3000);
@@ -539,7 +539,7 @@ for (const name of names) {
         const muted = await audio(page);
         expect([muted.contexts, muted.shots, muted.calls.at(-1), await soundOn()]).toEqual([
           1,
-          [115, 82],
+          [106, 114],
           "suspend",
           "false",
         ]);

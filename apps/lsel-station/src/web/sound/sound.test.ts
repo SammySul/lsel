@@ -44,38 +44,43 @@ describe("the synth", () => {
 });
 
 describe("the game's sounds", () => {
-  test("are short, and none is louder than its volume", () => {
+  test("are short, and none peaks above its volume by more than a low-pass's ring", () => {
     const facts = Object.entries(SOUNDS).map(([name, { synth }]) => {
       const samples = buildSamples(synth);
-      return [name, samples.length, peak(samples) <= (synth.volume ?? 1)];
+      return [name, samples.length, peak(samples) <= (synth.volume ?? 1) * 1.1];
     });
     expect(facts).toEqual([
-      ["assign", 5071, true],
-      ["stop", 5071, true],
-      ["waiting", 7276, true],
-      ["mined", 3616, true],
-      ["salvaged", 3616, true],
-      ["skimmed", 3616, true],
-      ["cooked", 3616, true],
-      ["refined", 3616, true],
-      ["made", 3616, true],
-      ["sold", 8070, true],
-      ["scanned", 10672, true],
-      ["harvested", 6835, true],
-      ["levelUp", 27342, true],
-      ["mastery", 11686, true],
-      ["built", 38808, true],
-      ["ready", 31311, true],
-      ["claimed", 41013, true],
-      ["joined", 20286, true],
+      ["assign", 4674, true],
+      ["stop", 4674, true],
+      ["waiting", 8290, true],
+      ["mined", 5027, true],
+      ["salvaged", 5027, true],
+      ["skimmed", 5027, true],
+      ["cooked", 5027, true],
+      ["refined", 5027, true],
+      ["made", 5027, true],
+      ["sold", 4851, true],
+      ["scanned", 14553, true],
+      ["harvested", 4851, true],
+      ["levelUp", 19404, true],
+      ["mastery", 8820, true],
+      ["built", 29988, true],
+      ["ready", 22050, true],
+      ["claimed", 33957, true],
+      ["joined", 22050, true],
     ]);
+  });
+
+  test("every sound stays low: nothing starts above 400 Hz", () => {
+    const high = Object.entries(SOUNDS).filter(([, { synth }]) => (synth.frequency ?? 220) > 400);
+    expect(high).toEqual([]);
   });
 
   test("assign rises and stop falls from the same note", () => {
     expect([
       cycles(buildSamples(SOUNDS.assign.synth)),
       cycles(buildSamples(SOUNDS.stop.synth)),
-    ]).toEqual([67, 53]);
+    ]).toEqual([33, 30]);
   });
 
   test("each event has its sound, and a finished project leaves it to the module's fanfare", () => {

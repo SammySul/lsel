@@ -26,6 +26,7 @@ export type Zzfx = {
   readonly sustainVolume?: number;
   readonly decay?: number;
   readonly tremolo?: number;
+  /** Positive high-passes, negative low-passes. */
   readonly filter?: number;
 };
 
@@ -55,7 +56,7 @@ export function buildSamples(
     ((sound.frequency ?? 220) * (1 + randomness * 2 * random() - randomness) * PI2) / SAMPLE_RATE;
   let startFrequency = frequency;
 
-  // biquad low-pass (positive filter) or high-pass (negative)
+  // biquad high-pass (positive filter) or low-pass (negative), as in ZzFX
   const w = (PI2 * Math.abs(filter) * 2) / SAMPLE_RATE;
   const cos = Math.cos(w);
   const alpha = Math.sin(w) / 2 / 2;
