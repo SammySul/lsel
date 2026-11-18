@@ -4,13 +4,16 @@ A single-player idle game in the browser about running a salvage station on the
 frontier. You train departments, build the station out module by module, send
 fleets to take sectors, and manage standing with four factions.
 
-Status: design agreed in five question rounds on 2026-11-16. Nothing is built.
+Status: design agreed in five question rounds on 2026-11-16, defaults confirmed
+on 2026-11-18. Nothing is built.
 
 How to read this document:
 
 - **Locked** items were chosen by the user and are not to be changed without asking.
-- **Default** items were decided by Claude without a question. They are listed
-  together in section 16 so they can be vetoed in one pass.
+- **Default** items were decided by Claude without a question and confirmed
+  afterwards. They are listed together in section 16.
+- Stack and look follow lsel's `STACK.md` and `DESIGN.md`; where this document
+  is silent, they decide.
 - Every number is **tunable** unless marked fixed. Structure is fixed; numbers
   get adjusted by the balance simulator (section 14.7) and by play.
 
@@ -431,9 +434,9 @@ Target timeline for a player who checks in a few times a day:
 
 ```
 +------------------------------------------------------------------------------+
-| Lsel    credits 12,480   iron plate 1,284   fuel cells 96    saved 14:02 ✓   |
+| Lsel    credits 12,480   iron plate 1,284   fuel cells 96  saved 2:02 PM ✓   |
 +--------------+-----------------------------+---------------------------------+
-| Mining    14 | MINING               Lv 14  | [Station]  [Map]  [Fleet 1]     |
+| Mining    14 | Mining               Lv 14  | [Station]  [Map]  [Fleet 1]     |
 | Salvage    6 | xp 62,300 / 74,000          |                                 |
 | Skimming   - | pool 31%                    |                                 |
 | Hydropon.  4 |                             |          pixel scene            |
@@ -468,14 +471,18 @@ below; the rail becomes a drawer.
 ### 11.3 Conventions
 
 - US spelling, 12-hour clock, metric units, thousands separated by commas.
-- Level-ups and finished modules show as short toasts. The only dialogs are the
-  offline summary and an event the player opened.
+- Level-ups and finished modules show as short toasts that clear themselves.
+  The offline summary is a panel in the middle column, not a dialog; the only
+  dialog is an event the player opened.
 - Keyboard: `1` to `0` select departments, `j` and `k` move through the list,
-  `Enter` assigns, `m` opens the map, `i` opens the inbox.
-- Reduced-motion setting draws the scene as still frames.
+  `Enter` assigns, `m` opens the map, `i` opens the inbox, `Esc` backs out, `?`
+  lists the keys. Every key is shown next to its action.
+- With `prefers-reduced-motion` the scene is drawn as still frames; there is no
+  setting for it.
 - Factions are told apart by icon shape as well as color.
-- Text is set in JetBrains Mono, self-hosted (lsel's `tokens.css`). A pixel face is used only for the
-  title.
+- The interface is lsel's `tokens.css`: its variables, its elements, JetBrains
+  Mono. The palette in section 12.2 is for the scene only. A pixel face is used
+  only for the title.
 
 ---
 
@@ -483,7 +490,8 @@ below; the rail becomes a drawer.
 
 ### 12.1 Style rules
 
-- One fixed palette of about 24 colors (below). No color outside it.
+- One fixed palette of about 24 colors (below). No color outside it in the
+  scene.
 - Shading by 4×4 ordered dithering. No gradients, no anti-aliasing.
 - Light comes from the upper right.
 - Built things (station, ships, drones) have a one-pixel dark outline; natural
@@ -541,7 +549,9 @@ Every running job shows up, and only running jobs do:
   project finishes, the module is there.
 - Workshop sparks, refinery vents, lab lights, scanner sweep, greenhouse glow.
 - Freighters dock for trade runs; fleets undock and leave.
-- Windows flicker; stars twinkle.
+- Windows flicker; stars twinkle. This is the one decorative motion, which
+  `DESIGN.md` allows inside a game's scene; like all scene motion it stops
+  under `prefers-reduced-motion` (section 11.3).
 
 A fleet tab shows two lines of ships trading fire, with shield flicker and hull
 bars mirrored from the text panel.
@@ -566,11 +576,11 @@ None in the first version.
 
 ### 14.1 Stack
 
-- TypeScript, Svelte 5, Vite. Canvas 2D for the scene. No game engine.
-- Vitest for tests.
-- npm, packaged with Nix. The flake provides the dev shell, the package and a
-  NixOS module for twelve behind cloudflared, the same pattern as the `lsel`
-  start page.
+- lsel's `web` template (`STACK.md`): TypeScript, Svelte 5, Vite, Biome, Bun
+  for install, run and tests. Canvas 2D for the scene. No game engine.
+- `bun test` for unit tests, Playwright for browser tests.
+- Packaged with Nix: the flake provides the dev shell and the package;
+  `squares` runs it on twelve behind cloudflared.
 - No requests to outside hosts at run time. Fonts are self-hosted.
 
 ### 14.2 Structure
@@ -580,10 +590,11 @@ src/
   sim/       pure, deterministic game logic: state, tick, formulas. No DOM.
   content/   data: items, actions, modules, ships, enemies, sectors,
              factions, crew, events, research. Typed, with ids.
-  scene/     canvas renderer, sprite grids, generators.
-  ui/        Svelte components.
   save/      schema, migrations, export/import, local store, sync client.
-server/      the sync service.
+  web/       the Vite root.
+    scene/   canvas renderer, sprite grids, generators.
+    ui/      Svelte components.
+  server/    Bun.serve: the built game, /healthz and the sync API.
 tools/       balance simulator.
 ```
 
@@ -593,7 +604,7 @@ tools/       balance simulator.
   record, not code.
 - Ids are branded types. Variants (job kinds, sector owners, event effects) are
   discriminated unions handled exhaustively. Saves and imports are parsed and
-  validated at the boundary.
+  validated at the boundary with Valibot.
 
 ### 14.3 Tick and offline catch-up
 
@@ -612,8 +623,8 @@ tools/       balance simulator.
 
 ### 14.5 Sync
 
-- A single-file HTTP service with no dependencies, run by systemd on twelve,
-  storing each save as a file.
+- Part of the one `Bun.serve` process that serves the game. Saves are rows in
+  `bun:sqlite` in the service's state directory, backed up by `squares`.
 - No accounts. The game generates a **save key**; entering it on another device
   links that device. The key is the only credential.
 - `GET` and `PUT` on `/save/<key id>`, with a revision counter. If the server's
@@ -628,6 +639,7 @@ tools/       balance simulator.
   yields the stated output, a level unlocks the stated item, a save round-trips.
 - Determinism: the same seed and commands always give the same state.
 - Offline equivalence: catching up N hours equals ticking live for N hours.
+- Playwright loads the built game in Chromium, Firefox and WebKit.
 
 ### 14.7 Balance simulator
 
@@ -643,8 +655,8 @@ Each step ends with something playable.
 
 | Step | Contents |
 |---|---|
-| 0 | Flake, project skeleton, tick loop, one job (Mining iron), the station scene with a drone and a generated planet |
-| 1 | Save format, local saves, export and import, sync service, NixOS module, first deploy to twelve |
+| 0 | Project from lsel's `web` template, tick loop, one job (Mining iron), the station scene with a drone and a generated planet |
+| 1 | Save format, local saves, export and import, sync API, the app's entry in `squares`, first deploy to twelve |
 | 2 | Crew slots, Refining, Construction with modules appearing in the scene, mastery, offline catch-up and summary |
 | 3 | Fabrication, Salvage, Hydroponics and rations, Skimming, Survey, Research |
 | 4 | Sector map, claim beacons, outposts, Trade and credits |
@@ -654,10 +666,9 @@ Each step ends with something playable.
 
 ---
 
-## 16. Defaults to confirm
+## 16. Confirmed defaults
 
-These were decided without a question. Any of them can be changed before
-building starts.
+These were decided without a question and confirmed on 2026-11-18.
 
 1. No sound in the first version.
 2. Station modules have fixed positions; the player does not place them.
@@ -669,7 +680,7 @@ building starts.
 8. 36 sectors, 12 strongholds, about 24 crew, about 40 events, about 60 research nodes.
 9. Keyboard shortcuts as in section 11.3.
 10. US spelling and a 12-hour clock, with metric units (lsel's rule).
-11. The sync service is a dependency-free Node file, and the save key is the only credential.
+11. Sync is part of the game's own `Bun.serve` process with saves in `bun:sqlite`, and the save key is the only credential.
 12. No prestige, no tutorial screens.
 
 ---
