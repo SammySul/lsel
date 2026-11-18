@@ -5,8 +5,8 @@ frontier. You train departments, build the station out module by module, send
 fleets to take sectors, and manage standing with four factions.
 
 Status: design agreed in five question rounds on 2026-11-16, defaults confirmed
-on 2026-11-18. Steps 0, 2, 3 and 4 of the build order (section 15) and sound are
-built; step 1 is not.
+on 2026-11-18. Steps 0 to 4 of the build order (section 15) and sound are
+built, except step 1's deploy to twelve.
 
 How to read this document:
 
@@ -692,8 +692,19 @@ tools/       balance simulator.
 ### 14.4 Saves
 
 - One versioned document with a migration per version.
-- Autosave to the browser every 30 seconds and on important actions.
-- Export and import as a text string.
+- Autosave to the browser every 30 seconds, after every command, on milestones
+  (a module, an unlock, a recruit, a sector, a level) and when the page is put
+  away. Never during catch-up.
+- Export and import as a text string: `lsel-station:` and the document in
+  base64. Importing replaces the game after showing its play time and date.
+- A save that cannot be read is moved aside (`lsel-station.save.unreadable`),
+  never overwritten, and a new game starts with a notice.
+- One tab runs the game (a Web Lock); another shows it read-only and takes over
+  when the first closes.
+- On load, up to 24 hours away is caught up on behind a progress bar, then
+  summed up in a "While you were away" panel. So is a gap of over an hour while
+  the page stayed open (a sleeping laptop), and a hidden tab that comes back
+  after a minute or more gets the summary of what happened meanwhile.
 
 ### 14.5 Sync
 
@@ -706,6 +717,19 @@ tools/       balance simulator.
   saves (play time and last saved) and asks which to keep. Nothing is merged.
 - Limits on save size and request rate.
 - The game works fully without the service; sync state is shown in the top bar.
+
+As built:
+
+- The key is 24 random bytes in base64url and travels only in the
+  `Authorization` header; the address carries its SHA-256, which is all the
+  service stores.
+- The service validates every save it is sent with the game's own schema, and
+  refuses bodies over 128 KB. Requests: 30 a minute per save and 120 a minute
+  per address (`CF-Connecting-IP` from the tunnel).
+- A device sends its save every 5 minutes while open and when the page is put
+  away. On load, a device whose save has not moved since it last synced takes a
+  newer synced save without asking; otherwise it asks.
+- Saves, sync and the key are in the Saves panel (`o`).
 
 ### 14.6 Tests
 

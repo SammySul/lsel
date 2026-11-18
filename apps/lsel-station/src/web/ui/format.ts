@@ -29,3 +29,17 @@ export const stacks = (list: readonly Stack[]) =>
       return `${count(amount)} ${(amount === 1 ? (one ?? name) : name).toLowerCase()}`;
     })
     .join(", ");
+
+const clockFormat = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" });
+const whenFormat = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+});
+
+/** A time of day as "2:02 PM". */
+export const clock = (ms: number) => clockFormat.format(ms);
+
+/** A moment as "Nov 18, 2:02 PM". */
+export const when = (ms: number) => whenFormat.format(ms);

@@ -4,4 +4,38 @@ import "./lsel/tokens.css";
 
 const target = document.getElementById("app");
 if (target === null) throw new Error("index.html has no #app element");
-mount(App, { target });
+const LOCK = "lsel-station.game";
+
+const run = (readOnly: boolean) => mount(App, { target, props: { readOnly } });
+
+// Leaving the page lets go of the lock at once, so a waiting tab takes over without waiting for teardown.
+// A page brought back from the back-forward cache no longer holds it, so it starts over.
+const leaving = new AbortController();
+window.addEventListener("pagehide", () => leaving.abort(), { once: true });
+window.addEventListener("pageshow", (event) => {
+  if (event.persisted) location.reload();
+});
+const untilLeaving = () =>
+  new Promise<void>((resolve) => leaving.signal.addEventListener("abort", () => resolve()));
+const ignore = () => {};
+
+// one tab runs the game; any other shows it read-only, and takes over with the save when the first closes
+if (navigator.locks === undefined) run(false);
+else {
+  navigator.locks
+    .request(LOCK, { ifAvailable: true }, (lock) => {
+      if (lock === null) {
+        run(true);
+        navigator.locks
+          .request(LOCK, { signal: leaving.signal }, () => {
+            location.reload();
+            return untilLeaving();
+          })
+          .catch(ignore);
+        return;
+      }
+      run(false);
+      return untilLeaving();
+    })
+    .catch(ignore);
+}

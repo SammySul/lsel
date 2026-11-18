@@ -2,11 +2,12 @@ import { isAbsolute } from "node:path";
 import * as v from "valibot";
 import { name } from "../../package.json";
 
-/** `my-app` in package.json reads `MY_APP_HOST`, `MY_APP_PORT` and `MY_APP_STATIC`. */
+/** `lsel-station` reads `LSEL_STATION_HOST`, `_PORT`, `_STATIC` and `_DB`. */
 export const PREFIX = name.toUpperCase().replaceAll("-", "_");
 
-const VARS = { host: "HOST", port: "PORT", staticDir: "STATIC" } as const;
+const VARS = { host: "HOST", port: "PORT", staticDir: "STATIC", db: "DB" } as const;
 const STATIC = "an absolute path to the built web app";
+const DB = "an absolute path to the saves database";
 
 const Config = v.object({
   host: v.optional(v.pipe(v.string(), v.nonEmpty()), "127.0.0.1"),
@@ -21,6 +22,7 @@ const Config = v.object({
     "7000",
   ),
   staticDir: v.pipe(v.string(STATIC), v.check(isAbsolute, STATIC)),
+  db: v.pipe(v.string(DB), v.check(isAbsolute, DB)),
 });
 
 export type Config = v.InferOutput<typeof Config>;
@@ -31,6 +33,7 @@ export function parseConfig(env: Record<string, string | undefined>): Config {
     host: env[`${PREFIX}_HOST`],
     port: env[`${PREFIX}_PORT`],
     staticDir: env[`${PREFIX}_STATIC`],
+    db: env[`${PREFIX}_DB`],
   });
   if (!r.success) {
     const lines = r.issues.map((i) => {

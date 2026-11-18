@@ -1,5 +1,6 @@
 import { name } from "../../package.json";
 import { parseConfig } from "./config.ts";
+import { openSaves } from "./saves.ts";
 import { handler } from "./server.ts";
 
 let config: ReturnType<typeof parseConfig>;
@@ -12,6 +13,6 @@ try {
 const server = Bun.serve({
   hostname: config.host,
   port: config.port,
-  fetch: handler(config.staticDir),
+  fetch: handler({ staticDir: config.staticDir, saves: openSaves(config.db) }),
 });
 console.log(`${name} listening on ${server.url}`);

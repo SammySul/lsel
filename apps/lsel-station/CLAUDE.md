@@ -16,9 +16,17 @@ traps.
 - The game's seed is random per page load, so anything rolled (mastery's
   double output, kept input) differs between runs: a browser test asserts
   those amounts with a pattern, and exact numbers only before mastery 10.
-- The map is never saved, only the seed: changing `generateMap` moves every
-  existing game's sectors. Once saves exist (step 1), a change to it needs a
-  save migration or a version check on the map.
+- The map is never saved, only the seed: changing `generateMap` moves the
+  sectors of every saved game. Bump `SAVE_VERSION` with a migration that keeps
+  the old map (or remaps owned and revealed sectors), never edit it in place.
+- A change to `GameState` needs `SAVE_VERSION` + 1 and a step in
+  `MIGRATIONS` (`src/save/document.ts`): players' saves and the sync service's
+  rows are all at the old version.
+- **Every AudioContext promise is caught** (`resume`, `suspend`, `close`):
+  Firefox rejects one still pending when the page navigates and logs it as an
+  error, which fails the quiet-console tests.
+- Catch-up yields with a `MessageChannel`, not a timer: `page.clock` fakes
+  timers in tests, and a hidden tab slows them to once a minute.
 - `?seed=<n>` fixes a game's seed; the browser tests use seed 7 wherever they
   assert sector names or rolled amounts.
 - **An `AudioContext` is created only inside a key press or click** that

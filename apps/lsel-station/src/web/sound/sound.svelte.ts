@@ -30,6 +30,9 @@ function stored(): string | null {
   }
 }
 
+// leaving the page rejects a resume or suspend still under way, which Firefox reports if nobody catches it
+const settled = () => {};
+
 /** All of the game's sound. Nothing is created until the first key press or click, as browsers require. */
 export function createSound() {
   let settings = $state.raw(parseSettings(stored()));
@@ -63,13 +66,13 @@ export function createSound() {
         if (!gesture) return;
         graph = open();
       }
-      void graph.ctx.resume();
+      graph.ctx.resume().catch(settled);
       graph.master.gain.setTargetAtTime(MASTER, graph.ctx.currentTime, FADE_S);
     } else if (graph !== undefined) {
       // a hidden tab that keeps sounding is never throttled, and plays to nobody
       const { ctx, master } = graph;
       master.gain.setTargetAtTime(0, ctx.currentTime, FADE_S);
-      resting = setTimeout(() => void ctx.suspend(), 150);
+      resting = setTimeout(() => ctx.suspend().catch(settled), 150);
     }
   }
 
@@ -140,7 +143,7 @@ export function createSound() {
       for (const type of GESTURES) removeEventListener(type, onGesture, { capture: true });
       document.removeEventListener("visibilitychange", onVisibility);
       graph?.bed.stop();
-      void graph?.ctx.close();
+      graph?.ctx.close().catch(settled);
     },
   };
 }

@@ -1,22 +1,30 @@
 <script lang="ts">
-import { onDestroy } from "svelte";
+import { onDestroy, untrack } from "svelte";
 import { ACTION_IDS, ACTIONS } from "../content/actions.ts";
 import { CREW } from "../content/crew.ts";
 import { CROP_IDS, CROPS } from "../content/crops.ts";
 import { DEPARTMENT_IDS, DEPARTMENTS, type DepartmentId } from "../content/departments.ts";
 import { ITEM_IDS, ITEMS, type ItemId } from "../content/items.ts";
+import { type SaveDocument, toDocument } from "../save/document.ts";
 import { HOME, mapOf } from "../sim/map.ts";
 import { departmentLevel, departmentOpen } from "../sim/rules.ts";
+import { newGame } from "../sim/state.ts";
 import { startGame } from "./game.svelte.ts";
 import { createSound } from "./sound/sound.svelte.ts";
+import { loadSave, writeSave } from "./storage.ts";
+import { createSync } from "./sync.svelte.ts";
 import Department from "./ui/Department.svelte";
-import { count, percent } from "./ui/format.ts";
+import { clock, count, duration, percent, when } from "./ui/format.ts";
 import { isGameKey } from "./ui/keys.ts";
 import MapView from "./ui/MapView.svelte";
 import { createNotices } from "./ui/notices.svelte.ts";
+import SavePanel from "./ui/SavePanel.svelte";
 import Scene from "./ui/Scene.svelte";
+import { summaryLines } from "./ui/summary.ts";
 
-/** A game's seed: `?seed=7` in the address picks it, otherwise it is random. */
+let { readOnly }: { readOnly: boolean } = $props();
+
+/** A new game's seed: `?seed=7` in the address picks it, otherwise it is random. */
 function pickSeed(): number {
   const asked = new URLSearchParams(location.search).get("seed");
   if (asked !== null && /^\d{1,9}$/.test(asked)) return Number(asked);
@@ -24,13 +32,43 @@ function pickSeed(): number {
   return random;
 }
 
-const seed = pickSeed();
+const loaded = loadSave();
+const saved = loaded.kind === "save" ? loaded.doc : null;
+const initial = saved?.state ?? newGame(pickSeed());
+/** The save this device last wrote, which export and sync send. */
+let latest: SaveDocument = saved ?? toDocument(structuredClone(initial), Date.now());
+let savedAt = $state<number | null>(saved?.savedAt ?? null);
+let replacing = false;
+
+const map = mapOf(initial.seed);
 const sound = createSound();
-const notices = createNotices(mapOf(seed));
-const game = startGame(seed, (event) => {
-  sound.hear(event);
-  notices.hear(event);
+const notices = createNotices(map);
+
+/** Puts another save in this browser and starts over from it. */
+function replace(doc: SaveDocument): void {
+  replacing = true;
+  game.stop();
+  writeSave(doc);
+  location.reload();
+}
+
+const sync = createSync({ latest: () => latest, replace });
+const game = startGame({
+  state: initial,
+  savedAt: saved?.savedAt ?? null,
+  readOnly: untrack(() => readOnly),
+  hear(event) {
+    sound.hear(event);
+    notices.hear(event);
+  },
+  save(state, at) {
+    if (replacing) return;
+    latest = toDocument(structuredClone(state), at);
+    if (writeSave(latest)) savedAt = at;
+    sync.saved();
+  },
 });
+if (!untrack(() => readOnly)) void sync.start();
 onDestroy(() => {
   game.stop();
   sound.stop();
@@ -46,6 +84,7 @@ const fromHash = (): View | undefined =>
 let view: View = $state(fromHash() ?? "mining");
 let sector = $state(HOME);
 let keysOpen = $state(false);
+let savesOpen = $state(false);
 
 const open = $derived(DEPARTMENT_IDS.filter((id) => departmentOpen(game.snapshot, id)));
 /** Every item the selected department takes or makes, and rations, which everyone eats. */
@@ -90,7 +129,12 @@ function onkeydown(event: KeyboardEvent): void {
   else if (event.key === "m") select("map");
   else if (event.key === "s") sound.toggle();
   else if (event.key === "?") keysOpen = !keysOpen;
-  else if (event.key === "Escape") keysOpen = false;
+  else if (event.key === "o") savesOpen = !savesOpen;
+  else if (event.key === "Escape") {
+    keysOpen = false;
+    savesOpen = false;
+    game.dismissSummary();
+  }
 }
 </script>
 
@@ -104,6 +148,24 @@ function onkeydown(event: KeyboardEvent): void {
         <li><span class="dim">{ITEMS[id].name}</span> {count(game.snapshot.items[id] ?? 0)}</li>
       {/each}
     </ul>
+    <span class="saved dim" aria-live="polite">
+      {#if readOnly}
+        Read only
+      {:else if savedAt === null}
+        Not saved yet
+      {:else}
+        Saved {clock(savedAt)}{sync.status.kind === "synced"
+          ? ", synced"
+          : sync.status.kind === "failed"
+            ? ", sync failed"
+            : sync.status.kind === "conflict"
+              ? ", sync waiting"
+              : ""}
+      {/if}
+    </span>
+    <button type="button" aria-pressed={savesOpen} onclick={() => (savesOpen = !savesOpen)}>
+      Saves <kbd>o</kbd>
+    </button>
     <button type="button" aria-pressed={!sound.settings.muted} onclick={sound.toggle}>
       Sound <kbd>s</kbd>
     </button>
@@ -134,6 +196,73 @@ function onkeydown(event: KeyboardEvent): void {
     </nav>
 
     <div class="middle">
+      {#if readOnly}
+        <aside class="panel" aria-label="Read only">
+          <p>
+            Lsel is open in another tab. This one only shows the game, and takes over when that tab
+            closes.
+          </p>
+        </aside>
+      {/if}
+      {#if loaded.kind === "unreadable"}
+        <aside class="panel" aria-label="Save">
+          <p class="note">
+            The save in this browser could not be read ({loaded.reason}). It is kept aside, and this
+            is a new game.
+          </p>
+        </aside>
+      {/if}
+      {#if game.catching !== null}
+        {@const { done, total, awayMs } = game.catching}
+        <aside class="panel" aria-label="Catching up">
+          <p>Catching up on {duration(awayMs)} away</p>
+          <div
+            class="bar"
+            role="progressbar"
+            aria-label="Catching up"
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-valuenow={Math.round((done / total) * 100)}
+          >
+            <div style:width="{(done / total) * 100}%"></div>
+          </div>
+        </aside>
+      {/if}
+      {#if game.summary !== null}
+        <aside class="panel lsel-appear" aria-label="While you were away">
+          <h2>While you were away</h2>
+          <p class="dim">{duration(game.summary.awayMs)}</p>
+          <ul>
+            {#each summaryLines(game.summary, map) as line, i (i)}
+              <li>{line}</li>
+            {/each}
+          </ul>
+          <div class="line">
+            <span></span>
+            <button type="button" onclick={game.dismissSummary}>Done <kbd>Esc</kbd></button>
+          </div>
+        </aside>
+      {/if}
+      {#if sync.status.kind === "conflict"}
+        {@const { mine, theirs } = sync.status}
+        <aside class="panel lsel-appear" aria-label="Choose a save">
+          <h2>Two saves</h2>
+          <p>This device and the synced save have both moved on. Which one continues?</p>
+          <dl>
+            <dt>This device</dt>
+            <dd>Played {duration(mine.playedMs)}, saved {when(mine.savedAt)}</dd>
+            <dt>Synced</dt>
+            <dd>Played {duration(theirs.playedMs)}, saved {when(theirs.savedAt)}</dd>
+          </dl>
+          <div class="line">
+            <button type="button" onclick={sync.useTheirs}>Use the synced one</button>
+            <button type="button" onclick={sync.keepMine}>Keep this device's</button>
+          </div>
+        </aside>
+      {/if}
+      {#if savesOpen}
+        <SavePanel latest={() => latest} {sync} load={replace} />
+      {/if}
       {#if keysOpen}
         <section class="keys lsel-appear" aria-label="Keys and volume">
           <dl>
@@ -153,6 +282,8 @@ function onkeydown(event: KeyboardEvent): void {
             <dd>Plant an empty bed</dd>
             <dt><kbd>m</kbd></dt>
             <dd>Map</dd>
+            <dt><kbd>o</kbd></dt>
+            <dd>Saves and sync</dd>
             <dt><kbd>s</kbd></dt>
             <dd>Sound on or off</dd>
             <dt><kbd>?</kbd></dt>
@@ -293,6 +424,36 @@ function onkeydown(event: KeyboardEvent): void {
   }
   dd {
     margin: 0;
+  }
+  .panel {
+    padding: var(--space-4);
+    border-bottom: var(--border);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .panel p,
+  .panel ul {
+    margin: 0;
+  }
+  .panel ul {
+    padding-left: var(--space-4);
+  }
+  .panel .line {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+  .note {
+    color: var(--warning);
+  }
+  .bar {
+    height: var(--space-2);
+    background: var(--surface);
+  }
+  .bar div {
+    height: 100%;
+    background: var(--accent);
   }
   .notices {
     position: absolute;

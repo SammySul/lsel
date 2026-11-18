@@ -4,6 +4,7 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { type Browser, chromium, firefox, type Page, webkit } from "playwright-core";
+import { openSaves } from "../src/server/saves.ts";
 import { handler } from "../src/server/server.ts";
 import { PALETTE } from "../src/web/scene/palette.ts";
 
@@ -17,7 +18,10 @@ let server: ReturnType<typeof Bun.serve>;
 
 beforeAll(() => {
   if (!existsSync(join(DIST, "index.html"))) throw new Error("no dist/: run `bun run build` first");
-  server = Bun.serve({ port: 0, fetch: handler(DIST) });
+  server = Bun.serve({
+    port: 0,
+    fetch: handler({ staticDir: DIST, saves: openSaves(":memory:") }),
+  });
 });
 
 afterAll(() => {
