@@ -222,7 +222,7 @@ for (const name of browsers()) {
       expect(await listed(page)).toEqual(["Fine"]);
     });
 
-    test("an installed font is found and added from the keyboard", async () => {
+    test("an installed font is found and added from the keyboard, or with one click", async () => {
       const { page, problems } = await open();
       await page.addInitScript((base64) => {
         const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
@@ -249,8 +249,10 @@ for (const name of browsers()) {
       await page.getByLabel("Preview in Probe Serif").waitFor();
       expect(await listed(page)).toEqual(["Probe Serif"]);
 
-      await page.keyboard.press("Escape");
-      await page.keyboard.press("Escape");
+      await page.getByRole("button", { name: "Probe Sans" }).click();
+      await page.getByLabel("Preview in Probe Sans").waitFor();
+      expect(await listed(page)).toEqual(["Probe Serif", "Probe Sans"]);
+
       await page.keyboard.press("i");
       await search.waitFor({ state: "detached" });
       expect(await problems()).toEqual([]);

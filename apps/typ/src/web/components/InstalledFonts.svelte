@@ -62,7 +62,9 @@ keys(() => [
         />
         <div class="families">
           <List items={shown} id={(f) => f} label="Installed fonts" onopen={onpick}>
-            {#snippet row(family)}{family}{/snippet}
+            {#snippet row(family)}
+              <button class="pick" onclick={() => onpick(family)}>{family}</button>
+            {/snippet}
             {#snippet empty()}No installed font matches. <kbd>Esc</kbd> clears the search.{/snippet}
           </List>
         </div>
@@ -85,6 +87,10 @@ keys(() => [
   .families {
     max-height: 40vh;
     overflow-y: auto;
+  }
+  .pick {
+    width: 100%;
+    text-align: left;
   }
   .note {
     margin: 0;
