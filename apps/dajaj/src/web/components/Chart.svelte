@@ -1,4 +1,5 @@
 <script lang="ts">
+import { reducedMotion, when } from "@sammysul/lsel";
 import {
   ArcElement,
   BarController,
@@ -16,7 +17,7 @@ import {
 } from "chart.js";
 import { untrack } from "svelte";
 import type { Report, Stat } from "../../shared/stats.ts";
-import { formatWhen, STAT_UNITS } from "../lib/format.ts";
+import { STAT_UNITS } from "../lib/format.ts";
 
 Chart.register(
   ArcElement,
@@ -49,7 +50,7 @@ const css = (name: string) =>
 
 // Chart.js animates from JavaScript, which tokens.css's reduced-motion rule can't reach.
 function animation() {
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
+  if (reducedMotion()) return false;
   return { duration: Number.parseFloat(css("--motion-slow")), easing: "easeOutQuart" as const };
 }
 
@@ -62,7 +63,7 @@ function config(report: Report, view: View, stat: Stat): ChartConfiguration<View
     return {
       type: "line",
       data: {
-        labels: report.perMatch.map((m) => formatWhen(m.createdAt)),
+        labels: report.perMatch.map((m) => when(new Date(m.createdAt))),
         datasets: report.players.map((player, i) => ({
           label: player,
           data: report.perMatch.map((m) => {

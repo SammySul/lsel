@@ -3,17 +3,17 @@ import { beforeAll, describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseConfig } from "./config.ts";
+import { handler, parseEnv } from "@sammysul/lsel/server";
+import { api } from "./api.ts";
+import { ENV, PORT } from "./config.ts";
 import { fakePubg, WORLD } from "./fakePubg.ts";
 import { Pubg } from "./pubg.ts";
-import { handler, resolveStatic } from "./server.ts";
 
 let web: string;
 beforeAll(() => {
   web = join(mkdtempSync(join(tmpdir(), "dajaj-web-")), "web");
-  mkdirSync(join(web, "assets"), { recursive: true });
+  mkdirSync(web, { recursive: true });
   writeFileSync(join(web, "index.html"), "<!doctype html><title>dajaj</title>");
-  writeFileSync(join(web, "assets", "app-abc.js"), "1");
 });
 
 function app() {
@@ -25,9 +25,9 @@ function app() {
     fetch: fake.fetch,
   });
   const players = ["AntennaTower", "Rectifier94", "Reason_ING"];
-  const h = handler({ staticDir: web, players, pubg });
-  const get = async (path: string) => {
-    const r = await h(new Request(`http://dajaj.test${path}`));
+  const h = handler(web, api({ players, pubg }));
+  const get = async (path: string, method = "GET") => {
+    const r = await h(new Request(`http://dajaj.test${path}`, { method }));
     return { status: r.status, headers: r.headers, body: await r.text() };
   };
   return { fake, get };
@@ -74,7 +74,7 @@ describe("api", () => {
         "/api/report",
         "/api/report?players=AntennaTower,Shroud",
         "/api/report?players=AntennaTower,AntennaTower",
-      ].map(get),
+      ].map((path) => get(path)),
     );
     expect(answers.map((r) => [r.status, JSON.parse(r.body).error])).toEqual([
       [400, "choose at least one player"],
@@ -94,36 +94,28 @@ describe("api", () => {
     ]);
   });
 
-  test("an unknown api path is a json 404", async () => {
+  test("an unknown api path is a json 404, only GET and HEAD reach the api, and the rest is the web app", async () => {
     const { get } = app();
-    const r = await get("/api/nope");
-    expect([r.status, JSON.parse(r.body)]).toEqual([404, { error: "no such endpoint" }]);
-  });
-});
-
-describe("static files", () => {
-  test("index, hashed assets, healthz and the security headers", async () => {
-    const { get } = app();
-    const [index, asset, health] = await Promise.all([
+    const [nope, post, index] = await Promise.all([
+      get("/api/nope"),
+      get("/api/players", "POST"),
       get("/"),
-      get("/assets/app-abc.js"),
-      get("/healthz"),
     ]);
     expect([
+      nope.status,
+      JSON.parse(nope.body),
+      post.status,
+      post.headers.get("allow"),
       index.status,
-      index.headers.get("cache-control"),
-      asset.headers.get("cache-control"),
-      health.body,
-    ]).toEqual([200, "no-cache", "public, max-age=31536000, immutable", "ok"]);
-    expect(index.headers.get("content-security-policy")).toBe(
-      "default-src 'self'; connect-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
-    );
-  });
-
-  test("paths leaving the web root are refused", () => {
-    expect(resolveStatic("/srv/web", "/index.html")).toBe("/srv/web/index.html");
-    expect(resolveStatic("/srv/web", "/..%2f..%2fetc/passwd")).toBeNull();
-    expect(resolveStatic("/srv/web", "/index.html%00.js")).toBeNull();
+      index.body,
+    ]).toEqual([
+      404,
+      { error: "no such endpoint" },
+      405,
+      "GET, HEAD",
+      200,
+      "<!doctype html><title>dajaj</title>",
+    ]);
   });
 });
 
@@ -133,24 +125,34 @@ describe("config", () => {
     DAJAJ_DB: "/var/lib/dajaj/cache.sqlite",
     PUBG_API_KEY: "k",
   };
+  const parse = (env: Record<string, string>) => parseEnv("dajaj", env, ENV, PORT);
 
   test("defaults and the player list", () => {
-    expect(parseConfig({ ...base, DAJAJ_PLAYERS: "AntennaTower, Rectifier94" })).toEqual({
+    expect(parse({ ...base, DAJAJ_PLAYERS: "AntennaTower, Rectifier94" })).toEqual({
       host: "127.0.0.1",
       port: 7310,
       staticDir: "/srv/web",
-      db: "/var/lib/dajaj/cache.sqlite",
-      players: ["AntennaTower", "Rectifier94"],
-      apiKey: "k",
-      apiUrl: "https://api.pubg.com/shards/steam",
+      DAJAJ_DB: "/var/lib/dajaj/cache.sqlite",
+      DAJAJ_PLAYERS: ["AntennaTower", "Rectifier94"],
+      PUBG_API_KEY: "k",
+      PUBG_API_URL: "https://api.pubg.com/shards/steam",
     });
+  });
+
+  test("names every missing variable", () => {
+    expect(() => parse({})).toThrow(
+      "bad environment:\n  DAJAJ_DB: an absolute path to the match cache (an SQLite file)\n  DAJAJ_PLAYERS: a comma-separated list of PUBG names\n  DAJAJ_STATIC: an absolute path to the built web app\n  PUBG_API_KEY: the PUBG API key",
+    );
   });
 
   test("names every bad variable without printing the key", () => {
     expect(() =>
-      parseConfig({ DAJAJ_STATIC: "web", DAJAJ_DB: "/x", DAJAJ_PLAYERS: ",", PUBG_API_KEY: "" }),
+      parse({ DAJAJ_STATIC: "/srv/web", DAJAJ_DB: "cache", DAJAJ_PLAYERS: ",", PUBG_API_KEY: "" }),
     ).toThrow(
-      "bad environment:\n  DAJAJ_STATIC: an absolute path to the built web app\n  DAJAJ_PLAYERS: a comma-separated list of PUBG names\n  PUBG_API_KEY: the PUBG API key",
+      "bad environment:\n  DAJAJ_DB: an absolute path to the match cache (an SQLite file)\n  DAJAJ_PLAYERS: a comma-separated list of PUBG names\n  PUBG_API_KEY: the PUBG API key",
     );
+    expect(() =>
+      parse({ ...base, DAJAJ_PLAYERS: "a,b,c,d,e,f,g,h,i,j,k", PUBG_API_KEY: "secret-key" }),
+    ).toThrow(/^bad environment:\n {2}DAJAJ_PLAYERS: at most 10 names \(one PUBG lookup\)$/);
   });
 });

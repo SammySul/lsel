@@ -1,106 +1,111 @@
-// The built app in real browsers, served by the real server, with PUBG replaced by fakePubg over HTTP.
-// Run `bun run build` first. Env: BROWSERS=chromium,firefox,webkit
+// PUBG is fakePubg over HTTP. Run `bun run build` first.
 import { Database } from "bun:sqlite";
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { existsSync } from "node:fs";
 import { join } from "node:path";
 import {
-  type Browser,
-  type BrowserContext,
-  chromium,
-  firefox,
-  type Page,
-  webkit,
-} from "playwright-core";
+  browsers,
+  LSEL_LOOK,
+  launch,
+  lselLook,
+  serveBuilt,
+  watchPage,
+} from "@sammysul/lsel/testing";
+import type { Browser, BrowserContext, Page } from "playwright-core";
+import { api } from "../src/server/api.ts";
 import { fakePubg, WORLD } from "../src/server/fakePubg.ts";
 import { Pubg } from "../src/server/pubg.ts";
-import { handler } from "../src/server/server.ts";
 
-const DIST = join(import.meta.dir, "../dist");
-const ALL = { chromium, firefox, webkit };
-const names = (process.env.BROWSERS?.split(",") ?? Object.keys(ALL)) as (keyof typeof ALL)[];
-
-let fake: ReturnType<typeof fakePubg>;
-let pubgServer: ReturnType<typeof Bun.serve>;
-let appServer: ReturnType<typeof Bun.serve>;
-let base: string;
+const fake = fakePubg(WORLD);
+const pubgServer = Bun.serve({ port: 0, fetch: fake.serve });
 let clock = Date.now();
-
-beforeAll(() => {
-  if (!existsSync(join(DIST, "index.html"))) throw new Error("no dist/: run `bun run build` first");
-  fake = fakePubg(WORLD);
-  pubgServer = Bun.serve({ port: 0, fetch: fake.serve });
-  const pubg = new Pubg({
-    apiKey: "test-key",
-    baseUrl: `${pubgServer.url.href}shards/steam`,
-    db: new Database(":memory:"),
-    now: () => clock,
-  });
-  appServer = Bun.serve({
-    port: 0,
-    fetch: handler({
-      staticDir: DIST,
-      players: ["AntennaTower", "Rectifier94", "Reason_ING"],
-      pubg,
+const DIST = join(import.meta.dir, "../dist");
+const url = serveBuilt(
+  DIST,
+  api({
+    players: ["AntennaTower", "Rectifier94", "Reason_ING"],
+    pubg: new Pubg({
+      apiKey: "test-key",
+      baseUrl: `${pubgServer.url.href}shards/steam`,
+      db: new Database(":memory:"),
+      now: () => clock,
     }),
-  });
-  base = appServer.url.href.replace(/\/$/, "");
-});
+  }),
+);
+
+// Lurker played nothing recently, so no match has both players
+const lonely = fakePubg({ ...WORLD, players: { ...WORLD.players, Lurker: "account.lurker" } });
+const lonelyUrl = serveBuilt(
+  DIST,
+  api({
+    players: ["AntennaTower", "Lurker"],
+    pubg: new Pubg({
+      apiKey: "test-key",
+      baseUrl: "https://pubg.test/shards/steam",
+      db: new Database(":memory:"),
+      fetch: lonely.fetch,
+    }),
+  }),
+);
 
 afterAll(() => {
-  appServer?.stop(true);
-  pubgServer?.stop(true);
+  pubgServer.stop(true);
 });
 
-for (const name of names) {
+for (const name of browsers()) {
   describe(name, () => {
     let browser: Browser;
     beforeAll(async () => {
-      browser = await ALL[name].launch({ headless: true });
+      browser = await launch(name);
     });
     afterAll(async () => {
       await browser?.close();
     });
 
-    async function open(): Promise<{ ctx: BrowserContext; page: Page; problems: string[] }> {
+    async function open(at = url): Promise<{
+      ctx: BrowserContext;
+      page: Page;
+      problems: () => Promise<string[]>;
+    }> {
       const ctx = await browser.newContext({
         timezoneId: "UTC",
         viewport: { width: 1280, height: 900 },
       });
       const page = await ctx.newPage();
-      const problems: string[] = [];
-      page.on("console", (m) => {
-        if (m.type() === "error" || m.type() === "warning")
-          problems.push(`${m.type()}: ${m.text()}`);
-      });
-      page.on("pageerror", (e) => problems.push(`uncaught: ${e.message}`));
-      await page.goto(`${base}/`, { waitUntil: "networkidle" });
-      return { ctx, page, problems };
+      const watch = watchPage(page);
+      await page.goto(at(), { waitUntil: "networkidle" });
+      return { ctx, page, problems: () => watch.take() };
     }
 
-    const status = (page: Page) => page.locator(".status").textContent();
+    const summary = (page: Page) => page.locator(".summary").textContent();
     const pressed = (page: Page, group: string) =>
       page.locator(`[aria-label="${group}"] button[aria-pressed="true"]`).allTextContents();
+
+    test("lsel's look, under the strict CSP", async () => {
+      const { ctx, page, problems } = await open();
+      expect(await lselLook(page)).toEqual(LSEL_LOOK);
+      expect(await problems()).toEqual([]);
+      await ctx.close();
+    });
 
     test("everyone is chosen at first: the table of the one match all three played", async () => {
       const { ctx, page, problems } = await open();
       expect(await pressed(page, "Players")).toEqual(["AntennaTower", "Rectifier94", "Reason_ING"]);
-      expect(await status(page)).toBe("1 match together since Nov 12, 9:40 PM.");
+      expect(await summary(page)).toBe("1 match together since Nov 12, 9:40 PM.");
       const row = (player: string) => page.locator("tbody tr", { hasText: player }).locator("td");
       expect((await row("AntennaTower").allTextContents()).slice(0, 3)).toEqual(["5", "6", "501"]);
       expect(await page.locator("thead th").allTextContents()).toContain("Ride distance (km)");
       expect(await row("Reason_ING").nth(11).textContent()).toBe("2.5");
+      expect(await problems()).toEqual([]);
       await ctx.close();
-      expect(problems).toEqual([]);
     });
 
     test("dropping a player shows the matches the rest played, including one only one list had", async () => {
       const { ctx, page, problems } = await open();
       await page.getByRole("button", { name: "Reason_ING" }).click();
       await page.waitForFunction(() =>
-        document.querySelector(".status")?.textContent?.startsWith("3 "),
+        document.querySelector(".summary")?.textContent?.startsWith("3 "),
       );
-      expect(await status(page)).toBe("3 matches together since Nov 10, 8:05 PM.");
+      expect(await summary(page)).toBe("3 matches together since Nov 10, 8:05 PM.");
       expect(
         await page
           .locator("tbody tr", { hasText: "Rectifier94" })
@@ -108,8 +113,8 @@ for (const name of names) {
           .first()
           .textContent(),
       ).toBe("11");
+      expect(await problems()).toEqual([]);
       await ctx.close();
-      expect(problems).toEqual([]);
     });
 
     test("views switch by key, charts draw on a canvas, and the stat applies to charts only", async () => {
@@ -136,8 +141,8 @@ for (const name of names) {
       expect(await drawn()).not.toBe(kills);
       await page.keyboard.press("1");
       await page.locator("table").waitFor();
+      expect(await problems()).toEqual([]);
       await ctx.close();
-      expect(problems).toEqual([]);
     });
 
     test("choices survive a reload", async () => {
@@ -149,11 +154,11 @@ for (const name of names) {
       expect(await pressed(page, "Players")).toEqual(["AntennaTower", "Rectifier94"]);
       expect(await pressed(page, "View")).toEqual(["Line 3"]);
       expect(await page.locator("select").inputValue()).toBe("walkDistance");
+      expect(await problems()).toEqual([]);
       await ctx.close();
-      expect(problems).toEqual([]);
     });
 
-    test("r within 20 minutes is served from the cache; after that it asks PUBG, and a rate limit shows as a message", async () => {
+    test("r within 20 minutes is served from the cache; after that it asks PUBG, and a rate limit is a message beside the last report", async () => {
       const { ctx, page } = await open();
       fake.state.calls.length = 0;
       await page.keyboard.press("r");
@@ -163,11 +168,35 @@ for (const name of names) {
       fake.state.fail = 429;
       await page.keyboard.press("r");
       await page.locator(".error").waitFor();
-      expect(await page.locator(".error").textContent()).toBe(
-        "PUBG's rate limit was hit; try again in a minute",
+      expect(await page.locator(".error").textContent()).toMatch(
+        /^PUBG's rate limit was hit; try again in a minute\. Showing results from \d{1,2}:\d{2} [AP]M\.\s+r retries\.$/,
       );
+      expect(await summary(page)).toBe("1 match together since Nov 12, 9:40 PM.");
+      expect(await page.locator("tbody tr").count()).toBe(3);
       expect(fake.state.calls[0]).toMatch(/^\/players\/account\.[a-z]+\/seasons\/lifetime$/);
       fake.state.fail = undefined;
+      await page.keyboard.press("r");
+      await page.locator(".error").waitFor({ state: "detached" });
+      expect(await summary(page)).toBe("1 match together since Nov 12, 9:40 PM.");
+      await ctx.close();
+    });
+
+    test("no matches together, and no players chosen, each say why", async () => {
+      const { ctx, page, problems } = await open(lonelyUrl);
+      const empty = page.locator(".lsel-empty");
+      await empty.waitFor();
+      expect(await empty.textContent()).toBe(
+        "No recent matches with all of them. Drop a player to see more.",
+      );
+      await page.getByRole("button", { name: "Lurker" }).click();
+      await page.locator(".summary").waitFor();
+      expect(await summary(page)).toBe("3 matches together since Nov 10, 8:05 PM.");
+      await page.getByRole("button", { name: "AntennaTower" }).click();
+      await empty.waitFor();
+      expect(await empty.textContent()).toBe("No players chosen. Choose one or more above.");
+      expect(await page.getByRole("button", { name: "Refresh" }).isDisabled()).toBe(true);
+      expect(await page.locator("table").count()).toBe(0);
+      expect(await problems()).toEqual([]);
       await ctx.close();
     });
   });

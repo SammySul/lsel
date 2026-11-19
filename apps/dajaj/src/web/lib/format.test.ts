@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { STATS } from "../../shared/stats.ts";
-import { formatWhen, STAT_UNITS } from "./format.ts";
+import { STAT_UNITS } from "./format.ts";
 
 test("every stat has a label and a unit", () => {
   expect(STATS.filter((s) => STAT_UNITS[s] === undefined)).toEqual([]);
@@ -28,9 +28,4 @@ test("time survived is h:mm", () => {
     STAT_UNITS.timeSurvived.text(59),
     STAT_UNITS.timeSurvived.value(5400),
   ]).toEqual(["6:51", "0:00", 1.5]);
-});
-
-test("dates are short, US and 12-hour", () => {
-  expect(formatWhen("2026-11-18T21:16:52Z", "UTC")).toBe("Nov 18, 9:16 PM");
-  expect(formatWhen("2026-11-03T09:05:00Z", "UTC")).toBe("Nov 3, 9:05 AM");
 });

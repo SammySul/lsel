@@ -9,7 +9,7 @@ Everything runs in the Nix dev shell (`direnv allow`, or `nix develop -c …`):
 
 ```sh
 bun install
-bun run check        # tsc, svelte-check, biome
+bun run check        # tsc, svelte-check, biome, lsel-check
 bun run test         # unit tests, PUBG faked
 bun run build        # the web app into dist/
 bun run test:e2e     # dist/ in Chromium, Firefox and WebKit, PUBG faked

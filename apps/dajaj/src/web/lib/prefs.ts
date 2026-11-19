@@ -1,39 +1,29 @@
-import { STATS, type Stat } from "../../shared/stats.ts";
+import { persisted } from "@sammysul/lsel";
+import * as v from "valibot";
+import { STATS } from "../../shared/stats.ts";
 
-export const VIEWS = ["table", "bar", "line", "pie"] as const;
-export type View = (typeof VIEWS)[number];
+export const VIEWS = [
+  { id: "table", label: "Table" },
+  { id: "bar", label: "Bar" },
+  { id: "line", label: "Line" },
+  { id: "pie", label: "Pie" },
+] as const;
+export type View = (typeof VIEWS)[number]["id"];
 
-export interface Prefs {
-  players: string[];
-  view: View;
-  stat: Stat;
-}
+export const Prefs = v.object({
+  players: v.fallback(v.array(v.string()), []),
+  view: v.fallback(v.picklist(VIEWS.map((x) => x.id)), "table"),
+  stat: v.fallback(v.picklist(STATS), "kills"),
+});
 
-const KEY = "dajaj:prefs:v1";
+export const prefs = persisted("dajaj:prefs:v1", Prefs, {
+  players: [],
+  view: "table",
+  stat: "kills",
+});
 
-export type PrefsStorage = Pick<Storage, "getItem" | "setItem">;
-
-/** The stored choices, limited to players that still exist; anything unreadable falls back to everyone, the table, kills. */
-export function readPrefs(storage: PrefsStorage | undefined, available: readonly string[]): Prefs {
-  const fallback: Prefs = { players: [...available], view: "table", stat: "kills" };
-  let data: unknown;
-  try {
-    data = JSON.parse(storage?.getItem(KEY) ?? "null");
-  } catch {
-    return fallback;
-  }
-  if (typeof data !== "object" || data === null) return fallback;
-  const { players, view, stat } = data as Record<string, unknown>;
-  const kept = Array.isArray(players) ? available.filter((p) => players.includes(p)) : [];
-  return {
-    players: kept.length > 0 ? kept : fallback.players,
-    view: (VIEWS as readonly unknown[]).includes(view) ? (view as View) : fallback.view,
-    stat: (STATS as readonly unknown[]).includes(stat) ? (stat as Stat) : fallback.stat,
-  };
-}
-
-export function writePrefs(storage: PrefsStorage | undefined, prefs: Prefs): void {
-  try {
-    storage?.setItem(KEY, JSON.stringify(prefs));
-  } catch {}
+/** The stored players that still exist, in the configured order; with none left, everyone. */
+export function choosePlayers(stored: readonly string[], available: readonly string[]): string[] {
+  const kept = available.filter((p) => stored.includes(p));
+  return kept.length > 0 ? kept : [...available];
 }

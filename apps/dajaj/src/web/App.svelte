@@ -1,117 +1,58 @@
 <script lang="ts">
-import { onMount } from "svelte";
+import { Empty, keys, Page, plural, resource, Status, Tabs, when } from "@sammysul/lsel";
+import { untrack } from "svelte";
 import { version } from "../../package.json";
-import { type Report, STATS, type Stat } from "../shared/stats.ts";
+import { STATS, type Stat } from "../shared/stats.ts";
 import Chart from "./components/Chart.svelte";
 import Table from "./components/Table.svelte";
 import { fetchPlayers, fetchReport } from "./lib/api.ts";
-import { formatWhen, STAT_UNITS } from "./lib/format.ts";
-import { readPrefs, VIEWS, type View, writePrefs } from "./lib/prefs.ts";
+import { STAT_UNITS } from "./lib/format.ts";
+import { choosePlayers, prefs, VIEWS, type View } from "./lib/prefs.ts";
 
-const VIEW_LABEL: Record<View, string> = { table: "Table", bar: "Bar", line: "Line", pie: "Pie" };
+const roster = resource(fetchPlayers);
+const available = $derived(roster.value ?? []);
+// the stored choice seeds it when the players arrive; a toggle overrides it
+let selected = $derived(
+  choosePlayers(
+    untrack(() => prefs.value.players),
+    available,
+  ),
+);
+let view: View = $state(prefs.value.view);
+let stat: Stat = $state(prefs.value.stat);
 
-const storage = (() => {
-  try {
-    return globalThis.localStorage;
-  } catch {
-    return undefined;
-  }
-})();
-
-let available: string[] = $state([]);
-let selected: string[] = $state([]);
-let view: View = $state("table");
-let stat: Stat = $state("kills");
-let report: Report | null = $state(null);
-let loading = $state(false);
-let error: string | null = $state(null);
-let request = 0;
-
-const message = (e: unknown) => (e instanceof Error ? e.message : String(e));
-
-onMount(async () => {
-  try {
-    available = await fetchPlayers();
-  } catch (e) {
-    error = message(e);
-    return;
-  }
-  const prefs = readPrefs(storage, available);
-  selected = prefs.players;
-  view = prefs.view;
-  stat = prefs.stat;
-  await load();
+const report = resource(async (signal) => {
+  const players = selected;
+  return players.length === 0 ? null : fetchReport(players, signal);
 });
 
 $effect(() => {
-  if (available.length > 0) writePrefs(storage, { players: selected, view, stat });
+  if (roster.value !== undefined) prefs.value = { players: selected, view, stat };
 });
-
-// The latest request wins: a slow answer for an older selection is dropped.
-async function load() {
-  const id = ++request;
-  error = null;
-  if (selected.length === 0) {
-    report = null;
-    loading = false;
-    return;
-  }
-  loading = true;
-  try {
-    const r = await fetchReport(selected);
-    if (id === request) report = r;
-  } catch (e) {
-    if (id === request) error = message(e);
-  } finally {
-    if (id === request) loading = false;
-  }
-}
 
 function toggle(player: string) {
   selected = available.filter((p) => (p === player ? !selected.includes(p) : selected.includes(p)));
-  void load();
 }
 
-function onkeydown(e: KeyboardEvent) {
-  if (e.ctrlKey || e.altKey || e.metaKey) return;
-  if (e.target instanceof HTMLSelectElement || e.target instanceof HTMLInputElement) return;
-  const n = Number(e.key);
-  const chosen = VIEWS[n - 1];
-  if (chosen !== undefined) view = chosen;
-  else if (e.key === "r") void load();
-  else return;
-  e.preventDefault();
-}
-
-const status = $derived.by(() => {
-  if (loading) return "Asking PUBG…";
-  if (available.length > 0 && selected.length === 0) return "Choose at least one player.";
-  if (report === null) return "";
-  if (report.matchCount === 0) return "No recent matches with all of them.";
-  const n = report.matchCount;
-  return `${n} ${n === 1 ? "match" : "matches"} together since ${formatWhen(report.earliest ?? "")}.`;
-});
+keys(() =>
+  selected.length > 0 ? [{ key: "r", label: "Refresh", run: () => report.reload() }] : [],
+);
 </script>
 
-<svelte:window {onkeydown} />
-
-<main>
-  <header>
-    <h1>dajaj</h1>
-    <p class="sub">PUBG stats for the matches you all played</p>
-  </header>
-
+<Page
+  name="dajaj"
+  sub="PUBG stats for the matches you all played"
+  {version}
+  source="https://git.sammysul.com/SammySul/dajaj"
+  width={1200}
+>
   <section class="controls" aria-label="Choices">
     <div class="group" role="group" aria-label="Players">
       {#each available as player (player)}
         <button aria-pressed={selected.includes(player)} onclick={() => toggle(player)}>{player}</button>
       {/each}
     </div>
-    <div class="group" role="group" aria-label="View">
-      {#each VIEWS as v, i (v)}
-        <button aria-pressed={view === v} onclick={() => (view = v)}>{VIEW_LABEL[v]} <kbd>{i + 1}</kbd></button>
-      {/each}
-    </div>
+    <Tabs items={VIEWS} bind:value={view} label="View" />
     <label class="stat">
       Stat
       <select bind:value={stat} disabled={view === "table"}>
@@ -120,43 +61,37 @@ const status = $derived.by(() => {
         {/each}
       </select>
     </label>
-    <button class="refresh" onclick={() => void load()} disabled={loading || selected.length === 0}>
+    <button onclick={() => report.reload()} disabled={report.pending || selected.length === 0}>
       Refresh <kbd>r</kbd>
     </button>
   </section>
 
-  <p class="status" role="status">{status}</p>
-  {#if error !== null}
-    <p class="error lsel-appear" role="alert">{error}</p>
+  {#if roster.value === undefined}
+    <Status of={roster} waiting="Asking dajaj for the players…" />
+  {:else}
+    <Status of={report} waiting="Asking PUBG…" />
+    {#if selected.length === 0}
+      <Empty>No players chosen. Choose one or more above.</Empty>
+    {:else if report.value}
+      {#if report.value.matchCount === 0 || report.value.earliest === null}
+        <Empty>No recent matches with all of them. Drop a player to see more.</Empty>
+      {:else}
+        <p class="summary">{plural(report.value.matchCount, "match", "matches")} together since {when(new Date(report.value.earliest))}.</p>
+        {#key view}
+          <div class="lsel-appear">
+            {#if view === "table"}
+              <Table report={report.value} />
+            {:else}
+              <Chart report={report.value} {view} {stat} />
+            {/if}
+          </div>
+        {/key}
+      {/if}
+    {/if}
   {/if}
-
-  {#if report !== null && report.matchCount > 0}
-    {#key view}
-      <div class="lsel-appear">
-        {#if view === "table"}
-          <Table {report} />
-        {:else}
-          <Chart {report} {view} {stat} />
-        {/if}
-      </div>
-    {/key}
-  {/if}
-
-  <footer>
-    dajaj <span class="version">v{version}</span> ·
-    <a href="https://git.sammysul.com/SammySul/dajaj">source</a> · MIT
-  </footer>
-</main>
+</Page>
 
 <style>
-  main {
-    max-width: 1200px;
-    padding: var(--space-6) var(--space-4);
-  }
-  .sub {
-    margin: var(--space-1) 0 var(--space-5);
-    color: var(--subtle);
-  }
   .controls {
     display: flex;
     flex-wrap: wrap;
@@ -174,18 +109,8 @@ const status = $derived.by(() => {
     align-items: center;
     color: var(--subtle);
   }
-  .status {
-    min-height: 1.5em;
-    margin: var(--space-4) 0 var(--space-2);
+  .summary {
+    margin: 0;
     color: var(--subtle);
-  }
-  .error {
-    margin: 0 0 var(--space-4);
-    color: var(--error);
-  }
-  footer {
-    margin-top: var(--space-6);
-    color: var(--subtle);
-    font-size: var(--text-xs);
   }
 </style>

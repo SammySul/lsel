@@ -1,23 +1,21 @@
 import { Database } from "bun:sqlite";
-import { parseConfig } from "./config.ts";
+import { serve } from "@sammysul/lsel/server";
+import { name } from "../../package.json";
+import { api } from "./api.ts";
+import { ENV, PORT } from "./config.ts";
 import { Pubg } from "./pubg.ts";
-import { handler } from "./server.ts";
 
-let config: ReturnType<typeof parseConfig>;
-try {
-  config = parseConfig(process.env);
-} catch (e) {
-  console.error(e instanceof Error ? e.message : e);
-  process.exit(2);
-}
-const pubg = new Pubg({
-  apiKey: config.apiKey,
-  baseUrl: config.apiUrl,
-  db: new Database(config.db, { create: true }),
+serve({
+  name,
+  port: PORT,
+  extra: ENV,
+  routes: (config) =>
+    api({
+      players: config.DAJAJ_PLAYERS,
+      pubg: new Pubg({
+        apiKey: config.PUBG_API_KEY,
+        baseUrl: config.PUBG_API_URL,
+        db: new Database(config.DAJAJ_DB, { create: true }),
+      }),
+    }),
 });
-const server = Bun.serve({
-  hostname: config.host,
-  port: config.port,
-  fetch: handler({ staticDir: config.staticDir, players: config.players, pubg }),
-});
-console.log(`dajaj listening on ${server.url} for ${config.players.join(", ")}`);

@@ -1,9 +1,9 @@
 import type { Report } from "../../shared/stats.ts";
 
-async function get<T>(path: string): Promise<T> {
+async function get<T>(path: string, signal: AbortSignal): Promise<T> {
   let res: Response;
   try {
-    res = await fetch(path);
+    res = await fetch(path, { signal });
   } catch {
     throw new Error("dajaj could not be reached");
   }
@@ -12,7 +12,8 @@ async function get<T>(path: string): Promise<T> {
   return body as T;
 }
 
-export const fetchPlayers = () => get<{ players: string[] }>("/api/players").then((b) => b.players);
+export const fetchPlayers = (signal: AbortSignal) =>
+  get<{ players: string[] }>("/api/players", signal).then((b) => b.players);
 
-export const fetchReport = (players: readonly string[]) =>
-  get<Report>(`/api/report?players=${players.map(encodeURIComponent).join(",")}`);
+export const fetchReport = (players: readonly string[], signal: AbortSignal) =>
+  get<Report>(`/api/report?players=${players.map(encodeURIComponent).join(",")}`, signal);
