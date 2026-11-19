@@ -173,6 +173,55 @@ for (const name of browsers()) {
       expect(await problems()).toEqual([]);
     });
 
+    test("the loading bar stays away for a fast answer and shows for a slow one, moving nothing", async () => {
+      const page = await browser.newPage();
+      const watch = watchPage(page);
+      await page.addInitScript(() => {
+        new MutationObserver(() => {
+          if (document.querySelector(".lsel-loading.shown")) {
+            (window as unknown as { barShown: boolean }).barShown = true;
+          }
+        }).observe(document, { subtree: true, attributes: true, childList: true });
+      });
+      await page.goto(url(), { waitUntil: "networkidle" });
+      await page.keyboard.press("2");
+      await page.locator(".answer", { hasText: "answer 1" }).waitFor();
+      await page.waitForTimeout(400);
+      expect(await page.evaluate(() => "barShown" in window)).toBe(false);
+
+      await page.getByRole("button", { name: "slow" }).click();
+      await page.locator(".lsel-loading.shown").waitFor({ state: "attached" });
+      // taking the bar out moves nothing: it never took part in the layout
+      const boxes = await page.evaluate(() => {
+        const main = () => JSON.stringify(document.querySelector("main")?.getBoundingClientRect());
+        const bar = document.querySelector(".lsel-loading");
+        const [parent, next] = [bar?.parentNode, bar?.nextSibling ?? null];
+        const before = main();
+        bar?.remove();
+        const after = main();
+        if (bar && parent) parent.insertBefore(bar, next);
+        return [before, after];
+      });
+      expect(boxes[1]).toBe(boxes[0]);
+      await page.locator(".answer", { hasText: "answer 2" }).waitFor();
+      await page.locator(".lsel-loading:not(.shown)").waitFor({ state: "attached" });
+      expect(await watch.take()).toEqual([]);
+    });
+
+    test("with reduced motion the loading bar is a still, full line", async () => {
+      const page = await browser.newPage();
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await page.goto(url(), { waitUntil: "networkidle" });
+      await page.keyboard.press("2");
+      await page.getByRole("button", { name: "slow" }).click();
+      await page.locator(".lsel-loading.shown").waitFor({ state: "attached" });
+      const segment = await page.locator(".lsel-loading .segment").evaluate((el) => ({
+        animation: getComputedStyle(el).animationName,
+        full: el.getBoundingClientRect().width === window.innerWidth,
+      }));
+      expect(segment).toEqual({ animation: "none", full: true });
+    });
+
     test("an action says it worked, then rests; a failed one says so in red; a bad field is marked", async () => {
       const { page, problems } = await open();
       await page.keyboard.press("3");

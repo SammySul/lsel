@@ -3,6 +3,7 @@ import type { Snippet } from "svelte";
 import { flash } from "./flash.svelte.ts";
 import KeyHelp from "./KeyHelp.svelte";
 import { activeBindings, keyHelp, keyName, keys } from "./keys.svelte.ts";
+import LoadingBar from "./LoadingBar.svelte";
 
 interface Props {
   name: string;
@@ -69,6 +70,7 @@ const hints = $derived(
 </main>
 
 <KeyHelp />
+<LoadingBar />
 
 <style>
   .lsel-page {

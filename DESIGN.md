@@ -84,9 +84,12 @@ content would be (`resource()` with `Status`, `Empty`, `Action`, `Field`). A vie
 the user is `role="alert"`.
 
 - **Loading**: one line in `--subtle` naming what it waits for ("Asking
-  PUBG…", not "Loading…"), shown only after 300 ms so a fast answer doesn't
-  flash. A refresh keeps the old content on screen. No spinners or skeletons; a
-  progress bar only when the progress is known (a download).
+  PUBG…", not "Loading…"), and a 2px `--accent` bar sliding along the top of the
+  window (`Page` and `Popup` draw it; still under reduced motion), both shown
+  only after 300 ms so a fast answer doesn't flash. The bar floats over the page
+  and never moves it. A refresh keeps the old content on screen. No spinners or
+  skeletons; a progress bar in the content only when the progress is known (a
+  download).
 - **Empty**: why it's empty and how to fill it, with the key ("No puzzles
   match. `0` shows every difficulty."). Never a blank area or a bare table
   header.

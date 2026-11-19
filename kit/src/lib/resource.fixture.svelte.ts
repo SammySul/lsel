@@ -21,4 +21,5 @@ export function owned<T>(make: (input: { query: string }) => Resource<T>) {
   };
 }
 
+export { activity } from "./activity.svelte.ts";
 export { resource };

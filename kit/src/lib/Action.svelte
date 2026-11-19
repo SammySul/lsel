@@ -1,4 +1,5 @@
 <script lang="ts">
+import { begin } from "./activity.svelte.ts";
 import { keys } from "./keys.svelte.ts";
 
 interface Props {
@@ -31,12 +32,15 @@ function settle(next: State): void {
 async function start(): Promise<void> {
   if (disabled || state.kind === "busy") return;
   state = { kind: "busy" };
+  const end = begin();
   try {
     await run();
     if (done === undefined) state = { kind: "idle" };
     else settle({ kind: "done" });
   } catch (e) {
     settle({ kind: "failed", message: failed ?? (e instanceof Error ? e.message : String(e)) });
+  } finally {
+    end();
   }
 }
 

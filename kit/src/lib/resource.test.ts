@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { owned, resource } from "./resource.fixture.svelte.ts";
+import { activity, owned, resource } from "./resource.fixture.svelte.ts";
 
 function deferred<T>() {
   let resolve!: (v: T) => void;
@@ -71,5 +71,24 @@ test("an error keeps the last answer, and reload asks again", async () => {
   r.reload();
   await tick();
   expect([r.value, r.error]).toEqual(["answer 3", null]);
+  stop();
+});
+
+test("the loading bar's count rises while requests run and always returns to zero", async () => {
+  const answers: Record<string, ReturnType<typeof deferred<string>>> = {};
+  const { r, set, stop } = owned((input) =>
+    resource(() => {
+      const q = input.query;
+      answers[q] = deferred<string>();
+      return answers[q].promise;
+    }),
+  );
+  expect(activity.count).toBe(1);
+  set("ab");
+  expect(activity.count).toBe(2);
+  answers.a?.resolve("dropped");
+  answers.ab?.reject(new Error("down"));
+  await tick();
+  expect([activity.count, r.error]).toEqual([0, "down"]);
   stop();
 });

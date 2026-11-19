@@ -3,6 +3,7 @@ import type { Snippet } from "svelte";
 import { flash } from "./flash.svelte.ts";
 import KeyHelp from "./KeyHelp.svelte";
 import { keyHelp, keys } from "./keys.svelte.ts";
+import LoadingBar from "./LoadingBar.svelte";
 
 interface Props {
   name: string;
@@ -32,6 +33,7 @@ keys(() => [{ key: "?", label: "List the keys", run: () => (keyHelp.open = true)
 </div>
 
 <KeyHelp />
+<LoadingBar />
 
 <style>
   .lsel-popup {

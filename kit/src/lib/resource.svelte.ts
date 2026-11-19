@@ -1,4 +1,5 @@
 import { untrack } from "svelte";
+import { begin } from "./activity.svelte.ts";
 
 export interface Resource<T> {
   /** Kept through a refresh and through an error. */
@@ -39,6 +40,8 @@ export function resource<T>(
     clearTimeout(timer);
     timer = setTimeout(() => id === latest && set({ loading: true }), delay);
     set({ pending: true });
+    // untracked: this runs in the effect, which must not depend on the count it changes
+    const end = untrack(begin);
     const { signal } = controller;
     new Promise<T>((resolve) => resolve(load(signal)))
       .then(
@@ -46,6 +49,7 @@ export function resource<T>(
         (e: unknown) => id === latest && set({ error: e instanceof Error ? e.message : String(e) }),
       )
       .finally(() => {
+        end();
         if (id !== latest) return;
         clearTimeout(timer);
         set({ loading: false, pending: false });
