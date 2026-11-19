@@ -1,8 +1,8 @@
 <script lang="ts">
-import { Action, clock, when } from "@sammysul/lsel";
+import { Action, clock, Field, when } from "@sammysul/lsel";
 import { exportString, importString, playedMs, type SaveDocument } from "../../save/document.ts";
 import type { createSync } from "../sync.svelte.ts";
-import { duration } from "./format.ts";
+import { span } from "./format.ts";
 
 let {
   latest,
@@ -17,10 +17,17 @@ let {
 // taken when the panel opens: the save as it was then
 const exported = $derived(exportString(latest()));
 let pasted = $state("");
+// a paste is checked once the field is left, not while it is edited
+let pasteLeft = $state(false);
 let joining = $state("");
 let joinError = $state<string | null>(null);
 
 const candidate = $derived(pasted.trim() === "" ? null : importString(pasted));
+const pasteError = $derived(
+  pasteLeft && candidate !== null && !candidate.ok
+    ? `That cannot be loaded: ${candidate.reason}.`
+    : null,
+);
 
 async function join(): Promise<void> {
   joinError = await sync.join(joining);
@@ -35,8 +42,11 @@ async function join(): Promise<void> {
     the page is put away.
   </p>
 
-  <label for="export">This save as text</label>
-  <textarea id="export" readonly rows="3" spellcheck="false">{exported}</textarea>
+  <Field label="This save as text">
+    {#snippet children(control)}
+      <textarea {...control} readonly rows="3" spellcheck="false">{exported}</textarea>
+    {/snippet}
+  </Field>
   <div class="line">
     <span></span>
     <Action
@@ -47,20 +57,23 @@ async function join(): Promise<void> {
     />
   </div>
 
-  <label for="import">Load a save from text</label>
-  <textarea
-    id="import"
-    rows="3"
-    spellcheck="false"
-    placeholder="Paste a save here"
-    bind:value={pasted}
-  ></textarea>
-  {#if candidate !== null && !candidate.ok}
-    <p class="note">That cannot be loaded: {candidate.reason}.</p>
-  {:else if candidate?.ok}
+  <Field label="Load a save from text" error={pasteError}>
+    {#snippet children(control)}
+      <textarea
+        {...control}
+        rows="3"
+        spellcheck="false"
+        placeholder="Paste a save here"
+        bind:value={pasted}
+        onfocus={() => (pasteLeft = false)}
+        onblur={() => (pasteLeft = true)}
+      ></textarea>
+    {/snippet}
+  </Field>
+  {#if candidate?.ok}
     {@const doc = candidate.doc}
     <div class="line">
-      <span>Played {duration(playedMs(doc))}, saved {when(doc.savedAt)}.</span>
+      <span>Played {span(playedMs(doc))}, saved {when(doc.savedAt)}.</span>
       <button type="button" onclick={() => load(doc)}>Replace this game</button>
     </div>
   {/if}
@@ -73,31 +86,52 @@ async function join(): Promise<void> {
     </p>
     <div class="line">
       <span></span>
-      <button type="button" onclick={sync.enable}>Turn on sync</button>
+      <Action label="Turn on sync" busy="Turning on…" run={sync.enable} />
     </div>
-    <label for="join">Or link this device with the key from another</label>
-    <input id="join" autocomplete="off" spellcheck="false" bind:value={joining} />
+    <Field label="Or link this device with the key from another" error={joinError}>
+      {#snippet children(control)}
+        <input {...control} autocomplete="off" spellcheck="false" bind:value={joining} />
+      {/snippet}
+    </Field>
     <div class="line">
-      <span class="note">{joinError ?? ""}</span>
-      <button type="button" disabled={joining.trim() === ""} onclick={join}>Link this device</button>
+      <span></span>
+      <Action
+        label="Link this device"
+        busy="Linking…"
+        disabled={joining.trim() === ""}
+        run={join}
+      />
     </div>
   {:else}
-    <label for="key">Save key</label>
-    <input id="key" readonly spellcheck="false" value={sync.key} />
-    <p class="dim">
-      {#if sync.status.kind === "synced"}
-        Synced at {clock(sync.status.at)}.
-      {:else if sync.status.kind === "syncing"}
-        Syncing.
-      {:else if sync.status.kind === "failed"}
-        Sync failed: {sync.status.reason}.
-      {:else if sync.status.kind === "conflict"}
-        Waiting for you to choose a save.
-      {/if}
-    </p>
+    {@const failed = sync.status.kind === "failed"}
+    <Field label="Save key">
+      {#snippet children(control)}
+        <input {...control} readonly spellcheck="false" value={sync.key} />
+      {/snippet}
+    </Field>
+    {#if sync.status.kind === "failed"}
+      <p class="error" role="alert">
+        Sync failed: {sync.status.reason}. <kbd>r</kbd> tries again.
+      </p>
+    {:else}
+      <p class="dim" role="status">
+        {#if sync.status.kind === "synced"}
+          Synced at {clock(sync.status.at)}.
+        {:else if sync.status.kind === "syncing"}
+          Syncing.
+        {:else if sync.status.kind === "conflict"}
+          Waiting for you to choose a save.
+        {/if}
+      </p>
+    {/if}
     <div class="line">
-      <button type="button" onclick={sync.forget}>Stop syncing on this device</button>
-      <button type="button" onclick={sync.syncNow}>Sync now</button>
+      <Action label="Stop syncing on this device" run={sync.forget} />
+      <Action
+        label={failed ? "Try again" : "Sync now"}
+        {...failed ? { key: "r" } : {}}
+        busy="Syncing…"
+        run={sync.syncNow}
+      />
     </div>
   {/if}
 </section>
@@ -133,7 +167,7 @@ async function join(): Promise<void> {
   .dim {
     color: var(--subtle);
   }
-  .note {
-    color: var(--warning);
+  .error {
+    color: var(--error);
   }
 </style>

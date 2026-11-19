@@ -16,7 +16,7 @@ import { createSound } from "./sound/sound.svelte.ts";
 import { loadSave, writeSave } from "./storage.ts";
 import { createSync } from "./sync.svelte.ts";
 import Department from "./ui/Department.svelte";
-import { duration } from "./ui/format.ts";
+import { span } from "./ui/format.ts";
 import { GUIDE } from "./ui/guide.ts";
 import MapView from "./ui/MapView.svelte";
 import { createNotices } from "./ui/notices.svelte.ts";
@@ -48,6 +48,7 @@ const notices = createNotices(map);
 
 /** Puts another save in this browser and starts over from it. */
 function replace(doc: SaveDocument): void {
+  // no send of the game being replaced as the page reloads
   replacing = true;
   game.stop();
   writeSave(doc);
@@ -71,10 +72,13 @@ const game = startGame({
   },
 });
 if (!untrack(() => readOnly)) void sync.start();
+const leave = () => {
+  if (!replacing) sync.leave();
+};
 // added after the game's own pagehide save, so it runs after it
-addEventListener("pagehide", sync.leave);
+addEventListener("pagehide", leave);
 onDestroy(() => {
-  removeEventListener("pagehide", sync.leave);
+  removeEventListener("pagehide", leave);
   game.stop();
   sound.stop();
   notices.stop();
@@ -220,7 +224,7 @@ keys(() => [
       {#if game.catching !== null}
         {@const { done, total, awayMs } = game.catching}
         <aside class="panel" aria-label="Catching up">
-          <p>Catching up on {duration(awayMs)} away</p>
+          <p>Catching up on {span(awayMs)} away</p>
           <div
             class="bar"
             role="progressbar"
@@ -236,7 +240,7 @@ keys(() => [
       {#if game.summary !== null}
         <aside class="panel lsel-appear" aria-label="While you were away">
           <h2>While you were away</h2>
-          <p class="dim">{duration(game.summary.awayMs)}</p>
+          <p class="dim">{span(game.summary.awayMs)}</p>
           <ul>
             {#each summaryLines(game.summary, map) as line, i (i)}
               <li>{line}</li>
@@ -255,9 +259,9 @@ keys(() => [
           <p>This device and the synced save have both moved on. Which one continues?</p>
           <dl>
             <dt>This device</dt>
-            <dd>Played {duration(mine.playedMs)}, saved {when(mine.savedAt)}</dd>
+            <dd>Played {span(mine.playedMs)}, saved {when(mine.savedAt)}</dd>
             <dt>Synced</dt>
-            <dd>Played {duration(theirs.playedMs)}, saved {when(theirs.savedAt)}</dd>
+            <dd>Played {span(theirs.playedMs)}, saved {when(theirs.savedAt)}</dd>
           </dl>
           <div class="line">
             <button type="button" onclick={sync.useTheirs}>Use the synced one</button>
@@ -266,7 +270,14 @@ keys(() => [
         </aside>
       {/if}
       {#if savesOpen}
-        <SavePanel latest={() => latest} {sync} load={replace} />
+        <SavePanel
+          latest={() => latest}
+          {sync}
+          load={(doc) => {
+            sync.outOfStep();
+            replace(doc);
+          }}
+        />
       {/if}
       {#if guideOpen}
         <section class="guide lsel-appear" aria-label="Guide">

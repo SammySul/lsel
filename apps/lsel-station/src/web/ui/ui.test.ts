@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { mapOf, type SectorId } from "../../sim/map.ts";
-import { duration, stacks } from "./format.ts";
+import { span, stacks } from "./format.ts";
 import { noticeFor as notice } from "./notices.ts";
 
 const noticeFor = (event: Parameters<typeof notice>[0]) => notice(event, mapOf(7));
@@ -8,9 +8,9 @@ const noticeFor = (event: Parameters<typeof notice>[0]) => notice(event, mapOf(7
 describe("formatting", () => {
   test("bars and costs read as people write them", () => {
     expect([
-      duration(3000),
-      duration(600_000),
-      duration(5_400_000),
+      span(3000),
+      span(600_000),
+      span(5_400_000),
       stacks([
         { item: "iron-plate", amount: 20 },
         { item: "water", amount: 1000 },

@@ -10,9 +10,6 @@ traps.
 - The scene's draw effect must read only values that rarely change (`seed`,
   `size`, `still`, `view`, `built`, `label`): reading `game.snapshot` there
   repaints the planet and starfield on every tick.
-- A view change must not wait for `hashchange`: the event arrives a task
-  later, and a key pressed right after `5` acted on the old department.
-  `select` sets the state first and the address second.
 - The game's seed is random per page load, so anything rolled (mastery's
   double output, kept input) differs between runs: a browser test asserts
   those amounts with a pattern, and exact numbers only before mastery 10.
@@ -37,9 +34,10 @@ traps.
   game's own calls (`audioSpy`), never `ctx.state === "running"`.
 - In a sound test, `fastForward` is a catch-up, which is silent by design; use
   `runFor` for the few seconds of live play it needs.
-- **Every send is `keepalive` and may outlive its page unanswered**: the
-  link's `sent` and the service's `?sent=` settle it on the next load. Moving
-  the link forward before an answer loses a save whose send failed.
+- **A send may outlive its page unanswered** (the one as the page goes away is
+  `keepalive`, which caps a body at 64 KiB): the link's `sent` and the
+  service's `?sent=` settle it on the next load. Moving the link forward
+  before an answer loses a save whose send failed.
 - **`pagehide` fires while the page is still visible**, before
   `visibilitychange`: a send on close can't hinge on visibility. `sync.leave`
   sends what's unsent, and is added after the game's own pagehide save.

@@ -21,7 +21,24 @@ async function revision(key: string): Promise<number> {
   const response = await fetch(`${address()}/save/${await keyId(key)}`, {
     headers: { authorization: `Bearer ${key}`, "cf-connecting-ip": "test" },
   });
+  if (!response.ok) throw new Error(`the service answered ${response.status}`);
   return ((await response.json()) as { revision: number }).revision;
+}
+
+/** Stores a save as another device would. */
+async function store(key: string, base: number, data: string): Promise<void> {
+  const response = await fetch(`${address()}/save/${await keyId(key)}`, {
+    method: "PUT",
+    headers: { authorization: `Bearer ${key}`, "cf-connecting-ip": "test" },
+    body: JSON.stringify({ base, data }),
+  });
+  if (!response.ok) throw new Error(`the service answered ${response.status}`);
+}
+
+/** Waits up to 5 s for the service to move past `before`; a closed page's send has no answer to wait on. */
+async function moved(key: string, before: number): Promise<void> {
+  const until = Date.now() + 5000;
+  while ((await revision(key)) === before && Date.now() < until) await Bun.sleep(250);
 }
 
 /** Opens the game in a context and watches its console; the context's clock is left as the caller set it. */
@@ -130,17 +147,20 @@ for (const name of browsers()) {
         await page.keyboard.press("Enter");
         await first.clock.fastForward(30_000);
         await page.keyboard.press("o");
-        const text = await page.locator("#export").inputValue();
+        const text = await page.getByLabel("This save as text").inputValue();
         expect(text).toMatch(/^lsel-station:[A-Za-z0-9+/=]+$/);
 
         const second = await stopped(browser, 90_000);
         const { page: other, problems } = await open(second, "?seed=8");
         await other.keyboard.press("o");
-        await other.locator("#import").fill("lsel-station:nonsense");
-        expect(await texts(other, "[aria-label=Saves] p.note")).toEqual([
-          "That cannot be loaded: the text is damaged.",
-        ]);
-        await other.locator("#import").fill(text);
+        const paste = other.getByLabel("Load a save from text");
+        await paste.fill("lsel-station:nonsense");
+        await paste.blur();
+        expect([
+          await paste.getAttribute("aria-invalid"),
+          await other.getByText("That cannot be loaded: the text is damaged.").count(),
+        ]).toEqual(["true", 1]);
+        await paste.fill(text);
         await other.getByRole("button", { name: "Replace this game" }).click();
         await other.waitForLoadState("networkidle");
         await other.getByText("Iron ore 10").waitFor();
@@ -199,7 +219,7 @@ for (const name of browsers()) {
         await page.keyboard.press("o");
         await page.getByRole("button", { name: "Turn on sync" }).click();
         await page.getByText(/^Synced at/).waitFor();
-        const key = await page.locator("#key").inputValue();
+        const key = await page.getByLabel("Save key").inputValue();
         expect([key, await texts(page, ".saved")]).toEqual([
           expect.stringMatching(/^[A-Za-z0-9_-]{32}$/),
           [expect.stringMatching(/^Saved .+, synced$/)],
@@ -208,18 +228,23 @@ for (const name of browsers()) {
         const second = await browser.newContext();
         const { page: other, problems } = await open(second, "?seed=8");
         await other.keyboard.press("o");
-        await other.locator("#join").fill("not a key");
+        await other.getByLabel("Or link this device with the key from another").fill("not a key");
         await other.getByRole("button", { name: "Link this device" }).click();
-        expect(await texts(other, "[aria-label=Saves] span.note")).toEqual([
-          "That is not a save key.",
-        ]);
-        await other.locator("#join").fill(key.replace(/^./, (c) => (c === "A" ? "B" : "A")));
+        await other.getByText("That is not a save key.").waitFor();
+        expect(
+          await other
+            .getByLabel("Or link this device with the key from another")
+            .getAttribute("aria-invalid"),
+        ).toBe("true");
+        await other
+          .getByLabel("Or link this device with the key from another")
+          .fill(key.replace(/^./, (c) => (c === "A" ? "B" : "A")));
         await other.getByRole("button", { name: "Link this device" }).click();
         await other.getByText("No save has that key.").waitFor();
         // the browser logs the service's 404 for the wrong key, which is the point of that step
         await problems();
 
-        await other.locator("#join").fill(key);
+        await other.getByLabel("Or link this device with the key from another").fill(key);
         await other.getByRole("button", { name: "Link this device" }).click();
         const choice = other.getByRole("complementary", { name: "Choose a save" });
         await choice.waitFor();
@@ -230,7 +255,10 @@ for (const name of browsers()) {
         await other.getByRole("button", { name: "Use the synced one" }).click();
         await other.getByText("Iron ore 10").waitFor();
         await other.keyboard.press("o");
-        expect([await other.locator("#key").inputValue(), await problems()]).toEqual([key, []]);
+        expect([await other.getByLabel("Save key").inputValue(), await problems()]).toEqual([
+          key,
+          [],
+        ]);
         await first.close();
         await second.close();
       },
@@ -250,13 +278,13 @@ for (const name of browsers()) {
         await page.keyboard.press("o");
         await page.getByRole("button", { name: "Turn on sync" }).click();
         await page.getByText(/^Synced at/).waitFor();
-        const key = await page.locator("#key").inputValue();
+        const key = await page.getByLabel("Save key").inputValue();
         await page.close();
 
         const second = await browser.newContext();
         const { page: other, problems } = await open(second, "?seed=8");
         await other.keyboard.press("o");
-        await other.locator("#join").fill(key);
+        await other.getByLabel("Or link this device with the key from another").fill(key);
         await other.getByRole("button", { name: "Link this device" }).click();
         await other.getByRole("button", { name: "Use the synced one" }).click();
         await other.getByText("Iron ore 10").waitFor();
@@ -267,7 +295,7 @@ for (const name of browsers()) {
         const quiet = await problems();
         await other.close();
         // nobody waits for a send from a closed page, so the test waits for the service to have it
-        while ((await revision(key)) === before) await Bun.sleep(500);
+        await moved(key, before);
 
         // back on the first device, whose own save has not moved since it synced
         await first.clock.setSystemTime(now + 5 * 60_000);
@@ -299,20 +327,19 @@ for (const name of browsers()) {
         await page.keyboard.press("o");
         await page.getByRole("button", { name: "Turn on sync" }).click();
         await page.getByText(/^Synced at/).waitFor();
-        const key = await page.locator("#key").inputValue();
+        const key = await page.getByLabel("Save key").inputValue();
         const before = await revision(key);
         // within 5 minutes of the last send, so only closing the page sends this
         await page.keyboard.press("x");
         expect(await texts(page, ".crew li")).toEqual(["Ana Petrov everything +3% › idle"]);
         const quiet = await problems();
         await page.close();
-        const until = Date.now() + 5000;
-        while ((await revision(key)) === before && Date.now() < until) await Bun.sleep(250);
+        await moved(key, before);
 
         const second = await browser.newContext();
         const { page: other, problems: later } = await open(second, "?seed=8");
         await other.keyboard.press("o");
-        await other.locator("#join").fill(key);
+        await other.getByLabel("Or link this device with the key from another").fill(key);
         await other.getByRole("button", { name: "Link this device" }).click();
         await other.getByRole("button", { name: "Use the synced one" }).click();
         await other.getByText("Iron ore 10").waitFor();
@@ -324,6 +351,66 @@ for (const name of browsers()) {
         ]).toEqual([1, ["Ana Petrov everything +3% › idle"], [], []]);
         await first.close();
         await second.close();
+      },
+      TIMEOUT,
+    );
+
+    test(
+      "sync stopped and turned on again while a send is out starts cleanly under the new key",
+      async () => {
+        const context = await browser.newContext();
+        const { page, problems } = await open(context, "?seed=7");
+        // the first send is held until sync has been stopped and turned on again
+        let release = () => {};
+        const held = new Promise<void>((resolve) => {
+          release = resolve;
+        });
+        let holding = true;
+        await page.route("**/save/*", async (route) => {
+          if (holding && route.request().method() === "PUT") {
+            holding = false;
+            await held;
+          }
+          await route.continue();
+        });
+        await page.keyboard.press("o");
+        await page.getByRole("button", { name: "Turn on sync" }).click();
+        const first = await page.getByLabel("Save key").inputValue();
+        await page.getByRole("button", { name: "Stop syncing on this device" }).click();
+        await page.getByRole("button", { name: "Turn on sync" }).click();
+        release();
+        await page.getByText(/^Synced at/).waitFor();
+        const second = await page.getByLabel("Save key").inputValue();
+        expect([second === first, await revision(second), await problems()]).toEqual([
+          false,
+          1,
+          [],
+        ]);
+        await context.close();
+      },
+      TIMEOUT,
+    );
+
+    test(
+      "a save loaded from text while sync is on asks which save continues",
+      async () => {
+        const context = await stopped(browser, 60_000);
+        const { page, problems } = await open(context, "?seed=7");
+        await page.keyboard.press("Enter");
+        await context.clock.fastForward(30_000);
+        await page.keyboard.press("o");
+        const text = await page.getByLabel("This save as text").inputValue();
+        await page.getByRole("button", { name: "Turn on sync" }).click();
+        await page.getByText(/^Synced at/).waitFor();
+        const key = await page.getByLabel("Save key").inputValue();
+        // another device moves the synced save on
+        await store(key, 1, text);
+
+        await page.getByLabel("Load a save from text").fill(text);
+        await page.getByRole("button", { name: "Replace this game" }).click();
+        await page.getByRole("complementary", { name: "Choose a save" }).waitFor();
+        expect(await problems()).toEqual([]);
+        await context.close();
       },
       TIMEOUT,
     );

@@ -5,7 +5,7 @@ import { ITEMS, type Stack } from "../../content/items.ts";
 export const seconds = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
 
 /** 600000 as "10:00", 4000 as "4.0 s": bars under a minute are read in seconds. */
-export function duration(ms: number): string {
+export function span(ms: number): string {
   if (ms < 60_000) return seconds(ms);
   const total = Math.round(ms / 1000);
   const h = Math.floor(total / 3600);

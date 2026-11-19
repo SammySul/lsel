@@ -27,7 +27,7 @@ import {
 } from "../../sim/rules.ts";
 import { GLUT_MAX, GLUT_STEP } from "../../sim/tick.ts";
 import type { Game } from "../game.svelte.ts";
-import { duration, names, stacks } from "./format.ts";
+import { names, span, stacks } from "./format.ts";
 
 let { game, department }: { game: Game; department: DepartmentId } = $props();
 
@@ -212,7 +212,7 @@ keys(() =>
             {@const left = (CROPS[bed.crop].growMs - bed.progressMs) / growthSpeed(snapshot)}
             <div class="line">
               <span>Bed {index + 1}, {CROPS[bed.crop].name.toLowerCase()}</span>
-              <span class="dim">{duration(Math.ceil(left / 1000) * 1000)}</span>
+              <span class="dim">{span(Math.ceil(left / 1000) * 1000)}</span>
             </div>
             <div
               class="bar"
@@ -236,7 +236,7 @@ keys(() =>
       <div class="row">
         <div class="line">
           <span>{row.action.name}</span>
-          <span class="dim">{duration(row.action.durationMs)}</span>
+          <span class="dim">{span(row.action.durationMs)}</span>
         </div>
         <div class="line dim">
           <span>

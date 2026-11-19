@@ -1,3 +1,4 @@
+import { begin } from "@sammysul/lsel";
 import * as v from "valibot";
 import { exportString, importString, playedMs, type SaveDocument } from "../save/document.ts";
 import { KEY_PATTERN, keyId, newKey } from "../save/key.ts";
@@ -70,6 +71,17 @@ export function createSync(opts: {
   let unsent = false;
   let busy = false;
   let again = false;
+  const waiting: (() => void)[] = [];
+
+  function settle(): void {
+    busy = false;
+    for (const wake of waiting.splice(0)) wake();
+  }
+
+  /** Waits out a request already out, and any send that follows it. */
+  async function quiet(): Promise<void> {
+    while (busy) await new Promise<void>((wake) => waiting.push(wake));
+  }
 
   function learnId(key: string): void {
     void keyId(key).then((found) => {
@@ -85,11 +97,11 @@ export function createSync(opts: {
   }
 
   async function call(
+    key: string,
     method: "GET" | "PUT",
     request: { body?: unknown; keepalive?: boolean; query?: string } = {},
   ): Promise<Reply> {
-    if (link === null) return { kind: "unreachable", reason: "sync is off" };
-    const key = link.key;
+    const end = begin();
     try {
       const path = id?.key === key ? id.id : await keyId(key);
       const response = await fetch(`/save/${path}${request.query ?? ""}`, {
@@ -102,6 +114,8 @@ export function createSync(opts: {
       return { kind: "answer", status: response.status, body: json ? await response.json() : null };
     } catch {
       return { kind: "unreachable", reason: "the sync service cannot be reached" };
+    } finally {
+      end();
     }
   }
 
@@ -122,7 +136,7 @@ export function createSync(opts: {
   }
 
   /** Sends this device's latest save, from the revision it last agreed with; one asked for meanwhile follows it. */
-  async function push(): Promise<void> {
+  async function push(leaving = false): Promise<void> {
     if (link === null || status.kind === "conflict") return;
     if (busy) {
       again = true;
@@ -133,14 +147,20 @@ export function createSync(opts: {
     unsent = false;
     lastPush = Date.now();
     const doc = opts.latest();
-    // a send outlives its page, so one under way as the page closes still lands: `sent` lets the next load learn whether it did
+    const key = link.key;
+    // a send may outlive its page unanswered: `sent` lets the next load learn whether it landed
     remember({ ...link, sent: doc.savedAt });
-    const reply = await call("PUT", {
+    // only as the page goes away: keepalive caps a body at 64 KiB
+    const reply = await call(key, "PUT", {
       body: { base: link.revision, data: exportString(doc) },
-      keepalive: true,
+      keepalive: leaving,
     });
-    busy = false;
-    if (link === null) return;
+    settle();
+    // sync was stopped or moved to another key meanwhile: this answer is for nobody
+    if (link?.key !== key) {
+      if (again) await push();
+      return;
+    }
     if (
       reply.kind === "answer" &&
       reply.status === 200 &&
@@ -164,11 +184,15 @@ export function createSync(opts: {
     status = { kind: "syncing" };
     // no send meanwhile: it would move the service on before this has seen what is there
     busy = true;
-    const reply = await call("GET", {
+    const key = link.key;
+    const reply = await call(key, "GET", {
       ...(link.sent === undefined ? {} : { query: `?sent=${link.sent}` }),
     });
-    busy = false;
-    if (link === null) return;
+    settle();
+    if (link?.key !== key) {
+      if (again) await push();
+      return;
+    }
     if (reply.kind === "answer" && reply.status === 404 && link.revision === 0 && !asking) {
       return push();
     }
@@ -221,18 +245,18 @@ export function createSync(opts: {
     saved(): void {
       if (link === null) return;
       unsent = true;
-      if (document.visibilityState === "hidden" || Date.now() - lastPush >= PUSH_EVERY_MS) {
-        void push();
-      }
+      const hidden = document.visibilityState === "hidden";
+      if (hidden || Date.now() - lastPush >= PUSH_EVERY_MS) void push(hidden);
     },
     /** On pagehide, after the game's own save: sends the latest save if it hasn't gone out. */
     leave(): void {
-      if (unsent) void push();
+      if (unsent) void push(true);
     },
     syncNow: () =>
       status.kind === "conflict" ? Promise.resolve() : pull(false, opts.latest().savedAt),
     /** Starts a synced save from this device's game, under a new key. */
     async enable(): Promise<void> {
+      await quiet();
       remember({ key: newKey(), revision: 0, syncedAt: 0 });
       status = { kind: "syncing" };
       await push();
@@ -241,6 +265,8 @@ export function createSync(opts: {
     async join(key: string): Promise<string | null> {
       const trimmed = key.trim();
       if (!KEY_PATTERN.test(trimmed)) return "That is not a save key.";
+      // a pull refuses while a request is out, which would look like success without the choice
+      await quiet();
       remember({ key: trimmed, revision: 0, syncedAt: 0 });
       await pull(true, opts.latest().savedAt);
       if (status.kind === "failed") {
@@ -259,6 +285,10 @@ export function createSync(opts: {
     },
     useTheirs(): void {
       if (status.kind === "conflict") useTheirs(status.theirs);
+    },
+    /** Before another save replaces this game: the next load asks which save continues. */
+    outOfStep(): void {
+      if (link !== null) remember({ key: link.key, revision: link.revision, syncedAt: 0 });
     },
     /** Stops syncing on this device. The synced save stays for the others. */
     forget(): void {

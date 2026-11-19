@@ -425,7 +425,7 @@ Sources for every cell are in the section for that option.
 ## What the CSP allows for audio
 
 Our header is `default-src 'self'; base-uri 'none'; form-action 'none';
-frame-ancestors 'none'` (`src/server/server.ts`). `'self'` means "resources of
+frame-ancestors 'none'` (`serve()` from `@sammysul/lsel/server`). `'self'` means "resources of
 the given type may only be loaded from the same origin as the document"
 ([MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy)).
 
