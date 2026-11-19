@@ -12,7 +12,7 @@ bun install
 bun run check        # tsc, svelte-check, biome, lsel-check
 bun run test         # unit tests, PUBG faked
 bun run build        # the web app into dist/
-bun run test:e2e     # dist/ in Chromium, Firefox and WebKit, PUBG faked
+bun run test:e2e     # dist/ in Chromium, PUBG faked
 ```
 
 To run it against PUBG, start the server with a key and the players, and the
