@@ -1,18 +1,17 @@
-// Types oracle cases into the real player view; env YW_BROWSERS=chromium,firefox,webkit ORACLE_CATEGORY=a,b ORACLE_CASE=id YW_SAMPLE=n YW_SEED=s.
+// Types oracle cases into the real player view; env BROWSERS=chromium,firefox,webkit ORACLE_CATEGORY=a,b ORACLE_CASE=id YW_SAMPLE=n YW_SEED=s.
 import { join } from "node:path";
+import { browsers, isBrowserNoise, launch } from "@sammysul/lsel/testing";
 import { parseKeys } from "@yank-wars/engine";
 import { loadCorpus, readFixtures, staleness } from "@yank-wars/engine/oracle/corpus";
 import { DEVIATIONS } from "@yank-wars/engine/oracle/deviations";
 import type { FixtureEntry, Observed, OracleCase } from "@yank-wars/engine/oracle/types";
-import { type BrowserType, chromium, firefox, type Page, webkit } from "playwright-core";
-import { isBrowserNoise } from "../e2e/lib.ts";
+import type { Page } from "playwright-core";
 import type { HarnessState } from "../src/dev/harness.ts";
 import { playwrightKey } from "./keys.ts";
 import { knownFailure } from "./known.ts";
 import { playwrightDrift } from "./version.ts";
 
 const WEB = join(import.meta.dir, "..");
-const BROWSERS: Readonly<Record<string, BrowserType>> = { chromium, firefox, webkit };
 
 interface Item {
   c: OracleCase;
@@ -119,8 +118,7 @@ async function main() {
     );
     process.exit(2);
   }
-  const names = list(process.env.YW_BROWSERS) ?? Object.keys(BROWSERS);
-  for (const n of names) if (!(n in BROWSERS)) throw new Error(`unknown browser ${n}`);
+  const names = browsers();
   const onlyCase = list(process.env.ORACLE_CASE);
   let items: Item[] = [];
   for (const cat of await loadCorpus(list(process.env.ORACLE_CATEGORY))) {
@@ -150,7 +148,7 @@ async function main() {
   let failed = 0;
   try {
     for (const name of names) {
-      const browser = await (BROWSERS[name] as BrowserType).launch({ headless: true });
+      const browser = await launch(name);
       try {
         const page = await browser.newPage();
         const problems: string[] = [];

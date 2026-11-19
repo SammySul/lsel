@@ -1,5 +1,4 @@
-import { parseConfig } from "./config.ts";
-import { startServer } from "./server.ts";
+import { app, parseConfig } from "./server.ts";
 
 let config: ReturnType<typeof parseConfig>;
 try {
@@ -8,5 +7,10 @@ try {
   console.error(e instanceof Error ? e.message : e);
   process.exit(2);
 }
-const server = startServer(config);
+// lsel-allow: needs serve({ prefix, csp }) in @sammysul/lsel; see server.ts
+const server = Bun.serve({
+  hostname: config.host,
+  port: config.port,
+  fetch: app(config.staticDir),
+});
 console.log(`yank-wars listening on ${server.url}, serving ${config.staticDir}`);

@@ -1,4 +1,3 @@
 {
-  "assets": "apps/web/src/lsel",
   "files": ["nix/bun2nix-lockfile-v2.patch"]
 }

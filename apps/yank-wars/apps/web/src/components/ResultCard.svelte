@@ -1,6 +1,7 @@
 <script lang="ts">
+import { Action, duration, keys } from "@sammysul/lsel";
 import { formatKeys } from "@yank-wars/engine";
-import { formatClock } from "../lib/clock.ts";
+import { onMount } from "svelte";
 import type { RoundController } from "../lib/round.svelte.ts";
 import { shareText } from "../lib/share.ts";
 
@@ -14,8 +15,7 @@ interface Props {
 let { ctl, onNext, onRetry, onList }: Props = $props();
 
 let showSolution = $state(false);
-let copied = $state<"idle" | "ok" | "failed">("idle");
-let shared = $state<"idle" | "ok" | "failed">("idle");
+let card: HTMLElement | undefined = $state();
 
 const puzzle = $derived(ctl.puzzle);
 const locked = $derived(ctl.phase === "locked");
@@ -25,43 +25,30 @@ const deltaText = $derived(
 );
 const source = $derived(puzzle.source);
 
-async function copy() {
-  try {
-    await navigator.clipboard.writeText(ctl.notation);
-    copied = "ok";
-  } catch {
-    copied = "failed";
-  }
-}
+// The editor swallows every key, so the card takes focus for its own.
+onMount(() => card?.focus());
 
-async function share() {
-  try {
-    await navigator.clipboard.writeText(shareText(puzzle, ctl.keys, ctl.elapsed, location.origin));
-    shared = "ok";
-  } catch {
-    shared = "failed";
-  }
-}
+// A key held through the lock-in repeats into the card: only a fresh press counts.
+const fresh = (run: () => void) => (e: KeyboardEvent) => {
+  if (!e.repeat) run();
+};
 
-// A held key repeats into the card; Ctrl/Alt/Meta combos belong to the browser and the UI chords.
-function onkeydown(e: KeyboardEvent) {
-  if (e.ctrlKey || e.altKey || e.metaKey || e.repeat) return;
-  const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-  if (key === "Enter") onNext();
-  else if (key === "r") onRetry();
-  else if (key === "s") showSolution = !showSolution;
-  else if (key === "c") void copy();
-  else if (key === "y" && locked) void share();
-  else if (key === "Escape") onList();
-  else return;
-  e.preventDefault();
-}
+keys(() => [
+  { key: "Enter", label: "Next puzzle", run: fresh(onNext) },
+  { key: "r", label: "Retry", run: fresh(onRetry) },
+  { key: "s", label: "Par solution", run: fresh(() => (showSolution = !showSolution)) },
+  { key: "Escape", label: "Puzzles", run: fresh(onList) },
+]);
 </script>
 
-<svelte:window {onkeydown} />
-
 <div class="backdrop">
-  <div class="card lsel-appear" role="dialog" aria-labelledby="result-headline">
+  <div
+    class="card lsel-appear"
+    role="dialog"
+    aria-labelledby="result-headline"
+    tabindex="-1"
+    bind:this={card}
+  >
     <h2 id="result-headline" class:ok={locked}>{headline}</h2>
 
     <dl class="stats">
@@ -78,7 +65,7 @@ function onkeydown(e: KeyboardEvent) {
       {/if}
       <div>
         <dt>Time</dt>
-        <dd>{formatClock(ctl.elapsed)}</dd>
+        <dd>{duration(ctl.elapsed, "m:ss.t")}</dd>
       </div>
       <div>
         <dt>Runs</dt>
@@ -90,7 +77,7 @@ function onkeydown(e: KeyboardEvent) {
           {#if ctl.newBest}
             <span class="under">New best</span>
           {:else if ctl.bestBefore}
-            {ctl.bestBefore.keys} keys in {formatClock(ctl.bestBefore.ms)}
+            {ctl.bestBefore.keys} keys in {duration(ctl.bestBefore.ms, "m:ss.t")}
           {:else}
             –
           {/if}
@@ -101,9 +88,13 @@ function onkeydown(e: KeyboardEvent) {
     <div class="notation">
       <div class="row">
         <span class="label">{locked ? "Your solution" : "Final run"}</span>
-        <button onclick={copy}>
-          {copied === "ok" ? "Copied" : copied === "failed" ? "Copy failed" : "Copy"} <kbd>c</kbd>
-        </button>
+        <Action
+          label="Copy"
+          key="c"
+          done="Copied"
+          failed="Copy failed"
+          run={() => navigator.clipboard.writeText(ctl.notation)}
+        />
       </div>
       <pre>{ctl.notation || "(no keys)"}</pre>
     </div>
@@ -133,9 +124,18 @@ function onkeydown(e: KeyboardEvent) {
 
     <div class="actions">
       {#if locked}
-        <button class="share" onclick={share}>
-          {shared === "ok" ? "Copied" : shared === "failed" ? "Copy failed" : "Share"} <kbd>y</kbd>
-        </button>
+        <span class="share">
+          <Action
+            label="Share"
+            key="y"
+            done="Copied"
+            failed="Copy failed"
+            run={() =>
+              navigator.clipboard.writeText(
+                shareText(puzzle, ctl.keys, ctl.elapsed, location.origin),
+              )}
+          />
+        </span>
       {/if}
       <button onclick={onNext}>Next <kbd>Enter</kbd></button>
       <button onclick={onRetry}>Retry <kbd>r</kbd></button>

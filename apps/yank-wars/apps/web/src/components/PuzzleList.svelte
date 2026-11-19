@@ -1,9 +1,9 @@
 <script lang="ts">
+import { duration, go, keys, List, Page } from "@sammysul/lsel";
 import { DIFFICULTIES, type Difficulty } from "@yank-wars/engine";
 import { untrack } from "svelte";
 import { version } from "../../../../package.json";
 import { CHORD_LABELS } from "../lib/chords.ts";
-import { formatClock } from "../lib/clock.ts";
 import { prefs } from "../lib/prefs.svelte.ts";
 import { markOf, progressOf } from "../lib/progress.ts";
 import { puzzleErrors, puzzles, visiblePuzzles } from "../lib/puzzles.ts";
@@ -19,79 +19,54 @@ const filter = $derived(prefs.filter);
 const shown = $derived(visiblePuzzles());
 const progress = $derived(progressOf(puzzles, prefs.best));
 let selectedId = $state(untrack(() => selected));
-const index = $derived(
-  Math.max(
-    0,
-    shown.findIndex((p) => p.id === selectedId),
-  ),
-);
-const current = $derived(shown[index]);
-const rows: HTMLAnchorElement[] = $state([]);
+const current = $derived(shown.find((p) => p.id === selectedId) ?? shown[0]);
 let search: HTMLInputElement | undefined = $state();
-
-$effect(() => {
-  rows[index]?.scrollIntoView({ block: "nearest" });
-});
-
-function move(by: number) {
-  const i = Math.min(shown.length - 1, Math.max(0, index + by));
-  selectedId = shown[i]?.id;
-}
-
-function open() {
-  if (current !== undefined) location.hash = `#/p/${current.id}`;
-}
 
 function setDifficulty(d: Difficulty | null) {
   prefs.filter = { ...filter, difficulty: filter.difficulty === d ? null : d };
 }
 
-function onkeydown(e: KeyboardEvent) {
-  if (e.ctrlKey || e.altKey || e.metaKey || puzzles.length === 0) return;
-  if (e.target === search) {
-    if (e.key === "ArrowDown") move(1);
-    else if (e.key === "ArrowUp") move(-1);
-    else if (e.key === "Enter") open();
-    else if (e.key === "Escape") {
-      if (filter.query !== "") prefs.filter = { ...filter, query: "" };
-      else search?.blur();
-    } else return;
-    e.preventDefault();
-    return;
-  }
-  if (e.key === "j" || e.key === "ArrowDown") move(1);
-  else if (e.key === "k" || e.key === "ArrowUp") move(-1);
-  else if (e.key === "Enter") open();
-  else if (e.key === "/") search?.focus();
-  else if (e.key === "0") setDifficulty(null);
-  else if (e.key === "1" || e.key === "2" || e.key === "3") {
-    setDifficulty(DIFFICULTIES[Number(e.key) - 1] ?? null);
-  } else if (e.key === "u") prefs.filter = { ...filter, unsolved: !filter.unsolved };
-  else return;
-  e.preventDefault();
+function toggleUnsolved() {
+  prefs.filter = { ...filter, unsolved: !filter.unsolved };
 }
+
+keys(() =>
+  puzzles.length === 0
+    ? []
+    : [
+        { key: "/", label: "Search", hint: true, run: () => search?.focus() },
+        {
+          key: ["1", "2", "3"],
+          label: "Difficulty",
+          hint: true,
+          run: (e) => setDifficulty(DIFFICULTIES[Number(e.key) - 1] ?? null),
+        },
+        { key: "0", label: "All difficulties", hint: true, run: () => setDifficulty(null) },
+        { key: "u", label: "Unsolved only", hint: true, run: toggleUnsolved },
+      ],
+);
 </script>
 
-<svelte:window {onkeydown} />
-
-<main class="list lsel-appear">
-  <header>
-    <h1>Yank Wars</h1>
-    <p class="tagline">Vim golf against the clock. Fewest keys wins.</p>
-    <ol class="how">
-      <li>Make your buffer match the target, using vim.</li>
-      <li>Every keystroke counts. Match par, or beat it.</li>
-      <li>
-        It locks in the moment it matches. <kbd>{CHORD_LABELS.reset}</kbd> starts over,
-        <kbd>{CHORD_LABELS.forfeit}</kbd> gives up.
-      </li>
-    </ol>
-    {#if progress.solved > 0}
-      <p class="progress">
-        {progress.solved} of {puzzles.length} solved · {progress.parOrBetter} at par or better
-      </p>
-    {/if}
-  </header>
+<Page
+  name="Yank Wars"
+  sub="Vim golf against the clock. Fewest keys wins."
+  {version}
+  source="https://git.sammysul.com/SammySul/yank-wars"
+  width={760}
+>
+  <ol class="how">
+    <li>Make your buffer match the target, using vim.</li>
+    <li>Every keystroke counts. Match par, or beat it.</li>
+    <li>
+      It locks in the moment it matches. <kbd>{CHORD_LABELS.reset}</kbd> starts over,
+      <kbd>{CHORD_LABELS.forfeit}</kbd> gives up.
+    </li>
+  </ol>
+  {#if progress.solved > 0}
+    <p class="progress">
+      {progress.solved} of {puzzles.length} solved · {progress.parOrBetter} at par or better
+    </p>
+  {/if}
 
   {#if missing}
     <p class="notice">No puzzle called <code>{missing}</code>.</p>
@@ -114,10 +89,7 @@ function onkeydown(e: KeyboardEvent) {
             onclick={() => setDifficulty(d)}>{d}</button
           >
         {/each}
-        <button
-          class="chip"
-          aria-pressed={filter.unsolved}
-          onclick={() => (prefs.filter = { ...filter, unsolved: !filter.unsolved })}
+        <button class="chip" aria-pressed={filter.unsolved} onclick={toggleUnsolved}
           >Unsolved</button
         >
       </div>
@@ -135,42 +107,42 @@ function onkeydown(e: KeyboardEvent) {
     </div>
 
     <div class="table">
-      <div class="row head" aria-hidden="true">
-        <span>Puzzle</span><span>Language</span><span class="num">Par</span><span
-          >Difficulty</span
-        ><span class="num">Your best</span>
-      </div>
-      <ol>
-        {#each shown as p, i (p.id)}
+      {#if shown.length > 0}
+        <div class="row head" aria-hidden="true">
+          <span>Puzzle</span><span>Language</span><span class="num">Par</span><span
+            >Difficulty</span
+          ><span class="num">Your best</span>
+        </div>
+      {/if}
+      <List
+        items={shown}
+        id={(p) => p.id}
+        bind:selected={selectedId}
+        label="Puzzles"
+        onopen={(p) => go(`/p/${p.id}`)}
+      >
+        {#snippet row(p)}
           {@const best = prefs.best[p.id]}
-          <li>
-            <a
-              class="row"
-              class:selected={i === index}
-              href="#/p/{p.id}"
-              bind:this={rows[i]}
-              onfocus={() => (selectedId = p.id)}
-              onmouseenter={() => (selectedId = p.id)}
-            >
-              <span class="title">{p.title}</span>
-              <span class="lang">{p.language}</span>
-              <span class="num">{p.par}</span>
-              <span class="diff {p.difficulty}">{p.difficulty}</span>
-              <span class="num best" class:none={!best}>
-                {#if best}
-                  {@const mark = markOf(best, p.par)}
-                  <span class="mark {mark}" title={mark === "under" ? "under par" : mark === "par" ? "par" : ""}
-                    >{mark === "under" ? "★ " : ""}{best.keys}</span
-                  >
-                  <small>in {formatClock(best.ms)}</small>
-                {:else}–{/if}
-              </span>
-            </a>
-          </li>
-        {:else}
-          <li class="empty">No puzzles match. <kbd>0</kbd> shows every difficulty, <kbd>Esc</kbd> in the search clears it.</li>
-        {/each}
-      </ol>
+          <a class="row" href="#/p/{p.id}" onfocus={() => (selectedId = p.id)}>
+            <span class="title">{p.title}</span>
+            <span class="lang">{p.language}</span>
+            <span class="num">{p.par}</span>
+            <span class="diff {p.difficulty}">{p.difficulty}</span>
+            <span class="num best" class:none={!best}>
+              {#if best}
+                {@const mark = markOf(best, p.par)}
+                <span class="mark {mark}" title={mark === "under" ? "under par" : mark === "par" ? "par" : ""}
+                  >{mark === "under" ? "★ " : ""}{best.keys}</span
+                >
+                <small>in {duration(best.ms, "m:ss.t")}</small>
+              {:else}–{/if}
+            </span>
+          </a>
+        {/snippet}
+        {#snippet empty()}
+          No puzzles match. <kbd>0</kbd> shows every difficulty, <kbd>Esc</kbd> in the search clears it.
+        {/snippet}
+      </List>
     </div>
     <p class="detail">
       {current?.description ?? ""}
@@ -188,37 +160,17 @@ function onkeydown(e: KeyboardEvent) {
       {/each}
     </section>
   {/if}
-
-  <footer>
-    <p>
-      <kbd>j</kbd>/<kbd>k</kbd> move · <kbd>Enter</kbd> play · <kbd>/</kbd> search ·
-      <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> difficulty, <kbd>0</kbd> all · <kbd>u</kbd> unsolved
-    </p>
-    <p class="meta">
-      Yank Wars <span class="version">v{version}</span> ·
-      <a href="https://git.sammysul.com/SammySul/yank-wars">source</a> · MIT
-    </p>
-  </footer>
-</main>
+</Page>
 
 <style>
-  .list {
-    max-width: 760px;
-    padding: 48px 24px;
-  }
-  .tagline {
-    margin: 4px 0 16px;
-    color: var(--subtle);
-  }
   .how {
-    margin: 0 0 24px;
+    margin: 0;
     padding-left: 20px;
     color: var(--subtle);
     line-height: 1.6;
   }
   .progress {
-    margin: 0 0 16px;
-    font-family: var(--font);
+    margin: 0;
     font-size: var(--text-sm);
   }
   .mark.under,
@@ -226,6 +178,7 @@ function onkeydown(e: KeyboardEvent) {
     color: var(--success);
   }
   .notice {
+    margin: 0;
     color: var(--warning);
   }
   .filters {
@@ -234,7 +187,6 @@ function onkeydown(e: KeyboardEvent) {
     gap: 8px 16px;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
   }
   .chips {
     display: flex;
@@ -274,13 +226,8 @@ function onkeydown(e: KeyboardEvent) {
   .chip.hard[aria-pressed="true"] {
     color: var(--error);
   }
-  .empty {
-    padding: 16px;
-    color: var(--subtle);
-  }
   .tags {
     margin-left: 8px;
-    font-family: var(--font);
     font-size: var(--text-xs);
   }
   .count {
@@ -288,51 +235,36 @@ function onkeydown(e: KeyboardEvent) {
     color: var(--subtle);
     font-size: var(--text-xs);
   }
-  .table {
-    border: 1px solid var(--overlay);
-    overflow: hidden;
-  }
   .row {
     display: grid;
     grid-template-columns: 1fr 110px 50px 80px 130px;
     gap: 12px;
     align-items: baseline;
-    padding: 10px 16px;
     color: var(--text);
-    border-left: 3px solid transparent;
-  }
-  ol {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-  }
-  .table li {
-    border-top: 1px solid var(--overlay);
   }
   .row:hover {
     text-decoration: none;
   }
+  /* lines up with List's rows: their padding and selection bar */
   .head {
+    padding: var(--space-2) var(--space-3);
+    border-bottom: var(--border);
+    border-left: 2px solid transparent;
     background: var(--raise);
     color: var(--subtle);
     font-size: var(--text-xs);
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }
-  .selected {
-    border-left-color: var(--accent);
-  }
   .title {
     font-weight: 700;
   }
   .lang {
     color: var(--subtle);
-    font-family: var(--font);
     font-size: var(--text-xs);
   }
   .num {
     text-align: right;
-    font-family: var(--font);
     font-variant-numeric: tabular-nums;
   }
   .best small {
@@ -343,6 +275,7 @@ function onkeydown(e: KeyboardEvent) {
   }
   .detail {
     min-height: 1.4em;
+    margin: 0;
     color: var(--subtle);
   }
   .errors h2 {
@@ -350,13 +283,5 @@ function onkeydown(e: KeyboardEvent) {
   }
   .errors pre {
     margin-top: 8px;
-  }
-  footer {
-    margin-top: 32px;
-    color: var(--subtle);
-    font-size: var(--text-xs);
-  }
-  footer p {
-    margin: 0 0 8px;
   }
 </style>

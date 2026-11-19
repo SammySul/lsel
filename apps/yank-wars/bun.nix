@@ -229,6 +229,11 @@
     url = "https://registry.npmjs.org/@rolldown/pluginutils/-/pluginutils-1.1.0.tgz";
     hash = "sha512-K+NU2HDCEem4sClgHH4ZZXwdJeNFkJo+hRk479DIwdIviAPN2hFJH1KHHwg8CxHQXvi0M5XY4deTXINfIiSG6w==";
   };
+  "@sammysul/lsel@0.1.0" = fetchurl {
+    url = "https://git.sammysul.com/api/packages/SammySul/npm/%40sammysul%2Flsel/-/0.1.0/lsel-0.1.0.tgz";
+    hash = "sha512-U8k1Mfka9i+f/vOzRwj1dTJ9egNoKXL9GCDk5SdUJiTj55OHfihXJ8oBLitd3AQ5/qSKPO6VPVOjM3pKs+4alQ==";
+    name = "lsel-0.1.0.tgz";
+  };
   "@sveltejs/acorn-typescript@1.0.13" = fetchurl {
     url = "https://registry.npmjs.org/@sveltejs/acorn-typescript/-/acorn-typescript-1.0.13.tgz";
     hash = "sha512-wgKggnhZVL9Bfx1OaKKTrYY9BFRk6C8UAkQNUcIv1+llzYrIqy+RZm5HPKzn0NpEBvTVhTqB4kQyllZywsRBRQ==";

@@ -1,31 +1,16 @@
 import { join } from "node:path";
+import { isBrowserNoise } from "@sammysul/lsel/testing";
 import { parseKeys, type VimKey } from "@yank-wars/engine";
-import {
-  type Browser,
-  type BrowserType,
-  type ConsoleMessage,
-  chromium,
-  firefox,
-  type Page,
-  webkit,
-} from "playwright-core";
+import type { ConsoleMessage, Page } from "playwright-core";
 import { playwrightKey } from "../browser/keys.ts";
 import { playwrightDrift } from "../browser/version.ts";
 
 const WEB = join(import.meta.dir, "..");
-export const BROWSER_TYPES: Readonly<Record<string, BrowserType>> = { chromium, firefox, webkit };
 
 export function envList(v: string | undefined): string[] | undefined {
   const out = v?.split(",").filter(Boolean);
   return out === undefined || out.length === 0 ? undefined : out;
 }
-
-export function browserNames(): string[] {
-  const names = envList(process.env.YW_BROWSERS) ?? Object.keys(BROWSER_TYPES);
-  for (const n of names) if (!(n in BROWSER_TYPES)) throw new Error(`unknown browser ${n}`);
-  return names;
-}
-
 /** Throws unless run inside the dev shell, whose browsers match the pinned playwright-core. */
 export async function requireDevShell(): Promise<void> {
   const drift = await playwrightDrift();
@@ -34,10 +19,6 @@ export async function requireDevShell(): Promise<void> {
       `${drift.join("\n")}\ne2e tests need the dev shell's browsers: nix develop -c bun test ./apps/web/e2e/<file>`,
     );
   }
-}
-
-export async function launch(name: string): Promise<Browser> {
-  return (BROWSER_TYPES[name] as BrowserType).launch({ headless: true });
 }
 
 // mulberry32: a reproducible shuffle for a given seed.
@@ -101,12 +82,7 @@ export async function startVite(): Promise<Vite> {
   throw new Error(`vite did not serve ${base} within 30 s:\n${await stderr}`);
 }
 
-/** Collects console warnings/errors and uncaught errors; `take()` returns and clears them. */
-/** Firefox's performance hint for CodeMirror's scroll handling: printed once per page, by whichever key scrolls first. */
-export function isBrowserNoise(m: ConsoleMessage): boolean {
-  return m.type() === "warning" && m.text().includes("scroll-linked positioning effect");
-}
-
+/** The package's watchPage, plus logged objects spelled out and Vite's chatter dropped. */
 export function watchPage(page: Page): { take(): Promise<string[]> } {
   const lines: string[] = [];
   const pending: Promise<void>[] = [];

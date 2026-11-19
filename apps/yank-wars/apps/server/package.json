@@ -5,6 +5,7 @@
   "type": "module",
   "module": "src/main.ts",
   "dependencies": {
+    "@sammysul/lsel": "0.1.0",
     "valibot": "1.5.0"
   }
 }

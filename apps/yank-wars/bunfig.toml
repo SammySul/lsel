@@ -2,4 +2,4 @@
 bun = true
 
 [test]
-preload = ["./test/dom.ts"]
+preload = ["./test/dom.ts", "@sammysul/lsel/testing/preload"]

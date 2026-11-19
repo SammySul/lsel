@@ -1,4 +1,6 @@
 <script lang="ts">
+import { Page } from "@sammysul/lsel";
+import { version } from "../../../../package.json";
 import { MIN_WIDTH } from "../lib/device.ts";
 
 interface Props {
@@ -8,30 +10,25 @@ interface Props {
 let { onDismiss }: Props = $props();
 </script>
 
-<main class="needs-keyboard">
-  <img src="/favicon.svg" alt="" width="64" height="64" />
-  <h1>Yank Wars needs a keyboard</h1>
-  <p>
-    It's vim golf: you play with a physical keyboard, on a screen at least {MIN_WIDTH}px wide.
-    Come back on a computer.
-  </p>
-  <button onclick={onDismiss}>Play anyway</button>
-</main>
+<Page
+  name="Yank Wars"
+  sub="Vim golf against the clock. Fewest keys wins."
+  {version}
+  source="https://git.sammysul.com/SammySul/yank-wars"
+  width={480}
+>
+  <section class="needs-keyboard">
+    <h2>Yank Wars needs a keyboard</h2>
+    <p>
+      It's vim golf: you play with a physical keyboard, on a screen at least {MIN_WIDTH}px wide.
+      Come back on a computer.
+    </p>
+    <button onclick={onDismiss}>Play anyway</button>
+  </section>
+</Page>
 
 <style>
-  .needs-keyboard {
-    max-width: 420px;
-    padding: 64px 24px;
-    text-align: center;
-  }
-  h1 {
-    margin: 24px 0 12px;
-  }
   p {
     color: var(--subtle);
-    line-height: 1.5;
-  }
-  button {
-    margin-top: 16px;
   }
 </style>

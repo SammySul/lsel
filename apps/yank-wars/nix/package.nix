@@ -22,8 +22,10 @@ stdenv.mkDerivation {
     fileset = lib.fileset.unions [
       (root + "/package.json")
       (root + "/bun.lock")
+      # names @sammysul's registry, which bun's cache paths include
+      (root + "/.npmrc")
       (root + "/bunfig.toml")
-      (root + "/tsconfig.base.json")
+      (root + "/tsconfig.json")
       (root + "/patches")
       (root + "/puzzles")
       (root + "/packages")
@@ -40,6 +42,16 @@ stdenv.mkDerivation {
     bunNix = root + "/bun.nix";
     overrides = bun2nix.patchedDependenciesToOverrides { inherit patchedDependencies; };
   };
+
+  # bun 1.4 names a registry with a path `<host>__<Wyhash11 of its URL>` in its cache; bun2nix
+  # 2.1.2 writes only `<host>`. 384c46f8dbebcd65 is that hash of @sammysul's registry URL.
+  postBunSetInstallCacheDirPhase = ''
+    for entry in "$BUN_INSTALL_CACHE_DIR"/@sammysul/*@@git.sammysul.com@@@1; do
+      [ -e "$entry" ] || continue
+      chmod u+w "$(dirname "$entry")"
+      ln -s "$(basename "$entry")" "''${entry%@@@1}__384c46f8dbebcd65@@@1"
+    done
+  '';
 
   # the root postinstall wants the dev shell's bun2nix; no dependency here has install scripts
   dontRunLifecycleScripts = true;

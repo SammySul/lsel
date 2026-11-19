@@ -19,9 +19,13 @@ Shared rules, the stack, release and deploy come from lsel's `CLAUDE.md` and
 
 ## Working here
 
-- **Validate from the repo root:** `bun run check` (tsc, svelte-check, biome),
-  `bun test`, `bun run build`. `bunfig.toml` (happy-dom preload) is read from the
-  cwd only, so `bun test` in a subdirectory runs without DOM globals.
+- **Validate from the repo root:** `bun run check` (tsc, svelte-check, biome,
+  lsel-check), `bun run test`, `bun run build`, then `bun run test:e2e`.
+  `bunfig.toml` (happy-dom and Svelte preloads) is read from the cwd only, so
+  `bun test` in a subdirectory runs without DOM globals.
+- **The CSP allows inline styles**, unlike lsel's: CodeMirror injects `<style>`
+  elements. `app()` in `apps/server/src/server.ts` overrides the package's
+  header; `e2e/built.e2e.ts` fails if CodeMirror goes unstyled.
 - Don't build ahead of the build order in `docs/decisions.md`: no GitHub
   login, ratings or ghosts before step 6.
 
@@ -33,8 +37,6 @@ Shared rules, the stack, release and deploy come from lsel's `CLAUDE.md` and
   second copy of `state` or `view` throws "Unrecognized extension value".
 - `apps/web` deliberately lacks `@replit/codemirror-vim`, `@codemirror/commands`
   and `@codemirror/lang-*`; an import failing there is the "visuals only" guard.
-- Never run `biome migrate`: it rewrites `"preset": "recommended"` to `"none"`
-  and switches the linter off; `bun run check` greps for it.
 - `typescript` stays 5.x or 6.x: svelte-check 4.7.7 refuses TS 7.
 - Every `.svelte` file needs `<script lang="ts">`, even empty; without it
   svelte-check reports TS7016 at the importer (no `allowJs`).

@@ -14,8 +14,10 @@
     "@codemirror/state": "catalog:",
     "@codemirror/view": "catalog:",
     "@lezer/highlight": "1.2.5",
+    "@sammysul/lsel": "0.1.0",
     "@yank-wars/engine": "workspace:*",
-    "svelte": "5.57.3"
+    "svelte": "5.57.3",
+    "valibot": "1.5.0"
   },
   "devDependencies": {
     "@sveltejs/vite-plugin-svelte": "7.3.1",

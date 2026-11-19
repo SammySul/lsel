@@ -1,10 +1,7 @@
 import { afterEach, beforeEach, expect, jest, test } from "bun:test";
 import { type KeyLog, parsePuzzle, RESET } from "@yank-wars/engine";
-import { registerSvelteModules } from "../../test/svelteModules.ts";
-
-registerSvelteModules();
-const { RoundController, LOCK_PULSE_MS } = await import("./round.svelte.ts");
-const { Prefs } = await import("./prefs.svelte.ts");
+import { Prefs } from "./prefs.svelte.ts";
+import { LOCK_PULSE_MS, RoundController } from "./round.svelte.ts";
 
 const STUDY_MS = 5_000;
 const CAP_MS = 240_000;
@@ -44,7 +41,7 @@ const g = globalThis as unknown as Record<string, unknown>;
 const saved = { raf: g.requestAnimationFrame, caf: g.cancelAnimationFrame };
 
 interface Rig {
-  ctl: InstanceType<typeof RoundController>;
+  ctl: RoundController;
   storage: MemoryStorage;
   host: HTMLElement;
   press(key: string, init?: KeyboardEventInit): KeyboardEvent;

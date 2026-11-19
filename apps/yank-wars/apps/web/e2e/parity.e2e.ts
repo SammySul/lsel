@@ -1,7 +1,8 @@
 // Oracle cases typed into the real player view: live editor === headless replay of its log === vim.
-// Env: YW_BROWSERS, ORACLE_CATEGORY, ORACLE_CASE, YW_SAMPLE (n or "all", default 40), YW_SEED,
+// Env: BROWSERS, ORACLE_CATEGORY, ORACLE_CASE, YW_SAMPLE (n or "all", default 40), YW_SEED,
 // YW_CLOCK_SAMPLE (undo cases re-run with the page clock jumping between keys, default 12).
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { browsers, launch } from "@sammysul/lsel/testing";
 import { formatKeys, parseKeys, type VimKey } from "@yank-wars/engine";
 import { loadCorpus, readFixtures, staleness } from "@yank-wars/engine/oracle/corpus";
 import { DEVIATIONS } from "@yank-wars/engine/oracle/deviations";
@@ -11,16 +12,7 @@ import type { Browser, BrowserContext, Page } from "playwright-core";
 import { playwrightKey } from "../browser/keys.ts";
 import { knownFailure } from "../browser/known.ts";
 import type { HarnessState } from "../src/dev/harness.ts";
-import {
-  browserNames,
-  envList,
-  launch,
-  requireDevShell,
-  sample,
-  startVite,
-  type Vite,
-  watchPage,
-} from "./lib.ts";
+import { envList, requireDevShell, sample, startVite, type Vite, watchPage } from "./lib.ts";
 
 interface Item {
   c: OracleCase;
@@ -147,7 +139,7 @@ beforeAll(async () => {
 });
 afterAll(() => vite?.stop());
 
-for (const name of browserNames()) {
+for (const name of browsers()) {
   describe(name, () => {
     let browser: Browser;
     let page: Page;

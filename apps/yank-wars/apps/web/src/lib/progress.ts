@@ -1,5 +1,5 @@
 import type { Puzzle } from "@yank-wars/engine";
-import type { Best } from "./prefsStorage.ts";
+import type { Best } from "./prefs.svelte.ts";
 
 export type Mark = "under" | "par" | "over";
 

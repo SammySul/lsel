@@ -1,19 +1,4 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.5.15/schema.json",
-  "vcs": { "enabled": true, "clientKind": "git", "useIgnoreFile": true },
-  "files": { "includes": ["**", "!!packages/engine/oracle/**/*.vim.json"] },
-  "formatter": { "enabled": true, "indentStyle": "space", "lineWidth": 100 },
-  "linter": { "enabled": true, "rules": { "preset": "recommended" } },
-  "assist": { "actions": { "source": { "organizeImports": "on" } } },
-  "overrides": [
-    {
-      "includes": ["**/*.svelte"],
-      "linter": {
-        "rules": {
-          "style": { "useConst": "off", "useImportType": "off" },
-          "correctness": { "noUnusedVariables": "off", "noUnusedImports": "off" }
-        }
-      }
-    }
-  ]
+  "extends": ["@sammysul/lsel/biome"],
+  "files": { "includes": ["**", "!!packages/engine/oracle/**/*.vim.json"] }
 }

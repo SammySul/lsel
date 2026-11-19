@@ -1,7 +1,8 @@
-// The real app (DEV server) end to end in each browser. Env: YW_BROWSERS.
+// The real app (DEV server) end to end in each browser. Env: BROWSERS.
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { browsers, launch } from "@sammysul/lsel/testing";
 import {
   comparePuzzles,
   createSession,
@@ -21,15 +22,7 @@ import { observe } from "@yank-wars/engine/oracle/observe";
 import type { Observed } from "@yank-wars/engine/oracle/types";
 import type { Browser, BrowserContext, Page } from "playwright-core";
 import type { RoundProbeState } from "../src/dev/roundProbe.ts";
-import {
-  browserNames,
-  launch,
-  requireDevShell,
-  startVite,
-  typeKeys,
-  type Vite,
-  watchPage,
-} from "./lib.ts";
+import { requireDevShell, startVite, typeKeys, type Vite, watchPage } from "./lib.ts";
 
 const PUZZLES_DIR = join(import.meta.dir, "../../../puzzles/handmade");
 const puzzles: Puzzle[] = readdirSync(PUZZLES_DIR)
@@ -167,7 +160,7 @@ async function playToLockIn(page: Page, p: Puzzle, prefix = ""): Promise<void> {
   await cardShown(page);
 }
 
-for (const name of browserNames()) {
+for (const name of browsers()) {
   describe(name, () => {
     let browser: Browser;
     beforeAll(async () => {
@@ -185,7 +178,7 @@ for (const name of browserNames()) {
       const watch = watchPage(page);
       await page.goto(`${vite.base}/#/`, { waitUntil: "networkidle" });
       await page.bringToFront();
-      await page.locator("ol li a.row").first().waitFor();
+      await page.locator(".table a.row").first().waitFor();
       return { ctx, page, problems: watch.take };
     }
 
@@ -197,9 +190,9 @@ for (const name of browserNames()) {
 
     test("the puzzle list opens a round from the keyboard, easiest first", async () => {
       const { ctx, page, problems } = await fresh();
-      const titles = await page.locator("ol li a.row .title").allTextContents();
+      const titles = await page.locator(".table a.row .title").allTextContents();
       expect(titles).toEqual(listOrder.map((p) => p.title));
-      const pars = await page.locator("ol li a.row span.num:nth-of-type(3)").allTextContents();
+      const pars = await page.locator(".table a.row span.num:nth-of-type(3)").allTextContents();
       expect(pars.map(Number)).toEqual(listOrder.map((p) => p.solution.length));
       await page.keyboard.press("j");
       await page.keyboard.press("j");
@@ -385,9 +378,9 @@ for (const name of browserNames()) {
       await typeKeys(page, p.solution);
       await cardShown(page);
       await page.keyboard.press("Escape");
-      await page.locator("ol li a.row").first().waitFor();
+      await page.locator(".table a.row").first().waitFor();
       expect(await hash(page)).toBe("#/");
-      const row = page.locator("ol li a.row", { hasText: p.title });
+      const row = page.locator(".table a.row", { hasText: p.title });
       expect(((await row.locator(".best").textContent()) ?? "").trim()).toMatch(
         /^4 in 0:\d\d\.\d$/,
       );
@@ -421,9 +414,9 @@ for (const name of browserNames()) {
       await a.evaluate(() => {
         location.hash = "#/";
       });
-      await a.locator("ol li a.row").first().waitFor();
+      await a.locator(".table a.row").first().waitFor();
       const best = async (title: string) =>
-        ((await a.locator("ol li a.row", { hasText: title }).locator(".best").textContent()) ?? "")
+        ((await a.locator(".table a.row", { hasText: title }).locator(".best").textContent()) ?? "")
           .trim()
           .replace(/ in .*/, "");
       expect([await best(indent.title), await best(css.title)]).toEqual([
@@ -535,7 +528,7 @@ for (const name of browserNames()) {
       await done(ctx, problems);
     });
 
-    const titles = (page: Page) => page.locator("ol li a.row .title").allTextContents();
+    const titles = (page: Page) => page.locator(".table a.row .title").allTextContents();
 
     test("the filter: number keys and chips pick a difficulty, / searches, Esc clears, 0 shows all", async () => {
       const { ctx, page, problems } = await fresh();
@@ -550,7 +543,7 @@ for (const name of browserNames()) {
       expect(await text(page, ".count")).toBe(`${easyRust.length} of ${puzzles.length} puzzles`);
       await page.keyboard.type("x");
       expect(await titles(page)).toEqual([]);
-      expect(await text(page, "li.empty")).toContain("No puzzles match.");
+      expect(await text(page, ".lsel-empty")).toContain("No puzzles match.");
       await page.keyboard.press("Escape");
       expect(await page.locator(".search").inputValue()).toBe("");
       await page.keyboard.press("Escape");
@@ -584,13 +577,13 @@ for (const name of browserNames()) {
       const easy = ofDifficulty("easy");
       await playToLockIn(page, easy[0] as Puzzle);
       await page.keyboard.press("Escape");
-      await page.locator("ol li a.row").first().waitFor();
+      await page.locator(".table a.row").first().waitFor();
       await page.keyboard.press("1");
       await page.keyboard.press("u");
       await page.keyboard.press("/");
       await page.keyboard.type("o");
       await page.reload({ waitUntil: "networkidle" });
-      await page.locator("ol li a.row").first().waitFor();
+      await page.locator(".table a.row").first().waitFor();
       expect(await page.locator(".search").inputValue()).toBe("");
       expect(await titles(page)).toEqual(easy.slice(1).map((p) => p.title));
       expect(await page.locator(".chip[aria-pressed=true]").allTextContents()).toEqual([
@@ -605,10 +598,10 @@ for (const name of browserNames()) {
       const page = await ctx.newPage();
       const watch = watchPage(page);
       await page.goto(`${vite.base}/#/`, { waitUntil: "networkidle" });
-      expect(await text(page, ".needs-keyboard h1")).toBe("Yank Wars needs a keyboard");
-      expect(await page.locator("ol li a.row").count()).toBe(0);
+      expect(await text(page, ".needs-keyboard h2")).toBe("Yank Wars needs a keyboard");
+      expect(await page.locator(".table a.row").count()).toBe(0);
       await page.getByRole("button", { name: "Play anyway" }).click();
-      expect(await page.locator("ol li a.row").count()).toBe(puzzles.length);
+      expect(await page.locator(".table a.row").count()).toBe(puzzles.length);
       await done(ctx, watch.take);
     });
 

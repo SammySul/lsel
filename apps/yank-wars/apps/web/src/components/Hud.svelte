@@ -1,6 +1,6 @@
 <script lang="ts">
+import { duration } from "@sammysul/lsel";
 import { CHORD_LABELS } from "../lib/chords.ts";
-import { formatClock } from "../lib/clock.ts";
 import type { RoundController } from "../lib/round.svelte.ts";
 
 let { ctl }: { ctl: RoundController } = $props();
@@ -28,7 +28,7 @@ function keepFocus(e: MouseEvent) {
 
   <div class="right">
     {#if ctl.round.runs > 1}<span class="runs">run {ctl.round.runs}</span>{/if}
-    <span class="clock">{formatClock(ctl.elapsed)}</span>
+    <span class="clock">{duration(ctl.elapsed, "m:ss.t")}</span>
     <button
       onmousedown={keepFocus}
       onclick={() => ctl.reset()}
