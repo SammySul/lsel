@@ -1,5 +1,6 @@
 <script lang="ts">
 import { go, route } from "@sammysul/lsel";
+import { untrack } from "svelte";
 import NeedsKeyboard from "./components/NeedsKeyboard.svelte";
 import PuzzleList from "./components/PuzzleList.svelte";
 import Round from "./components/Round.svelte";
@@ -13,9 +14,13 @@ let lastId = $state<string | undefined>(undefined);
 const anyFinePointer = matchMedia("(any-pointer: fine)").matches;
 let width = $state(innerWidth);
 let playAnyway = $state(false);
-const showNotice = $derived(!playAnyway && needsKeyboardNotice(anyFinePointer, width));
 
 const puzzle = $derived(roundId === undefined ? undefined : findPuzzle(roundId));
+// Decided as a round opens, so narrowing the window never throws away a round in progress.
+const showNotice = $derived(
+  !playAnyway &&
+    needsKeyboardNotice(anyFinePointer, puzzle === undefined ? width : untrack(() => width)),
+);
 
 $effect(() => {
   if (puzzle !== undefined) lastId = puzzle.id;

@@ -1,7 +1,6 @@
 <script lang="ts">
 import type { Puzzle } from "@yank-wars/engine";
 import { onDestroy, untrack } from "svelte";
-import { now } from "../lib/clock.ts";
 import { prefs } from "../lib/prefs.svelte.ts";
 import { isOver, RoundController } from "../lib/round.svelte.ts";
 import FocusHint from "./FocusHint.svelte";
@@ -21,7 +20,7 @@ interface Props {
 let { puzzle, onNext, onRetry, onList }: Props = $props();
 
 // App keys this component on the puzzle id, so the first puzzle is the only one it ever sees.
-const ctl = untrack(() => new RoundController(puzzle, prefs, now));
+const ctl = untrack(() => new RoundController(puzzle, prefs, () => performance.now()));
 let unprobe: (() => void) | undefined;
 let destroyed = false;
 // A dynamic import inside a DEV branch, so the production bundle drops the probe entirely.

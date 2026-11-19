@@ -604,6 +604,24 @@ for (const name of browsers()) {
       await done(ctx, watch.take);
     });
 
+    test("narrowing the window keeps a round in progress; the list then gets the notice", async () => {
+      const { ctx, page, problems } = await fresh();
+      const p = P("indent-body");
+      await openRound(page, p.id);
+      await page.keyboard.press("Space");
+      await typeKeys(page, "x");
+      await page.setViewportSize({ width: 600, height: 800 });
+      await typeKeys(page, "x");
+      const s = await probe(page);
+      expect([s.puzzle, s.phase, s.log]).toEqual([p.id, "playing", ["x", "x"]]);
+      expect(await page.locator(".needs-keyboard").count()).toBe(0);
+      await page.evaluate(() => {
+        location.hash = "#/";
+      });
+      await page.locator(".needs-keyboard").waitFor();
+      await done(ctx, problems);
+    });
+
     test("the icon, touch icon and preview card are served and linked", async () => {
       const { ctx, page, problems } = await fresh();
       expect(await page.locator(".needs-keyboard").count()).toBe(0);

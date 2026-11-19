@@ -1,8 +1,9 @@
 import { expect, test } from "bun:test";
+import type { Store } from "@sammysul/lsel";
 import * as v from "valibot";
 import { Prefs, Stored } from "./prefs.svelte.ts";
 
-function memoryStorage(): Pick<Storage, "getItem" | "setItem"> {
+function memoryStorage(): Store {
   const items = new Map<string, string>();
   return {
     getItem: (k) => items.get(k) ?? null,

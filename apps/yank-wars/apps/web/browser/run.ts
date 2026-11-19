@@ -1,72 +1,19 @@
 // Types oracle cases into the real player view; env BROWSERS=chromium,firefox,webkit ORACLE_CATEGORY=a,b ORACLE_CASE=id YW_SAMPLE=n YW_SEED=s.
-import { join } from "node:path";
 import { browsers, launch, watchPage } from "@sammysul/lsel/testing";
 import { parseKeys } from "@yank-wars/engine";
 import { loadCorpus, readFixtures, staleness } from "@yank-wars/engine/oracle/corpus";
 import { DEVIATIONS } from "@yank-wars/engine/oracle/deviations";
 import type { FixtureEntry, Observed, OracleCase } from "@yank-wars/engine/oracle/types";
 import type { Page } from "playwright-core";
-import { VITE } from "../e2e/lib.ts";
+import { envList, sample, startVite, VITE } from "../e2e/lib.ts";
 import type { HarnessState } from "../src/dev/harness.ts";
 import { playwrightKey } from "./keys.ts";
 import { knownFailure } from "./known.ts";
-
-const WEB = join(import.meta.dir, "..");
 
 interface Item {
   c: OracleCase;
   category: string;
   fixture: FixtureEntry | undefined;
-}
-
-function list(env: string | undefined): string[] | undefined {
-  const v = env?.split(",").filter(Boolean);
-  return v === undefined || v.length === 0 ? undefined : v;
-}
-
-// mulberry32: a reproducible sample for a given YW_SEED.
-function sample<T>(items: T[], n: number, seed: number): T[] {
-  let a = seed >>> 0;
-  const rnd = () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-  const copy = [...items];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(rnd() * (i + 1));
-    [copy[i], copy[j]] = [copy[j] as T, copy[i] as T];
-  }
-  return copy.slice(0, n);
-}
-
-async function freePort(): Promise<number> {
-  const s = Bun.listen({ hostname: "127.0.0.1", port: 0, socket: { data() {} } });
-  const port = s.port;
-  s.stop(true);
-  return port;
-}
-
-async function startVite(): Promise<{ url: string; stop(): void }> {
-  const port = await freePort();
-  const proc = Bun.spawn(
-    ["bun", "--bun", "vite", "--port", String(port), "--strictPort", "--host", "127.0.0.1"],
-    { cwd: WEB, stdout: "ignore", stderr: "pipe" },
-  );
-  // Drained so vite never blocks on a full pipe; shown only if it fails to start.
-  const stderr = new Response(proc.stderr).text();
-  const url = `http://127.0.0.1:${port}/harness.html`;
-  const until = Date.now() + 30_000;
-  while (Date.now() < until && proc.exitCode === null) {
-    try {
-      if ((await fetch(url)).ok) return { url, stop: () => proc.kill() };
-    } catch {}
-    await Bun.sleep(100);
-  }
-  proc.kill();
-  throw new Error(`vite did not serve ${url} within 30 s:\n${await stderr}`);
 }
 
 function expected(item: Item): { want: Observed; label: string } {
@@ -109,9 +56,9 @@ async function runCase(page: Page, item: Item, take: () => Promise<string[]>): P
 
 async function main() {
   const names = browsers();
-  const onlyCase = list(process.env.ORACLE_CASE);
+  const onlyCase = envList(process.env.ORACLE_CASE);
   let items: Item[] = [];
-  for (const cat of await loadCorpus(list(process.env.ORACLE_CATEGORY))) {
+  for (const cat of await loadCorpus(envList(process.env.ORACLE_CATEGORY))) {
     const f = await readFixtures(cat);
     for (const c of cat.cases) {
       if (onlyCase === undefined || onlyCase.includes(c.id)) {
@@ -134,7 +81,7 @@ async function main() {
     );
   }
 
-  const vite = await startVite();
+  const vite = await startVite("vite.config.ts");
   let failed = 0;
   try {
     for (const name of names) {
@@ -144,7 +91,7 @@ async function main() {
         const { take } = watchPage(page, { ignore: VITE });
         // The first load may re-optimize deps and reload the page; the second is the stable one.
         for (let i = 0; i < 2; i++) {
-          await page.goto(vite.url, { waitUntil: "networkidle" });
+          await page.goto(`${vite.base}/harness.html`, { waitUntil: "networkidle" });
           await page.waitForFunction(() => window.__yw !== undefined);
         }
         // Every case then runs on a remounted player, as after a retry; the first mount on a page can behave differently.

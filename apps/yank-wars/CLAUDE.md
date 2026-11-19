@@ -10,7 +10,7 @@ packages/engine/   pure TS, no I/O: puzzle + protocol types, key notation,
                    headless replay, match rules (lock-in, grace, scoring).
                    Imported by everything else.
 apps/web/          Svelte 5 + Vite SPA, CodeMirror 6 + @replit/codemirror-vim
-apps/server/       Bun.serve: static files, WebSocket rooms, matchmaker
+apps/server/       serve() from @sammysul/lsel: the built web app; rooms come later
 puzzles/           handmade puzzles as JSON (data, not code)
 ```
 

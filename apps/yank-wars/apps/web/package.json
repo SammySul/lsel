@@ -14,7 +14,7 @@
     "@codemirror/state": "catalog:",
     "@codemirror/view": "catalog:",
     "@lezer/highlight": "1.2.5",
-    "@sammysul/lsel": "0.3.0",
+    "@sammysul/lsel": "0.5.1",
     "@yank-wars/engine": "workspace:*",
     "svelte": "5.57.3",
     "valibot": "1.5.0"

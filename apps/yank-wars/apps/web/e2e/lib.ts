@@ -9,6 +9,7 @@ export function envList(v: string | undefined): string[] | undefined {
   const out = v?.split(",").filter(Boolean);
   return out === undefined || out.length === 0 ? undefined : out;
 }
+
 // mulberry32: a reproducible shuffle for a given seed.
 export function sample<T>(items: readonly T[], n: number, seed: number): T[] {
   let a = seed >>> 0;
@@ -40,7 +41,7 @@ export interface Vite {
 }
 
 /** The DEV server (so the self-check badge and the probes exist); serves index.html and harness.html. */
-export async function startVite(): Promise<Vite> {
+export async function startVite(config = "e2e/vite.config.ts"): Promise<Vite> {
   const port = await freePort();
   const proc = Bun.spawn(
     [
@@ -48,7 +49,7 @@ export async function startVite(): Promise<Vite> {
       "--bun",
       "vite",
       "--config",
-      "e2e/vite.config.ts",
+      config,
       "--port",
       String(port),
       "--strictPort",
@@ -57,6 +58,7 @@ export async function startVite(): Promise<Vite> {
     ],
     { cwd: WEB, stdout: "ignore", stderr: "pipe" },
   );
+  // Drained so vite never blocks on a full pipe; shown only if it fails to start.
   const stderr = new Response(proc.stderr).text();
   const base = `http://127.0.0.1:${port}`;
   const until = Date.now() + 30_000;

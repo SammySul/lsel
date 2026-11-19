@@ -1,6 +1,4 @@
 {
-  description = "yank-wars";
-
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     bun2nix = {
@@ -16,13 +14,11 @@
       ...
     }:
     let
-      # mac for dev, x86_64-linux for twelve
       forEachSystem = nixpkgs.lib.genAttrs [
         "aarch64-darwin"
         "x86_64-linux"
       ];
-      # 2.1.2 rejects the lockfileVersion 2 that bun >= 1.3 writes; the patch is
-      # upstream PR #110. Drop it once a release contains it.
+      # 2.1.2 rejects bun >= 1.3's lockfileVersion 2; upstream PR #110. Drop once released.
       bun2nixFor =
         system:
         bun2nix.packages.${system}.default.overrideAttrs (old: {
@@ -30,15 +26,11 @@
         });
     in
     {
-      packages = forEachSystem (
-        system:
-        let
-          pkgs = nixpkgs.legacyPackages.${system};
-        in
-        {
-          default = pkgs.callPackage ./nix/package.nix { bun2nix = bun2nixFor system; };
-        }
-      );
+      packages = forEachSystem (system: {
+        default = nixpkgs.legacyPackages.${system}.callPackage ./nix/package.nix {
+          bun2nix = bun2nixFor system;
+        };
+      });
 
       devShells = forEachSystem (
         system:
@@ -48,15 +40,14 @@
         {
           default = pkgs.mkShellNoCC (
             {
-              packages = with pkgs; [
-                bun
-                biome
-                # regenerates bun.nix from bun.lock (package.json postinstall)
+              packages = [
+                pkgs.bun
+                pkgs.biome
                 (bun2nixFor system)
                 # the oracle: `bun run oracle` replays test cases in real vim
-                vim
+                pkgs.vim
               ];
-              # `bun run test:browser`; playwright-core in package.json must equal this version
+              # playwright-core in package.json must equal this driver's version
               PLAYWRIGHT_BROWSERS_PATH = pkgs.playwright-driver.browsers;
               PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1";
               # its host check looks for system libraries via ldconfig, which Nix's browsers bring themselves

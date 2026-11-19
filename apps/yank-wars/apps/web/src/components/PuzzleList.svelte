@@ -248,8 +248,6 @@ keys(() =>
   }
   .row.heading {
     color: inherit;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
   }
   .title {
     font-weight: 700;
