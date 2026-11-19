@@ -1,14 +1,15 @@
 <script lang="ts">
-import { title } from "./title";
+import { Empty, Popup } from "@sammysul/lsel";
+
+const { name } = chrome.runtime.getManifest();
 </script>
 
-<div class="popup">
-  <h1>{title(chrome.runtime.getManifest())}</h1>
-</div>
+<Popup {name}>
+  <Empty>Nothing here yet.</Empty>
+</Popup>
 
 <style>
-  .popup {
+  :global(body) {
     width: 360px;
-    padding: var(--space-4);
   }
 </style>

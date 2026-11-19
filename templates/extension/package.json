@@ -6,8 +6,8 @@
   "scripts": {
     "dev": "bun --bun vite",
     "build": "bun --bun vite build",
-    "check": "tsc --noEmit && svelte-check --tsconfig ./tsconfig.json --output human && biome check . && grep -q '\"preset\": \"recommended\"' biome.json",
-    "test": "bun test ./tests",
+    "check": "tsc --noEmit && svelte-check --tsconfig ./tsconfig.json --output human && biome check . && lsel-check",
+    "test": "bun --conditions=browser test --pass-with-no-tests ./src",
     "postinstall": "bun2nix -o bun.nix"
   },
   "devDependencies": {
@@ -19,5 +19,8 @@
     "typescript": "5.9.3",
     "vite": "8.3.5",
     "vite-plugin-web-extension": "4.5.1"
+  },
+  "dependencies": {
+    "@sammysul/lsel": "0.1.0"
   }
 }

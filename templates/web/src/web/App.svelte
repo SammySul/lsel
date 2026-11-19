@@ -1,15 +1,8 @@
 <script lang="ts">
+import { Empty, Page } from "@sammysul/lsel";
 import { name, version } from "../../package.json";
 </script>
 
-<main class="lsel-appear">
-  <h1>{name}</h1>
-  <p>v{version}</p>
-</main>
-
-<style>
-  main {
-    max-width: 720px;
-    padding: var(--space-6) var(--space-4);
-  }
-</style>
+<Page {name} {version}>
+  <Empty>Nothing here yet.</Empty>
+</Page>

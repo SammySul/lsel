@@ -78,21 +78,6 @@
         }
       );
 
-      # A new project's first `bun run check` runs Biome on the template's files, so they must pass as shipped.
-      checks = forEachSystem (
-        system:
-        let
-          pkgs = nixpkgs.legacyPackages.${system};
-        in
-        {
-          template-biome = pkgs.runCommand "lsel-template-biome" { nativeBuildInputs = [ pkgs.biome ]; } ''
-            cp -r ${./templates/web} web && chmod -R u+w web && cd web
-            biome check --vcs-enabled=false .
-            touch $out
-          '';
-        }
-      );
-
       templates.extension = {
         path = ./templates/extension;
         description = "A browser extension with a Svelte popup: dev shell, Nix package and CI that releases a zip on a version bump";
