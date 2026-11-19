@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { parseSettings } from "./settings.ts";
+import { storedSettings } from "./settings.ts";
 import { cueFor, SOUNDS } from "./sounds.ts";
 import { buildSamples, SAMPLE_RATE, type Zzfx } from "./zzfx.ts";
 
@@ -125,13 +125,15 @@ describe("the game's sounds", () => {
 
 describe("stored sound settings", () => {
   const defaults = { muted: false, effects: 0.6, ambience: 0.4 };
+  const read = (stored: string | null) =>
+    storedSettings({ getItem: () => stored, setItem: () => {} }).value;
 
   test("a device with nothing stored gets quiet effects and ambience", () => {
-    expect(parseSettings(null)).toEqual(defaults);
+    expect(read(null)).toEqual(defaults);
   });
 
   test("what was stored is kept", () => {
-    expect(parseSettings('{"muted":true,"effects":0.1,"ambience":0}')).toEqual({
+    expect(read('{"muted":true,"effects":0.1,"ambience":0}')).toEqual({
       muted: true,
       effects: 0.1,
       ambience: 0,
@@ -140,9 +142,9 @@ describe("stored sound settings", () => {
 
   test("anything unreadable falls back to the defaults", () => {
     expect([
-      parseSettings("not json"),
-      parseSettings('{"muted":"yes","effects":0.5,"ambience":0.5}'),
-      parseSettings('{"muted":false,"effects":7,"ambience":0.5}'),
+      read("not json"),
+      read('{"muted":"yes","effects":0.5,"ambience":0.5}'),
+      read('{"muted":false,"effects":7,"ambience":0.5}'),
     ]).toEqual([defaults, defaults, defaults]);
   });
 });

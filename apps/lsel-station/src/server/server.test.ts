@@ -1,97 +1,45 @@
 import { beforeAll, describe, expect, test } from "bun:test";
-import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { handler, parseEnv } from "@sammysul/lsel/server";
+import { name } from "../../package.json";
 import { exportString, toDocument } from "../save/document.ts";
 import { keyId } from "../save/key.ts";
 import { apply } from "../sim/commands.ts";
 import { newGame } from "../sim/state.ts";
 import { tick } from "../sim/tick.ts";
-import { PREFIX, parseConfig } from "./config.ts";
 import { openSaves } from "./saves.ts";
-import { handler, resolveStatic } from "./server.ts";
+import { ENV, syncRoutes } from "./sync.ts";
 
 let web: string;
 beforeAll(() => {
-  web = join(mkdtempSync(join(tmpdir(), "web-")), "web");
-  mkdirSync(join(web, "assets"), { recursive: true });
-  writeFileSync(join(web, "index.html"), "<!doctype html><title>app</title>");
-  writeFileSync(join(web, "assets", "app-abc.js"), "1");
-});
-
-async function get(path: string, method = "GET") {
-  const r = await handler({ staticDir: web, saves: openSaves(":memory:") })(
-    new Request(`http://app.test${path}`, { method }),
-  );
-  return { status: r.status, headers: r.headers, body: await r.text() };
-}
-
-describe("static files", () => {
-  test("index, hashed assets, healthz and the security headers", async () => {
-    const [index, asset, health] = await Promise.all([
-      get("/"),
-      get("/assets/app-abc.js"),
-      get("/healthz"),
-    ]);
-    expect([
-      index.status,
-      index.body,
-      index.headers.get("cache-control"),
-      asset.headers.get("cache-control"),
-      health.body,
-    ]).toEqual([
-      200,
-      "<!doctype html><title>app</title>",
-      "no-cache",
-      "public, max-age=31536000, immutable",
-      "ok",
-    ]);
-    expect(index.headers.get("content-security-policy")).toBe(
-      "default-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
-    );
-  });
-
-  test("a missing file is a 404 and only GET and HEAD are allowed", async () => {
-    const [missing, post, head] = await Promise.all([
-      get("/nope.js"),
-      get("/", "POST"),
-      get("/", "HEAD"),
-    ]);
-    expect([
-      missing.status,
-      post.status,
-      post.headers.get("allow"),
-      head.status,
-      head.body,
-    ]).toEqual([404, 405, "GET, HEAD", 200, ""]);
-  });
-
-  test("paths leaving the web root are refused", () => {
-    expect(resolveStatic("/srv/web", "/index.html")).toBe("/srv/web/index.html");
-    expect(resolveStatic("/srv/web", "/..%2f..%2fetc/passwd")).toBeNull();
-    expect(resolveStatic("/srv/web", "/index.html%00.js")).toBeNull();
-  });
+  web = mkdtempSync(join(tmpdir(), "web-"));
 });
 
 describe("config", () => {
-  test("defaults", () => {
+  test("the saves database is read from LSEL_STATION_DB", () => {
     expect(
-      parseConfig({
-        [`${PREFIX}_STATIC`]: "/srv/web",
-        [`${PREFIX}_DB`]: "/var/lib/x/saves.sqlite",
-      }),
+      parseEnv(
+        name,
+        { LSEL_STATION_STATIC: "/srv/web", LSEL_STATION_DB: "/var/lib/x/saves.sqlite" },
+        ENV,
+      ),
     ).toEqual({
       host: "127.0.0.1",
       port: 7000,
       staticDir: "/srv/web",
-      db: "/var/lib/x/saves.sqlite",
+      LSEL_STATION_DB: "/var/lib/x/saves.sqlite",
     });
   });
 
-  test("names every bad variable", () => {
-    expect(() => parseConfig({ [`${PREFIX}_STATIC`]: "web", [`${PREFIX}_PORT`]: "70000" })).toThrow(
-      `bad environment:\n  ${PREFIX}_PORT: Invalid value: Expected <=65535 but received 70000\n  ${PREFIX}_STATIC: an absolute path to the built web app\n  ${PREFIX}_DB: an absolute path to the saves database`,
+  test("a missing or relative database path is named", () => {
+    expect(() => parseEnv(name, { LSEL_STATION_STATIC: "/srv/web" }, ENV)).toThrow(
+      "bad environment:\n  LSEL_STATION_DB: an absolute path to the saves database",
     );
+    expect(() =>
+      parseEnv(name, { LSEL_STATION_STATIC: "/srv/web", LSEL_STATION_DB: "saves.sqlite" }, ENV),
+    ).toThrow("bad environment:\n  LSEL_STATION_DB: an absolute path to the saves database");
   });
 });
 
@@ -107,7 +55,7 @@ describe("sync", () => {
 
   async function service() {
     const id = await keyId(KEY);
-    const serve = handler({ staticDir: web, saves: openSaves(":memory:") });
+    const serve = handler(web, syncRoutes(openSaves(":memory:")));
     const call = async (method: string, body?: unknown, key = KEY, path = `/save/${id}`) => {
       const r = await serve(
         new Request(`http://app.test${path}`, {

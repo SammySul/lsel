@@ -1,4 +1,5 @@
 <script lang="ts">
+import { keys } from "@sammysul/lsel";
 import { OWNER_NAMES, REGIONS } from "../../content/factions.ts";
 import {
   OUTPOST_MODULE_IDS,
@@ -12,7 +13,7 @@ import { HOME, mapOf, type SectorId } from "../../sim/map.ts";
 import { claimable, outpostAt, ownerOf } from "../../sim/rules.ts";
 import type { Game } from "../game.svelte.ts";
 import { stacks } from "./format.ts";
-import { isGameKey } from "./keys.ts";
+import { enterOr } from "./keys.ts";
 
 let { game, selected = $bindable() }: { game: Game; selected: SectorId } = $props();
 
@@ -27,18 +28,16 @@ function move(by: number): void {
   if (next !== undefined) selected = next.id;
 }
 
-function onkeydown(event: KeyboardEvent): void {
-  if (!isGameKey(event)) return;
-  if (event.key === "j") move(1);
-  else if (event.key === "k") move(-1);
-  // on a focused button Enter already presses it
-  else if (event.key === "Enter" && !(event.target instanceof HTMLButtonElement)) {
-    game.send({ kind: "claim", sector: selected });
-  }
-}
+keys(() => [
+  { key: "j", label: "Next sector", run: () => move(1) },
+  { key: "k", label: "Previous sector", run: () => move(-1) },
+  {
+    key: "Enter",
+    label: "Claim the sector with a beacon",
+    run: enterOr(() => game.send({ kind: "claim", sector: selected })),
+  },
+]);
 </script>
-
-<svelte:window {onkeydown} />
 
 <section class="lsel-appear">
   <header>

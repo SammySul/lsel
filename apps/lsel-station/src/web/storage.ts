@@ -3,6 +3,9 @@ import { parseDocument, type SaveDocument } from "../save/document.ts";
 const SAVE = "lsel-station.save";
 const UNREADABLE = "lsel-station.save.unreadable";
 
+// lsel-allow: the game's save and its sync link are the player's data, not a screen's choices
+const store = () => localStorage;
+
 export type Loaded =
   | { kind: "none" }
   | { kind: "save"; doc: SaveDocument }
@@ -12,7 +15,7 @@ export type Loaded =
 export function loadSave(): Loaded {
   let raw: string | null;
   try {
-    raw = localStorage.getItem(SAVE);
+    raw = store().getItem(SAVE);
   } catch {
     return { kind: "unreadable", reason: "this browser keeps no storage for the page" };
   }
@@ -28,9 +31,9 @@ export function loadSave(): Loaded {
   try {
     // an earlier unreadable save keeps its place; this one goes beside it
     let aside = UNREADABLE;
-    for (let n = 2; localStorage.getItem(aside) !== null; n++) aside = `${UNREADABLE}.${n}`;
-    localStorage.setItem(aside, raw);
-    localStorage.removeItem(SAVE);
+    for (let n = 2; store().getItem(aside) !== null; n++) aside = `${UNREADABLE}.${n}`;
+    store().setItem(aside, raw);
+    store().removeItem(SAVE);
   } catch {
     // nothing more can be done in a browser that refuses storage
   }
@@ -40,7 +43,7 @@ export function loadSave(): Loaded {
 /** Whether the save was written. A full or refused storage keeps the game running unsaved. */
 export function writeSave(doc: SaveDocument): boolean {
   try {
-    localStorage.setItem(SAVE, JSON.stringify(doc));
+    store().setItem(SAVE, JSON.stringify(doc));
     return true;
   } catch {
     return false;
@@ -49,7 +52,7 @@ export function writeSave(doc: SaveDocument): boolean {
 
 export function readItem(key: string): string | null {
   try {
-    return localStorage.getItem(key);
+    return store().getItem(key);
   } catch {
     return null;
   }
@@ -57,8 +60,8 @@ export function readItem(key: string): string | null {
 
 export function writeItem(key: string, value: string | null): void {
   try {
-    if (value === null) localStorage.removeItem(key);
-    else localStorage.setItem(key, value);
+    if (value === null) store().removeItem(key);
+    else store().setItem(key, value);
   } catch {
     // kept for this visit only
   }

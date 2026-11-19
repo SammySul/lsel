@@ -1,14 +1,19 @@
 // Saves, catch-up, tabs and sync, in real browsers against the real server. Run `bun run build` first.
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { join } from "node:path";
+import { browsers, launch, serveBuilt, watchPage } from "@sammysul/lsel/testing";
 import type { Browser, BrowserContext, Page } from "playwright-core";
 import { keyId } from "../src/save/key.ts";
-import { BROWSERS, names, serveBuilt, TIMEOUT } from "./setup.ts";
+import { openSaves } from "../src/server/saves.ts";
+import { syncRoutes } from "../src/server/sync.ts";
+
+const TIMEOUT = 30_000;
 
 // noon on a fixed day, so the saved times are the same in every run
 const NOON = Date.UTC(2026, 10, 18, 12);
 
-const address = serveBuilt();
+const address = serveBuilt(join(import.meta.dir, "../dist"), syncRoutes(openSaves(":memory:")));
 
 /** The synced save's revision, as the service holds it now. */
 async function revision(key: string): Promise<number> {
@@ -21,13 +26,9 @@ async function revision(key: string): Promise<number> {
 /** Opens the game in a context and watches its console; the context's clock is left as the caller set it. */
 async function open(context: BrowserContext, query = "") {
   const page = await context.newPage();
-  const problems: string[] = [];
-  page.on("console", (m) => {
-    if (m.type() === "error" || m.type() === "warning") problems.push(`${m.type()}: ${m.text()}`);
-  });
-  page.on("pageerror", (e) => problems.push(`uncaught: ${e.message}`));
+  const watch = watchPage(page);
   await page.goto(address() + query, { waitUntil: "networkidle" });
-  return { page, problems };
+  return { page, problems: () => watch.take() };
 }
 
 async function texts(page: Page, selector: string): Promise<string[]> {
@@ -42,11 +43,11 @@ async function stopped(browser: Browser, ms = 0) {
   return context;
 }
 
-for (const name of names) {
+for (const name of browsers()) {
   describe(name, () => {
     let browser: Browser;
     beforeAll(async () => {
-      browser = await BROWSERS[name].launch({ headless: true });
+      browser = await launch(name);
     });
     afterAll(async () => {
       await browser?.close();
@@ -63,11 +64,11 @@ for (const name of names) {
         expect(await texts(page, ".stock li")).toEqual(["Iron ore 10"]);
         expect((await texts(page, ".saved"))[0]).toMatch(/^Saved \d{1,2}:\d\d (AM|PM)$/);
         await page.reload({ waitUntil: "networkidle" });
-        expect([await texts(page, ".stock li"), await texts(page, "footer .crew")]).toEqual([
+        expect([await texts(page, ".stock li"), await texts(page, ".crew li")]).toEqual([
           ["Iron ore 10"],
           ["Ana Petrov everything +3% › Mining"],
         ]);
-        expect(problems).toEqual([]);
+        expect(await problems()).toEqual([]);
         await context.close();
       },
       TIMEOUT,
@@ -93,7 +94,7 @@ for (const name of names) {
         ]);
         expect(await texts(again, ".stock li")).toEqual(["Iron ore 500 full"]);
         await again.keyboard.press("Escape");
-        expect([await panel.count(), problems]).toEqual([0, []]);
+        expect([await panel.count(), await problems()]).toEqual([0, []]);
         await context.close();
       },
       TIMEOUT,
@@ -113,7 +114,7 @@ for (const name of names) {
         expect([
           await texts(page, "[aria-label='While you were away'] > p"),
           (await texts(page, "[aria-label='While you were away'] li"))[0],
-          problems,
+          await problems(),
         ]).toEqual([[expect.stringMatching(/^2:00:0\d$/)], "Mining level 1 to 17", []]);
         await context.close();
       },
@@ -142,8 +143,8 @@ for (const name of names) {
         await other.getByRole("button", { name: "Replace this game" }).click();
         await other.waitForLoadState("networkidle");
         await other.getByText("Iron ore 10").waitFor();
-        expect(await texts(other, "footer .crew")).toEqual(["Ana Petrov everything +3% › Mining"]);
-        expect(problems).toEqual([]);
+        expect(await texts(other, ".crew li")).toEqual(["Ana Petrov everything +3% › Mining"]);
+        expect(await problems()).toEqual([]);
         await first.close();
         await second.close();
       },
@@ -167,7 +168,7 @@ for (const name of names) {
           ],
         ]);
         await second.keyboard.press("x");
-        expect(await texts(second, "footer .crew")).toEqual(["Ana Petrov everything +3% › Mining"]);
+        expect(await texts(second, ".crew li")).toEqual(["Ana Petrov everything +3% › Mining"]);
 
         await first.close();
         await second
@@ -175,7 +176,7 @@ for (const name of names) {
           .waitFor({ state: "detached" });
         await second.waitForLoadState("networkidle");
         await second.keyboard.press("x");
-        expect([await texts(second, "footer .crew"), problems]).toEqual([
+        expect([await texts(second, ".crew li"), await problems()]).toEqual([
           ["Ana Petrov everything +3% › idle"],
           [],
         ]);
@@ -215,7 +216,7 @@ for (const name of names) {
         await other.getByRole("button", { name: "Link this device" }).click();
         await other.getByText("No save has that key.").waitFor();
         // the browser logs the service's 404 for the wrong key, which is the point of that step
-        problems.length = 0;
+        await problems();
 
         await other.locator("#join").fill(key);
         await other.getByRole("button", { name: "Link this device" }).click();
@@ -228,7 +229,7 @@ for (const name of names) {
         await other.getByRole("button", { name: "Use the synced one" }).click();
         await other.getByText("Iron ore 10").waitFor();
         await other.keyboard.press("o");
-        expect([await other.locator("#key").inputValue(), problems]).toEqual([key, []]);
+        expect([await other.locator("#key").inputValue(), await problems()]).toEqual([key, []]);
         await first.close();
         await second.close();
       },
@@ -261,7 +262,8 @@ for (const name of names) {
         // the second device moves on: Ana stops mining, and the tab closes while that is still being sent
         const before = await revision(key);
         await other.keyboard.press("x");
-        expect(await texts(other, "footer .crew")).toEqual(["Ana Petrov everything +3% › idle"]);
+        expect(await texts(other, ".crew li")).toEqual(["Ana Petrov everything +3% › idle"]);
+        const quiet = await problems();
         await other.close();
         // nobody waits for a send from a closed page, so the test waits for the service to have it
         while ((await revision(key)) === before) await Bun.sleep(50);
@@ -271,10 +273,10 @@ for (const name of names) {
         const { page: again, problems: later } = await open(first);
         await again.getByText(/, synced$/).waitFor();
         expect([
-          await texts(again, "footer .crew"),
+          await texts(again, ".crew li"),
           await again.getByRole("complementary", { name: "Choose a save" }).count(),
-          problems,
-          later,
+          quiet,
+          await later(),
         ]).toEqual([["Ana Petrov everything +3% › idle"], 0, [], []]);
         await first.close();
         await second.close();
@@ -316,7 +318,7 @@ for (const name of names) {
           '{"game":"lsel-station","version":1,"n":0}',
           '{"game":"lsel-station","version":1,"n":1}',
         ]);
-        expect(problems).toEqual([]);
+        expect(await problems()).toEqual([]);
         await context.close();
       },
       TIMEOUT,

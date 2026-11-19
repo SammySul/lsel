@@ -1,10 +1,7 @@
-/** True when a key press is meant for the game: no modifier held, and not typed into a field. */
-export function isGameKey(event: KeyboardEvent): boolean {
-  if (event.ctrlKey || event.metaKey || event.altKey) return false;
-  const target = event.target;
-  return !(
-    target instanceof HTMLInputElement ||
-    target instanceof HTMLTextAreaElement ||
-    target instanceof HTMLSelectElement
-  );
-}
+/** An Enter binding that leaves a focused button its own Enter: keys() would take it. */
+export const enterOr =
+  (run: () => void) =>
+  (event: KeyboardEvent): void => {
+    if (event.target instanceof HTMLButtonElement) event.target.click();
+    else run();
+  };

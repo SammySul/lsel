@@ -1,7 +1,8 @@
 <script lang="ts">
+import { Action, clock, when } from "@sammysul/lsel";
 import { exportString, importString, playedMs, type SaveDocument } from "../../save/document.ts";
 import type { createSync } from "../sync.svelte.ts";
-import { clock, duration, when } from "./format.ts";
+import { duration } from "./format.ts";
 
 let {
   latest,
@@ -15,21 +16,11 @@ let {
 
 // taken when the panel opens: the save as it was then
 const exported = $derived(exportString(latest()));
-let copied = $state(false);
 let pasted = $state("");
 let joining = $state("");
 let joinError = $state<string | null>(null);
 
 const candidate = $derived(pasted.trim() === "" ? null : importString(pasted));
-
-async function copy(): Promise<void> {
-  try {
-    await navigator.clipboard.writeText(exported);
-    copied = true;
-  } catch {
-    copied = false;
-  }
-}
 
 async function join(): Promise<void> {
   joinError = await sync.join(joining);
@@ -47,8 +38,13 @@ async function join(): Promise<void> {
   <label for="export">This save as text</label>
   <textarea id="export" readonly rows="3" spellcheck="false">{exported}</textarea>
   <div class="line">
-    <span class="dim">{copied ? "Copied." : ""}</span>
-    <button type="button" onclick={copy}>Copy</button>
+    <span></span>
+    <Action
+      label="Copy"
+      done="Copied"
+      failed="Copy failed"
+      run={() => navigator.clipboard.writeText(exported)}
+    />
   </div>
 
   <label for="import">Load a save from text</label>

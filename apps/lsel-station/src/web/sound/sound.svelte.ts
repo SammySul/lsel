@@ -1,10 +1,9 @@
 import type { GameEvent } from "../../sim/events.ts";
 import { startAmbience } from "./ambience.ts";
-import { parseSettings, type SoundSettings } from "./settings.ts";
+import { type SoundSettings, storedSettings } from "./settings.ts";
 import { cueFor, SOUNDS, type SoundName } from "./sounds.ts";
 import { buildSamples, SAMPLE_RATE } from "./zzfx.ts";
 
-const STORAGE_KEY = "lsel-station.sound";
 // ZzFX's own master level, which its designer's volumes assume
 const MASTER = 0.3;
 const FADE_S = 0.02;
@@ -22,27 +21,19 @@ type Graph = {
 
 export type Sound = ReturnType<typeof createSound>;
 
-function stored(): string | null {
-  try {
-    return localStorage.getItem(STORAGE_KEY);
-  } catch {
-    return null;
-  }
-}
-
 // leaving the page rejects a resume or suspend still under way, which Firefox reports if nobody catches it
 const settled = () => {};
 
 /** All of the game's sound. Nothing is created until the first key press or click, as browsers require. */
 export function createSound() {
-  let settings = $state.raw(parseSettings(stored()));
+  const stored = storedSettings();
   let graph: Graph | undefined;
   let resting: ReturnType<typeof setTimeout> | undefined;
   const buffers = new Map<SoundName, AudioBuffer>();
   const lastPlayed = new Map<SoundName, number>();
   let fanfareEnd = 0;
 
-  const audible = () => !settings.muted && document.visibilityState === "visible";
+  const audible = () => !stored.value.muted && document.visibilityState === "visible";
 
   function open(): Graph {
     const ctx = new AudioContext();
@@ -50,8 +41,8 @@ export function createSound() {
     const effects = ctx.createGain();
     const ambience = ctx.createGain();
     master.gain.value = 0;
-    effects.gain.value = settings.effects;
-    ambience.gain.value = settings.ambience;
+    effects.gain.value = stored.value.effects;
+    ambience.gain.value = stored.value.ambience;
     effects.connect(master);
     ambience.connect(master);
     master.connect(ctx.destination);
@@ -111,18 +102,9 @@ export function createSound() {
     source.start(when);
   }
 
-  function change(next: SoundSettings): void {
-    settings = next;
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    } catch {
-      // a browser that refuses storage keeps the setting for this visit only
-    }
-  }
-
   return {
     get settings(): SoundSettings {
-      return settings;
+      return stored.value;
     },
     /** Plays the sound of something that just happened; an event that cannot be heard now is dropped, never queued. */
     hear(event: GameEvent): void {
@@ -131,11 +113,11 @@ export function createSound() {
     },
     /** Call from a key press or click. */
     toggle(): void {
-      change({ ...settings, muted: !settings.muted });
+      stored.value = { ...stored.value, muted: !stored.value.muted };
       sync(true);
     },
     setLevel(bus: "effects" | "ambience", level: number): void {
-      change({ ...settings, [bus]: level });
+      stored.value = { ...stored.value, [bus]: level };
       graph?.[bus].gain.setTargetAtTime(level, graph.ctx.currentTime, FADE_S);
     },
     stop(): void {

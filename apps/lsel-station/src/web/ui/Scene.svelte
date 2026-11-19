@@ -1,4 +1,5 @@
 <script lang="ts">
+import { reducedMotion } from "@sammysul/lsel";
 import { OWNER_NAMES } from "../../content/factions.ts";
 import { MODULE_IDS } from "../../content/modules.ts";
 import { mapOf, type SectorId, sectorOf } from "../../sim/map.ts";
@@ -18,9 +19,9 @@ let { game, view, selected }: { game: Game; view: "station" | "map"; selected: S
 let box: HTMLDivElement | undefined = $state();
 let canvas: HTMLCanvasElement | undefined = $state();
 let size = $state.raw({ width: 0, height: 0 });
-let still = $state(false);
 
 // plain values, so the draw effect reruns only when what is built or what is shown changes
+const still = $derived(reducedMotion());
 const seed = $derived(game.snapshot.seed);
 const built = $derived(MODULE_IDS.map((id) => game.snapshot.modules[id] ?? 0).join());
 const label = $derived.by(() => {
@@ -40,16 +41,6 @@ $effect(() => {
   });
   observer.observe(box);
   return () => observer.disconnect();
-});
-
-$effect(() => {
-  const query = matchMedia("(prefers-reduced-motion: reduce)");
-  const read = () => {
-    still = query.matches;
-  };
-  read();
-  query.addEventListener("change", read);
-  return () => query.removeEventListener("change", read);
 });
 
 $effect(() => {

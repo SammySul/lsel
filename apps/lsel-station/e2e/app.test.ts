@@ -1,11 +1,22 @@
 // The built game in real browsers on the real server: `bun run build` first; BROWSERS=chromium,firefox,webkit picks.
 
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { join } from "node:path";
+import {
+  browsers,
+  LSEL_LOOK,
+  launch,
+  lselLook,
+  serveBuilt,
+  watchPage,
+} from "@sammysul/lsel/testing";
 import type { Browser, Page } from "playwright-core";
+import { openSaves } from "../src/server/saves.ts";
+import { syncRoutes } from "../src/server/sync.ts";
 import { PALETTE } from "../src/web/scene/palette.ts";
-import { BROWSERS, names, serveBuilt, TIMEOUT } from "./setup.ts";
 
-const address = serveBuilt();
+const TIMEOUT = 30_000;
+const address = serveBuilt(join(import.meta.dir, "../dist"), syncRoutes(openSaves(":memory:")));
 
 type AudioSpy = { contexts: AudioContext[]; shots: number[]; calls: string[] };
 
@@ -43,18 +54,14 @@ function audio(page: Page) {
 }
 
 /** Opens the game with its clock stopped, so a test moves time by exact amounts. `query` can fix the seed. */
-async function open(page: Page, query = ""): Promise<string[]> {
-  const problems: string[] = [];
-  page.on("console", (m) => {
-    if (m.type() === "error" || m.type() === "warning") problems.push(`${m.type()}: ${m.text()}`);
-  });
-  page.on("pageerror", (e) => problems.push(`uncaught: ${e.message}`));
+async function open(page: Page, query = ""): Promise<() => Promise<string[]>> {
+  const watch = watchPage(page);
   await page.addInitScript(spyOnAudio);
   await page.clock.install({ time: 0 });
   await page.goto(address() + query, { waitUntil: "networkidle" });
   await page.evaluate(() => document.fonts.ready);
   await page.clock.pauseAt(60_000);
-  return problems;
+  return () => watch.take();
 }
 
 /** The scene's size and the distinct colors in it, as hex. */
@@ -92,11 +99,11 @@ async function texts(page: Page, ...selectors: string[]): Promise<string[]> {
 
 const seconds = (page: Page, s: number) => page.clock.fastForward(s * 1000);
 
-for (const name of names) {
+for (const name of browsers()) {
   describe(name, () => {
     let browser: Browser;
     beforeAll(async () => {
-      browser = await BROWSERS[name].launch({ headless: true });
+      browser = await launch(name);
     });
     afterAll(async () => {
       await browser?.close();
@@ -108,12 +115,8 @@ for (const name of names) {
         const page = await browser.newPage();
         const problems = await open(page);
         expect(await page.getByRole("heading", { level: 1 }).textContent()).toBe("Lsel");
-        const look = await page.evaluate(() => ({
-          background: getComputedStyle(document.body).backgroundColor,
-          fontLoaded: document.fonts.check('14px "JetBrains Mono"'),
-        }));
-        expect(look).toEqual({ background: "rgb(18, 18, 18)", fontLoaded: true });
-        expect(problems).toEqual([]);
+        expect(await lselLook(page)).toEqual(LSEL_LOOK);
+        expect(await problems()).toEqual([]);
       },
       TIMEOUT,
     );
@@ -124,7 +127,7 @@ for (const name of names) {
         const page = await browser.newPage();
         const problems = await open(page);
         const read = () =>
-          texts(page, ".stock", "section > header", ".facts span >> nth=0", "footer");
+          texts(page, ".stock", "section > header", ".facts span >> nth=0", ".crew");
         const idle = "Ana Petrov everything +3% › idle";
         const mining = "Ana Petrov everything +3% › Mining";
         expect(await texts(page, "nav button")).toEqual([
@@ -146,7 +149,7 @@ for (const name of names) {
         await page.keyboard.press("x");
         await page.clock.fastForward(6000);
         expect(await read()).toEqual(["Iron ore 12", "Mining Lv 2", "xp 60 / 126", idle]);
-        expect(problems).toEqual([]);
+        expect(await problems()).toEqual([]);
       },
       TIMEOUT,
     );
@@ -231,7 +234,7 @@ for (const name of names) {
           "Core II 2:00:00 60 copper wire, 30 glass Construction level 15",
           "Habitat II 1:00:00 40 copper wire, 20 glass Construction level 15",
         ]);
-        expect(await texts(page, "footer .crew")).toEqual([
+        expect(await texts(page, ".crew li")).toEqual([
           "Ana Petrov everything +3% › idle",
           "Ines Duarte mining +10% › idle",
         ]);
@@ -241,14 +244,14 @@ for (const name of names) {
         await key("Enter");
         await key("j");
         await key("Enter");
-        expect(await texts(page, "footer .crew")).toEqual([
+        expect(await texts(page, ".crew li")).toEqual([
           "Ana Petrov everything +3% › Mining",
           "Ines Duarte mining +10% › Mining",
         ]);
         expect(await scene.getAttribute("aria-label")).toBe(
           "The station in orbit above a planet. A drone waits to mine the ice asteroid. A drone waits to mine the iron asteroid.",
         );
-        expect(problems).toEqual([]);
+        expect(await problems()).toEqual([]);
       },
       TIMEOUT,
     );
@@ -340,7 +343,7 @@ for (const name of names) {
           (await texts(page, "[aria-label=Beds] li"))[0],
           (await texts(page, ".stock li")).at(0),
         ]).toEqual(["Bed 1, empty Plant algae for 2 water b", "Algae 4"]);
-        expect(problems).toEqual([]);
+        expect(await problems()).toEqual([]);
       },
       TIMEOUT,
     );
@@ -436,7 +439,10 @@ for (const name of names) {
         expect(await texts(page, ".stock li >> nth=0")).toEqual(["Credits 40"]);
         // credits stay in the top bar on every view
         await key("1");
-        expect([await texts(page, ".stock li >> nth=0"), problems]).toEqual([["Credits 40"], []]);
+        expect([await texts(page, ".stock li >> nth=0"), await problems()]).toEqual([
+          ["Credits 40"],
+          [],
+        ]);
       },
       TIMEOUT,
     );
@@ -559,7 +565,7 @@ for (const name of names) {
           { contexts: 1, shots: [], calls: ["resume"] },
           "true",
         ]);
-        expect(problems).toEqual([]);
+        expect(await problems()).toEqual([]);
       },
       TIMEOUT,
     );

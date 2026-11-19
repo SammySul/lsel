@@ -1,15 +1,13 @@
 import { describe, expect, test } from "bun:test";
 import { mapOf, type SectorId } from "../../sim/map.ts";
-import { count, duration, percent, stacks } from "./format.ts";
+import { duration, stacks } from "./format.ts";
 import { noticeFor as notice } from "./notices.ts";
 
 const noticeFor = (event: Parameters<typeof notice>[0]) => notice(event, mapOf(7));
 
 describe("formatting", () => {
-  test("numbers, shares, bars and costs read as people write them", () => {
+  test("bars and costs read as people write them", () => {
     expect([
-      count(12480),
-      percent(0.05),
       duration(3000),
       duration(600_000),
       duration(5_400_000),
@@ -22,8 +20,6 @@ describe("formatting", () => {
         { item: "ration", amount: 5 },
       ]),
     ]).toEqual([
-      "12,480",
-      "5%",
       "3.0 s",
       "10:00",
       "1:30:00",

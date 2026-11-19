@@ -1,6 +1,6 @@
+import { percent } from "@sammysul/lsel/format";
 import { HOLD_SIZES } from "../../content/modules.ts";
 import { MASTERY_STEPS, POOL_CHECKPOINTS, POOL_SHARE } from "../../sim/mastery.ts";
-import { percent } from "./format.ts";
 
 const list = (words: readonly string[]) =>
   words.length < 2 ? words.join("") : `${words.slice(0, -1).join(", ")} and ${words.at(-1)}`;

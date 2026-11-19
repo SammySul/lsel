@@ -1,12 +1,5 @@
+import { count } from "@sammysul/lsel/format";
 import { ITEMS, type Stack } from "../../content/items.ts";
-
-const whole = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
-
-/** 12480 as "12,480". */
-export const count = (n: number) => whole.format(n);
-
-/** 0.05 as "5%". */
-export const percent = (share: number) => `${Math.round(share * 100)}%`;
 
 /** 3000 as "3.0 s". */
 export const seconds = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
@@ -33,17 +26,3 @@ export const stacks = (list: readonly Stack[]) =>
 /** Item names alone, as "iron ore, ice". */
 export const names = (list: readonly Stack[]) =>
   [...new Set(list.map(({ item }) => ITEMS[item].name.toLowerCase()))].join(", ");
-
-const clockFormat = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" });
-const whenFormat = new Intl.DateTimeFormat("en-US", {
-  month: "short",
-  day: "numeric",
-  hour: "numeric",
-  minute: "2-digit",
-});
-
-/** A time of day as "2:02 PM". */
-export const clock = (ms: number) => clockFormat.format(ms);
-
-/** A moment as "Nov 18, 2:02 PM". */
-export const when = (ms: number) => whenFormat.format(ms);

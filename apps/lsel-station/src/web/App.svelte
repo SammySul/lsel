@@ -1,5 +1,7 @@
 <script lang="ts">
+import { clock, count, go, keys, Page, percent, route, when } from "@sammysul/lsel";
 import { onDestroy, untrack } from "svelte";
+import { version } from "../../package.json";
 import { ACTION_IDS, ACTIONS } from "../content/actions.ts";
 import { CREW } from "../content/crew.ts";
 import { CROP_IDS, CROPS } from "../content/crops.ts";
@@ -14,9 +16,8 @@ import { createSound } from "./sound/sound.svelte.ts";
 import { loadSave, writeSave } from "./storage.ts";
 import { createSync } from "./sync.svelte.ts";
 import Department from "./ui/Department.svelte";
-import { clock, count, duration, percent, when } from "./ui/format.ts";
+import { duration } from "./ui/format.ts";
 import { GUIDE } from "./ui/guide.ts";
-import { isGameKey } from "./ui/keys.ts";
 import MapView from "./ui/MapView.svelte";
 import { createNotices } from "./ui/notices.svelte.ts";
 import SavePanel from "./ui/SavePanel.svelte";
@@ -78,13 +79,13 @@ onDestroy(() => {
 
 type View = DepartmentId | "map";
 
-/** The view a `#/…` address names, so reload and the back button keep it. */
-const fromHash = (): View | undefined =>
-  location.hash === "#/map" ? "map" : DEPARTMENT_IDS.find((id) => `#/${id}` === location.hash);
-
-let view: View = $state(fromHash() ?? "mining");
+const view: View = $derived(
+  route.path === "/map"
+    ? "map"
+    : (DEPARTMENT_IDS.find((id) => route.path === `/${id}`) ?? "mining"),
+);
 let sector = $state(HOME);
-let keysOpen = $state(false);
+let guideOpen = $state(false);
 let savesOpen = $state(false);
 
 const open = $derived(DEPARTMENT_IDS.filter((id) => departmentOpen(game.snapshot, id)));
@@ -114,33 +115,33 @@ const stock = $derived(
   ),
 );
 
-/** Shows a view now; the address follows, so the next key press already acts on the new view. */
-function select(to: View): void {
-  view = to;
-  location.hash = `/${to}`;
-}
+// go() sets the view before the address, so the next key press already acts on the new view
+const select = (to: View) => go(`/${to}`);
 
-function onkeydown(event: KeyboardEvent): void {
-  if (!isGameKey(event)) return;
-  const picked = open.find((id) => DEPARTMENTS[id].key === event.key);
-  if (picked !== undefined) select(picked);
-  else if (event.key === "m") select("map");
-  else if (event.key === "s") sound.toggle();
-  else if (event.key === "?") keysOpen = !keysOpen;
-  else if (event.key === "o") savesOpen = !savesOpen;
-  else if (event.key === "Escape") {
-    keysOpen = false;
-    savesOpen = false;
-    game.dismissSummary();
-  }
-}
+keys(() => [
+  ...open.map((id) => ({
+    key: DEPARTMENTS[id].key,
+    label: DEPARTMENTS[id].name,
+    run: () => select(id),
+  })),
+  { key: "m", label: "Map", run: () => select("map") },
+  { key: "o", label: "Saves and sync", run: () => (savesOpen = !savesOpen) },
+  { key: "s", label: "Sound on or off", run: sound.toggle },
+  { key: "h", label: "How it works, and volume", run: () => (guideOpen = !guideOpen) },
+  {
+    key: "Escape",
+    label: "Back out",
+    run: () => {
+      guideOpen = false;
+      savesOpen = false;
+      game.dismissSummary();
+    },
+  },
+]);
 </script>
 
-<svelte:window {onkeydown} onhashchange={() => (view = fromHash() ?? view)} />
-
-<main>
-  <header>
-    <h1>Lsel</h1>
+<Page name="Lsel" {version} source="https://git.sammysul.com/SammySul/lsel-station" width={1600}>
+  {#snippet actions()}
     <ul class="stock">
       {#each stock as id (id)}
         <li>
@@ -170,10 +171,10 @@ function onkeydown(event: KeyboardEvent): void {
     <button type="button" aria-pressed={!sound.settings.muted} onclick={sound.toggle}>
       Sound <kbd>s</kbd>
     </button>
-    <button type="button" aria-pressed={keysOpen} onclick={() => (keysOpen = !keysOpen)}>
-      Help <kbd>?</kbd>
+    <button type="button" aria-pressed={guideOpen} onclick={() => (guideOpen = !guideOpen)}>
+      Guide <kbd>h</kbd>
     </button>
-  </header>
+  {/snippet}
 
   <div class="body">
     <nav aria-label="Departments">
@@ -264,8 +265,8 @@ function onkeydown(event: KeyboardEvent): void {
       {#if savesOpen}
         <SavePanel latest={() => latest} {sync} load={replace} />
       {/if}
-      {#if keysOpen}
-        <section class="keys lsel-appear" aria-label="Help">
+      {#if guideOpen}
+        <section class="guide lsel-appear" aria-label="Guide">
           <h2>How it works</h2>
           <dl class="terms">
             {#each GUIDE as [term, text] (term)}
@@ -273,33 +274,7 @@ function onkeydown(event: KeyboardEvent): void {
               <dd>{text}</dd>
             {/each}
           </dl>
-          <h2>Keys</h2>
-          <dl>
-            {#each open as id (id)}
-              <dt><kbd>{DEPARTMENTS[id].key}</kbd></dt>
-              <dd>{DEPARTMENTS[id].name}</dd>
-            {/each}
-            <dt><kbd>j</kbd> <kbd>k</kbd></dt>
-            <dd>Move through the list</dd>
-            <dt><kbd>Enter</kbd></dt>
-            <dd>Assign whoever is free</dd>
-            <dt><kbd>x</kbd></dt>
-            <dd>Stop</dd>
-            <dt><kbd>p</kbd></dt>
-            <dd>Raise mastery from the pool</dd>
-            <dt><kbd>b</kbd></dt>
-            <dd>Plant an empty bed</dd>
-            <dt><kbd>m</kbd></dt>
-            <dd>Map</dd>
-            <dt><kbd>o</kbd></dt>
-            <dd>Saves and sync</dd>
-            <dt><kbd>s</kbd></dt>
-            <dd>Sound on or off</dd>
-            <dt><kbd>?</kbd></dt>
-            <dd>This help</dd>
-            <dt><kbd>Esc</kbd></dt>
-            <dd>Back out</dd>
-          </dl>
+          <p class="dim"><kbd>?</kbd> lists the keys.</p>
           <h2>Volume</h2>
           <div class="levels">
             {#each ["effects", "ambience"] as const as bus (bus)}
@@ -327,13 +302,19 @@ function onkeydown(event: KeyboardEvent): void {
     </div>
 
     <Scene {game} view={view === "map" ? "map" : "station"} selected={sector} />
+
+    <div class="notices" aria-live="polite">
+      {#each notices.list as notice (notice.id)}
+        <p class="lsel-appear">{notice.text}</p>
+      {/each}
+    </div>
   </div>
 
-  <footer>
+  <ul class="crew" aria-label="Crew">
     {#each game.snapshot.crew as id (id)}
       {@const job = game.snapshot.jobs[id]}
       {@const { name, specialty } = CREW[id]}
-      <span class="crew lsel-appear">
+      <li class="lsel-appear">
         {name}
         <span class="dim">
           {specialty.department === "all"
@@ -346,46 +327,26 @@ function onkeydown(event: KeyboardEvent): void {
         {:else}
           {DEPARTMENTS[ACTIONS[job.action].department].name}
         {/if}
-      </span>
+      </li>
     {/each}
-  </footer>
-
-  <div class="notices" aria-live="polite">
-    {#each notices.list as notice (notice.id)}
-      <p class="lsel-appear">{notice.text}</p>
-    {/each}
-  </div>
-</main>
+  </ul>
+</Page>
 
 <style>
-  main {
-    position: relative;
-    max-width: 1600px;
+  /* lsel-allow: needs a full-window Page in @sammysul/lsel; the game fills the window */
+  :global(main.lsel-page) {
     height: calc(100dvh - 2 * var(--space-5));
-    display: grid;
-    grid-template-rows: auto minmax(0, 1fr) auto;
   }
-  header,
-  footer {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: var(--space-2) var(--space-5);
-    padding: var(--space-3) var(--space-4);
-  }
-  header {
-    border-bottom: var(--border);
-  }
-  footer {
-    border-top: var(--border);
-  }
-  .stock {
+  .stock,
+  .crew {
     list-style: none;
-    margin: 0 auto 0 0;
+    margin: 0;
     padding: 0;
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-1) var(--space-5);
+  }
+  .stock {
     font-variant-numeric: tabular-nums;
   }
   .dim {
@@ -395,9 +356,12 @@ function onkeydown(event: KeyboardEvent): void {
     color: var(--accent);
   }
   .body {
+    position: relative;
+    flex: 1;
     display: grid;
     grid-template-columns: 240px minmax(300px, 400px) minmax(0, 1fr);
     min-height: 0;
+    border: var(--border);
   }
   nav {
     display: flex;
@@ -417,7 +381,7 @@ function onkeydown(event: KeyboardEvent): void {
     border-right: var(--border);
     overflow-y: auto;
   }
-  .keys {
+  .guide {
     padding: var(--space-4);
     border-bottom: var(--border);
     display: flex;
@@ -435,7 +399,8 @@ function onkeydown(event: KeyboardEvent): void {
   dd {
     margin: 0;
   }
-  .keys h2 {
+  .guide h2,
+  .guide p {
     margin: 0;
   }
   .terms {
@@ -477,7 +442,7 @@ function onkeydown(event: KeyboardEvent): void {
   .notices {
     position: absolute;
     right: var(--space-4);
-    bottom: var(--space-7);
+    bottom: var(--space-4);
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -491,7 +456,7 @@ function onkeydown(event: KeyboardEvent): void {
     border: var(--border);
   }
   @media (max-width: 600px) {
-    main {
+    :global(main.lsel-page) {
       height: calc(100dvh - 2 * var(--space-2));
     }
   }

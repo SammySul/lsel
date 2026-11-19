@@ -1,4 +1,5 @@
 <script lang="ts">
+import { count, keys, percent } from "@sammysul/lsel";
 import { ACTION_IDS, ACTIONS, isOnce } from "../../content/actions.ts";
 import { CREW, type CrewId } from "../../content/crew.ts";
 import { CROP_IDS, CROPS } from "../../content/crops.ts";
@@ -26,8 +27,8 @@ import {
 } from "../../sim/rules.ts";
 import { GLUT_MAX, GLUT_STEP } from "../../sim/tick.ts";
 import type { Game } from "../game.svelte.ts";
-import { count, duration, names, percent, stacks } from "./format.ts";
-import { isGameKey } from "./keys.ts";
+import { duration, names, stacks } from "./format.ts";
+import { enterOr } from "./keys.ts";
 
 let { game, department }: { game: Game; department: DepartmentId } = $props();
 
@@ -165,19 +166,19 @@ function plant(bed: number): void {
   if (crop !== undefined && bed >= 0) game.send({ kind: "plant", bed, crop });
 }
 
-function onkeydown(event: KeyboardEvent): void {
-  if (!isGameKey(event)) return;
-  if (event.key === "j") cursor = Math.min(selected + 1, rows.length - 1);
-  else if (event.key === "k") cursor = Math.max(selected - 1, 0);
-  // on a focused button Enter already presses it
-  else if (event.key === "Enter" && !(event.target instanceof HTMLButtonElement)) assign(selected);
-  else if (event.key === "x") stop(selected);
-  else if (event.key === "p") raise(selected);
-  else if (event.key === "b") plant(emptyBed);
-}
+keys(() => [
+  { key: "j", label: "Next", run: () => (cursor = Math.min(selected + 1, rows.length - 1)) },
+  { key: "k", label: "Previous", run: () => (cursor = Math.max(selected - 1, 0)) },
+  { key: "Enter", label: "Assign whoever is free", run: enterOr(() => assign(selected)) },
+  { key: "x", label: "Stop", run: () => stop(selected) },
+  ...(style === null
+    ? []
+    : [{ key: "p", label: "Raise mastery from the pool", run: () => raise(selected) }]),
+  ...(department === "hydroponics"
+    ? [{ key: "b", label: "Plant an empty bed", run: () => plant(emptyBed) }]
+    : []),
+]);
 </script>
-
-<svelte:window {onkeydown} />
 
 <section class="lsel-appear">
   <header>
