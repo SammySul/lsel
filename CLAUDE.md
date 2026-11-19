@@ -82,8 +82,9 @@ describes, fix or delete the note.
 - Cloudflare's login check rejects the Mac's Proton exit address (via `twelve`):
   sign in from another device instead.
 - **Forgejo's API** has run status (`/api/v1/repos/<owner>/<repo>/actions/tasks`)
-  but no job logs, and a `write:repository` token can't delete a repo: read
-  logs and delete repos in the web UI.
+  but no job logs: read them as `ssh forgejo@twelve` from
+  `/var/lib/forgejo/data/actions_log/<owner>/<repo>/*/<task>.log.zst` (`zstd -dc`).
+  A `write:repository` token can't delete a repo: do that in the web UI.
 - `tailscale serve` settings live in tailscaled, not in Nix: removing a service
   from `squares` leaves its `serve` running until `sudo tailscale serve
   --https=<port> off`.

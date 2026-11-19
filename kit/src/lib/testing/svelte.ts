@@ -15,10 +15,17 @@ export function registerSvelteModules(): void {
       build.onLoad({ filter: /\.svelte\.(ts|js)$/ }, async ({ path }) => {
         const source = await Bun.file(path).text();
         const js = path.endsWith(".ts") ? ts.transformSync(source) : source;
-        return { contents: compileModule(js, { filename: path, ...options }).js.code, loader: "js" };
+        return {
+          contents: compileModule(js, { filename: path, ...options }).js.code,
+          loader: "js",
+        };
       });
       build.onLoad({ filter: /\.svelte$/ }, async ({ path }) => {
-        const out = compile(await Bun.file(path).text(), { filename: path, ...options, css: "injected" });
+        const out = compile(await Bun.file(path).text(), {
+          filename: path,
+          ...options,
+          css: "injected",
+        });
         return { contents: out.js.code, loader: "js" };
       });
     },
