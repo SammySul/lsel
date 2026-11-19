@@ -25,4 +25,4 @@ jobs:
       - uses: actions/checkout@v7
         with: { fetch-depth: 0 }
       - env: { TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
-        run: nix run --inputs-from . lsel-nix#release
+        run: nix run --inputs-from . lsel#release
