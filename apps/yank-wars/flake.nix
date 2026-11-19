@@ -22,6 +22,7 @@
       });
 
       devShells = forEachSystem (system: {
+        # not `web`: the engine works around Firefox's and WebKit's DOM selection quirks, which only those browsers test
         default = lsel.devShells.${system}.web-all-browsers.overrideAttrs (old: {
           # the oracle: `bun run oracle` replays test cases in real vim
           nativeBuildInputs = old.nativeBuildInputs ++ [ nixpkgs.legacyPackages.${system}.vim ];
