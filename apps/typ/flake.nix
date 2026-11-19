@@ -31,6 +31,7 @@
       );
 
       devShells = forEachSystem (system: {
+        # not `web`: fonts are stored as bytes because WebKit refuses Blobs in IndexedDB, which only WebKit tests
         default = lsel.devShells.${system}.web-all-browsers;
       });
     };
