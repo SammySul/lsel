@@ -26,6 +26,11 @@ const report = resource(async (signal) => {
   return players.length === 0 ? null : fetchReport(players, signal);
 });
 
+const shown = $derived.by(() => {
+  const r = report.value;
+  return selected.length > 0 && r && r.earliest !== null ? { report: r, since: r.earliest } : null;
+});
+
 $effect(() => {
   if (roster.value !== undefined) prefs.value = { players: selected, view, stat };
 });
@@ -69,24 +74,26 @@ keys(() =>
   {#if roster.value === undefined}
     <Status of={roster} waiting="Asking dajaj for the players…" />
   {:else}
-    <Status of={report} waiting="Asking PUBG…" />
-    {#if selected.length === 0}
-      <Empty>No players chosen. Choose one or more above.</Empty>
-    {:else if report.value}
-      {#if report.value.matchCount === 0 || report.value.earliest === null}
+    <div class="lines">
+      <Status of={report} waiting="Asking PUBG…" />
+      {#if selected.length === 0}
+        <Empty>No players chosen. Choose one or more above.</Empty>
+      {:else if shown}
+        <p class="summary">{plural(shown.report.matchCount, "match", "matches")} together since {when(new Date(shown.since))}.</p>
+      {:else if report.value}
         <Empty>No recent matches with all of them. Drop a player to see more.</Empty>
-      {:else}
-        <p class="summary">{plural(report.value.matchCount, "match", "matches")} together since {when(new Date(report.value.earliest))}.</p>
-        {#key view}
-          <div class="lsel-appear">
-            {#if view === "table"}
-              <Table report={report.value} />
-            {:else}
-              <Chart report={report.value} {view} {stat} />
-            {/if}
-          </div>
-        {/key}
       {/if}
+    </div>
+    {#if shown}
+      {#key view}
+        <div class="lsel-appear">
+          {#if view === "table"}
+            <Table report={shown.report} />
+          {:else}
+            <Chart report={shown.report} {view} {stat} />
+          {/if}
+        </div>
+      {/key}
     {/if}
   {/if}
 </Page>
