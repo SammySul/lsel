@@ -3,6 +3,7 @@
   lib,
   stdenv,
   bun2nix,
+  bunCacheAlias,
   makeBinaryWrapper,
 }:
 let
@@ -43,7 +44,7 @@ stdenv.mkDerivation {
     overrides = bun2nix.patchedDependenciesToOverrides { inherit patchedDependencies; };
   };
 
-  postBunSetInstallCacheDirPhase = builtins.readFile ./bun-cache-alias.sh;
+  postBunSetInstallCacheDirPhase = bunCacheAlias;
 
   # the root postinstall wants the dev shell's bun2nix; no dependency here has install scripts
   dontRunLifecycleScripts = true;

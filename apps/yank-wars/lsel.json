@@ -1,3 +1,0 @@
-{
-  "files": ["nix/bun2nix-lockfile-v2.patch", "nix/bun-cache-alias.sh"]
-}
