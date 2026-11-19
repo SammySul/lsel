@@ -32,7 +32,6 @@ let {
 
 keys(() => [{ key: "?", label: "List the keys", hint: true, run: () => (keyHelp.open = true) }]);
 
-// `?` last: it leads to every other key
 // the browser's own chrome follows the palette, so no page repeats its base color
 onMount(() => {
   let meta = document.querySelector('meta[name="theme-color"]');
@@ -47,6 +46,7 @@ onMount(() => {
   );
 });
 
+// `?` last: it leads to every other key
 const hints = $derived(
   activeBindings()
     .filter((b) => b.hint)

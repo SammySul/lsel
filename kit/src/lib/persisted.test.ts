@@ -51,9 +51,13 @@ test("falls back on nothing stored, broken JSON, or no storage at all", () => {
     view: "table",
     size: 16,
   });
-  const none = persisted("k", Prefs, FALLBACK, undefined);
-  none.value = { view: "chart", size: 9 };
-  expect(() => flushSync()).not.toThrow();
+});
+
+test("reading alone writes nothing, so a value this build can't read survives", () => {
+  const store = memory({ "app:prefs:v1": '{"view":"pie","size":20,"theme":"x"}' });
+  persisted("app:prefs:v1", Prefs, FALLBACK, store);
+  flushSync();
+  expect(store.data["app:prefs:v1"]).toBe('{"view":"pie","size":20,"theme":"x"}');
 });
 
 test("a storage that throws on write doesn't break the page", () => {

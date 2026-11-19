@@ -1,6 +1,6 @@
 {
   "name": "@sammysul/lsel",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "lsel's look, components, keys, states, formats and server, shared by every project",
   "license": "MIT",
   "type": "module",

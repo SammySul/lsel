@@ -96,6 +96,7 @@ for (const name of browsers()) {
 
     test("in a search box keys type, arrows still move, and Esc clears then leaves", async () => {
       const { page, problems } = await open();
+      await page.keyboard.press("G");
       await page.keyboard.press("/");
       await page.keyboard.type("a j");
       const box = page.getByRole("searchbox", { name: "Search feeds" });
@@ -103,7 +104,8 @@ for (const name of browsers()) {
       expect(await page.locator("p.lsel-empty").textContent()).toContain("No feeds match.");
       await page.keyboard.press("Escape");
       expect(await box.inputValue()).toBe("");
-      await page.keyboard.press("ArrowDown");
+      expect(await current(page)).toBe("Gamma log");
+      await page.keyboard.press("ArrowUp");
       expect(await current(page)).toBe("Beta notes");
       await page.keyboard.press("Escape");
       expect(await box.evaluate((el) => el === document.activeElement)).toBe(false);

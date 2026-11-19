@@ -50,9 +50,10 @@ const index = $derived.by(() => {
 const current = $derived(items[index]);
 
 $effect(() => {
+  // an empty list (a search matching nothing, items still loading) keeps the selection for later
+  if (current === undefined) return;
   last = index;
-  const shown = current === undefined ? undefined : id(current);
-  if (shown !== selected) selected = shown;
+  if (id(current) !== selected) selected = id(current);
 });
 const rows: HTMLElement[] = $state([]);
 

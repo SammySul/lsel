@@ -25,9 +25,13 @@ export function persisted<T>(
   } catch {}
   const read = v.safeParse(schema, stored);
   const state = $state({ value: read.success ? read.output : fallback });
+  // saves only a change: storage keeps what it had (a newer build's value) until then
+  let saved = JSON.stringify(state.value);
   const stop = $effect.root(() => {
     $effect(() => {
       const json = JSON.stringify(state.value);
+      if (json === saved) return;
+      saved = json;
       try {
         storage?.setItem(key, json);
       } catch {}
