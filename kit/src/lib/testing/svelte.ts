@@ -1,19 +1,24 @@
 import { plugin } from "bun";
-import { compileModule } from "svelte/compiler";
+import { compile, compileModule } from "svelte/compiler";
 
 let registered = false;
 
-/** Compiles `*.svelte.ts` (runes) for `bun test` as Vite would, for modules imported after this call. */
+/** Compiles components and rune modules for `bun test` as Vite would; run with `--conditions=browser`. */
 export function registerSvelteModules(): void {
   if (registered) return;
   registered = true;
   const ts = new Bun.Transpiler({ loader: "ts", define: { "import.meta.env.DEV": "true" } });
+  const options = { generate: "client", dev: true } as const;
   plugin({
-    name: "svelte-modules",
+    name: "svelte",
     setup(build) {
-      build.onLoad({ filter: /\.svelte\.ts$/ }, async ({ path }) => {
-        const js = ts.transformSync(await Bun.file(path).text());
-        const out = compileModule(js, { filename: path, generate: "client", dev: true });
+      build.onLoad({ filter: /\.svelte\.(ts|js)$/ }, async ({ path }) => {
+        const source = await Bun.file(path).text();
+        const js = path.endsWith(".ts") ? ts.transformSync(source) : source;
+        return { contents: compileModule(js, { filename: path, ...options }).js.code, loader: "js" };
+      });
+      build.onLoad({ filter: /\.svelte$/ }, async ({ path }) => {
+        const out = compile(await Bun.file(path).text(), { filename: path, ...options, css: "injected" });
         return { contents: out.js.code, loader: "js" };
       });
     },

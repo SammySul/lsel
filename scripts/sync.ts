@@ -1,7 +1,7 @@
 // bun run sync [--check]: writes lsel's shared files into the template and every projects/<name>/ that has an lsel.json.
-// lsel.json: { "assets": "<dir>", "template": "web" | "extension", "files": ["<path>", …] }. The assets directory
-// belongs to lsel, so extra files there are removed; each path in "files" is kept identical to that template's
-// file at the same path ("web" when no template is named).
+// lsel.json: { "assets"?: "<dir>", "template": "web" | "extension", "files": ["<path>", …] }. The assets directory
+// belongs to lsel, so extra files there are removed (a project on @sammysul/lsel has none); each path in "files" is
+// kept identical to that template's file at the same path ("web" when no template is named).
 import { mkdir, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 
@@ -24,10 +24,11 @@ for (const name of ["templates/web", "templates/extension", ...projects]) {
   const project = join(root, name);
   const raw = await readFile(join(project, "lsel.json"), "utf8").catch(() => undefined);
   if (raw === undefined) continue;
-  const config = JSON.parse(raw) as { assets: string; template?: string; files?: string[] };
+  const config = JSON.parse(raw) as { assets?: string; template?: string; files?: string[] };
   const template = join(root, "templates", config.template ?? "web");
+  const dir = config.assets;
   const wanted = [
-    ...assetFiles.map((f) => ({ from: join(assets, f), to: join(config.assets, f) })),
+    ...(dir === undefined ? [] : assetFiles.map((f) => ({ from: join(assets, f), to: join(dir, f) }))),
     ...(config.files ?? []).map((f) => ({ from: join(template, f), to: f })),
   ];
   const changed: typeof wanted = [];
@@ -36,9 +37,9 @@ for (const name of ["templates/web", "templates/extension", ...projects]) {
     const have = await readFile(join(project, w.to)).catch(() => undefined);
     if (have === undefined || !want.equals(have)) changed.push(w);
   }
-  const extra = (await readdir(join(project, config.assets)).catch(() => [] as string[]))
+  const extra = (dir === undefined ? [] : await readdir(join(project, dir)).catch(() => []))
     .filter((f) => !assetFiles.includes(f))
-    .map((f) => join(config.assets, f));
+    .map((f) => join(dir ?? "", f));
   const list = [...changed.map((w) => w.to), ...extra.map((f) => `-${f}`)].join(", ");
   if (list === "") {
     console.log(`${name}: up to date`);

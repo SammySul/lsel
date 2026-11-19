@@ -45,3 +45,24 @@ jobs:
       - run: nix develop -c bun run test
       - run: nix develop -c bun run build
       - run: nix flake check
+
+  # A kit version not yet in Forgejo's registry is published; any other push publishes nothing.
+  publish:
+    needs: kit
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: self-hosted
+    defaults: { run: { working-directory: kit } }
+    steps:
+      - uses: actions/checkout@v7
+      - run: nix develop -c bun install --frozen-lockfile
+      - env:
+          # the run's own token can't write packages: Forgejo wants the owner's
+          NPM_CONFIG_TOKEN: "${{ secrets.PACKAGES_TOKEN }}"
+        run: |
+          registry="$GITHUB_SERVER_URL/api/packages/SammySul/npm/"
+          version=$(jq -r .version package.json)
+          if curl -fsS "${registry}@sammysul%2flsel" | jq -e --arg v "$version" '.versions[$v]' >/dev/null; then
+            echo "@sammysul/lsel $version is already published"
+            exit 0
+          fi
+          nix develop -c bun publish --registry "$registry"
