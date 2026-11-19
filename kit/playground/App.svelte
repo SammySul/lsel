@@ -42,7 +42,7 @@ let calls = 0;
 const rows = resource(async () => {
   const m = mode;
   calls++;
-  await new Promise((r) => setTimeout(r, m === "slow" ? 800 : 10));
+  await new Promise((r) => setTimeout(r, m === "slow" ? 1500 : 10));
   if (m === "fail") throw new Error(`The playground's upstream is down (try ${calls})`);
   return `answer ${calls}`;
 });

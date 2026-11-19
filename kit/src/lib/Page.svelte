@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { Snippet } from "svelte";
+import { onMount, type Snippet } from "svelte";
 import { flash } from "./flash.svelte.ts";
 import KeyHelp from "./KeyHelp.svelte";
 import { activeBindings, keyHelp, keyName, keys, keysOf } from "./keys.svelte.ts";
@@ -33,6 +33,20 @@ let {
 keys(() => [{ key: "?", label: "List the keys", hint: true, run: () => (keyHelp.open = true) }]);
 
 // `?` last: it leads to every other key
+// the browser's own chrome follows the palette, so no page repeats its base color
+onMount(() => {
+  let meta = document.querySelector('meta[name="theme-color"]');
+  if (meta === null) {
+    meta = document.createElement("meta");
+    meta.setAttribute("name", "theme-color");
+    document.head.append(meta);
+  }
+  meta.setAttribute(
+    "content",
+    getComputedStyle(document.documentElement).getPropertyValue("--base").trim(),
+  );
+});
+
 const hints = $derived(
   activeBindings()
     .filter((b) => b.hint)

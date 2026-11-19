@@ -1,5 +1,13 @@
 // Served by the shared server, so the strict CSP applies. Run `bun run build` first.
-import { afterAll, beforeAll, describe, expect, setDefaultTimeout, test } from "bun:test";
+import {
+  afterAll,
+  afterEach,
+  beforeAll,
+  describe,
+  expect,
+  setDefaultTimeout,
+  test,
+} from "bun:test";
 import { join } from "node:path";
 import type { Browser, Page } from "playwright-core";
 import { version } from "../package.json";
@@ -27,6 +35,10 @@ for (const name of browsers()) {
     beforeAll(async () => {
       browser = await launch(name);
     });
+    // one page at a time, as a person has: pages left open slow the next test's timers
+    afterEach(async () => {
+      await Promise.all(browser.contexts().flatMap((c) => c.pages().map((p) => p.close())));
+    });
     afterAll(async () => {
       await browser?.close();
     });
@@ -41,6 +53,9 @@ for (const name of browsers()) {
     test("lsel's look under the strict CSP, with a quiet console", async () => {
       const { page, problems } = await open();
       expect(await lselLook(page)).toEqual(LSEL_LOOK);
+      expect(await page.locator('meta[name="theme-color"]').getAttribute("content")).toBe(
+        "#121212",
+      );
       expect(await page.locator("footer .meta").textContent()).toContain(`lsel kit v${version}`);
       expect(await page.locator("footer .hints").textContent()).toBe(
         "/ search · j next · Enter open · ? list the keys",
