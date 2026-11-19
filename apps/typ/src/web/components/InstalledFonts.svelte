@@ -1,4 +1,5 @@
 <script lang="ts">
+import { Empty } from "@sammysul/lsel";
 import { localFamilies } from "../lib/fonts.ts";
 
 let { onpick, open = $bindable(false) }: { onpick: (family: string) => void; open?: boolean } =
@@ -32,13 +33,6 @@ function toggle() {
   if (open) open = false;
   else void show();
 }
-
-function onkeydown(e: KeyboardEvent) {
-  if (e.key === "Escape") {
-    query = "";
-    search?.blur();
-  }
-}
 </script>
 
 <div class="installed">
@@ -55,7 +49,6 @@ function onkeydown(e: KeyboardEvent) {
         <input
           bind:this={search}
           bind:value={query}
-          {onkeydown}
           type="search"
           placeholder="/ search"
           aria-label="Search installed fonts"
@@ -64,7 +57,7 @@ function onkeydown(e: KeyboardEvent) {
           {#each shown as family (family)}
             <li><button class="pick" onclick={() => onpick(family)}>{family}</button></li>
           {:else}
-            <li class="note">No installed font matches.</li>
+            <li><Empty>No installed font matches. <kbd>Esc</kbd> clears the search.</Empty></li>
           {/each}
         </ul>
       {/if}

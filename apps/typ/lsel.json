@@ -1,11 +1,8 @@
 {
-  "assets": "src/web/lsel",
   "files": [
     "nix/bun2nix-lockfile-v2.patch",
     "nix/package.nix",
     "flake.nix",
-    ".forgejo/workflows/ci.yml",
-    "biome.json",
-    "tsconfig.json"
+    ".forgejo/workflows/ci.yml"
   ]
 }

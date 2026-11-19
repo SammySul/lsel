@@ -1,4 +1,5 @@
 <script lang="ts">
+import { Empty, keys, Page } from "@sammysul/lsel";
 import { onMount } from "svelte";
 import { version } from "../../package.json";
 import InstalledFonts from "./components/InstalledFonts.svelte";
@@ -11,7 +12,7 @@ import {
   NotAFont,
   remove,
 } from "./lib/fonts.ts";
-import { clampSize, readPrefs, SIZE, writePrefs } from "./lib/prefs.ts";
+import { clampSize, prefs, SIZE } from "./lib/prefs.ts";
 import { SAMPLE } from "./lib/sample.ts";
 
 interface Font {
@@ -20,18 +21,9 @@ interface Font {
   kept: boolean;
 }
 
-const storage = (() => {
-  try {
-    return globalThis.localStorage;
-  } catch {
-    return undefined;
-  }
-})();
-
-const prefs = readPrefs(storage);
 let fonts: Font[] = $state([]);
-let hidden: string[] = $state(prefs.hidden);
-let size = $state(prefs.size);
+let hidden: string[] = $state(prefs.value.hidden);
+let size = $state(prefs.value.size);
 let text = $state(SAMPLE);
 let ready = $state(false);
 let problems: string[] = $state([]);
@@ -53,7 +45,7 @@ onMount(async () => {
 });
 
 $effect(() => {
-  if (ready) writePrefs(storage, { hidden, size });
+  prefs.value = { hidden, size };
 });
 
 async function addFiles(files: FileList | null) {
@@ -107,36 +99,34 @@ function toggle(name: string) {
   hidden = hidden.includes(name) ? hidden.filter((h) => h !== name) : [...hidden, name];
 }
 
-function onkeydown(e: KeyboardEvent) {
-  if (e.ctrlKey || e.altKey || e.metaKey) return;
-  const t = e.target;
-  if (
-    t instanceof HTMLTextAreaElement ||
-    (t instanceof HTMLInputElement && t.type !== "checkbox")
-  ) {
-    if (e.key === "Escape") t.blur();
-    return;
-  }
-  if (e.key === "a") fileInput?.click();
-  else if (e.key === "i" && localFontsSupported()) {
-    if (installedOpen) installedOpen = false;
-    else void installed?.show();
-  } else if (e.key === "/" && localFontsSupported()) void installed?.show();
-  else if (e.key === "-") size = clampSize(size - 2);
-  else if (e.key === "=" || e.key === "+") size = clampSize(size + 2);
-  else if (e.key === "r") text = SAMPLE;
-  else return;
-  e.preventDefault();
-}
+keys(() => [
+  { key: "a", label: "Add font files", hint: true, run: () => fileInput?.click() },
+  ...(localFontsSupported()
+    ? [
+        {
+          key: "i",
+          label: "Installed fonts",
+          run: () => {
+            if (installedOpen) installedOpen = false;
+            else void installed?.show();
+          },
+        },
+        { key: "/", label: "Search installed fonts", run: () => void installed?.show() },
+      ]
+    : []),
+  { key: "-", label: "Smaller", run: () => (size = clampSize(size - 2)) },
+  { key: ["=", "+"], label: "Larger", run: () => (size = clampSize(size + 2)) },
+  { key: "r", label: "Bring the sample text back", run: () => (text = SAMPLE) },
+]);
 </script>
 
-<svelte:window {onkeydown} />
-
-<main>
-  <header>
-    <h1>typ</h1>
-    <p class="sub">Compare fonts side by side on your own text.</p>
-  </header>
+<Page
+  name="typ"
+  sub="Compare fonts side by side on your own text."
+  {version}
+  source="https://git.sammysul.com/SammySul/typ"
+  width={1600}
+>
 
   <div class="layout">
     <aside aria-label="Fonts">
@@ -162,7 +152,7 @@ function onkeydown(e: KeyboardEvent) {
       {/if}
 
       {#if ready && fonts.length === 0}
-        <p class="note">No fonts yet. Add font files; they stay in this browser.</p>
+        <Empty>No fonts yet. Add font files with <kbd>a</kbd>; they stay in this browser.</Empty>
       {:else}
         <ul class="fonts" aria-label="Your fonts">
           {#each fonts as font (font.name)}
@@ -197,7 +187,7 @@ function onkeydown(e: KeyboardEvent) {
       </div>
 
       {#if shown.length === 0}
-        {#if ready}<p class="note">No fonts selected.</p>{/if}
+        {#if ready}<Empty>No fonts selected. Tick one in the list.</Empty>{/if}
       {:else}
         <div class="columns">
           {#each shown as font (font.name)}
@@ -217,20 +207,9 @@ function onkeydown(e: KeyboardEvent) {
     </section>
   </div>
 
-  <footer>
-    typ <span class="version">v{version}</span> ·
-    <a href="https://git.sammysul.com/SammySul/typ">source</a> · MIT
-  </footer>
-</main>
+</Page>
 
 <style>
-  main {
-    padding: var(--space-6) var(--space-4);
-  }
-  .sub {
-    margin: var(--space-1) 0 var(--space-5);
-    color: var(--subtle);
-  }
   .layout {
     display: grid;
     grid-template-columns: 260px minmax(0, 1fr);
@@ -282,10 +261,6 @@ function onkeydown(e: KeyboardEvent) {
   .problems {
     color: var(--error);
   }
-  .note {
-    margin: 0;
-    color: var(--subtle);
-  }
   .preview {
     display: flex;
     flex-direction: column;
@@ -327,10 +302,5 @@ function onkeydown(e: KeyboardEvent) {
   textarea {
     height: 70vh;
     resize: vertical;
-  }
-  footer {
-    margin-top: var(--space-6);
-    color: var(--subtle);
-    font-size: var(--text-xs);
   }
 </style>

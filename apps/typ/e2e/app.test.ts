@@ -1,28 +1,21 @@
-// The built app in real browsers, served by the real server.
-// Run `bun run build` first. Env: BROWSERS=chromium,firefox,webkit
+// Run `bun run build` first.
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { existsSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { type Browser, chromium, firefox, type Page, webkit } from "playwright-core";
-import { handler } from "../src/server/server.ts";
+import {
+  browsers,
+  LSEL_LOOK,
+  launch,
+  lselLook,
+  serveBuilt,
+  watchPage,
+} from "@sammysul/lsel/testing";
+import type { Browser, Page } from "playwright-core";
 
-const DIST = join(import.meta.dir, "../dist");
-const FONT = readFileSync(join(import.meta.dir, "../src/web/lsel/JetBrainsMono-Bold.woff2"));
-const ALL = { chromium, firefox, webkit };
-const names = (process.env.BROWSERS?.split(",") ?? Object.keys(ALL)) as (keyof typeof ALL)[];
-
-let server: ReturnType<typeof Bun.serve>;
-let base: string;
-
-beforeAll(() => {
-  if (!existsSync(join(DIST, "index.html"))) throw new Error("no dist/: run `bun run build` first");
-  server = Bun.serve({ port: 0, fetch: handler(DIST) });
-  base = server.url.href.replace(/\/$/, "");
-});
-
-afterAll(() => {
-  server?.stop(true);
-});
+const url = serveBuilt(join(import.meta.dir, "../dist"));
+const FONT = readFileSync(
+  join(import.meta.dir, "../node_modules/@sammysul/lsel/dist/assets/JetBrainsMono-Bold.woff2"),
+);
 
 const fontFile = (name: string, buffer: Buffer = FONT) => ({
   name,
@@ -30,27 +23,22 @@ const fontFile = (name: string, buffer: Buffer = FONT) => ({
   buffer,
 });
 
-for (const name of names) {
+for (const name of browsers()) {
   describe(name, () => {
     let browser: Browser;
     beforeAll(async () => {
-      browser = await ALL[name].launch({ headless: true });
+      browser = await launch(name);
     });
     afterAll(async () => {
       await browser?.close();
     });
 
-    async function open(): Promise<{ page: Page; problems: string[] }> {
+    async function open(): Promise<{ page: Page; problems: () => Promise<string[]> }> {
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
       const page = await ctx.newPage();
-      const problems: string[] = [];
-      page.on("console", (m) => {
-        if (m.type() === "error" || m.type() === "warning")
-          problems.push(`${m.type()}: ${m.text()}`);
-      });
-      page.on("pageerror", (e) => problems.push(`uncaught: ${e.message}`));
-      await page.goto(`${base}/`, { waitUntil: "networkidle" });
-      return { page, problems };
+      const watch = watchPage(page);
+      await page.goto(url(), { waitUntil: "networkidle" });
+      return { page, problems: () => watch.take() };
     }
 
     const listed = (page: Page) =>
@@ -65,6 +53,12 @@ for (const name of names) {
       await page.reload({ waitUntil: "networkidle" });
       await page.getByText("typ", { exact: true }).first().waitFor();
     };
+
+    test("lsel's look, under the strict CSP", async () => {
+      const { page, problems } = await open();
+      expect(await lselLook(page)).toEqual(LSEL_LOOK);
+      expect(await problems()).toEqual([]);
+    });
 
     test("a font file is kept across reloads, previewed in its own face, and removed for good", async () => {
       const { page, problems } = await open();
@@ -90,7 +84,7 @@ for (const name of names) {
       await reload(page);
       await page.getByText("No fonts yet.").waitFor();
       expect(await listed(page)).toEqual([]);
-      expect(problems).toEqual([]);
+      expect(await problems()).toEqual([]);
     });
 
     test("switching a font off and the size are remembered; keys change the size", async () => {
@@ -114,7 +108,7 @@ for (const name of names) {
       await page.getByLabel("Preview in Beta").waitFor();
       expect(await previews(page)).toEqual([["Preview in Beta", "18px"]]);
       expect(await listed(page)).toEqual(["Alpha", "Beta"]);
-      expect(problems).toEqual([]);
+      expect(await problems()).toEqual([]);
     });
 
     test("typing changes every preview; r brings the sample back", async () => {
@@ -190,7 +184,7 @@ for (const name of names) {
           old.map((r) => r.fontName),
         ),
       ).toEqual(old.map(() => true));
-      expect(problems).toEqual([]);
+      expect(await problems()).toEqual([]);
     });
 
     test("installed fonts are offered only where the browser can read them", async () => {
