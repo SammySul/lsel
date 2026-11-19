@@ -75,6 +75,33 @@ button).
   `tokens.css`, anything driven from JavaScript (Chart.js, the Web Animations
   API, a canvas) by checking the media query itself.
 
+## States
+
+Anything that waits, fails or comes back empty says so in words, where its
+content would be. A view's status line is `role="status"`; an error that stops
+the user is `role="alert"`.
+
+- **Loading**: one line in `--subtle` naming what it waits for ("Asking
+  PUBG…", not "Loading…"), shown only after 300 ms so a fast answer doesn't
+  flash. A refresh keeps the old content on screen. No spinners or skeletons; a
+  progress bar only when the progress is known (a download).
+- **Empty**: why it's empty and how to fill it, with the key ("No puzzles
+  match. `0` shows every difficulty."). Never a blank area or a bare table
+  header.
+- **Error**: in `--error`, what failed and what to do, with `r` to retry where
+  retrying can help. The last good content stays, with when it was fetched. An
+  upstream's failure names the upstream ("PUBG is rate limiting; try again at
+  3:05 PM").
+- **Partial**: show what loaded, and one line counting what didn't.
+- **Busy**: the control that started an action says what it's doing
+  ("Downloading…"), is disabled and `aria-busy`; nothing else locks unless it
+  would conflict.
+- **Done**: confirmed in place, briefly ("Copied", back after 2 s), or in
+  `--error` in the same place if it failed. No toasts.
+- **Invalid input**: `aria-invalid` on the field (`tokens.css` gives it an
+  `--error` border) and the reason under it in `--error`, checked on blur or
+  submit, never while typing.
+
 ## Icon
 
 A project's favicon is its first letter, lowercase, in JetBrains Mono Bold, in

@@ -140,6 +140,16 @@ p: ''
     color: var(--muted);
     cursor: default;
   }
+  [aria-busy="true"],
+  [aria-busy="true"]:disabled {
+    cursor: progress;
+  }
+  input[aria-invalid="true"],
+  select[aria-invalid="true"],
+  select[aria-invalid="true"]:hover,
+  textarea[aria-invalid="true"] {
+    border-color: var(--error);
+  }
 
   input[type="checkbox"],
   input[type="radio"],
