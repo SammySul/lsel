@@ -7,7 +7,7 @@ and tests it.
 | Concern | Default | Why |
 |---|---|---|
 | Environment | Nix flake dev shell, direnv | The same toolchain locally, in CI and on `twelve`; pins Bun, Biome and browsers |
-| Build, checks, release | `lsel-nix` (`webApp`, `extension`, `lsel-release`) | One copy of the Nix build, its checks and the release for every project; a project overrides what differs |
+| Build, checks, release | lsel's flake (`webApp`, `extension`, `lsel-release`) | One copy of the Nix build, its checks and the release for every project; a project overrides what differs |
 | Runtime, packages, tests | Bun | One tool for install, run, test and `bun patch` |
 | Language | TypeScript, strict (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`) | The template's `tsconfig.json` |
 | Lint, format | Biome, `recommended` preset | Fast, one tool; never run `biome migrate` (it switches the linter off) |
@@ -17,7 +17,7 @@ and tests it.
 | Data | Content as files, state in `bun:sqlite` | One file in the service's state directory, backed up by `squares` |
 | Server | `serve()` from `@sammysul/lsel/server` (Bun.serve, no framework) | Static files, `/healthz`, strict CSP, loopback only; the project adds its routes |
 | Unit tests | `bun --conditions=browser test`, the package's preload | Call code as its users do, assert literal values; the condition and preload let Svelte compile in tests |
-| Browser tests | Playwright with the dev shell's browsers | Real-browser checks in Chromium, Firefox and WebKit |
+| Browser tests | Playwright with the dev shell's browsers | Real-browser checks in Chromium; Firefox and WebKit too (`web-all-browsers`) once a project has code specific to one of them |
 | Interface pieces | `@sammysul/lsel` | The frame, keys, states, formats and preferences, once; `lsel-check` fails a project that rolls its own |
 | Styling | `tokens.css` from `@sammysul/lsel` | `DESIGN.md` |
 
@@ -65,7 +65,7 @@ storage belongs to, so every copy shares it.
 
 ## Deploy (a new service)
 
-The project ships only its package (lsel-nix's `webApp`). The
+The project ships only its package (lsel's `webApp`). The
 server reads `<PREFIX>_HOST` and `<PREFIX>_PORT` and answers `ok` on `/healthz`;
 the prefix is `package.json`'s `name` in capitals, `-` as `_`.
 Then in `squares`:

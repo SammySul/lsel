@@ -20,20 +20,31 @@ grows only from what two or more projects need; one project's piece stays there.
 
 ## Published to Forgejo, pinned exactly
 
-The package is public on Forgejo's npm registry (owned by the public user, so
-anyone can install it while lsel stays private). Projects pin an exact version:
+The package is public on Forgejo's npm registry. Projects pin an exact version:
 an update is a deliberate bump, tested in that project, and `bun.nix` hashes the
 tarball. CI publishes any version in `kit/package.json` not yet in the registry.
+A git dependency on lsel can't replace it: bun (1.4) installs no subdirectory of
+a repo, and the tarball carries files Nix generates (`tokens.css`, the fonts).
 
-## Shared Nix is a flake, not synced copies
+## Shared Nix is lsel's flake, not synced copies
 
-The Nix build, dev shells, bun2nix fixes and release live in `lsel-nix`, a
-public flake every project takes as an input, as the package is public for the
-same reason. It replaced a script that copied template files into each project:
-copies had no version, and a project that differed had to stop taking the file
-and with it every later fix. A project overrides what differs (`overrideAttrs`,
-or its own derivation on the shared bun2nix); something moves into `lsel-nix`
-only once two projects need it. Templates are copied once, by `nix flake init`.
+The Nix build, dev shells, bun2nix fixes and release live in lsel's flake
+(`nix/`), which every project takes as its `lsel` input. It replaced a script
+that copied template files into each project: copies had no version, and a
+project that differed had to stop taking the file and with it every later fix.
+A project overrides what differs (`overrideAttrs`, or its own derivation on the
+shared bun2nix); something moves into `nix/` only once two projects need it.
+Templates are copied once, by `nix flake init`. It was a separate public flake,
+`lsel-nix`, only while lsel was private; once lsel went public, one repo meant
+one input to update and nothing to keep in step.
+
+## Chromium by default, all three browsers where code differs
+
+The `web` shell carries only Chromium: most projects have no code that differs
+by browser, and Firefox and WebKit cost CI downloads, a Linux EGL workaround and
+flaky runs. The kit, which every project renders through, and a project with
+code written for one browser's quirks (typ, lsel-station, yank-wars) take
+`web-all-browsers`, so those fixes stay tested.
 
 ## Waiting is shown twice: a line and a bar
 

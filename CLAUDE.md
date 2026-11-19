@@ -54,13 +54,15 @@ describes, fix or delete the note.
   dependency that shipped a binary, `rm -rf node_modules`, or the stale copy
   keeps running instead of the dev shell's.
 - **Playwright with Nix's browsers:** `playwright-core` must equal the dev
-  shell's `PLAYWRIGHT_DRIVER_VERSION`. The rest of its environment (lsel-nix's
-  web dev shell) must come along to any other shell or runner, or the host check
-  fails and, on Linux, WebKit dies opening a page.
+  shell's `PLAYWRIGHT_DRIVER_VERSION`. The rest of its environment (lsel's
+  `web` dev shell) must come along to any other shell or runner, or the host check
+  fails and, on Linux, WebKit dies opening a page. `web` has only Chromium and
+  sets `BROWSERS=chromium`; `web-all-browsers` is for a project with code
+  specific to one browser.
 - Firefox logs "scroll-linked positioning effect" once per page whenever a
   scroll handler moves content: a test that fails on console warnings must
   ignore exactly that one.
-- **Build with lsel-nix's bun2nix, never nixpkgs' or upstream's**: 2.1.2
+- **Build with lsel's bun2nix, never nixpkgs' or upstream's**: 2.1.2
   rejects bun ≥ 1.3's lockfile (patched until a release has PR #110) and drops
   the `@sammysul` registry's hash from bun's cache paths (`lib.bunCacheAlias`,
   until draft PR #103). Moving the registry needs a new hash there.

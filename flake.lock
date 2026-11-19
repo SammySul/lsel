@@ -4,7 +4,6 @@
       "inputs": {
         "flake-parts": "flake-parts",
         "nixpkgs": [
-          "lsel-nix",
           "nixpkgs"
         ],
         "systems": "systems",
@@ -28,7 +27,6 @@
     "flake-parts": {
       "inputs": {
         "nixpkgs-lib": [
-          "lsel-nix",
           "bun2nix",
           "nixpkgs"
         ]
@@ -45,27 +43,6 @@
         "owner": "hercules-ci",
         "repo": "flake-parts",
         "type": "github"
-      }
-    },
-    "lsel-nix": {
-      "inputs": {
-        "bun2nix": "bun2nix",
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1795114440,
-        "narHash": "sha256-BS6l5ccp2MOuzFJAlmP3Mk77IE3Y/SzXjE4jmy5Aaa8=",
-        "ref": "refs/heads/main",
-        "rev": "0cc6787faec039d57d0595d5e7e36f88eaca6a90",
-        "revCount": 3,
-        "type": "git",
-        "url": "https://git.sammysul.com/SammySul/lsel-nix"
-      },
-      "original": {
-        "type": "git",
-        "url": "https://git.sammysul.com/SammySul/lsel-nix"
       }
     },
     "nixpkgs": {
@@ -86,7 +63,7 @@
     },
     "root": {
       "inputs": {
-        "lsel-nix": "lsel-nix",
+        "bun2nix": "bun2nix",
         "nixpkgs": "nixpkgs"
       }
     },
@@ -108,7 +85,6 @@
     "treefmt-nix": {
       "inputs": {
         "nixpkgs": [
-          "lsel-nix",
           "bun2nix",
           "nixpkgs"
         ]
