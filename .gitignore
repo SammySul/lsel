@@ -2,3 +2,5 @@ projects/
 node_modules/
 result
 .direnv/
+.remember/
+.playwright-mcp/
