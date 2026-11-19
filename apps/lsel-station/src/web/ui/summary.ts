@@ -4,7 +4,7 @@ import { MODULES, numeral } from "../../content/modules.ts";
 import { UNLOCKS } from "../../content/unlocks.ts";
 import { type GameMap, sectorOf } from "../../sim/map.ts";
 import type { Summary } from "../../sim/summary.ts";
-import { stacks } from "./format.ts";
+import { names, stacks } from "./format.ts";
 
 /** The "While you were away" panel's lines, most telling first. */
 export function summaryLines(summary: Summary, map: GameMap): string[] {
@@ -26,6 +26,9 @@ export function summaryLines(summary: Summary, map: GameMap): string[] {
       : []),
     ...(used.length > 0
       ? [`Used ${stacks(used.map(({ item, change }) => ({ item, amount: -change })))}`]
+      : []),
+    ...(summary.full.length > 0
+      ? [`The Hold is full of ${names(summary.full.map((item) => ({ item, amount: 0 })))}`]
       : []),
   ];
 }

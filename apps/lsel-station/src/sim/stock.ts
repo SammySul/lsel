@@ -1,10 +1,15 @@
 import { CROPS } from "../content/crops.ts";
 import type { ItemId, Stack } from "../content/items.ts";
-import { bedCount, missing } from "./rules.ts";
+import { bedCount, missing, room } from "./rules.ts";
 import type { Bed, GameState } from "./state.ts";
 
 export function give(state: GameState, item: ItemId, amount: number): void {
   state.items[item] = (state.items[item] ?? 0) + amount;
+}
+
+/** Adds what was made, up to the Hold's limit; refunds use `give`, which has none. */
+export function store(state: GameState, item: ItemId, amount: number): void {
+  give(state, item, Math.min(amount, room(state, item)));
 }
 
 /** Takes a cost if all of it is there. */

@@ -392,6 +392,25 @@ export const MARKET_OFFICE = sprite([
   "##############",
 ]);
 
+export const HOLD = sprite([
+  "##############",
+  "#LLLLLLLLLLLd#",
+  "#Lhhhhhhhhhhd#",
+  "#LhLLLhLLLhhd#",
+  "#Lhdddhdddhhd#",
+  "#Lhdddhdddhhd#",
+  "#Lhhhhhhhhhhd#",
+  "#LhhLLLhLLLhd#",
+  "#Lhhdddhdddhd#",
+  "#Lhhdddhdddhd#",
+  "#Lhhhhhhhhhhd#",
+  "#LhLLLhLLLhhd#",
+  "#Lhdddhdddhhd#",
+  "#Lhaaaaaaaahd#",
+  "#dddddddddddd#",
+  "##############",
+]);
+
 export const FREIGHTER = sprite([
   "..........####",
   "###########LL#",

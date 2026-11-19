@@ -86,17 +86,12 @@ for (const name of names) {
         const panel = again.getByRole("complementary", { name: "While you were away" });
         await panel.waitFor();
         const lines = await texts(again, "[aria-label='While you were away'] li");
-        expect([
-          await texts(again, "[aria-label='While you were away'] > p"),
-          lines.length,
-          lines[0],
-          lines[1],
-        ]).toEqual([["2:00:00"], 2, "Mining level 1 to 33", "Made 2,798 iron ore"]);
-        // the summary matches the game: what was made is in stock
-        const made = Number(lines[1]?.replace(/\D/g, ""));
-        expect(await texts(again, ".stock li")).toEqual([
-          `Iron ore ${made.toLocaleString("en-US")}`,
+        // mining stops once the Hold has 500 iron ore
+        expect([await texts(again, "[aria-label='While you were away'] > p"), lines]).toEqual([
+          ["2:00:00"],
+          ["Mining level 1 to 17", "Made 500 iron ore", "The Hold is full of iron ore"],
         ]);
+        expect(await texts(again, ".stock li")).toEqual(["Iron ore 500 full"]);
         await again.keyboard.press("Escape");
         expect([await panel.count(), problems]).toEqual([0, []]);
         await context.close();
@@ -119,7 +114,7 @@ for (const name of names) {
           await texts(page, "[aria-label='While you were away'] > p"),
           (await texts(page, "[aria-label='While you were away'] li"))[0],
           problems,
-        ]).toEqual([[expect.stringMatching(/^2:00:0\d$/)], "Mining level 1 to 33", []]);
+        ]).toEqual([[expect.stringMatching(/^2:00:0\d$/)], "Mining level 1 to 17", []]);
         await context.close();
       },
       TIMEOUT,

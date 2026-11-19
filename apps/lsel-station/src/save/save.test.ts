@@ -157,6 +157,7 @@ describe("the away summary", () => {
       crew: ["ines-duarte"],
       charted: [1 as never],
       claimed: [],
+      full: [],
     });
   });
 

@@ -216,7 +216,10 @@ for (const name of names) {
         expect(rows[0]).toMatch(
           /^Workshop I 12:00 25 iron plate, 10 water Built once. Opens Fabrication. Stopping keeps the progress. Short of \d+ iron plate, \d+ water Assign Ana Petrov Enter$/,
         );
-        expect(rows.slice(2)).toEqual([
+        expect(rows[1]).toMatch(
+          /^Hold I 10:00 15 iron plate, 10 water Short of \d+ iron plate, \d+ water Assign Ana Petrov$/,
+        );
+        expect(rows.slice(3)).toEqual([
           "Greenhouse I 15:00 10 basic parts, 20 iron plate, 20 water Construction level 6",
           "Scanner I 20:00 20 basic parts, 30 iron plate Construction level 8",
           "Lab I 25:00 30 basic parts, 30 iron plate, 10 water Construction level 10",
@@ -314,7 +317,7 @@ for (const name of names) {
         expect((await audio(page)).shots.at(-2)).toBe(500);
         await page.keyboard.press("2");
         expect(await texts(page, "section li")).toEqual([
-          "Cargo wreck 5.0 s one of iron plate, water, basic parts, hydrogen mastery 1 Repeats until you stop it. Each haul is one of these, at random. Assign Ana Petrov Enter",
+          "Cargo wreck 5.0 s one of iron plate, water, basic parts, hydrogen mastery 1 Repeats until you stop it. Each haul is one of these, at random, and it waits while the Hold is full of any. Assign Ana Petrov Enter",
         ]);
 
         // a bed is planted with a key and harvested with nobody on it

@@ -6,6 +6,7 @@ import {
   DRONE_BAY,
   GREENHOUSE,
   HABITAT,
+  HOLD,
   LAB,
   MARKET_OFFICE,
   REACTOR,
@@ -30,6 +31,7 @@ export const DRAW_ORDER: readonly ModuleId[] = [
   "reactor",
   "refinery",
   "habitat",
+  "hold",
   "scanner",
   "drone-bay",
   "core",
@@ -48,6 +50,7 @@ export const MODULE_PLACES: Readonly<Record<ModuleId, Point & { sprite: Sprite }
   lab: { sprite: LAB, x: 30, y: 3 },
   "skimmer-bay": { sprite: SKIMMER_BAY, x: 45, y: 3 },
   "market-office": { sprite: MARKET_OFFICE, x: 61, y: 3 },
+  hold: { sprite: HOLD, x: 61, y: -8 },
 };
 
 export type Site = Point & {

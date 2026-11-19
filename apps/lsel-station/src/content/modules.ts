@@ -18,6 +18,7 @@ const table = {
   lab: { name: "Lab", does: "Opens Research" },
   "skimmer-bay": { name: "Skimmer bay", does: "Opens Skimming" },
   "market-office": { name: "Market office", does: "Opens Trade; one more route at a time" },
+  hold: { name: "Hold", does: "Room for more of each item" },
 } as const satisfies Record<string, Module>;
 
 export type ModuleId = keyof typeof table;
@@ -30,6 +31,9 @@ export const STARTING_MODULES: Readonly<Partial<Record<ModuleId, number>>> = {
   "drone-bay": 1,
   refinery: 1,
 };
+
+/** How much of each item fits, by Hold level: credits are not stored, so they have no limit. */
+export const HOLD_SIZES = [500, 1000, 2500, 5000, 10_000, 25_000] as const;
 
 const NUMERALS = ["I", "II", "III", "IV", "V"];
 

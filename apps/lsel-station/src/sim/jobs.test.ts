@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { apply } from "./commands.ts";
-import { ana, FRESH, game, ines, run } from "./fixture.ts";
+import { ana, FRESH, game, ines, run, station } from "./fixture.ts";
 import { LEVELS } from "./levels.ts";
 import { crewSlots, speedOf } from "./rules.ts";
 import { newGame } from "./state.ts";
@@ -50,7 +50,7 @@ describe("mining the iron asteroid", () => {
   });
 
   test("an hour is 1,236 bars and level 26; with seed 7, mastery doubles 116 of them", () => {
-    const state = game({}, ana("iron-asteroid"));
+    const state = station({ hold: 5 }, {}, "iron-asteroid");
     run(state, 18_000);
     expect([
       state.xp.mining,

@@ -211,6 +211,14 @@ const table = {
     minutes: 12,
     inputs: of([25, "iron-plate"], [10, "water"]),
   }),
+  "hold-1": build({
+    module: "hold",
+    tier: 1,
+    name: "Hold I",
+    level: 2,
+    minutes: 10,
+    inputs: of([15, "iron-plate"], [10, "water"]),
+  }),
   "reactor-1": build({
     module: "reactor",
     tier: 1,
@@ -309,6 +317,14 @@ const table = {
     level: 15,
     minutes: 90,
     inputs: of([50, "copper-wire"], [25, "glass"]),
+  }),
+  "hold-2": build({
+    module: "hold",
+    tier: 2,
+    name: "Hold II",
+    level: 15,
+    minutes: 45,
+    inputs: of([30, "copper-wire"], [20, "glass"]),
   }),
   "scan-home": {
     name: "Home ring scan",

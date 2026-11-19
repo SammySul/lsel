@@ -13,6 +13,7 @@ import {
   bonusChance,
   canAssign,
   departmentLevel,
+  fullOutputs,
   growthSpeed,
   masterable,
   masteryLevel,
@@ -25,7 +26,7 @@ import {
 } from "../../sim/rules.ts";
 import { GLUT_MAX, GLUT_STEP } from "../../sim/tick.ts";
 import type { Game } from "../game.svelte.ts";
-import { count, duration, percent, stacks } from "./format.ts";
+import { count, duration, names, percent, stacks } from "./format.ts";
 import { isGameKey } from "./keys.ts";
 
 let { game, department }: { game: Game; department: DepartmentId } = $props();
@@ -72,6 +73,7 @@ const rows = $derived(
         paused: snapshot.projects[id],
         candidate,
         short: missingInputs(snapshot, action),
+        full: fullOutputs(snapshot, action),
         mastery: masterable(id) ? masteryLevel(snapshot, id) : null,
         chance: bonusChance(snapshot, id),
         raise: cost !== null && (snapshot.pool[department] ?? 0) >= cost ? cost : null,
@@ -123,10 +125,10 @@ function how(action: (typeof ACTIONS)[keyof typeof ACTIONS]): string {
   switch (result.kind) {
     case "items":
       return action.inputs.length === 0
-        ? "Repeats until you stop it."
-        : "Repeats until you stop it, and waits when short of inputs.";
+        ? "Repeats until you stop it, and waits while the Hold is full of what it makes."
+        : "Repeats until you stop it, and waits when short of inputs or while the Hold is full of what it makes.";
     case "loot":
-      return "Repeats until you stop it. Each haul is one of these, at random.";
+      return "Repeats until you stop it. Each haul is one of these, at random, and it waits while the Hold is full of any.";
     case "sale":
       return `A run to the market and back. Each sale of a good pays ${percent(GLUT_STEP)} less, down to ${percent(GLUT_MAX)} less, and each step comes back in 5 minutes.`;
     case "reveal":
@@ -268,7 +270,13 @@ function onkeydown(event: KeyboardEvent): void {
           </div>
           <div class="line">
             <span class="dim">
-              {CREW[crew].name}{job.phase === "waiting" ? `, waiting for ${stacks(row.short)}` : ""}
+              {CREW[crew].name}{job.phase !== "waiting"
+                ? ""
+                : row.short.length > 0
+                  ? `, waiting for ${stacks(row.short)}`
+                  : row.full.length > 0
+                    ? `, waiting: the Hold is full of ${names(row.full)}`
+                    : ""}
             </span>
             <button type="button" onclick={() => game.send({ kind: "unassign", crew })}>
               Stop {#if here && w === row.workers.length - 1}<kbd>x</kbd>{/if}

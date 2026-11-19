@@ -3,8 +3,8 @@ import { CREW, type CrewId } from "../content/crew.ts";
 import { BEDS_PER_LEVEL } from "../content/crops.ts";
 import { DEPARTMENTS, type DepartmentId } from "../content/departments.ts";
 import type { FactionId, Owner } from "../content/factions.ts";
-import type { Stack } from "../content/items.ts";
-import type { ModuleId } from "../content/modules.ts";
+import type { ItemId, Stack } from "../content/items.ts";
+import { HOLD_SIZES, type ModuleId } from "../content/modules.ts";
 import { OUTPOST_MODULES, SPECS } from "../content/outposts.ts";
 import { type Effect, UNLOCKS, type UnlockId } from "../content/unlocks.ts";
 import { LEVELS } from "./levels.ts";
@@ -173,6 +173,28 @@ export function missing(state: Snapshot, cost: readonly Stack[]): Stack[] {
 }
 
 export const missingInputs = (state: Snapshot, action: Action) => missing(state, action.inputs);
+
+/** How much of each item fits in the Hold. */
+export const holdSize = (state: Snapshot): number =>
+  HOLD_SIZES[moduleLevel(state, "hold")] ?? HOLD_SIZES[5];
+
+/** How many more of an item fit; a stock above the limit, from before there was one, has none. */
+export function room(state: Snapshot, item: ItemId): number {
+  if (item === "credits") return Number.POSITIVE_INFINITY;
+  return Math.max(holdSize(state) - (state.items[item] ?? 0), 0);
+}
+
+/** The stacks that do not fit in the Hold whole. */
+export const noRoom = (state: Snapshot, stacks: readonly Stack[]): Stack[] =>
+  stacks.filter(({ item, amount }) => room(state, item) < amount);
+
+/** What an action makes that has no room left: a job that would make it waits. */
+export function fullOutputs(state: Snapshot, action: Action): Stack[] {
+  const { result } = action;
+  if (result.kind === "items") return noRoom(state, result.outputs);
+  if (result.kind === "loot") return noRoom(state, result.table);
+  return [];
+}
 
 export const masteryLevel = (state: Snapshot, id: ActionId) =>
   MASTERY.levelOf(state.mastery[id] ?? 0);

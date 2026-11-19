@@ -12,15 +12,18 @@ import {
   bonusChance,
   chartTarget,
   FED_TICKS,
+  fullOutputs,
   growthSpeed,
   masterable,
+  noRoom,
   outputBoost,
   poolCap,
   replants,
+  room,
   speedOf,
 } from "./rules.ts";
 import type { GameState } from "./state.ts";
-import { fitBeds, give, pay } from "./stock.ts";
+import { fitBeds, give, pay, store } from "./stock.ts";
 
 export const TICK_MS = 200;
 
@@ -76,7 +79,7 @@ function finish(state: GameState, crew: CrewId, id: ActionId, events: GameEvent[
   switch (result.kind) {
     case "items":
       for (const { item, amount } of result.outputs) {
-        give(state, item, lucky && style === "extra-output" ? amount * 2 : amount);
+        store(state, item, lucky && style === "extra-output" ? amount * 2 : amount);
       }
       if (lucky && style === "keep-input") {
         for (const { item, amount } of action.inputs) give(state, item, amount);
@@ -85,7 +88,7 @@ function finish(state: GameState, crew: CrewId, id: ActionId, events: GameEvent[
     case "loot":
       for (let rolls = lucky ? 2 : 1; rolls > 0; rolls--) {
         const { item, amount } = pick(state, result.table);
-        give(state, item, amount);
+        store(state, item, amount);
       }
       break;
     case "sale": {
@@ -126,15 +129,15 @@ function finish(state: GameState, crew: CrewId, id: ActionId, events: GameEvent[
   gainXp(state, action.department, action.xp, events);
 }
 
-/** Beds grow on their own timers, with nobody assigned. */
+/** Beds grow on their own timers, with nobody assigned; a grown bed waits for room in the Hold. */
 function grow(state: GameState, events: GameEvent[]): void {
   const step = Math.round(TICK_MS * growthSpeed(state));
   state.beds.forEach((bed, index) => {
     if (bed === null) return;
     const crop = CROPS[bed.crop];
-    bed.progressMs += step;
-    if (bed.progressMs < crop.growMs) return;
-    give(state, crop.item, crop.amount);
+    bed.progressMs = Math.min(bed.progressMs + step, crop.growMs);
+    if (bed.progressMs < crop.growMs || room(state, crop.item) < crop.amount) return;
+    store(state, crop.item, crop.amount);
     events.push({ kind: "harvested", bed: index, crop: bed.crop });
     gainXp(state, "hydroponics", crop.xp, events);
     if (replants(state) && pay(state, crop.cost)) bed.progressMs = 0;
@@ -142,20 +145,23 @@ function grow(state: GameState, events: GameEvent[]): void {
   });
 }
 
-/** Whether a bar can start: there is something left to chart, and its inputs are taken. */
+/** Whether a bar can start: there is something left to chart, room for what it makes, and its inputs are taken. */
 function begin(state: GameState, action: Action): boolean {
   if (action.result.kind === "reveal" && chartTarget(state) === undefined) return false;
+  if (fullOutputs(state, action).length > 0) return false;
   return pay(state, action.inputs);
 }
 
-/** Outposts give their yields with nobody assigned. */
+/** Outposts give their yields with nobody assigned, and pause while one of them has no room. */
 function trickle(state: GameState): void {
   for (const outpost of state.outposts) {
     if (outpost.spec === null || SPECS[outpost.spec].yields.length === 0) continue;
+    const yields = SPECS[outpost.spec].yields.map((item) => ({ item, amount: 1 }));
+    if (noRoom(state, yields).length > 0) continue;
     outpost.stored += outputBoost(state, outpost.sector) / TRICKLE_TICKS;
     while (outpost.stored >= 1) {
       outpost.stored -= 1;
-      for (const item of SPECS[outpost.spec].yields) give(state, item, 1);
+      for (const item of SPECS[outpost.spec].yields) store(state, item, 1);
     }
   }
 }

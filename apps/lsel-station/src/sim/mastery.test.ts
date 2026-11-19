@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { apply } from "./commands.ts";
 import type { GameEvent } from "./events.ts";
-import { ana, game, run } from "./fixture.ts";
+import { ana, game, run, station } from "./fixture.ts";
 import { LEVELS } from "./levels.ts";
 import { MASTERY, masteryChance } from "./mastery.ts";
 import { bonusChance, masteryLevel, poolCap, poolShare } from "./rules.ts";
@@ -29,16 +29,17 @@ describe("mastery", () => {
   });
 
   test("at mastery 99 a mined bar is doubled about 3 times in 10: 271 of 1,000 with seed 7", () => {
-    const state = game({ mastery: { "iron-asteroid": 141_370 } }, ana("iron-asteroid"));
+    const state = station({ hold: 5 }, { mastery: { "iron-asteroid": 141_370 } }, "iron-asteroid");
     let bars = 0;
     while (bars < 1000) bars += tick(state).filter((e) => e.kind === "action-done").length;
     expect([state.items, state.xp]).toEqual([{ "iron-ore": 1271 }, { mining: 5000 }]);
   });
 
   test("at mastery 99 refining keeps its ore about 3 times in 10: 2,000 ore make 1,404 plate with seed 7", () => {
-    const state = game(
+    const state = station(
+      { hold: 5 },
       { mastery: { "iron-plate": 141_370 }, items: { "iron-ore": 2000 } },
-      ana("iron-plate"),
+      "iron-plate",
     );
     while (state.jobs["ana-petrov"]?.phase !== "waiting") tick(state);
     expect(state.items).toEqual({ "iron-ore": 0, "iron-plate": 1404 });

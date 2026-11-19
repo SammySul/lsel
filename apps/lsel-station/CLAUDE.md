@@ -42,3 +42,6 @@ traps.
   the link forward before an answer loses a save whose send failed.
 - A browser test that closes a page must wait on the service for its last send
   (`revision` in `e2e/saves.test.ts`): the page's ", synced" may be from before.
+- **The Hold caps each item at 500**: a sim test that runs past that (an hour
+  of mining, `while` until N bars) needs `station({ hold: 5 })`, or its job
+  waits and the loop spins forever, hanging `bun test` with no output.

@@ -72,7 +72,7 @@ describe("hydroponics", () => {
 
 describe("rations", () => {
   test("someone working eats one and is 10% faster for an hour of work", () => {
-    const state = station({}, { items: { ration: 2 } }, "iron-asteroid");
+    const state = station({ hold: 5 }, { items: { ration: 2 } }, "iron-asteroid");
     run(state, 1);
     expect([state.items, state.fed, state.jobs["ana-petrov"]?.progressMs]).toEqual([
       { ration: 1 },

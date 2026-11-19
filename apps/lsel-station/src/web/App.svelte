@@ -7,7 +7,7 @@ import { DEPARTMENT_IDS, DEPARTMENTS, type DepartmentId } from "../content/depar
 import { ITEM_IDS, ITEMS, type ItemId } from "../content/items.ts";
 import { type SaveDocument, toDocument } from "../save/document.ts";
 import { HOME, mapOf } from "../sim/map.ts";
-import { departmentLevel, departmentOpen, ownedSectors, working } from "../sim/rules.ts";
+import { departmentLevel, departmentOpen, ownedSectors, room, working } from "../sim/rules.ts";
 import { newGame } from "../sim/state.ts";
 import { startGame } from "./game.svelte.ts";
 import { createSound } from "./sound/sound.svelte.ts";
@@ -143,7 +143,10 @@ function onkeydown(event: KeyboardEvent): void {
     <h1>Lsel</h1>
     <ul class="stock">
       {#each stock as id (id)}
-        <li><span class="dim">{ITEMS[id].name}</span> {count(game.snapshot.items[id] ?? 0)}</li>
+        <li>
+          <span class="dim">{ITEMS[id].name}</span>
+          {count(game.snapshot.items[id] ?? 0)}{#if room(game.snapshot, id) === 0}{" "}<span class="note">full</span>{/if}
+        </li>
       {/each}
     </ul>
     <span class="saved dim" aria-live="polite">

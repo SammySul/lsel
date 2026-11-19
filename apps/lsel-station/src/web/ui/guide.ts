@@ -1,3 +1,4 @@
+import { HOLD_SIZES } from "../../content/modules.ts";
 import { MASTERY_STEPS, POOL_CHECKPOINTS, POOL_SHARE } from "../../sim/mastery.ts";
 import { percent } from "./format.ts";
 
@@ -10,7 +11,14 @@ export const GUIDE: readonly (readonly [string, string])[] = [
     "Jobs",
     "Assign a crew member to a job and it runs on its own, while you are away too. One job each.",
   ],
-  ["Waiting", "A job short of its inputs waits, and starts again by itself once they arrive."],
+  [
+    "Waiting",
+    "A job short of its inputs waits, and starts again by itself once they arrive. So does one whose output has no room.",
+  ],
+  [
+    "Hold",
+    `The station holds ${HOLD_SIZES[0]} of each item, more with each Hold level. Jobs, beds and outposts stop making what is full until you use some. Credits have no limit.`,
+  ],
   ["Levels", "Every finished job gives its department xp. Levels open new jobs."],
   [
     "Mastery",

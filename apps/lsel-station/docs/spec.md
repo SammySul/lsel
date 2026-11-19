@@ -147,7 +147,11 @@ faction that owns it (rank Trusted).
 Credits are the currency. They come from trade, loot and contracts, and are
 spent on hiring, market purchases, tribute and some module costs.
 
-There are no storage caps on anything.
+The Hold limits how much of each item the station keeps: 500 at first, then
+1,000, 2,500, 5,000, 10,000 and 25,000 with Hold I to V. A job whose output has
+no room waits, as one short of inputs does; so do grown beds and outposts.
+Nothing already held is taken, even above the limit. Credits have no limit.
+(Changed from "no storage caps" on 2026-11-19: a night away paid for everything.)
 
 ### 5.2 The ten departments
 
@@ -211,6 +215,7 @@ module's.
 | Dock          | Opens fleets; levels III and V give fleets 2 and 3     |
 | Shipyard      | Raises the ship class that can be built                |
 | Reactor       | +2% speed to all jobs                                  |
+| Hold          | Raises how much of each item is kept (section 5.1)     |
 
 ---
 
@@ -781,7 +786,7 @@ These were decided without a question and confirmed on 2026-11-18.
 
 1. Sound is on by default at a low level, synthesized in code (changed from "no sound" on 2026-11-18).
 2. Station modules have fixed positions; the player does not place them.
-3. No storage caps and no power system.
+3. A per-item storage limit set by the Hold module (changed 2026-11-19), and no power system.
 4. Fleets do not use crew slots and have no named captains.
 5. Offline cap of 24 hours; combat continues offline; raids and new events do not.
 6. Rations give a speed buff and nothing is lost without them.

@@ -5,7 +5,7 @@ import { MODULE_IDS, type ModuleId } from "../content/modules.ts";
 import type { UnlockId } from "../content/unlocks.ts";
 import { LEVELS } from "./levels.ts";
 import type { SectorId } from "./map.ts";
-import { ownedSectors } from "./rules.ts";
+import { ownedSectors, room } from "./rules.ts";
 import type { Snapshot } from "./state.ts";
 
 /** What changed while the player was away: the "While you were away" panel. */
@@ -23,6 +23,8 @@ export type Summary = {
   readonly crew: readonly CrewId[];
   readonly charted: readonly SectorId[];
   readonly claimed: readonly SectorId[];
+  /** Items with no room left at the end: what stopped being made. */
+  readonly full: readonly ItemId[];
 };
 
 const added = <T>(before: readonly T[], after: readonly T[]) =>
@@ -47,6 +49,7 @@ export function summarize(before: Snapshot, after: Snapshot, awayMs: number): Su
     crew: added(before.crew, after.crew),
     charted: added(before.revealed, after.revealed),
     claimed: added(ownedSectors(before), ownedSectors(after)),
+    full: ITEM_IDS.filter((item) => room(after, item) === 0),
   };
 }
 

@@ -30,6 +30,10 @@ export const stacks = (list: readonly Stack[]) =>
     })
     .join(", ");
 
+/** Item names alone, as "iron ore, ice". */
+export const names = (list: readonly Stack[]) =>
+  [...new Set(list.map(({ item }) => ITEMS[item].name.toLowerCase()))].join(", ");
+
 const clockFormat = new Intl.DateTimeFormat("en-US", { hour: "numeric", minute: "2-digit" });
 const whenFormat = new Intl.DateTimeFormat("en-US", {
   month: "short",
