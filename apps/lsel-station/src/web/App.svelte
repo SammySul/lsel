@@ -140,7 +140,7 @@ keys(() => [
 ]);
 </script>
 
-<Page name="Lsel" {version} source="https://git.sammysul.com/SammySul/lsel-station" width={1600}>
+<Page name="Lsel" {version} source="https://git.sammysul.com/SammySul/lsel-station" width={1600} fill>
   {#snippet actions()}
     <ul class="stock">
       {#each stock as id (id)}
@@ -176,7 +176,7 @@ keys(() => [
     </button>
   {/snippet}
 
-  <div class="body">
+  <div class="game">
     <nav aria-label="Departments">
       {#each open as id (id)}
         <button
@@ -333,10 +333,6 @@ keys(() => [
 </Page>
 
 <style>
-  /* lsel-allow: needs a full-window Page in @sammysul/lsel; the game fills the window */
-  :global(main.lsel-page) {
-    height: calc(100dvh - 2 * var(--space-5));
-  }
   .stock,
   .crew {
     list-style: none;
@@ -345,6 +341,9 @@ keys(() => [
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-1) var(--space-5);
+  }
+  .crew {
+    margin-top: var(--space-4);
   }
   .stock {
     font-variant-numeric: tabular-nums;
@@ -355,7 +354,7 @@ keys(() => [
   .busy {
     color: var(--accent);
   }
-  .body {
+  .game {
     position: relative;
     flex: 1;
     display: grid;
@@ -455,17 +454,12 @@ keys(() => [
     background: var(--raise);
     border: var(--border);
   }
-  @media (max-width: 600px) {
-    :global(main.lsel-page) {
-      height: calc(100dvh - 2 * var(--space-2));
-    }
-  }
   @media (max-width: 800px) {
-    .body {
+    .game {
       grid-template-columns: minmax(0, 1fr);
       grid-template-rows: 180px auto minmax(0, 1fr);
     }
-    .body > :global(.scene) {
+    .game > :global(.scene) {
       order: -1;
     }
     nav,

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { keys } from "@sammysul/lsel";
+import { List } from "@sammysul/lsel";
 import { OWNER_NAMES, REGIONS } from "../../content/factions.ts";
 import {
   OUTPOST_MODULE_IDS,
@@ -9,11 +9,10 @@ import {
   SPEC_IDS,
   SPECS,
 } from "../../content/outposts.ts";
-import { HOME, mapOf, type SectorId } from "../../sim/map.ts";
+import { HOME, mapOf, type Sector, type SectorId } from "../../sim/map.ts";
 import { claimable, outpostAt, ownerOf } from "../../sim/rules.ts";
 import type { Game } from "../game.svelte.ts";
 import { stacks } from "./format.ts";
-import { enterOr } from "./keys.ts";
 
 let { game, selected = $bindable() }: { game: Game; selected: SectorId } = $props();
 
@@ -22,21 +21,19 @@ const map = $derived(mapOf(snapshot.seed));
 const shown = $derived(map.sectors.filter((sector) => snapshot.revealed.includes(sector.id)));
 const beacons = $derived(snapshot.items["claim-beacon"] ?? 0);
 
-function move(by: number): void {
-  const at = shown.findIndex((sector) => sector.id === selected);
-  const next = shown[Math.min(Math.max(at + by, 0), shown.length - 1)];
-  if (next !== undefined) selected = next.id;
-}
+// List names rows by string, the game by SectorId
+const select = (id: string | undefined) => {
+  const found = shown.find((sector) => String(sector.id) === id);
+  if (found !== undefined) selected = found.id;
+};
 
-keys(() => [
-  { key: "j", label: "Next sector", run: () => move(1) },
-  { key: "k", label: "Previous sector", run: () => move(-1) },
+const actions = [
   {
     key: "Enter",
-    label: "Claim the sector with a beacon",
-    run: enterOr(() => game.send({ kind: "claim", sector: selected })),
+    label: "Claim with a beacon",
+    run: (sector: Sector) => game.send({ kind: "claim", sector: sector.id }),
   },
-]);
+];
 </script>
 
 <section class="lsel-appear">
@@ -47,16 +44,19 @@ keys(() => [
   <p class="dim">
     The sectors Survey has charted. Select one to claim it with a beacon or set up its outpost.
   </p>
-  <ul>
-    {#each shown as sector (sector.id)}
-      {@const here = sector.id === selected}
+  <List
+    items={shown}
+    id={(sector) => String(sector.id)}
+    bind:selected={() => String(selected), select}
+    label="Sectors"
+    {actions}
+  >
+    {#snippet row(sector, here)}
       {@const owner = ownerOf(snapshot, sector.id)}
       {@const outpost = outpostAt(snapshot, sector.id)}
-      <li class:selected={here} aria-current={here}>
+      <div class="row">
         <div class="line">
-          <button type="button" aria-pressed={here} onclick={() => (selected = sector.id)}>
-            {sector.name}
-          </button>
+          <span>{sector.name}</span>
           <span class="dim">{REGIONS[sector.tier - 1]?.name}, {OWNER_NAMES[owner].toLowerCase()}</span>
         </div>
 
@@ -116,9 +116,12 @@ keys(() => [
         {:else if here && owner !== "you" && owner !== "none"}
           <p class="dim">Held by {OWNER_NAMES[owner]}. Its market is open to Trade.</p>
         {/if}
-      </li>
-    {/each}
-  </ul>
+      </div>
+    {/snippet}
+    {#snippet empty()}
+      Nothing charted yet: Survey charts sectors.
+    {/snippet}
+  </List>
 </section>
 
 <style>
@@ -135,24 +138,10 @@ keys(() => [
     align-items: baseline;
     gap: var(--space-3);
   }
-  ul {
-    list-style: none;
-    margin: 0;
-    padding: 0;
+  .row {
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
-  }
-  li {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    padding: var(--space-3);
-    border: var(--border);
-    border-left: 2px solid var(--overlay);
-  }
-  li.selected {
-    border-left-color: var(--accent);
   }
   p {
     margin: 0;

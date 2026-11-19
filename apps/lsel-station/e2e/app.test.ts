@@ -397,7 +397,7 @@ for (const name of browsers()) {
         await work("8", "Home ring scan", 40);
         await work("8", "Chart a lane", 480);
         await key("m");
-        expect(await texts(page, "section li > .line:first-child")).toEqual([
+        expect(await texts(page, "section li > .row > .line:first-child")).toEqual([
           "Home Home ring, yours",
           "Ring 1 Home ring, pirates",
           "Ring 2 Home ring, unclaimed",

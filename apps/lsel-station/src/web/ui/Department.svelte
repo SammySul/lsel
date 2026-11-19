@@ -1,5 +1,5 @@
 <script lang="ts">
-import { count, keys, percent } from "@sammysul/lsel";
+import { count, keys, List, percent } from "@sammysul/lsel";
 import { ACTION_IDS, ACTIONS, isOnce } from "../../content/actions.ts";
 import { CREW, type CrewId } from "../../content/crew.ts";
 import { CROP_IDS, CROPS } from "../../content/crops.ts";
@@ -28,11 +28,10 @@ import {
 import { GLUT_MAX, GLUT_STEP } from "../../sim/tick.ts";
 import type { Game } from "../game.svelte.ts";
 import { duration, names, stacks } from "./format.ts";
-import { enterOr } from "./keys.ts";
 
 let { game, department }: { game: Game; department: DepartmentId } = $props();
 
-let cursor = $state(0);
+let selected: string | undefined = $state();
 
 const snapshot = $derived(game.snapshot);
 const style = $derived(DEPARTMENTS[department].mastery);
@@ -81,7 +80,7 @@ const rows = $derived(
       };
     }),
 );
-const selected = $derived(Math.min(cursor, rows.length - 1));
+type Row = (typeof rows)[number];
 
 /** What was made or studied here for good. */
 const owned = $derived(
@@ -145,39 +144,37 @@ function how(action: (typeof ACTIONS)[keyof typeof ACTIONS]): string {
   }
 }
 
-function assign(index: number): void {
-  const row = rows[index];
-  if (row?.candidate !== undefined) {
+function assign(row: Row): void {
+  if (row.candidate !== undefined) {
     game.send({ kind: "assign", crew: row.candidate, action: row.id });
   }
 }
 
-function stop(index: number): void {
-  const worker = rows[index]?.workers.at(-1);
+function stop(row: Row): void {
+  const worker = row.workers.at(-1);
   if (worker !== undefined) game.send({ kind: "unassign", crew: worker.crew });
 }
 
-function raise(index: number): void {
-  const row = rows[index];
-  if (row !== undefined && row.raise !== null) game.send({ kind: "spend-pool", action: row.id });
+function raise(row: Row): void {
+  if (row.raise !== null) game.send({ kind: "spend-pool", action: row.id });
 }
+
+// Enter is a row action, not the list's open: a click on the selected row then only selects
+const actions = $derived([
+  { key: "Enter", label: "Assign whoever is free", run: assign },
+  { key: "x", label: "Stop", run: stop },
+  ...(style === null ? [] : [{ key: "p", label: "Raise mastery from the pool", run: raise }]),
+]);
 
 function plant(bed: number): void {
   if (crop !== undefined && bed >= 0) game.send({ kind: "plant", bed, crop });
 }
 
-keys(() => [
-  { key: "j", label: "Next", run: () => (cursor = Math.min(selected + 1, rows.length - 1)) },
-  { key: "k", label: "Previous", run: () => (cursor = Math.max(selected - 1, 0)) },
-  { key: "Enter", label: "Assign whoever is free", run: enterOr(() => assign(selected)) },
-  { key: "x", label: "Stop", run: () => stop(selected) },
-  ...(style === null
-    ? []
-    : [{ key: "p", label: "Raise mastery from the pool", run: () => raise(selected) }]),
-  ...(department === "hydroponics"
+keys(() =>
+  department === "hydroponics"
     ? [{ key: "b", label: "Plant an empty bed", run: () => plant(emptyBed) }]
-    : []),
-]);
+    : [],
+);
 </script>
 
 <section class="lsel-appear">
@@ -233,11 +230,10 @@ keys(() => [
     </ul>
   {/if}
 
-  <ul>
-    {#each rows as row, index (row.id)}
-      {@const here = index === selected}
+  <List items={rows} id={(row) => row.id} bind:selected label="Jobs" {actions}>
+    {#snippet row(row, here)}
       {@const made = gives(row.action.result)}
-      <li class:selected={here} aria-current={here}>
+      <div class="row">
         <div class="line">
           <span>{row.action.name}</span>
           <span class="dim">{duration(row.action.durationMs)}</span>
@@ -314,12 +310,12 @@ keys(() => [
           </span>
           <span class="actions">
             {#if row.raise !== null}
-              <button type="button" onclick={() => raise(index)}>
+              <button type="button" onclick={() => raise(row)}>
                 Raise mastery for {count(row.raise)} {#if here}<kbd>p</kbd>{/if}
               </button>
             {/if}
             {#if row.candidate !== undefined}
-              <button type="button" onclick={() => assign(index)}>
+              <button type="button" onclick={() => assign(row)}>
                 Assign {CREW[row.candidate].name} {#if here}<kbd>Enter</kbd>{/if}
               </button>
             {:else if row.lock === null && row.workers.length === 0}
@@ -327,9 +323,12 @@ keys(() => [
             {/if}
           </span>
         </div>
-      </li>
-    {/each}
-  </ul>
+      </div>
+    {/snippet}
+    {#snippet empty()}
+      Nothing to do here yet: other departments' levels and builds open its jobs.
+    {/snippet}
+  </List>
 
   {#if owned.length > 0}
     <ul class="owned" aria-label="Done">
@@ -368,22 +367,19 @@ keys(() => [
     flex-direction: column;
     gap: var(--space-2);
   }
-  li {
+  li,
+  .row {
     display: flex;
     flex-direction: column;
     gap: var(--space-2);
+  }
+  .beds li {
     padding: var(--space-3);
     border: var(--border);
-    border-left: 2px solid var(--overlay);
-  }
-  li.selected {
-    border-left-color: var(--accent);
   }
   .owned li {
     flex-direction: row;
     justify-content: space-between;
-    border: 0;
-    padding: 0;
   }
   .dim {
     color: var(--subtle);
