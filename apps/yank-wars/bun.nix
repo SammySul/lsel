@@ -229,10 +229,10 @@
     url = "https://registry.npmjs.org/@rolldown/pluginutils/-/pluginutils-1.1.0.tgz";
     hash = "sha512-K+NU2HDCEem4sClgHH4ZZXwdJeNFkJo+hRk479DIwdIviAPN2hFJH1KHHwg8CxHQXvi0M5XY4deTXINfIiSG6w==";
   };
-  "@sammysul/lsel@0.5.1" = fetchurl {
-    url = "https://git.sammysul.com/api/packages/SammySul/npm/%40sammysul%2Flsel/-/0.5.1/lsel-0.5.1.tgz";
-    hash = "sha512-/y/kksM+ObqfUD0hCgbWB/kkm7XAp6vav0oBQdFPY4D/Fwu3NdSw5GzV+XCo07qALRLN9VG89YHk4lkCwZBl1g==";
-    name = "lsel-0.5.1.tgz";
+  "@sammysul/lsel@0.5.2" = fetchurl {
+    url = "https://git.sammysul.com/api/packages/SammySul/npm/%40sammysul%2Flsel/-/0.5.2/lsel-0.5.2.tgz";
+    hash = "sha512-wTOenKnkWHvFsks06EdhrpdDydZ+ZGqk/eUJqhrTU3JdQsMf3Sk4zk1qoNRu3PbzCgwsfswV4deNGWO9n9OIBw==";
+    name = "lsel-0.5.2.tgz";
   };
   "@sveltejs/acorn-typescript@1.0.13" = fetchurl {
     url = "https://registry.npmjs.org/@sveltejs/acorn-typescript/-/acorn-typescript-1.0.13.tgz";

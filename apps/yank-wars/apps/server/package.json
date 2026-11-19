@@ -5,7 +5,7 @@
   "type": "module",
   "module": "src/main.ts",
   "dependencies": {
-    "@sammysul/lsel": "0.5.1",
+    "@sammysul/lsel": "0.5.2",
     "valibot": "1.5.0"
   }
 }

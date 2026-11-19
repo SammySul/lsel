@@ -604,7 +604,7 @@ for (const name of browsers()) {
       await done(ctx, watch.take);
     });
 
-    test("narrowing the window keeps a round in progress; the list then gets the notice", async () => {
+    test("narrowing the window keeps a round in progress; a round link waits behind the notice until the window widens", async () => {
       const { ctx, page, problems } = await fresh();
       const p = P("indent-body");
       await openRound(page, p.id);
@@ -619,6 +619,13 @@ for (const name of browsers()) {
         location.hash = "#/";
       });
       await page.locator(".needs-keyboard").waitFor();
+      await page.evaluate((h) => {
+        location.hash = h;
+      }, `#/p/${p.id}`);
+      expect(await text(page, ".needs-keyboard h2")).toBe("Yank Wars needs a keyboard");
+      await page.setViewportSize({ width: 1280, height: 800 });
+      await waitRound(page, p.id);
+      expect(await page.locator(".needs-keyboard").count()).toBe(0);
       await done(ctx, problems);
     });
 

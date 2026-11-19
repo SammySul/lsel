@@ -30,7 +30,7 @@
     "brand": "bun apps/web/brand/render.ts"
   },
   "devDependencies": {
-    "@sammysul/lsel": "0.5.1",
+    "@sammysul/lsel": "0.5.2",
     "@types/bun": "1.4.4",
     "happy-dom": "21.0.4",
     "playwright-core": "1.64.1",
