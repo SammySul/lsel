@@ -16,7 +16,7 @@ import { handler, type Routes } from "../server/index.ts";
 
 const TYPES: Readonly<Record<string, BrowserType>> = { chromium, firefox, webkit };
 
-/** `BROWSERS=chromium,firefox` picks; all three by default. Throws outside the dev shell. */
+/** `BROWSERS=chromium,firefox` picks (lsel's `web` shell sets chromium); all three otherwise. Throws outside the dev shell. */
 export function browsers(): string[] {
   const driver = process.env.PLAYWRIGHT_DRIVER_VERSION;
   if (process.env.PLAYWRIGHT_BROWSERS_PATH === undefined || driver === undefined) {
