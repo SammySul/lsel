@@ -31,6 +31,7 @@
       );
 
       devShells = forEachSystem (system: {
+        # not `web`: the sound code handles Firefox's and WebKit's audio quirks, which only those browsers test
         default = lsel.devShells.${system}.web-all-browsers;
       });
     };
