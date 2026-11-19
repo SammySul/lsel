@@ -64,8 +64,12 @@ describes, fix or delete the note.
 - **bun2nix 2.1.2 rejects bun ≥ 1.3's lockfile** ("Unsupported lockfile
   version"): the templates' `flake.nix` applies `nix/bun2nix-lockfile-v2.patch`
   until a release has upstream PR #110; then drop it there and `bun run sync`.
+- **The Nix build aliases bun's cache path for `@sammysul`'s registry**
+  (`384c46f8dbebcd65`, the Wyhash11 of its URL, in `templates/*/nix/package.nix`):
+  bun2nix 2.1.2 leaves the hash out for a registry with a path. Moving the
+  registry needs a new hash, until bun2nix handles it (draft PR #103).
 - **A path in a project's `lsel.json` `files` is the template's file**: edit it
-  in `templates/` and `bun run sync`, or the next sync overwrites the edit. A
+  in `templates/` and `bun run sync <project>`, or the next sync overwrites the edit. A
   project that must differ drops the path from its list.
 - **The CSP is `default-src 'self'` with no inline styles**: an inline `<style>`
   in `index.html` or a `style` attribute string breaks the page. Svelte's

@@ -1,8 +1,10 @@
 # Design
 
 One look for everything: the terminal's. Dark only, monospace, square, quiet.
-The values live in `theme/` and reach projects as `tokens.css` (`bun run
-sync`); use the variables, never the hex values.
+The values live in `theme/` and reach projects as `tokens.css` in
+`@sammysul/lsel`; use the variables, never the hex values. The package's
+components (`Page`, `Popup`, `Tabs`, `List`, `Status`, `Empty`, `Action`,
+`Field`) are these rules in code: use them rather than rebuilding them.
 
 ## Palette
 
@@ -78,7 +80,7 @@ button).
 ## States
 
 Anything that waits, fails or comes back empty says so in words, where its
-content would be. A view's status line is `role="status"`; an error that stops
+content would be (`resource()` with `Status`, `Empty`, `Action`, `Field`). A view's status line is `role="status"`; an error that stops
 the user is `role="alert"`.
 
 - **Loading**: one line in `--subtle` naming what it waits for ("Asking

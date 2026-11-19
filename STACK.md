@@ -14,10 +14,11 @@ and tests it.
 | Games | A 2D canvas inside the Svelte shell | The shell keeps keyboard, focus and layout consistent with the rest |
 | Validation | Valibot, only where outside data enters | Inside the boundary, trust the types |
 | Data | Content as files, state in `bun:sqlite` | One file in the service's state directory, backed up by `squares` |
-| Server | `Bun.serve`, no framework | Static files, `/healthz`, strict CSP, loopback only |
-| Unit tests | `bun test` | Call code as its users do, assert literal values |
+| Server | `serve()` from `@sammysul/lsel/server` (Bun.serve, no framework) | Static files, `/healthz`, strict CSP, loopback only; the project adds its routes |
+| Unit tests | `bun --conditions=browser test`, the package's preload | Call code as its users do, assert literal values; the condition and preload let Svelte compile in tests |
 | Browser tests | Playwright with the dev shell's browsers | Real-browser checks in Chromium, Firefox and WebKit |
-| Styling | `tokens.css` from lsel | `DESIGN.md` |
+| Interface pieces | `@sammysul/lsel` | The frame, keys, states, formats and preferences, once; `lsel-check` fails a project that rolls its own |
+| Styling | `tokens.css` from `@sammysul/lsel` | `DESIGN.md` |
 
 ## Patterns
 
@@ -38,7 +39,7 @@ and tests it.
 
 `templates/extension/` (`nix flake init -t ../..#extension`), also built and
 tested by lsel's CI. Svelte 5 + Vite with `vite-plugin-web-extension`,
-styled by `tokens.css` like any app (`lsel.json` points at the popup), checked
+built on `@sammysul/lsel` like any app (`Popup` frames it), checked
 and tested the same way; the popup keeps its own width. No server and no
 updater. It releases like everything else (Release, below), and the release
 carries the built extension as `<name>.zip` for loading unpacked; the manifest
