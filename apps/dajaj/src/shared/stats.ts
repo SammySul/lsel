@@ -60,6 +60,8 @@ export interface Player {
 export interface Report {
   players: string[];
   matchCount: number;
+  /** Recent matches PUBG didn't hand over, so the numbers may be short. */
+  missing: number;
   earliest: string | null;
   totals: Record<string, Stats>;
   perMatch: { createdAt: string; stats: Record<string, Stats> }[];
@@ -107,7 +109,11 @@ export function sharedMatches(matches: readonly Match[], players: readonly Playe
   return [...byId.values()].sort((a, b) => a.createdAt.localeCompare(b.createdAt));
 }
 
-export function report(players: readonly Player[], matches: readonly Match[]): Report {
+export function report(
+  players: readonly Player[],
+  matches: readonly Match[],
+  missing: number,
+): Report {
   const shared = sharedMatches(matches, players);
   const statsIn = (m: Match, player: Player): Stats => {
     const p = m.participants.find((x) => x.playerId === player.id);
@@ -117,6 +123,7 @@ export function report(players: readonly Player[], matches: readonly Match[]): R
   return {
     players: players.map((p) => p.name),
     matchCount: shared.length,
+    missing,
     earliest: shared[0]?.createdAt ?? null,
     totals: Object.fromEntries(
       players.map((p) => [p.name, total(shared.map((m) => statsIn(m, p)))]),

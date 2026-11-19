@@ -43,7 +43,7 @@ interface Props {
 
 let { report, view, stat }: Props = $props();
 let canvas: HTMLCanvasElement | undefined = $state();
-let chart: { instance: Chart<View>; view: View } | undefined;
+let chart: Chart<View> | undefined;
 
 const css = (name: string) =>
   getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -106,19 +106,18 @@ function config(report: Report, view: View, stat: Stat): ChartConfiguration<View
   } as ChartConfiguration<View>;
 }
 
-// A new view is a new chart; new data or another stat animates the same chart.
+// App remounts this for another view; new data or another stat animates the same chart.
 $effect(() => {
   if (canvas === undefined) return;
-  const type = view;
   Chart.defaults.font.family = css("--font");
   Chart.defaults.font.size = 12;
   Chart.defaults.color = css("--subtle");
   Chart.defaults.borderColor = css("--overlay");
   const created = new Chart(
     canvas,
-    untrack(() => config(report, type, stat)),
+    untrack(() => config(report, view, stat)),
   );
-  chart = { instance: created, view: type };
+  chart = created;
   return () => {
     created.destroy();
     chart = undefined;
@@ -127,15 +126,20 @@ $effect(() => {
 
 $effect(() => {
   const next = config(report, view, stat);
-  if (chart === undefined || chart.view !== view) return;
-  chart.instance.data = next.data;
-  chart.instance.options = next.options ?? {};
-  chart.instance.update();
+  if (chart === undefined) return;
+  chart.data = next.data;
+  chart.options = next.options ?? {};
+  chart.update();
 });
 </script>
 
-<div class="chart" data-view={view}>
-  <canvas bind:this={canvas} aria-label="{STAT_UNITS[stat].label} by player"></canvas>
+<div
+  class="chart"
+  data-view={view}
+  role="img"
+  aria-label="{STAT_UNITS[stat].label}, {view === 'line' ? 'per match for each player' : 'in total by player'}"
+>
+  <canvas bind:this={canvas}></canvas>
 </div>
 
 <style>

@@ -59,7 +59,10 @@ const Participant = v.looseObject({
   }),
 });
 const MatchResponse = v.looseObject({
-  data: v.looseObject({ id: v.string(), attributes: v.looseObject({ createdAt: v.string() }) }),
+  data: v.looseObject({
+    id: v.string(),
+    attributes: v.looseObject({ createdAt: v.pipe(v.string(), v.isoTimestamp()) }),
+  }),
   included: v.array(v.looseObject({ type: v.string() })),
 });
 
@@ -88,6 +91,7 @@ const MODES = [
 ] as const;
 
 const MINUTE = 60_000;
+const MATCH_FETCHES = 8;
 const PLAYER_TTL = 24 * 60 * MINUTE;
 const RECENT_TTL = 20 * MINUTE;
 
@@ -99,6 +103,23 @@ export interface PubgOptions {
   now?: () => number;
 }
 
+/** At most `max` of the functions it is handed run at once; the rest wait their turn. */
+function limiter(max: number) {
+  let active = 0;
+  const waiting: (() => void)[] = [];
+  return async <T>(run: () => Promise<T>): Promise<T> => {
+    if (active < max) active++;
+    else await new Promise<void>((resolve) => waiting.push(resolve));
+    try {
+      return await run();
+    } finally {
+      const next = waiting.shift();
+      if (next === undefined) active--;
+      else next();
+    }
+  };
+}
+
 /** PUBG's API with dajaj's caching: players per name for a day, recent matches for 20 minutes, matches forever. */
 export class Pubg {
   readonly #opts: PubgOptions;
@@ -107,6 +128,7 @@ export class Pubg {
   readonly #players = new Map<string, { at: number; player: Player }>();
   readonly #recent = new Map<string, { at: number; ids: string[] }>();
   readonly #inflight = new Map<string, Promise<unknown>>();
+  readonly #matchSlot = limiter(MATCH_FETCHES);
 
   constructor(opts: PubgOptions) {
     this.#opts = opts;
@@ -169,7 +191,7 @@ export class Pubg {
     return this.#once(`match:${id}`, async () => {
       const body = parse(
         MatchResponse,
-        await this.#get(`/matches/${encodeURIComponent(id)}`, false),
+        await this.#matchSlot(() => this.#get(`/matches/${encodeURIComponent(id)}`, false)),
         "match",
       );
       const participants: ParticipantStats[] = body.included
@@ -188,10 +210,15 @@ export class Pubg {
     });
   }
 
-  /** Every recent match of any of these players, fetched once each. */
-  async recentMatches(players: readonly Player[]): Promise<Match[]> {
+  /** Every recent match of any of these players, fetched once each; `missing` counts the ones that failed. */
+  async recentMatches(players: readonly Player[]): Promise<{ matches: Match[]; missing: number }> {
     const ids = new Set((await Promise.all(players.map((p) => this.recentMatchIds(p.id)))).flat());
-    return Promise.all([...ids].map((id) => this.match(id)));
+    const settled = await Promise.allSettled([...ids].map((id) => this.match(id)));
+    const matches = settled.flatMap((r) => (r.status === "fulfilled" ? [r.value] : []));
+    const failed = settled.flatMap((r) => (r.status === "rejected" ? [r.reason] : []));
+    // nothing loaded is an outage to report, not an empty result
+    if (matches.length === 0 && failed.length > 0) throw failed[0];
+    return { matches, missing: failed.length };
   }
 
   #once<T>(key: string, run: () => Promise<T>): Promise<T> {

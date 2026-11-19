@@ -1,10 +1,11 @@
 {
   "files": [
+    ".npmrc",
+    "bunfig.toml",
     "nix/bun2nix-lockfile-v2.patch",
+    "nix/bun-cache-alias.sh",
     "nix/package.nix",
     "flake.nix",
-    ".forgejo/workflows/ci.yml",
-    "biome.json",
-    "tsconfig.json"
+    ".forgejo/workflows/ci.yml"
   ]
 }

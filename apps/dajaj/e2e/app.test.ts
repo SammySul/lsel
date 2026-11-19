@@ -1,6 +1,6 @@
 // PUBG is fakePubg over HTTP. Run `bun run build` first.
 import { Database } from "bun:sqlite";
-import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { afterAll, afterEach, beforeAll, describe, expect, test } from "bun:test";
 import { join } from "node:path";
 import {
   browsers,
@@ -32,8 +32,12 @@ const url = serveBuilt(
   }),
 );
 
-// Lurker played nothing recently, so no match has both players
-const lonely = fakePubg({ ...WORLD, players: { ...WORLD.players, Lurker: "account.lurker" } });
+// Lurker's one recent match is gone at PUBG, so no match has both players and one is missing
+const lonely = fakePubg({
+  ...WORLD,
+  players: { ...WORLD.players, Lurker: "account.lurker" },
+  recent: { ...WORLD.recent, "account.lurker": ["m-gone"] },
+});
 const lonelyUrl = serveBuilt(
   DIST,
   api({
@@ -51,6 +55,11 @@ afterAll(() => {
   pubgServer.stop(true);
 });
 
+// a failed test must not leave PUBG failing for the next
+afterEach(() => {
+  fake.state.fail = undefined;
+});
+
 for (const name of browsers()) {
   describe(name, () => {
     let browser: Browser;
@@ -61,13 +70,17 @@ for (const name of browsers()) {
       await browser?.close();
     });
 
-    async function open(at = url): Promise<{
+    async function open(
+      at = url,
+      reducedMotion: "reduce" | "no-preference" = "no-preference",
+    ): Promise<{
       ctx: BrowserContext;
       page: Page;
       problems: () => Promise<string[]>;
     }> {
       const ctx = await browser.newContext({
         timezoneId: "UTC",
+        reducedMotion,
         viewport: { width: 1280, height: 900 },
       });
       const page = await ctx.newPage();
@@ -77,6 +90,14 @@ for (const name of browsers()) {
     }
 
     const summary = (page: Page) => page.locator(".summary").textContent();
+    // the Refresh button ignores r while busy, so each press waits for the one before to finish
+    async function refresh(page: Page) {
+      const answered = page.waitForResponse((r) => r.url().includes("/api/report"));
+      await page.keyboard.press("r");
+      await answered;
+      await page.getByRole("button", { name: "Refresh", disabled: false }).waitFor();
+    }
+
     const pressed = (page: Page, group: string) =>
       page.locator(`[aria-label="${group}"] button[aria-pressed="true"]`).allTextContents();
 
@@ -118,7 +139,8 @@ for (const name of browsers()) {
     });
 
     test("views switch by key, charts draw on a canvas, and the stat applies to charts only", async () => {
-      const { ctx, page, problems } = await open();
+      // no animation, so the canvas holds the final picture at once
+      const { ctx, page, problems } = await open(url, "reduce");
       expect(await page.locator("select").isDisabled()).toBe(true);
       for (const [key, view] of [
         ["2", "bar"],
@@ -134,10 +156,8 @@ for (const name of browsers()) {
       expect(await page.locator("select").isDisabled()).toBe(false);
       const drawn = () =>
         page.locator(".chart canvas").evaluate((c: HTMLCanvasElement) => c.toDataURL());
-      await page.waitForTimeout(400);
       const kills = await drawn();
       await page.locator("select").selectOption("damage");
-      await page.waitForTimeout(400);
       expect(await drawn()).not.toBe(kills);
       await page.keyboard.press("1");
       await page.locator("table").waitFor();
@@ -161,39 +181,42 @@ for (const name of browsers()) {
     test("r within 20 minutes is served from the cache; after that it asks PUBG, and a rate limit is a message beside the last report", async () => {
       const { ctx, page } = await open();
       fake.state.calls.length = 0;
-      await page.keyboard.press("r");
-      await page.waitForLoadState("networkidle");
+      await refresh(page);
       expect(fake.state.calls).toEqual([]);
       clock += 21 * 60_000;
       fake.state.fail = 429;
-      await page.keyboard.press("r");
-      await page.locator(".error").waitFor();
-      expect(await page.locator(".error").textContent()).toMatch(
-        /^PUBG's rate limit was hit; try again in a minute\. Showing results from \d{1,2}:\d{2} [AP]M\.\s+r retries\.$/,
+      await refresh(page);
+      const alert = page.getByRole("alert");
+      expect(await alert.textContent()).toMatch(
+        /^PUBG's rate limit was hit; try again in a minute\. Showing results from \d{1,2}:\d{2} [AP]M\.\s*$/,
       );
       expect(await summary(page)).toBe("1 match together since Nov 12, 9:40 PM.");
       expect(await page.locator("tbody tr").count()).toBe(3);
       expect(fake.state.calls[0]).toMatch(/^\/players\/account\.[a-z]+\/seasons\/lifetime$/);
       fake.state.fail = undefined;
-      await page.keyboard.press("r");
-      await page.locator(".error").waitFor({ state: "detached" });
+      await refresh(page);
+      expect(await alert.count()).toBe(0);
       expect(await summary(page)).toBe("1 match together since Nov 12, 9:40 PM.");
       await ctx.close();
     });
 
-    test("no matches together, and no players chosen, each say why", async () => {
+    test("no matches together, a missing match, and no players chosen each say so", async () => {
       const { ctx, page, problems } = await open(lonelyUrl);
-      const empty = page.locator(".lsel-empty");
-      await empty.waitFor();
-      expect(await empty.textContent()).toBe(
+      const together = page.getByText("No recent matches with all of them.", { exact: false });
+      const missing = page.getByText("1 match couldn't be loaded from PUBG.");
+      await together.waitFor();
+      expect(await together.textContent()).toBe(
         "No recent matches with all of them. Drop a player to see more.",
       );
+      expect(await missing.isVisible()).toBe(true);
       await page.getByRole("button", { name: "Lurker" }).click();
       await page.locator(".summary").waitFor();
       expect(await summary(page)).toBe("3 matches together since Nov 10, 8:05 PM.");
+      expect(await missing.count()).toBe(0);
       await page.getByRole("button", { name: "AntennaTower" }).click();
-      await empty.waitFor();
-      expect(await empty.textContent()).toBe("No players chosen. Choose one or more above.");
+      const none = page.getByText("No players chosen.", { exact: false });
+      await none.waitFor();
+      expect(await none.textContent()).toBe("No players chosen. Choose one or more above.");
       expect(await page.getByRole("button", { name: "Refresh" }).isDisabled()).toBe(true);
       expect(await page.locator("table").count()).toBe(0);
       expect(await problems()).toEqual([]);

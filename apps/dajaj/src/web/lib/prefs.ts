@@ -8,7 +8,6 @@ export const VIEWS = [
   { id: "line", label: "Line" },
   { id: "pie", label: "Pie" },
 ] as const;
-export type View = (typeof VIEWS)[number]["id"];
 
 export const Prefs = v.object({
   players: v.fallback(v.array(v.string()), []),

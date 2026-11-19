@@ -3,13 +3,13 @@ import { expect, test } from "bun:test";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { fakePubg, WORLD } from "./fakePubg.ts";
+import { type FakeWorld, fakePubg, WORLD } from "./fakePubg.ts";
 import { Pubg, PubgError } from "./pubg.ts";
 
 const BASE = "https://pubg.test/shards/steam";
 
-function setup(opts: { now?: () => number; db?: Database } = {}) {
-  const fake = fakePubg(WORLD);
+function setup(opts: { now?: () => number; db?: Database; world?: FakeWorld } = {}) {
+  const fake = fakePubg(opts.world ?? WORLD);
   const pubg = new Pubg({
     apiKey: "test-key",
     baseUrl: BASE,
@@ -107,14 +107,56 @@ test("identical requests in flight are merged into one call", async () => {
 test("recent matches of several players are fetched once each", async () => {
   const { fake, pubg } = setup();
   const players = await pubg.players(["AntennaTower", "Rectifier94"]);
-  const matches = await pubg.recentMatches(players);
-  expect(matches.map((m) => m.id).sort()).toEqual(["m-1", "m-2", "m-3", "m-4"]);
+  const { matches, missing } = await pubg.recentMatches(players);
+  expect([matches.map((m) => m.id).sort(), missing]).toEqual([["m-1", "m-2", "m-3", "m-4"], 0]);
   expect(fake.state.calls.filter((c) => c.startsWith("/matches/")).sort()).toEqual([
     "/matches/m-1",
     "/matches/m-2",
     "/matches/m-3",
     "/matches/m-4",
   ]);
+});
+
+test("a match that fails to load is counted as missing; the rest still make the report", async () => {
+  // m-gone is in AntennaTower's recent list, but PUBG has no such match
+  const world = { ...WORLD, recent: { ...WORLD.recent, "account.antenna": ["m-1", "m-gone"] } };
+  const { pubg } = setup({ world });
+  const players = await pubg.players(["AntennaTower"]);
+  const { matches, missing } = await pubg.recentMatches(players);
+  expect([matches.map((m) => m.id), missing]).toEqual([["m-1"], 1]);
+});
+
+test("when no match loads, the first failure is the error", async () => {
+  const { fake, pubg } = setup();
+  const players = await pubg.players(["Reason_ING"]);
+  await pubg.recentMatchIds("account.reason");
+  fake.state.fail = 503;
+  expect(await failure(pubg.recentMatches(players))).toEqual(["unavailable", "PUBG answered 503"]);
+});
+
+test("at most 8 matches are fetched at once", async () => {
+  const ids = Array.from({ length: 20 }, (_, i) => `m-${i}`);
+  const world: FakeWorld = {
+    players: { AntennaTower: "account.antenna" },
+    recent: { "account.antenna": ids },
+    matches: ids.map((id) => ({ id, createdAt: "2026-11-10T20:05:00Z", kills: {} })),
+  };
+  const fake = fakePubg(world);
+  let running = 0;
+  let most = 0;
+  const pubg = new Pubg({
+    apiKey: "test-key",
+    baseUrl: BASE,
+    db: new Database(":memory:"),
+    fetch: async (url, init) => {
+      most = Math.max(most, ++running);
+      await Bun.sleep(5);
+      running--;
+      return fake.fetch(url, init);
+    },
+  });
+  const { matches } = await pubg.recentMatches(await pubg.players(["AntennaTower"]));
+  expect([matches.length, most]).toEqual([20, 8]);
 });
 
 test("PUBG's failures become typed errors", async () => {
@@ -141,6 +183,18 @@ test("a response in a shape dajaj doesn't read fails loudly, naming the field", 
   expect(await failure(pubg.players(["AntennaTower"]))).toEqual([
     "unexpected",
     'PUBG\'s player lookup has an unexpected shape at data.0.attributes.name: Invalid key: Expected "name" but received undefined',
+  ]);
+});
+
+test("a match with a date that isn't one fails loudly, naming the field", async () => {
+  const world = {
+    ...WORLD,
+    matches: [{ id: "m-1", createdAt: "yesterday", kills: { "account.antenna": 1 } }],
+  };
+  const { pubg } = setup({ world });
+  expect(await failure(pubg.match("m-1"))).toEqual([
+    "unexpected",
+    'PUBG\'s match has an unexpected shape at data.attributes.createdAt: Invalid timestamp: Received "yesterday"',
   ]);
 });
 

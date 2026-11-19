@@ -66,7 +66,7 @@ test("totals add up, except the longest kill, which is the longest of any match"
 });
 
 test("the report covers only shared matches, with totals and each match per player", () => {
-  const r = report([ada, bo], [m1, m2, soloAda]);
+  const r = report([ada, bo], [m1, m2, soloAda], 0);
   expect([r.players, r.matchCount, r.earliest]).toEqual([["Ada", "Bo"], 2, "2026-11-01T20:00:00Z"]);
   expect([r.totals.Ada?.kills, r.totals.Ada?.longestKill, r.totals.Bo?.kills]).toEqual([5, 300, 1]);
   expect(r.perMatch.map((m) => [m.createdAt, m.stats.Ada?.kills, m.stats.Bo?.kills])).toEqual([
@@ -76,6 +76,6 @@ test("the report covers only shared matches, with totals and each match per play
 });
 
 test("no shared matches is an empty report, not an error", () => {
-  const r = report([ada, bo], [soloAda]);
+  const r = report([ada, bo], [soloAda], 0);
   expect([r.matchCount, r.earliest, r.totals.Bo?.kills, r.perMatch]).toEqual([0, null, 0, []]);
 });

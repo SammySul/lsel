@@ -1,25 +1,21 @@
 <script lang="ts">
-import { Empty, keys, Page, plural, resource, Status, Tabs, when } from "@sammysul/lsel";
-import { untrack } from "svelte";
+import { Action, Empty, Page, plural, resource, Status, Tabs, when } from "@sammysul/lsel";
 import { version } from "../../package.json";
-import { STATS, type Stat } from "../shared/stats.ts";
+import { STATS } from "../shared/stats.ts";
 import Chart from "./components/Chart.svelte";
 import Table from "./components/Table.svelte";
 import { fetchPlayers, fetchReport } from "./lib/api.ts";
 import { STAT_UNITS } from "./lib/format.ts";
-import { choosePlayers, prefs, VIEWS, type View } from "./lib/prefs.ts";
+import { choosePlayers, prefs, VIEWS } from "./lib/prefs.ts";
 
-const roster = resource(fetchPlayers);
+const roster = resource(async (signal) => {
+  const players = await fetchPlayers(signal);
+  // only once the players are known, so the empty choice before that never overwrites the saved one
+  prefs.value.players = choosePlayers(prefs.value.players, players);
+  return players;
+});
 const available = $derived(roster.value ?? []);
-// the stored choice seeds it when the players arrive; a toggle overrides it
-let selected = $derived(
-  choosePlayers(
-    untrack(() => prefs.value.players),
-    available,
-  ),
-);
-let view: View = $state(prefs.value.view);
-let stat: Stat = $state(prefs.value.stat);
+const selected = $derived(roster.value === undefined ? [] : prefs.value.players);
 
 const report = resource(async (signal) => {
   const players = selected;
@@ -30,18 +26,13 @@ const shown = $derived.by(() => {
   const r = report.value;
   return selected.length > 0 && r && r.earliest !== null ? { report: r, since: r.earliest } : null;
 });
-
-$effect(() => {
-  if (roster.value !== undefined) prefs.value = { players: selected, view, stat };
-});
+const missing = $derived(selected.length > 0 ? (report.value?.missing ?? 0) : 0);
 
 function toggle(player: string) {
-  selected = available.filter((p) => (p === player ? !selected.includes(p) : selected.includes(p)));
+  prefs.value.players = available.filter((p) =>
+    p === player ? !selected.includes(p) : selected.includes(p),
+  );
 }
-
-keys(() =>
-  selected.length > 0 ? [{ key: "r", label: "Refresh", run: () => report.reload() }] : [],
-);
 </script>
 
 <Page
@@ -57,25 +48,30 @@ keys(() =>
         <button aria-pressed={selected.includes(player)} onclick={() => toggle(player)}>{player}</button>
       {/each}
     </div>
-    <Tabs items={VIEWS} bind:value={view} label="View" />
+    <Tabs items={VIEWS} bind:value={prefs.value.view} label="View" />
     <label class="stat">
       Stat
-      <select bind:value={stat} disabled={view === "table"}>
+      <select bind:value={prefs.value.stat} disabled={prefs.value.view === "table"}>
         {#each STATS as s (s)}
           <option value={s}>{STAT_UNITS[s].label}</option>
         {/each}
       </select>
     </label>
-    <button onclick={() => report.reload()} disabled={report.pending || selected.length === 0}>
-      Refresh <kbd>r</kbd>
-    </button>
+    <Action
+      label="Refresh"
+      key="r"
+      busy="Refreshing…"
+      disabled={selected.length === 0}
+      run={() => report.reload()}
+    />
   </section>
 
   {#if roster.value === undefined}
     <Status of={roster} waiting="Asking dajaj for the players…" />
   {:else}
     <div class="lines">
-      <Status of={report} waiting="Asking PUBG…" />
+      <!-- the Refresh button's r retries -->
+      <Status of={report} waiting="Asking PUBG…" retry={false} />
       {#if selected.length === 0}
         <Empty>No players chosen. Choose one or more above.</Empty>
       {:else if shown}
@@ -83,14 +79,17 @@ keys(() =>
       {:else if report.value}
         <Empty>No recent matches with all of them. Drop a player to see more.</Empty>
       {/if}
+      {#if missing > 0}
+        <p class="missing">{plural(missing, "match", "matches")} couldn't be loaded from PUBG.</p>
+      {/if}
     </div>
     {#if shown}
-      {#key view}
+      {#key prefs.value.view}
         <div class="lsel-appear">
-          {#if view === "table"}
+          {#if prefs.value.view === "table"}
             <Table report={shown.report} />
           {:else}
-            <Chart report={shown.report} {view} {stat} />
+            <Chart report={shown.report} view={prefs.value.view} stat={prefs.value.stat} />
           {/if}
         </div>
       {/key}
@@ -115,6 +114,10 @@ keys(() =>
     gap: var(--space-2);
     align-items: center;
     color: var(--subtle);
+  }
+  .missing {
+    margin: 0;
+    color: var(--warning);
   }
   .summary {
     margin: 0;

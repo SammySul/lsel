@@ -35,7 +35,8 @@ async function reportFor(deps: Deps, param: string): Promise<Response> {
   if (new Set(names).size !== names.length) return json({ error: "a player is listed twice" }, 400);
   try {
     const players = await deps.pubg.players(names);
-    return json(report(players, await deps.pubg.recentMatches(players)));
+    const { matches, missing } = await deps.pubg.recentMatches(players);
+    return json(report(players, matches, missing));
   } catch (e) {
     if (e instanceof PubgError) {
       console.error(`pubg ${e.kind}: ${e.message}`);

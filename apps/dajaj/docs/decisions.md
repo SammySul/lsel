@@ -27,8 +27,8 @@ What changed on the way, and why:
 - **Units people read**: distances in km, time survived as h:mm, US 12-hour
   dates on the line chart's axis. English only (the Arabic translation went
   with Transloco); the doughnut/pie toggle is gone.
-- **Charts stay Chart.js**, recolored with the terminal palette, with no
-  animation.
+- **Charts stay Chart.js**, recolored with the terminal palette; they animate
+  to new values, except under reduced motion.
 
 Not done, to verify first: PUBG's player lookup may list each player's recent
 matches itself, which would replace the per-player lifetime call and its rate

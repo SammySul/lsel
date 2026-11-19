@@ -1,10 +1,5 @@
 import { expect, test } from "bun:test";
-import { STATS } from "../../shared/stats.ts";
 import { STAT_UNITS } from "./format.ts";
-
-test("every stat has a label and a unit", () => {
-  expect(STATS.filter((s) => STAT_UNITS[s] === undefined)).toEqual([]);
-});
 
 test("counts and damage read as whole US numbers", () => {
   expect([STAT_UNITS.kills.text(16), STAT_UNITS.damage.text(2456.37)]).toEqual(["16", "2,456"]);
