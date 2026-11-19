@@ -7,7 +7,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - run: nix flake check
-      - run: nix develop -c bun run sync --check
 
   kit:
     runs-on: self-hosted
@@ -21,7 +20,7 @@ jobs:
       - run: nix develop -c bun run test:e2e
       - run: nix develop -c bun run package
 
-  # A template is a whole project: it must pass its own CI as shipped. After publish, which may be
+  # A template is a whole project: it must pass its own checks as shipped. After publish, which may be
   # releasing the kit version it pins; on a pull request publish is skipped and they run anyway.
   template:
     needs: publish
@@ -30,12 +29,10 @@ jobs:
     defaults: { run: { working-directory: templates/web } }
     steps:
       - uses: actions/checkout@v7
+      - run: nix flake check
       - run: nix develop -c bun install --frozen-lockfile
-      - run: nix develop -c bun run check
-      - run: nix develop -c bun run test
       - run: nix develop -c bun run build
       - run: nix develop -c bun run test:e2e
-      - run: nix build .#default --no-link
 
   template-extension:
     needs: publish
@@ -44,10 +41,6 @@ jobs:
     defaults: { run: { working-directory: templates/extension } }
     steps:
       - uses: actions/checkout@v7
-      - run: nix develop -c bun install --frozen-lockfile
-      - run: nix develop -c bun run check
-      - run: nix develop -c bun run test
-      - run: nix develop -c bun run build
       - run: nix flake check
 
   # A kit version not yet in Forgejo's registry is published; any other push publishes nothing.

@@ -7,6 +7,7 @@ and tests it.
 | Concern | Default | Why |
 |---|---|---|
 | Environment | Nix flake dev shell, direnv | The same toolchain locally, in CI and on `twelve`; pins Bun, Biome and browsers |
+| Build, checks, release | `lsel-nix` (`webApp`, `extension`, `lsel-release`) | One copy of the Nix build, its checks and the release for every project; a project overrides what differs |
 | Runtime, packages, tests | Bun | One tool for install, run, test and `bun patch` |
 | Language | TypeScript, strict (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`) | The template's `tsconfig.json` |
 | Lint, format | Biome, `recommended` preset | Fast, one tool; never run `biome migrate` (it switches the linter off) |
@@ -43,7 +44,7 @@ built on `@sammysul/lsel` like any app (`Popup` frames it), checked
 and tested the same way; the popup keeps its own width. No server and no
 updater. It releases like everything else (Release, below), and the release
 carries the built extension as `<name>.zip` for loading unpacked; the manifest
-takes its version from `package.json` at build. On tanaka, `package.nix` builds
+takes its version from `package.json` at build. On tanaka, its flake's package builds
 it and `squares` loads it (`localExtensions`), updated with that flake input and
 a deploy. The manifest's `key` pins the extension id, which the extension's
 storage belongs to, so every copy shares it.
@@ -52,10 +53,10 @@ storage belongs to, so every copy shares it.
 
 1. `version` in the root `package.json` is the only version.
 2. Pushing `main` runs CI on twelve's Forgejo runner (`.forgejo/workflows/`,
-   `runs-on: self-hosted`, the host's Nix; `nix develop -c …` for every build and test step,
-   `nix build .#default` for the package). A version without its
-   `v<version>` tag becomes a Forgejo release listing the commit subjects since
-   the last tag; any other push releases nothing. A public repo gets a push
+   `runs-on: self-hosted`, the host's Nix): `nix flake check` builds the package
+   and runs `bun run check` and `test`; the browser tests run in the dev shell. Then `lsel-release`
+   turns a version without its `v<version>` tag into a Forgejo release listing
+   the commit subjects since the last tag; any other push releases nothing. A public repo gets a push
    mirror to GitHub, with no workflows there.
 3. On `twelve`, the app's updater (`squares`, `hosts/twelve/apps.nix`: one
    module for every app) sees the new tag within 5 minutes, builds it, restarts
@@ -64,7 +65,7 @@ storage belongs to, so every copy shares it.
 
 ## Deploy (a new service)
 
-The project ships only its package (the template's `nix/package.nix`). The
+The project ships only its package (lsel-nix's `webApp`). The
 server reads `<PREFIX>_HOST` and `<PREFIX>_PORT` and answers `ok` on `/healthz`;
 the prefix is `package.json`'s `name` in capitals, `-` as `_`.
 Then in `squares`:

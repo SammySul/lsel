@@ -25,13 +25,15 @@ anyone can install it while lsel stays private). Projects pin an exact version:
 an update is a deliberate bump, tested in that project, and `bun.nix` hashes the
 tarball. CI publishes any version in `kit/package.json` not yet in the registry.
 
-## Sync stays, for Nix and CI only
+## Shared Nix is a flake, not synced copies
 
-A flake library (`lsel.lib.mkWebApp`) would centralize the Nix build, but lsel is
-private, so public projects couldn't fetch it, every project would still bump a
-flake input, and CI files can't live in a flake. `bun run sync` keeps the few
-files that must be identical (`flake.nix`, `nix/*`, `ci.yml`, `.npmrc`,
-`bunfig.toml`) in step instead. Configs that can extend, extend the package.
+The Nix build, dev shells, bun2nix fixes and release live in `lsel-nix`, a
+public flake every project takes as an input, as the package is public for the
+same reason. It replaced a script that copied template files into each project:
+copies had no version, and a project that differed had to stop taking the file
+and with it every later fix. A project overrides what differs (`overrideAttrs`,
+or its own derivation on the shared bun2nix); something moves into `lsel-nix`
+only once two projects need it. Templates are copied once, by `nix flake init`.
 
 ## Waiting is shown twice: a line and a bar
 

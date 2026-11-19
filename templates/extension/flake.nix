@@ -1,8 +1,8 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    bun2nix = {
-      url = "github:nix-community/bun2nix?ref=2.1.2";
+    lsel-nix = {
+      url = "git+https://git.sammysul.com/SammySul/lsel-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -11,49 +11,27 @@
     {
       self,
       nixpkgs,
-      bun2nix,
-      ...
+      lsel-nix,
     }:
     let
-      forEachSystem = nixpkgs.lib.genAttrs [
-        "aarch64-darwin"
-        "x86_64-linux"
-      ];
-      # 2.1.2 rejects bun >= 1.3's lockfileVersion 2; upstream PR #110. Drop once released.
-      bun2nixFor =
-        system:
-        bun2nix.packages.${system}.default.overrideAttrs (old: {
-          patches = (old.patches or [ ]) ++ [ ./nix/bun2nix-lockfile-v2.patch ];
-        });
+      forEachSystem = nixpkgs.lib.genAttrs lsel-nix.lib.systems;
     in
     {
       packages = forEachSystem (system: {
-        default = nixpkgs.legacyPackages.${system}.callPackage ./nix/package.nix {
-          bun2nix = bun2nixFor system;
-        };
+        default = lsel-nix.legacyPackages.${system}.extension { root = ./.; };
       });
 
-      # the package's check phase runs the unit tests
-      checks = forEachSystem (system: {
-        package = self.packages.${system}.default;
-      });
-
-      devShells = forEachSystem (
+      # the build, then `bun run check` and `test`, as CI runs them
+      checks = forEachSystem (
         system:
         let
-          pkgs = nixpkgs.legacyPackages.${system};
+          extension = self.packages.${system}.default;
         in
-        {
-          # zip packs the release
-          default = pkgs.mkShellNoCC {
-            packages = [
-              pkgs.bun
-              pkgs.biome
-              pkgs.zip
-              (bun2nixFor system)
-            ];
-          };
-        }
+        { package = extension; } // extension.tests
       );
+
+      devShells = forEachSystem (system: {
+        default = lsel-nix.devShells.${system}.extension;
+      });
     };
 }

@@ -1,15 +1,18 @@
 {
   description = "lsel: the shared palette, fonts and rules, the @sammysul/lsel package and the project templates";
 
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    lsel-nix = {
+      url = "git+https://git.sammysul.com/SammySul/lsel-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
 
   outputs =
-    { nixpkgs, ... }:
+    { nixpkgs, lsel-nix, ... }:
     let
-      forEachSystem = nixpkgs.lib.genAttrs [
-        "aarch64-darwin"
-        "x86_64-linux"
-      ];
+      forEachSystem = nixpkgs.lib.genAttrs lsel-nix.lib.systems;
       palettes = import ./theme/palettes.nix;
     in
     {
@@ -77,30 +80,10 @@
         }
       );
 
-      devShells = forEachSystem (
-        system:
-        let
-          pkgs = nixpkgs.legacyPackages.${system};
-        in
-        {
-          default = pkgs.mkShellNoCC (
-            {
-              packages = [
-                pkgs.bun
-                pkgs.biome
-              ];
-              # kit/package.json's playwright-core must equal this driver's version
-              PLAYWRIGHT_BROWSERS_PATH = pkgs.playwright-driver.browsers;
-              PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1";
-              PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = "1";
-              PLAYWRIGHT_DRIVER_VERSION = pkgs.playwright-driver.version;
-            }
-            // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
-              __EGL_VENDOR_LIBRARY_DIRS = "${pkgs.mesa}/share/glvnd/egl_vendor.d";
-            }
-          );
-        }
-      );
+      # the kit's: Bun, Biome and Playwright's browsers
+      devShells = forEachSystem (system: {
+        default = lsel-nix.devShells.${system}.web;
+      });
 
       templates.extension = {
         path = ./templates/extension;

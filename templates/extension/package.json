@@ -21,6 +21,6 @@
     "vite-plugin-web-extension": "4.5.1"
   },
   "dependencies": {
-    "@sammysul/lsel": "0.5.1"
+    "@sammysul/lsel": "0.5.3"
   }
 }

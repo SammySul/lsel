@@ -12,7 +12,6 @@ ideas.md           ideas not yet in a project
 theme/             palettes.nix, tokens.nix and the contrast test
 kit/               @sammysul/lsel: tokens.css and fonts, components, keys, states,
                    formats, the server, test helpers, shared configs, lsel-check
-scripts/sync.ts    keeps the Nix, CI and registry files projects take from a template identical
 templates/web/     the starting point for a new app: a Svelte page served by Bun
 templates/extension/  the starting point for a browser extension
 projects/          one repo per project (ignored here)
@@ -37,11 +36,13 @@ state), bump `kit/package.json`'s version and push: CI tests it and publishes
 any version not yet in Forgejo's registry. Then `bun add @sammysul/lsel@<version>
 --exact` in each project; a breaking change updates them all in the same sitting.
 
-## Changing a template
+## Changing the shared Nix
 
-A project's `lsel.json` lists the template files it takes as they are
-(`"files"`, from `"template"`: `web` unless it says `extension`). Edit the
-file in `templates/`, commit, then `bun run sync <project>` and commit it there.
+A template is copied once; nothing keeps a project in step with it. What every
+project builds with (the builders, dev shells, patched bun2nix and release)
+lives in `lsel-nix` (`projects/lsel-nix`, public): change it there and push,
+then `nix flake update lsel-nix` in each project and commit. Try a change on a
+project first with `--override-input lsel-nix path:../lsel-nix`.
 
 ## Changing the palette or tokens
 

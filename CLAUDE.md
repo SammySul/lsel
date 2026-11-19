@@ -54,27 +54,19 @@ describes, fix or delete the note.
   dependency that shipped a binary, `rm -rf node_modules`, or the stale copy
   keeps running instead of the dev shell's.
 - **Playwright with Nix's browsers:** `playwright-core` must equal the dev
-  shell's `PLAYWRIGHT_DRIVER_VERSION`. Off NixOS (e.g. a hosted Ubuntu runner) set
-  `PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS=1` (its ldconfig check can't see
-  Nix's libraries) and, on Linux, `__EGL_VENDOR_LIBRARY_DIRS` to
-  `${pkgs.mesa}/share/glvnd/egl_vendor.d`, or WebKit dies opening a page.
+  shell's `PLAYWRIGHT_DRIVER_VERSION`. The rest of its environment (lsel-nix's
+  web dev shell) must come along to any other shell or runner, or the host check
+  fails and, on Linux, WebKit dies opening a page.
 - Firefox logs "scroll-linked positioning effect" once per page whenever a
   scroll handler moves content: a test that fails on console warnings must
   ignore exactly that one.
-- **bun2nix 2.1.2 rejects bun ≥ 1.3's lockfile** ("Unsupported lockfile
-  version"): the templates' `flake.nix` applies `nix/bun2nix-lockfile-v2.patch`
-  until a release has upstream PR #110; then drop it there and run `bun run sync`.
-- **The Nix build aliases bun's cache path for `@sammysul`'s registry**
-  (`384c46f8dbebcd65`, the Wyhash11 of its URL, in the synced
-  `nix/bun-cache-alias.sh`): bun2nix 2.1.2 leaves the hash out for a registry
-  with a path. Moving the registry needs a new hash, until bun2nix handles it
-  (draft PR #103).
+- **Build with lsel-nix's bun2nix, never nixpkgs' or upstream's**: 2.1.2
+  rejects bun ≥ 1.3's lockfile (patched until a release has PR #110) and drops
+  the `@sammysul` registry's hash from bun's cache paths (`lib.bunCacheAlias`,
+  until draft PR #103). Moving the registry needs a new hash there.
 - **Publish a kit version before a project pins it**: CI publishes on push to
   lsel's `main`, and `bun add @sammysul/lsel@<version> --exact` (not `bun
   update`: the pin is exact) fails until then.
-- **A path in a project's `lsel.json` `files` is the template's file**: edit it
-  in `templates/` and `bun run sync <project>`, or the next sync overwrites the edit. A
-  project that must differ drops the path from its list.
 - **The CSP is `default-src 'self'` with no inline styles**: an inline `<style>`
   in `index.html` or a `style` attribute string breaks the page. Svelte's
   `style:` directive and anything set through the DOM is allowed. A project that
