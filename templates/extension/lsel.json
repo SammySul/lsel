@@ -1,12 +1,12 @@
 {
-  "template": "web",
+  "template": "extension",
   "files": [
-    ".envrc",
-    "LICENSE",
-    "CLAUDE.md",
-    "biome.json",
     ".npmrc",
     "bunfig.toml",
-    "nix/bun2nix-lockfile-v2.patch"
+    "nix/bun2nix-lockfile-v2.patch",
+    "nix/bun-cache-alias.sh",
+    "nix/package.nix",
+    "flake.nix",
+    ".forgejo/workflows/ci.yml"
   ]
 }

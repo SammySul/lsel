@@ -23,7 +23,7 @@ describes, fix or delete the note.
 - **Comments: one line or none**, only for a why the code can't show.
 - **Commits: subject line only.** No body, no trailers. Signed with the
   personal SSH key, author `Sammy Suleiman <mail@sammysul.com>`; every repo lives
-  on Forgejo (`twelve:<name>.git`, git.sammysul.com); public ones are mirrored
+  on Forgejo (`forgejo:SammySul/<name>.git`, git.sammysul.com); public ones are mirrored
   to `github.com/SammySul/<name>` by Forgejo's push mirror, MIT, `Copyright (c) <year> SammySul`. A repo
   goes public only with a history free of older names and emails (fresh, or
   rewritten), since a public history can't be taken back. Set the mirror up
@@ -63,17 +63,23 @@ describes, fix or delete the note.
   ignore exactly that one.
 - **bun2nix 2.1.2 rejects bun ≥ 1.3's lockfile** ("Unsupported lockfile
   version"): the templates' `flake.nix` applies `nix/bun2nix-lockfile-v2.patch`
-  until a release has upstream PR #110; then drop it there and `bun run sync`.
+  until a release has upstream PR #110; then drop it there and run `bun run sync`.
 - **The Nix build aliases bun's cache path for `@sammysul`'s registry**
-  (`384c46f8dbebcd65`, the Wyhash11 of its URL, in `templates/*/nix/package.nix`):
-  bun2nix 2.1.2 leaves the hash out for a registry with a path. Moving the
-  registry needs a new hash, until bun2nix handles it (draft PR #103).
+  (`384c46f8dbebcd65`, the Wyhash11 of its URL, in the synced
+  `nix/bun-cache-alias.sh`): bun2nix 2.1.2 leaves the hash out for a registry
+  with a path. Moving the registry needs a new hash, until bun2nix handles it
+  (draft PR #103).
+- **Publish a kit version before a project pins it**: CI publishes on push to
+  lsel's `main`, and `bun add @sammysul/lsel@<version> --exact` (not `bun
+  update`: the pin is exact) fails until then.
 - **A path in a project's `lsel.json` `files` is the template's file**: edit it
   in `templates/` and `bun run sync <project>`, or the next sync overwrites the edit. A
   project that must differ drops the path from its list.
 - **The CSP is `default-src 'self'` with no inline styles**: an inline `<style>`
   in `index.html` or a `style` attribute string breaks the page. Svelte's
-  `style:` directive and anything set through the DOM is allowed.
+  `style:` directive and anything set through the DOM is allowed. A project that
+  needs more (CodeMirror's injected styles) passes `serve({ csp })`, which adds
+  to the policy.
 - Vite's root is `src/web`, so `public/` and `index.html` live there; the build
   lands in `dist/` at the repo root, which `bun run test:e2e` needs first.
 - **Extension icons reach `dist/` only through Vite's `public/`**:

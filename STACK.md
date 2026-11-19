@@ -52,7 +52,7 @@ storage belongs to, so every copy shares it.
 
 1. `version` in the root `package.json` is the only version.
 2. Pushing `main` runs CI on twelve's Forgejo runner (`.forgejo/workflows/`,
-   `runs-on: self-hosted`, the host's Nix; `nix develop -c …` for every step,
+   `runs-on: self-hosted`, the host's Nix; `nix develop -c …` for every build and test step,
    `nix build .#default` for the package). A version without its
    `v<version>` tag becomes a Forgejo release listing the commit subjects since
    the last tag; any other push releases nothing. A public repo gets a push

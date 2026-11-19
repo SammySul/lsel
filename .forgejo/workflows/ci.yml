@@ -22,8 +22,11 @@ jobs:
       - run: nix develop -c bun run test:e2e
       - run: nix develop -c bun run package
 
-  # A template is a whole project: it must pass its own CI as shipped.
+  # A template is a whole project: it must pass its own CI as shipped. After publish, which may be
+  # releasing the kit version it pins; on a pull request publish is skipped and they run anyway.
   template:
+    needs: publish
+    if: ${{ !cancelled() && !failure() }}
     runs-on: self-hosted
     defaults: { run: { working-directory: templates/web } }
     steps:
@@ -36,6 +39,8 @@ jobs:
       - run: nix build .#default --no-link
 
   template-extension:
+    needs: publish
+    if: ${{ !cancelled() && !failure() }}
     runs-on: self-hosted
     defaults: { run: { working-directory: templates/extension } }
     steps:

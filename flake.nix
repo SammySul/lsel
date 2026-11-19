@@ -1,5 +1,5 @@
 {
-  description = "lsel: the shared palette, fonts, rules and project template";
+  description = "lsel: the shared palette, fonts and rules, the @sammysul/lsel package and the project templates";
 
   inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
@@ -43,7 +43,7 @@
                   (builtins.readFile ./scripts/favicon.py)
               );
 
-          # What `bun run sync` copies into a project: tokens.css, the two weights it loads, their license.
+          # What the package ships: tokens.css, the two weights it loads, their license (kit/scripts/assets.ts).
           assets = pkgs.runCommand "lsel-assets" { } ''
             mkdir -p $out
             cp ${pkgs.writeText "tokens.css" (import ./theme/tokens.nix palettes.rose-pine-moon)} $out/tokens.css
