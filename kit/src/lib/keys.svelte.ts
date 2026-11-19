@@ -7,8 +7,8 @@ export interface Binding {
   label?: string;
   /** Also shown in the page footer. */
   hint?: boolean;
-  /** `"search"`: fires in a search box too, for keys that type nothing (arrows, Enter). */
-  inField?: boolean | "search";
+  /** Also fires in fields: all, a search box for keys that type nothing, or those inside an element. */
+  inField?: boolean | "search" | Element | undefined;
   run(event: KeyboardEvent): void;
 }
 
@@ -56,6 +56,12 @@ const NAMES: Record<string, string> = {
 
 export const keyName = (key: string) => NAMES[key] ?? key;
 
+// Enter and Space belong to a focused control: they press the button or follow the link.
+const pressesControl = (event: KeyboardEvent) =>
+  (event.key === "Enter" || event.key === " ") &&
+  event.target instanceof Element &&
+  event.target.closest("button, a[href], summary, [role=button]") !== null;
+
 /** What `?` lists: in mount order, each key once, going to the scope mounted last. */
 export function activeBindings(): Labeled[] {
   const taken = new Set<string>();
@@ -87,10 +93,15 @@ function onkeydown(event: KeyboardEvent): void {
     }
     return;
   }
-  const field = isField(event.target);
-  const search = event.target instanceof HTMLInputElement && event.target.type === "search";
+  if (pressesControl(event)) return;
+  const { target } = event;
+  const field = isField(target);
+  const search = target instanceof HTMLInputElement && target.type === "search";
   const reaches = (b: Binding) =>
-    !field || b.inField === true || (b.inField === "search" && search && event.key.length > 1);
+    !field ||
+    b.inField === true ||
+    (b.inField === "search" && search && event.key.length > 1) ||
+    (b.inField instanceof Element && target instanceof Node && b.inField.contains(target));
   for (const scope of registry.toReversed()) {
     const b = scope.bindings.find((b) => keysOf(b).includes(event.key));
     if (b === undefined || !reaches(b)) continue;

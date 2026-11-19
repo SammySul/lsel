@@ -52,6 +52,13 @@ keys(() =>
   view === "list" ? [{ key: "/", label: "Search", hint: true, run: () => search?.focus() }] : [],
 );
 
+let form: HTMLElement | undefined = $state();
+keys(() =>
+  view === "form"
+    ? [{ key: "Escape", label: "Leave the form", inField: form, run: () => say("Left the form") }]
+    : [],
+);
+
 let name = $state("");
 let nameError: string | null = $state(null);
 </script>
@@ -70,18 +77,24 @@ let nameError: string | null = $state(null);
         bind:selected
         label="Feeds"
         onopen={(f) => say(`Opened ${f.title}`)}
-        actions={[
-          {
-            key: "d",
-            label: "Delete",
-            run: (f) => {
-              feeds = feeds.filter((x) => x.id !== f.id);
-              say(`Deleted ${f.title}`);
-            },
-          },
-        ]}
+        actions={(f) =>
+          f.id === "a"
+            ? []
+            : [
+                {
+                  key: "d",
+                  label: "Delete",
+                  run: () => {
+                    feeds = feeds.filter((x) => x.id !== f.id);
+                    say(`Deleted ${f.title}`);
+                  },
+                },
+              ]}
       >
-        {#snippet row(feed, current)}<span class:current>{feed.title}</span>{/snippet}
+        {#snippet row(feed, current)}
+          <span class:current>{feed.title}</span>
+          <button type="button" onclick={() => say(`Pinned ${feed.title}`)}>Pin</button>
+        {/snippet}
         {#snippet empty()}No feeds match. <kbd>Esc</kbd> clears the search.{/snippet}
       </List>
     </section>
@@ -100,7 +113,7 @@ let nameError: string | null = $state(null);
       {/if}
     </section>
   {:else}
-    <section aria-label="Form">
+    <section aria-label="Form" bind:this={form}>
       <Field label="Name" error={nameError}>
         {#snippet children(control)}
           <input

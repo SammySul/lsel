@@ -11,6 +11,8 @@ interface Props {
   source?: string;
   license?: string;
   width?: number;
+  /** Fills the window, children taking the height left: a game or an editor. */
+  fill?: boolean;
   actions?: Snippet;
   children: Snippet;
 }
@@ -22,6 +24,7 @@ let {
   source,
   license = "MIT",
   width = 960,
+  fill = false,
   actions,
   children,
 }: Props = $props();
@@ -31,7 +34,7 @@ keys(() => [{ key: "?", label: "List the keys", hint: true, run: () => (keyHelp.
 const hints = $derived(activeBindings().filter((b) => b.hint));
 </script>
 
-<main class="lsel-page" style:max-width="{width}px">
+<main class="lsel-page" class:fill style:max-width="{width}px">
   <header>
     <div class="title">
       <h1>{name}</h1>
@@ -40,7 +43,7 @@ const hints = $derived(activeBindings().filter((b) => b.hint));
     {#if actions}<div class="actions">{@render actions()}</div>{/if}
   </header>
 
-  {@render children()}
+  {#if fill}<div class="body">{@render children()}</div>{:else}{@render children()}{/if}
 
   <footer>
     <p class="status" class:error={flash.error} role="status">{flash.text}</p>
@@ -68,6 +71,20 @@ const hints = $derived(activeBindings().filter((b) => b.hint));
     flex-direction: column;
     gap: var(--space-5);
     padding: var(--space-6) var(--space-4);
+  }
+  .fill {
+    height: calc(100dvh - 2 * var(--space-5));
+  }
+  @media (max-width: 600px) {
+    .fill {
+      height: calc(100dvh - 2 * var(--space-2));
+    }
+  }
+  .body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
   }
   header {
     display: flex;

@@ -14,7 +14,7 @@ import {
 const url = serveBuilt(join(import.meta.dir, "../playground-dist"));
 
 const current = (page: Page) =>
-  page.locator('ul[aria-label="Feeds"] li[aria-current="true"]').textContent();
+  page.locator('ul[aria-label="Feeds"] li[aria-current="true"] span').textContent();
 const status = (page: Page) => page.locator("footer [role=status]").textContent();
 
 for (const name of browsers()) {
@@ -43,6 +43,8 @@ for (const name of browsers()) {
 
     test("a list moves with j and k, acts on the selected row, and opens with Enter", async () => {
       const { page, problems } = await open();
+      expect(await current(page)).toBe("Alpha weekly");
+      await page.keyboard.press("d");
       expect(await current(page)).toBe("Alpha weekly");
       await page.keyboard.press("j");
       await page.keyboard.press("j");
@@ -74,6 +76,33 @@ for (const name of browsers()) {
       expect(await problems()).toEqual([]);
     });
 
+    test("a control in a row keeps Enter and its click; the row doesn't open", async () => {
+      const { page, problems } = await open();
+      const pin = page.getByRole("button", { name: "Pin" }).first();
+      await pin.focus();
+      await page.keyboard.press("Enter");
+      expect(await status(page)).toBe("Pinned Alpha weekly");
+      await page.getByRole("button", { name: "Pin" }).nth(1).click();
+      expect(await status(page)).toBe("Pinned Beta notes");
+      expect(await current(page)).toBe("Alpha weekly");
+      expect(await problems()).toEqual([]);
+    });
+
+    test("a key bound to a form reaches its fields, and only those", async () => {
+      const { page, problems } = await open();
+      await page.keyboard.press("3");
+      await page.getByLabel("Name").focus();
+      await page.keyboard.press("Escape");
+      expect(await status(page)).toBe("Left the form");
+      await page.getByLabel("Name").blur();
+      await page.keyboard.press("1");
+      const box = page.getByRole("searchbox", { name: "Search feeds" });
+      await box.fill("zz");
+      await page.keyboard.press("Escape");
+      expect(await box.inputValue()).toBe("");
+      expect(await problems()).toEqual([]);
+    });
+
     test("? lists the live keys, and Esc closes the list", async () => {
       const { page, problems } = await open();
       await page.keyboard.press("?");
@@ -89,7 +118,6 @@ for (const name of browsers()) {
         "First",
         "Last",
         "Open",
-        "Delete",
         "Close this list",
       ]);
       await page.keyboard.press("j");

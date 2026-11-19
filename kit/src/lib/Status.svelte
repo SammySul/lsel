@@ -33,7 +33,6 @@ keys(() =>
 
 <style>
   .lsel-status {
-    min-height: 1.5em;
     color: var(--subtle);
   }
   p {

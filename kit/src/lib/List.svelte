@@ -19,7 +19,8 @@ interface Props {
   empty: Snippet;
   /** Enter, or a click on the selected row. */
   onopen?: (item: T) => void;
-  actions?: readonly Action[];
+  /** Keys for the selected row; a function when they depend on the row. */
+  actions?: readonly Action[] | ((item: T) => readonly Action[]);
 }
 
 let {
@@ -51,10 +52,20 @@ function select(i: number): void {
   if (item !== undefined) selected = id(item);
 }
 
-function click(i: number): void {
+function click(event: MouseEvent, i: number): void {
+  // a control in the row does its own thing
+  if (
+    event.target instanceof Element &&
+    event.target.closest("button, a, input, label, select, textarea")
+  )
+    return;
   if (i === index && current !== undefined) onopen?.(current);
   else select(i);
 }
+
+const rowActions = $derived(
+  current === undefined ? [] : typeof actions === "function" ? actions(current) : actions,
+);
 
 keys(() =>
   items.length === 0
@@ -79,7 +90,7 @@ keys(() =>
               },
             ]
           : []),
-        ...actions.map((a) => ({
+        ...rowActions.map((a) => ({
           key: a.key,
           label: a.label,
           run: () => current !== undefined && a.run(current),
@@ -95,7 +106,7 @@ keys(() =>
     {#each items as item, i (id(item))}
       <!-- the keys above are the keyboard way in; a click is the pointer's -->
       <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
-      <li bind:this={rows[i]} aria-current={i === index} onclick={() => click(i)}>
+      <li bind:this={rows[i]} aria-current={i === index} onclick={(e) => click(e, i)}>
         {@render row(item, i === index)}
       </li>
     {/each}

@@ -3,7 +3,8 @@ import { keys } from "./keys.svelte.ts";
 
 interface Props {
   label: string;
-  key?: string;
+  /** The first key is the one shown. */
+  key?: string | readonly string[];
   busy?: string;
   /** For 2 s after it worked: "Copied". */
   done?: string;
@@ -39,6 +40,8 @@ async function start(): Promise<void> {
   }
 }
 
+const shown = $derived(typeof key === "string" ? key : key?.[0]);
+
 const text = $derived(
   state.kind === "busy"
     ? (busy ?? label)
@@ -60,7 +63,7 @@ keys(() => (key === undefined || disabled ? [] : [{ key, label, hint, run: () =>
   aria-busy={state.kind === "busy"}
   onclick={start}
 >
-  {text}{#if key !== undefined}{" "}<kbd>{key}</kbd>{/if}
+  {text}{#if shown !== undefined}{" "}<kbd>{shown}</kbd>{/if}
 </button>
 
 <style>

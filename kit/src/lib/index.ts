@@ -8,7 +8,7 @@ export { default as List } from "./List.svelte";
 export { reducedMotion } from "./motion.svelte.ts";
 export { default as Page } from "./Page.svelte";
 export { default as Popup } from "./Popup.svelte";
-export { persisted } from "./persisted.svelte.ts";
+export { persisted, type Store } from "./persisted.svelte.ts";
 export { type Resource, resource } from "./resource.svelte.ts";
 export { go, route } from "./route.svelte.ts";
 export { default as Status } from "./Status.svelte";
