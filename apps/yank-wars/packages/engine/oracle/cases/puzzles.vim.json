@@ -1,5 +1,5 @@
 {
-  "vim": "9.2.1164",
+  "vim": "9.2.1252",
   "cases": {
     "puzzle-api-url": {
       "start": "const BASE = \"http://localhost:3000\";\nexport default BASE;",

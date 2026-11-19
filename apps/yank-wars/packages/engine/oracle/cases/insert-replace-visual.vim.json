@@ -1,5 +1,5 @@
 {
-  "vim": "9.2.1164",
+  "vim": "9.2.1252",
   "cases": {
     "irv-start-cursor-indented": {
       "start": "  ab",

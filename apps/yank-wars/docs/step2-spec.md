@@ -6,11 +6,11 @@ Part 1 is live at `https://yankwars.app` (2026-11-17).
 Parts 2 and 3 are outlines, specified in full before each starts. Build order
 and rationale: `docs/decisions.md`.
 
-| Part | Goal | State |
-|---|---|---|
-| 1. Package and deploy | `https://yankwars.app` serves today's solo game from `twelve`, built by this flake | done |
-| 2. Rooms | two players race over an invite link; the server replays and judges | outline |
-| 3. Identity and records | anonymous sessions, rejected lock-ins stored | outline |
+| Part                    | Goal                                                                               | State   |
+| ----------------------- | ---------------------------------------------------------------------------------- | ------- |
+| 1. Package and deploy   | `https://yankwars.app` serves today's solo game from `twelve`, built by this flake | done    |
+| 2. Rooms                | two players race over an invite link; the server replays and judges                | outline |
+| 3. Identity and records | anonymous sessions, rejected lock-ins stored                                       | outline |
 
 Settled for part 1: the `yankwars.app` zone is on Cloudflare in the tunnel's
 account; the port is `7300` on loopback (`typ` is 7200).

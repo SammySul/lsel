@@ -9,7 +9,7 @@ grace timer; fewest keystrokes among finishers wins; tie goes to the earlier
 finish; not finishing loses. Grace = 30% of the first finisher's time, clamped
 to 10–60 s. Pure speed ignores macros; pure golf ignores speed. The grace window
 makes "rush to start the clock" vs "golf for fewer keys" a choice every round.
-*Revisit* the 30% after playtests, not before.
+_Revisit_ the 30% after playtests, not before.
 
 **Split view + live diff.** Your buffer left, read-only target right, with
 unmatched lines highlighted in your buffer. The target pane is not a vim buffer,
@@ -33,7 +33,7 @@ buffer and zeroes the counter, costing only time. Within a run every key
 counts: `u`, backspace, `:`, searches. This is VimGolf's "best clean run"
 with the race's clock as the price of exploring. The server replays only the
 keys after the last reset marker; the full log is kept for replays.
-*Rejected:* counting every key including resets (one dead end loses the golf
+_Rejected:_ counting every key including resets (one dead end loses the golf
 half of the round); free undo (the score stops meaning anything).
 
 **Visual aids are free, editing aids are banned.** Relative line numbers
@@ -42,12 +42,12 @@ touch the buffer. No vimrc, no mappings, no `:set`: mappings make keystroke
 counts incomparable and the server has nothing to map against.
 
 **Round cap: 4 minutes.** Nobody locked in by then is a draw. A forfeit key
-ends a round early for a player who is stuck. *Revisit* if generated puzzles
+ends a round early for a player who is stuck. _Revisit_ if generated puzzles
 turn out larger than 10–30 lines.
 
 **Disconnects: 15 s to reconnect, then forfeit.** Keys live on the server, so
 a reconnecting client rebuilds its buffer and resumes. Clocks never pause, so
-dropping is never an advantage. *Rejected:* pausing (pull the plug to think).
+dropping is never an advantage. _Rejected:_ pausing (pull the plug to think).
 
 **Room = series.** The invite link is the room id. Rematch keeps the room,
 draws a new puzzle and keeps a running tally. Rooms close 5 minutes after the
@@ -79,12 +79,12 @@ doesn't already behave that way (the spike suggests it does).
 with its full key log so it can be reproduced in a test; in dev, the client
 replays its own log in a hidden editor after lock-in and warns on divergence.
 Playwright parity tests (type a log in a real browser, compare with replay)
-once the editor config is stable. *Rejected:* trusting the client on mismatch.
+once the editor config is stable. _Rejected:_ trusting the client on mismatch.
 
-*Rejected:* real Vim/Neovim on the server (a process per player, latency on
+_Rejected:_ real Vim/Neovim on the server (a process per player, latency on
 every key, shell lockdown); vim.wasm / nvim-wasm in the browser (experimental,
 needs COOP/COEP headers, hard to intercept keys).
-*Revisit* if players hit too many gaps that `bun patch` can't fix.
+_Revisit_ if players hit too many gaps that `bun patch` can't fix.
 
 ## Architecture: one Bun process, server-authoritative
 
@@ -98,36 +98,36 @@ results.
 - **Why one process, not Cloudflare Durable Objects:** latency barely matters
   (only progress events cross the network), replay needs happy-dom, and one
   process is the least to run and debug. It handles a niche game for a long time.
-- *Rejected:* WebRTC/P2P (no one owns the clock; still needs signaling and TURN;
+- _Rejected:_ WebRTC/P2P (no one owns the clock; still needs signaling and TURN;
   matchmaking needs a server anyway).
-- *Revisit* when one box can't hold the concurrent rooms. The `engine` stays
+- _Revisit_ when one box can't hold the concurrent rooms. The `engine` stays
   pure so rooms can move.
 
 ## Stack
 
-| Concern | Choice | Why |
-|---|---|---|
-| Dev environment | **Nix flake devShell** via direnv | How every project here works; nothing global, same toolchain on every machine and in CI |
-| Runtime, package manager, tests | **Bun** (workspaces, `bun test`) | One tool for install, run, test and `bun patch` (needed for the engine fixes); native TS and WebSockets in `Bun.serve` |
-| Frontend | **Svelte 5 + Vite**, SPA | Familiar from Maw; a handful of routes doesn't need SvelteKit. *Revisit* if routes or SSR needs grow |
-| Editor | CodeMirror 6 + `@replit/codemirror-vim` | See Engine |
-| Diff highlight | `@codemirror/merge` (its `diff`/`Chunk` only) | Same ecosystem; we render our own line decorations, since `MergeView` would own the editor |
-| Server | `Bun.serve` (routes + websocket), no framework | A few HTTP routes and one socket; a framework would add more than it saves |
-| Message validation | **Valibot**, at external boundaries only (puzzle JSON now, socket messages in step 2) | Small bundle on the web side; inside the boundary, trust the types |
-| Lint/format | **Biome** + `svelte-check` | One fast tool; svelte-check covers what Biome doesn't in `.svelte` |
-| E2E | **Playwright** (later) | Browser-vs-headless parity tests: type a key log in a real browser, compare with replay |
-| Auth | **Better Auth** (1.7.x) with the anonymous plugin; GitHub provider later | Framework-agnostic `Request → Response` handler mounts on `Bun.serve`; guests get real user rows that link to a GitHub login without losing history; `bun:sqlite` supported natively |
-| Database | **`bun:sqlite`** from step 2, one file in the service's state dir | Better Auth needs it anyway; puzzles stay files. Drizzle only if hand-written SQL for match history gets unwieldy |
-| Domain | **yankwars.app** (owned) | `.app` is HSTS-preloaded: browsers refuse plain HTTP, so it's only ever served through the tunnel's TLS. Its DNS must live on Cloudflare for the tunnel to take the hostname |
-| Deploy | **Nix package + NixOS module**, imported by `squares` into `twelve`; loopback port behind the existing `cloudflared` tunnel as `yankwars.app` | Same box and tunnel as `typ`, but Nix-built instead of a Docker Hub image, so the flake is the single source for dev, CI and prod. Single region is fine because latency barely matters. Bun deps are packaged with **bun2nix**: `fetchBunDeps` turns `bun.nix` into a Bun cache, `mkDerivation` compiles one binary. Proven on the replay spike (2026-10-30), `bun patch` patches included. bun2nix 2.1.2 carries our `nix/bun2nix-lockfile-v2.patch` until upstream PR #110 is released |
-| CI | GitHub Actions running `nix develop -c bun run check` and `bun test` on PRs | Same shell as local, so no drift |
+| Concern                         | Choice                                                                                                                                        | Why                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Dev environment                 | **Nix flake devShell** via direnv                                                                                                             | How every project here works; nothing global, same toolchain on every machine and in CI                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Runtime, package manager, tests | **Bun** (workspaces, `bun test`)                                                                                                              | One tool for install, run, test and `bun patch` (needed for the engine fixes); native TS and WebSockets in `Bun.serve`                                                                                                                                                                                                                                                                                                                                                                    |
+| Frontend                        | **Svelte 5 + Vite**, SPA                                                                                                                      | Familiar from Maw; a handful of routes doesn't need SvelteKit. _Revisit_ if routes or SSR needs grow                                                                                                                                                                                                                                                                                                                                                                                      |
+| Editor                          | CodeMirror 6 + `@replit/codemirror-vim`                                                                                                       | See Engine                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Diff highlight                  | `@codemirror/merge` (its `diff`/`Chunk` only)                                                                                                 | Same ecosystem; we render our own line decorations, since `MergeView` would own the editor                                                                                                                                                                                                                                                                                                                                                                                                |
+| Server                          | `Bun.serve` (routes + websocket), no framework                                                                                                | A few HTTP routes and one socket; a framework would add more than it saves                                                                                                                                                                                                                                                                                                                                                                                                                |
+| Message validation              | **Valibot**, at external boundaries only (puzzle JSON now, socket messages in step 2)                                                         | Small bundle on the web side; inside the boundary, trust the types                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| Lint/format                     | **Biome** + `svelte-check`                                                                                                                    | One fast tool; svelte-check covers what Biome doesn't in `.svelte`                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| E2E                             | **Playwright** (later)                                                                                                                        | Browser-vs-headless parity tests: type a key log in a real browser, compare with replay                                                                                                                                                                                                                                                                                                                                                                                                   |
+| Auth                            | **Better Auth** (1.7.x) with the anonymous plugin; GitHub provider later                                                                      | Framework-agnostic `Request → Response` handler mounts on `Bun.serve`; guests get real user rows that link to a GitHub login without losing history; `bun:sqlite` supported natively                                                                                                                                                                                                                                                                                                      |
+| Database                        | **`bun:sqlite`** from step 2, one file in the service's state dir                                                                             | Better Auth needs it anyway; puzzles stay files. Drizzle only if hand-written SQL for match history gets unwieldy                                                                                                                                                                                                                                                                                                                                                                         |
+| Domain                          | **yankwars.app** (owned)                                                                                                                      | `.app` is HSTS-preloaded: browsers refuse plain HTTP, so it's only ever served through the tunnel's TLS. Its DNS must live on Cloudflare for the tunnel to take the hostname                                                                                                                                                                                                                                                                                                              |
+| Deploy                          | **Nix package + NixOS module**, imported by `squares` into `twelve`; loopback port behind the existing `cloudflared` tunnel as `yankwars.app` | Same box and tunnel as `typ`, but Nix-built instead of a Docker Hub image, so the flake is the single source for dev, CI and prod. Single region is fine because latency barely matters. Bun deps are packaged with **bun2nix**: `fetchBunDeps` turns `bun.nix` into a Bun cache, `mkDerivation` compiles one binary. Proven on the replay spike (2026-10-30), `bun patch` patches included. bun2nix 2.1.2 carries our `nix/bun2nix-lockfile-v2.patch` until upstream PR #110 is released |
+| CI                              | GitHub Actions running `nix develop -c bun run check` and `bun test` on PRs                                                                   | Same shell as local, so no drift                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
 
 ## Puzzles
 
 **Handmade only (2026-11-16).** Every puzzle is a file in `puzzles/handmade/`,
 written and reviewed like code; Claude writes most of them, and the puzzle tests
 (the solution reaches the target on its last key, par pinned in `PAR`) are the
-gate. *Rejected:* the generator (repo excerpts plus scripted vim-shaped edits):
+gate. _Rejected:_ the generator (repo excerpts plus scripted vim-shaped edits):
 mechanical edits make samey, tedious puzzles, and it needed license tracking
 and a daily job.
 
@@ -148,27 +148,27 @@ From the design workflow (3 researchers, 3 proposals, 3 judges, 1 synthesis);
 the spec, `docs/step1-spec.md`, was removed once built (2026-11-17; it is in git history). "Parity by construction" won on every
 judge's card over observing codemirror-vim natively.
 
-**Key capture: the browser is one more replayer.** A `Prec.highest` keydown handler owned by the engine prevents every keydown and calls the same `feedKey()` the headless replay uses; codemirror-vim's own keydown handler, native insert-mode typing and its `<input>` command line never run. *Rejected:* observing the adapter and emulating native behavior in the replayer (insert text would be labelled differently, prompt keys are DOM events on a panel input, Cmd+A moves the selection unlogged). *Revisit* only if an upstream API makes the adapter itself drivable without DOM.
+**Key capture: the browser is one more replayer.** A `Prec.highest` keydown handler owned by the engine prevents every keydown and calls the same `feedKey()` the headless replay uses; codemirror-vim's own keydown handler, native insert-mode typing and its `<input>` command line never run. _Rejected:_ observing the adapter and emulating native behavior in the replayer (insert text would be labelled differently, prompt keys are DOM events on a panel input, Cmd+A moves the selection unlogged). _Revisit_ only if an upstream API makes the adapter itself drivable without DOM.
 
 **Undo grouping is a logical group id, not a clock.** A `transactionFilter` sets `Transaction.time` to the session's undo group (bumped per normal-mode key, per command during macro playback), relabels changes to `input.type`, and marks selection-only transactions `addToHistory: false`; `history({newGroupDelay: 1, joinToEvent: () => true})`. One step per normal command including its insert session, one per ex command, one per macro command. Verified against commands 6.11.1 / state 6.7.6; the catalog pin plus `undo.test.ts` (with `setSystemTime` jumps) is the upgrade gate.
 
-**Vim regex syntax: `nopcre`.** `applyEngineOptions()` sets `pcre` false after every global reset so `/` and `:s` accept `\(` `\+` `\<`; `:set` is blocked so players cannot flip it. *Rejected:* JavaScript regex (the default) because golfers' muscle memory is vim's.
+**Vim regex syntax: `nopcre`.** `applyEngineOptions()` sets `pcre` false after every global reset so `/` and `:s` accept `\(` `\+` `\<`; `:set` is blocked so players cannot flip it. _Rejected:_ JavaScript regex (the default) because golfers' muscle memory is vim's.
 
-**`o`/`O`/insert `<CR>` insert a plain newline** (`CodeMirror.commands.newlineAndIndent` overridden; vim's `noautoindent`), and `cc`/`S` drop the indent too (a wrapping `change` operator). Removes the syntax tree from the most common insert path and makes `o` and `<CR>` consistent. The language stays engine config for `=`/`>>`/`<<`. *Revisit* if playtests want autoindent (both sides change in one place).
+**`o`/`O`/insert `<CR>` insert a plain newline** (`CodeMirror.commands.newlineAndIndent` overridden; vim's `noautoindent`), and `cc`/`S` drop the indent too (a wrapping `change` operator). Removes the syntax tree from the most common insert path and makes `o` and `<CR>` consistent. The language stays engine config for `=`/`>>`/`<<`. _Revisit_ if playtests want autoindent (both sides change in one place).
 
-**Clipboard registers are the unnamed register.** The core touches `navigator.clipboard` in exactly two places, and both are closed: `RegisterController.prototype.pushText` maps `+`/`*` to no register, and the `paste` action is replaced by its own non-clipboard branch (`continuePaste`). So `"+p`, `:pu +`, `:y +` and `:g/x/pu +` never read the clipboard (async, unlogged) or write it. *Rejected:* overriding only `setRegister` (the first version; `:pu +` and `:y +` pass the register name straight to the core, found in review), and clearing `registerName` after each key (misses `"+p` inside a macro).
+**Clipboard registers are the unnamed register.** The core touches `navigator.clipboard` in exactly two places, and both are closed: `RegisterController.prototype.pushText` maps `+`/`*` to no register, and the `paste` action is replaced by its own non-clipboard branch (`continuePaste`). So `"+p`, `:pu +`, `:y +` and `:g/x/pu +` never read the clipboard (async, unlogged) or write it. _Rejected:_ overriding only `setRegister` (the first version; `:pu +` and `:y +` pass the register name straight to the core, found in review), and clearing `registerName` after each key (misses `"+p` inside a macro).
 
-**Macros are keys, as in vim.** The engine owns `q`, `@` and `:normal` (`macro.ts`): a recording is the keys typed, stored one per register entry, and playback and `:normal` feed keys through the same per-key path as typing. The core recorded an insert session as a change list and never recorded ex commands, so `qq:s/a/b/<CR>jq@q` and `<Left>` or `<C-o>` inside a recorded insert replayed wrongly, and a played `:` left a prompt open that ate the next keys. Nesting deeper than 100 throws: a recursive macro used to run until the stack overflowed, at a depth that differs between browsers and between runs, so one log gave two results. On this path Chromium overflows at about 720 levels and Bun at about 2200 (measured 2026-11-11). *Revisit* the limit when step 2 makes a failing motion abort a macro, because then a recursive macro can stop on its own.
+**Macros are keys, as in vim.** The engine owns `q`, `@` and `:normal` (`macro.ts`): a recording is the keys typed, stored one per register entry, and playback and `:normal` feed keys through the same per-key path as typing. The core recorded an insert session as a change list and never recorded ex commands, so `qq:s/a/b/<CR>jq@q` and `<Left>` or `<C-o>` inside a recorded insert replayed wrongly, and a played `:` left a prompt open that ate the next keys. Nesting deeper than 100 throws: a recursive macro used to run until the stack overflowed, at a depth that differs between browsers and between runs, so one log gave two results. On this path Chromium overflows at about 720 levels and Bun at about 2200 (measured 2026-11-11). _Revisit_ the limit when step 2 makes a failing motion abort a macro, because then a recursive macro can stop on its own.
 
-**Window-dependent motions run on a virtual 30-line window** (`H/M/L/<C-f>/<C-b>/<C-d>/<C-u>/gj/gk` via `Vim.defineMotion`; `<C-e>/<C-y>/zz/zt/zb` no-ops) and `findPosV` is line arithmetic on both sides. Puzzles are ≤ 30 lines and the pane is sized to show them all. *Revisit* if generated puzzles grow.
+**Window-dependent motions run on a virtual 30-line window** (`H/M/L/<C-f>/<C-b>/<C-d>/<C-u>/gj/gk` via `Vim.defineMotion`; `<C-e>/<C-y>/zz/zt/zb` no-ops) and `findPosV` is line arithmetic on both sides. Puzzles are ≤ 30 lines and the pane is sized to show them all. _Revisit_ if generated puzzles grow.
 
-**UI chords: `<C-CR>` reset, `<C-S-CR>` forfeit, `<C-S-L>` line numbers, Space/Enter ready.** Layout-independent, never AltGr characters, not vim commands; intercepted before logging. The editor is a focus trap during a round (Tab, Meta combos and F-keys are prevented); copy happens from the result card. *Rejected:* Ctrl+Alt+R/N (collide with AltGr on US-International), F2/F3 (need Fn on Mac laptops).
+**UI chords: `<C-CR>` reset, `<C-S-CR>` forfeit, `<C-S-L>` line numbers, Space/Enter ready.** Layout-independent, never AltGr characters, not vim commands; intercepted before logging. The editor is a focus trap during a round (Tab, Meta combos and F-keys are prevented); copy happens from the result card. _Rejected:_ Ctrl+Alt+R/N (collide with AltGr on US-International), F2/F3 (need Fn on Mac laptops).
 
 **One key grammar: `<lt>` is the only spelling of `<`** in logs, solutions and result cards; `toCoreKey` maps it back at the engine boundary. `<Reset>` is a log marker never produced by `keyFromEvent`.
 
-**Dead keys and IME are unsupported in step 1.** `Dead`/`Process`/`isComposing` keydowns are dropped and prevented, DOM text is swallowed, the status line shows a hint; puzzles are ASCII-only. *Revisit* when Playwright can verify per-browser dead-key delivery.
+**Dead keys and IME are unsupported in step 1.** `Dead`/`Process`/`isComposing` keydowns are dropped and prevented, DOM text is swallowed, the status line shows a hint; puzzles are ASCII-only. _Revisit_ when Playwright can verify per-browser dead-key delivery.
 
-**Reset = fresh session.** `createSession` always runs `Vim.resetVimGlobalState_()` + `applyEngineOptions()`, so a client reset and the server's tail replay start from the same pristine engine. *Rejected:* `view.setState` (re-instantiates the vim plugin in place with stale patched references).
+**Reset = fresh session.** `createSession` always runs `Vim.resetVimGlobalState_()` + `applyEngineOptions()`, so a client reset and the server's tail replay start from the same pristine engine. _Rejected:_ `view.setState` (re-instantiates the vim plugin in place with stale patched references).
 
 **Diff highlight uses `@codemirror/merge`'s `Chunk.build` only**, rendered as our own `Decoration.line`s. `MergeView`/`unifiedMergeView` own the views' dispatch and add widgets/accept-reject controls that edit text, violating 'every editor extension comes from engine'. Stack-table wording 'built-in line highlighting' is refined accordingly.
 
@@ -213,6 +213,7 @@ The deviations from vim behave the same in the browser and in the replay: they c
 **Where fixes live, in order of preference:** an engine override (`vimSetup.ts`, `operators.ts`, `textObjects.ts`, `ex.ts`, `substitute.ts`, `search.ts`, `sort.ts`, `vimRegex.ts`, `expr.ts`, `increment.ts`, `insertRepeat.ts`, `macro.ts`), the same code on both sides; else a `bun patch` of `@replit/codemirror-vim-core` (`patches/@replit%2Fcodemirror-vim-core@0.1.0.patch`). Our own ex layer, `:s`, `:sort`, search and regex dialect replace the core's because the core's parsing (ranges, flags, counts, escapes, cursor rules) was wrong in too many places to patch one by one.
 
 **The core patch, hunk by hunk, for upstreaming** (each is a bug fix or a small hook; the hooks are what an upstream API would offer):
+
 - hooks on `Vim`: `vimRegExp` (nopcre patterns), `exHook` (command lines), `adjustOperatorRange` (exclusive/linewise operator ranges), `onFailure` (a failed motion), `repeatInsert` (`.` of an insert from typed keys); `defineMotion/Action/Operator` return what they replace, so an override can wrap it;
 - `*`/`#` build a vim pattern (`\<word\>`), and a canceled search keeps the previous pattern instead of re-parsing a JS source;
 - failed `f t ; , %` and symbol motions return null, so an operator does nothing (vim beeps); `a<`/`i<` no longer throw in a unicode-mode `RegExpCursor`;
@@ -230,9 +231,9 @@ The deviations from vim behave the same in the browser and in the replay: they c
 
 Every case of the oracle corpus that still differs from vim is pinned in `packages/engine/oracle/deviations.json` (written only by `oracle/pin.ts`, after deciding the difference stays) under a group of `oracle/deviations.ts`; the suite fails if a pinned case changes or starts matching vim. 758 pinned (212 corpus, 546 fuzz) at the end of step 1, down from 2570 failing cases when the oracle first ran; 769 (223 corpus, 546 fuzz) after the verification pass added the `command-index` and `puzzles` categories (keys from `:help index` no case typed, and each handmade puzzle's reference solution); 686 (183 corpus, 503 fuzz) after the visual-block fix added the `visual-block` category. 183 (all corpus) after the fuzz corpus was removed on 2026-11-17: its 503 remaining pins were never reduced to a cause, and the hand-written corpus covers what golfers type.
 
-*Accepted:* `virtual-window` (fixed 30-line window for `<C-d>`/`<C-f>`/`H`/`L`), `replace-bs` (replace-mode `<BS>` does not restore), `insert-keys` (completion `<C-n>/<C-p>/<C-x>`, digraphs `<C-k>`, literal `<C-v>`), `expression` (`\=` knows only `expr.ts`'s subset: numbers, strings, arithmetic, `.`, comparisons, `?:`, `submatch line col printf toupper tolower repeat len str2nr`).
+_Accepted:_ `virtual-window` (fixed 30-line window for `<C-d>`/`<C-f>`/`H`/`L`), `replace-bs` (replace-mode `<BS>` does not restore), `insert-keys` (completion `<C-n>/<C-p>/<C-x>`, digraphs `<C-k>`, literal `<C-v>`), `expression` (`\=` knows only `expr.ts`'s subset: numbers, strings, arithmetic, `.`, comparisons, `?:`, `submatch line col printf toupper tolower repeat len str2nr`).
 
-*Bugs, not fixed in step 1* (most likely for golfers first): `visual-block` (block `p`/`P`, `r` repeated by `.`, `gv` after a block, a count on a blockwise `P`), `curswant` (`$` then `v`/`<C-v>` loses the end-of-line column), `visual` (`.` after a multi-line visual op, `A` in `v`/`V`, `p`/`P` over a selection, `3V`), `text-objects` (word/paragraph objects on blank lines and counts past the end, brackets inside quotes), `sentence`, `registers` (`"1` shifting for `d%`/`d/`/`"xdd`, `"1p.`, `"A` appends, a count before `"x`, `".`), `marks` (vim marks keep their column and die with their line; `` `[ `] `^ `. `` `` `( `) `{ `} ``, jump list), `dot-repeat`, `macro` (`@` of a linewise register runs its line break in vim; `<Esc>` on a command line replayed by `@` runs it in vim, the engine cancels it), `insert-ctrl` (`<C-a> <C-@> <C-r><C-r>`, `^<C-d>`, `<C-d>`/`<C-t>` rounding, insert `<Up>/<Down>` curswant), `replace-mode`, `gi-gv`, `forced-motion` (`dvj`, `dVl`), `line-undo` (`U`), `undo-tree` (`g-`/`g+`), `percent` (quotes, `/* */`, `#if`), `cursor` (buffer right, cursor elsewhere), `other` (`gN` from inside a match: `/foo<CR>$gNd`; `cw` on an empty line joins; `2D.`).
+_Bugs, not fixed in step 1_ (most likely for golfers first): `visual-block` (block `p`/`P`, `r` repeated by `.`, `gv` after a block, a count on a blockwise `P`), `curswant` (`$` then `v`/`<C-v>` loses the end-of-line column), `visual` (`.` after a multi-line visual op, `A` in `v`/`V`, `p`/`P` over a selection, `3V`), `text-objects` (word/paragraph objects on blank lines and counts past the end, brackets inside quotes), `sentence`, `registers` (`"1` shifting for `d%`/`d/`/`"xdd`, `"1p.`, `"A` appends, a count before `"x`, `".`), `marks` (vim marks keep their column and die with their line; `` `[ `] `^ `. `` `` `( `) `{ `} ``, jump list), `dot-repeat`, `macro` (`@` of a linewise register runs its line break in vim; `<Esc>` on a command line replayed by `@` runs it in vim, the engine cancels it), `insert-ctrl` (`<C-a> <C-@> <C-r><C-r>`, `^<C-d>`, `<C-d>`/`<C-t>` rounding, insert `<Up>/<Down>` curswant), `replace-mode`, `gi-gv`, `forced-motion` (`dvj`, `dVl`), `line-undo` (`U`), `undo-tree` (`g-`/`g+`), `percent` (quotes, `/* */`, `#if`), `cursor` (buffer right, cursor elsewhere), `other` (`gN` from inside a match: `/foo<CR>$gNd`; `cw` on an empty line joins; `2D.`).
 
 Visual-block `I`, `A`, `c`, `s`, `C`, `D`, `X` and `Y` follow vim since 2026-11-12 (`engine/src/blockInsert.ts`, cases in `oracle/cases/visual-block.ts`): an insert types on the first line only and is copied to the other lines at `<Esc>` or `<C-o>`, skipping lines too short for `I`/`c` and padding them for `A`. The `comment-block` puzzle's solution therefore gained its `<Esc>`, and its par went from 9 to 10.
 
@@ -259,7 +260,7 @@ follows Forgejo's tags, and GitHub is a push mirror with no workflows.
 `nix build`s it into `/var/lib/yank-wars-updater/current` (the link moves only
 on success) and restarts yank-wars alone; a failed health check puts the
 previous build back. Nothing else on `twelve` changes, and `squares` only pins
-the fallback the service starts from before the first update. *Rejected:*
+the fallback the service starts from before the first update. _Rejected:_
 comin (every push to `squares` would redeploy all of `twelve`, and a broken
 network config could cut off the fix), deploy-rs/colmena (CI would need ssh
 into `twelve`), `system.autoUpgrade` with an updated input (an uncommitted lock

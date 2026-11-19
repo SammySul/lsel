@@ -3,7 +3,7 @@
 Each puzzle is one JSON file, `handmade/<id>.json`. Puzzles are data: no code
 lives here. The engine loads them through `parsePuzzle`
 (`packages/engine/src/puzzle.ts`), which enforces every rule below that is not
-marked *test*. The web app loads them with `import.meta.glob`; the engine tests
+marked _test_. The web app loads them with `import.meta.glob`; the engine tests
 load them with `Bun.Glob`.
 
 ## Schema
@@ -43,7 +43,7 @@ Unknown keys are rejected, so a stored `par` or a misspelt field fails loudly.
 3. **`solution`** must parse with `parseKeys`. A literal `<` is `<lt>`. A space
    may be written as `" "` or `<Space>`; write `<Space>` when it is the last key,
    so it stays visible.
-   *test*: replaying the solution reaches `target` **on its last key**, and the
+   _test_: replaying the solution reaches `target` **on its last key**, and the
    empty replay does not. Lock-in is automatic the moment the buffer matches,
    even in insert mode, so a solution that finishes while typing must not end
    with `<Esc>`. The test rejects trailing keys like that, which keeps par
@@ -53,10 +53,10 @@ Unknown keys are rejected, so a stored `par` or a misspelt field fails loudly.
    Prefer original snippets. Use VimGolf challenges only with the maintainer's
    permission.
 5. **`difficulty`** orders the list (easy first, then par, then title), so it
-   is how hard the puzzle feels, not its par. *easy*: one vim idea, par at most
-   10 (*test*); *medium*: two ideas or an ex command; *hard*: macros, regex
+   is how hard the puzzle feels, not its par. _easy_: one vim idea, par at most
+   10 (_test_); _medium_: two ideas or an ex command; _hard_: macros, regex
    or a plan. Most puzzles are easy: they are the most fun.
-6. *test*: ids are unique and equal their file names. Par is between 3 and 60,
+6. _test_: ids are unique and equal their file names. Par is between 3 and 60,
    and it is listed in `PAR` in `packages/engine/src/puzzles.test.ts`, so every
    change to a solution is deliberate.
 

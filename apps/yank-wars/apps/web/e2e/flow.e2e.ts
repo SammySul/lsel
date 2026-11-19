@@ -732,6 +732,7 @@ for (const name of browsers()) {
       expect(await where()).toBe("player");
       expect(await page.evaluate(() => String(window.getSelection() ?? ""))).toBe("");
       await typeKeys(page, "x");
+      // biome-ignore lint/performance/useDomNodeTextContent: CodeMirror's lines are divs; only innerText puts newlines between them
       expect(await target.evaluate((el) => (el as HTMLElement).innerText.replace(/\n$/, ""))).toBe(
         p.target,
       );

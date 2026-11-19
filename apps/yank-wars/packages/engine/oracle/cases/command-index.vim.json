@@ -1,5 +1,5 @@
 {
-  "vim": "9.2.1164",
+  "vim": "9.2.1252",
   "cases": {
     "ci-backtick-paren-close": {
       "start": "One. Two. Three.",
