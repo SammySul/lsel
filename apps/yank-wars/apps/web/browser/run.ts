@@ -1,15 +1,15 @@
 // Types oracle cases into the real player view; env BROWSERS=chromium,firefox,webkit ORACLE_CATEGORY=a,b ORACLE_CASE=id YW_SAMPLE=n YW_SEED=s.
 import { join } from "node:path";
-import { browsers, isBrowserNoise, launch } from "@sammysul/lsel/testing";
+import { browsers, launch, watchPage } from "@sammysul/lsel/testing";
 import { parseKeys } from "@yank-wars/engine";
 import { loadCorpus, readFixtures, staleness } from "@yank-wars/engine/oracle/corpus";
 import { DEVIATIONS } from "@yank-wars/engine/oracle/deviations";
 import type { FixtureEntry, Observed, OracleCase } from "@yank-wars/engine/oracle/types";
 import type { Page } from "playwright-core";
+import { VITE } from "../e2e/lib.ts";
 import type { HarnessState } from "../src/dev/harness.ts";
 import { playwrightKey } from "./keys.ts";
 import { knownFailure } from "./known.ts";
-import { playwrightDrift } from "./version.ts";
 
 const WEB = join(import.meta.dir, "..");
 
@@ -81,10 +81,10 @@ function expected(item: Item): { want: Observed; label: string } {
   return { want: { doc: f.doc, cursor: f.cursor, mode: f.mode }, label: "vim" };
 }
 
-async function runCase(page: Page, item: Item, problems: string[]): Promise<string[]> {
+async function runCase(page: Page, item: Item, take: () => Promise<string[]>): Promise<string[]> {
   const { c } = item;
   const keys = parseKeys(c.keys);
-  problems.length = 0;
+  await take();
   await page.evaluate((m) => window.__yw?.mount(m), {
     id: c.id,
     start: c.start,
@@ -103,21 +103,11 @@ async function runCase(page: Page, item: Item, problems: string[]): Promise<stri
   }
   if (st.blocked.length > 0) out.push(`  blocked: ${st.blocked.join(", ")}`);
   if (!st.focused) out.push("  the editor lost focus");
-  // One more round trip, so console args requested above have arrived.
-  await page.evaluate(() => 0);
-  for (const p of problems) out.push(`  page: ${p}`);
+  for (const p of await take()) out.push(`  page: ${p}`);
   return out;
 }
 
 async function main() {
-  const drift = await playwrightDrift();
-  if (drift.length > 0 || process.env.PLAYWRIGHT_BROWSERS_PATH === undefined) {
-    for (const d of drift) console.error(d);
-    console.error(
-      "test:browser needs the dev shell's browsers: nix develop -c bun run test:browser",
-    );
-    process.exit(2);
-  }
   const names = browsers();
   const onlyCase = list(process.env.ORACLE_CASE);
   let items: Item[] = [];
@@ -151,17 +141,7 @@ async function main() {
       const browser = await launch(name);
       try {
         const page = await browser.newPage();
-        const problems: string[] = [];
-        page.on("console", (m) => {
-          if ((m.type() !== "warning" && m.type() !== "error") || isBrowserNoise(m)) return;
-          // Synchronously, so the line lands in this case; the args are spelled out as JSON.
-          const at = problems.push(`${m.type()}: ${m.text()}`) - 1;
-          void Promise.all(m.args().map((a) => a.jsonValue().catch(() => "?"))).then((v) => {
-            problems[at] =
-              `${m.type()}: ${v.map((x) => (typeof x === "string" ? x : JSON.stringify(x))).join(" ")}`;
-          });
-        });
-        page.on("pageerror", (e) => problems.push(`uncaught: ${e.message}`));
+        const { take } = watchPage(page, { ignore: VITE });
         // The first load may re-optimize deps and reload the page; the second is the stable one.
         for (let i = 0; i < 2; i++) {
           await page.goto(vite.url, { waitUntil: "networkidle" });
@@ -173,7 +153,7 @@ async function main() {
         let ok = 0;
         let known = 0;
         for (const item of items) {
-          const out = await runCase(page, item, problems);
+          const out = await runCase(page, item, take);
           const k = knownFailure(item.c.id, name);
           const what = `${item.category}/${item.c.id}: ${JSON.stringify(item.c.start)} + ${item.c.keys}`;
           if (k !== undefined && out.length > 0) known++;

@@ -107,20 +107,21 @@ keys(() =>
     </div>
 
     <div class="table">
-      {#if shown.length > 0}
-        <div class="row head" aria-hidden="true">
-          <span>Puzzle</span><span>Language</span><span class="num">Par</span><span
-            >Difficulty</span
-          ><span class="num">Your best</span>
-        </div>
-      {/if}
       <List
         items={shown}
         id={(p) => p.id}
         bind:selected={selectedId}
         label="Puzzles"
         onopen={(p) => go(`/p/${p.id}`)}
+        hint
       >
+        {#snippet head()}
+          <div class="row heading">
+            <span>Puzzle</span><span>Language</span><span class="num">Par</span><span
+              >Difficulty</span
+            ><span class="num">Your best</span>
+          </div>
+        {/snippet}
         {#snippet row(p)}
           {@const best = prefs.best[p.id]}
           <a class="row" href="#/p/{p.id}" onfocus={() => (selectedId = p.id)}>
@@ -245,14 +246,8 @@ keys(() =>
   .row:hover {
     text-decoration: none;
   }
-  /* lines up with List's rows: their padding and selection bar */
-  .head {
-    padding: var(--space-2) var(--space-3);
-    border-bottom: var(--border);
-    border-left: 2px solid transparent;
-    background: var(--raise);
-    color: var(--subtle);
-    font-size: var(--text-xs);
+  .row.heading {
+    color: inherit;
     text-transform: uppercase;
     letter-spacing: 0.04em;
   }

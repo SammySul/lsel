@@ -2,7 +2,7 @@
 // Env: BROWSERS, ORACLE_CATEGORY, ORACLE_CASE, YW_SAMPLE (n or "all", default 40), YW_SEED,
 // YW_CLOCK_SAMPLE (undo cases re-run with the page clock jumping between keys, default 12).
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
-import { browsers, launch } from "@sammysul/lsel/testing";
+import { browsers, launch, watchPage } from "@sammysul/lsel/testing";
 import { formatKeys, parseKeys, type VimKey } from "@yank-wars/engine";
 import { loadCorpus, readFixtures, staleness } from "@yank-wars/engine/oracle/corpus";
 import { DEVIATIONS } from "@yank-wars/engine/oracle/deviations";
@@ -12,7 +12,7 @@ import type { Browser, BrowserContext, Page } from "playwright-core";
 import { playwrightKey } from "../browser/keys.ts";
 import { knownFailure } from "../browser/known.ts";
 import type { HarnessState } from "../src/dev/harness.ts";
-import { envList, requireDevShell, sample, startVite, type Vite, watchPage } from "./lib.ts";
+import { envList, sample, startVite, VITE, type Vite } from "./lib.ts";
 
 interface Item {
   c: OracleCase;
@@ -134,7 +134,6 @@ function verdict(browser: string, item: Item, problems: string[]): void {
 
 let vite: Vite;
 beforeAll(async () => {
-  await requireDevShell();
   vite = await startVite();
 });
 afterAll(() => vite?.stop());
@@ -147,7 +146,7 @@ for (const name of browsers()) {
     beforeAll(async () => {
       browser = await launch(name);
       page = await browser.newPage();
-      take = watchPage(page).take;
+      take = watchPage(page, { ignore: VITE }).take;
       await openHarness(page, vite);
     }, 60_000);
     afterAll(async () => {
@@ -169,7 +168,7 @@ for (const name of browsers()) {
         ctx = await browser.newContext();
         await ctx.clock.install({ time: wall });
         clockPage = await ctx.newPage();
-        clockTake = watchPage(clockPage).take;
+        clockTake = watchPage(clockPage, { ignore: VITE }).take;
         await openHarness(clockPage, vite);
       }, 60_000);
       afterAll(async () => {

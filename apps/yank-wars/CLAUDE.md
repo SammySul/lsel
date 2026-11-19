@@ -24,8 +24,8 @@ Shared rules, the stack, release and deploy come from lsel's `CLAUDE.md` and
   `bunfig.toml` (happy-dom and Svelte preloads) is read from the cwd only, so
   `bun test` in a subdirectory runs without DOM globals.
 - **The CSP allows inline styles**, unlike lsel's: CodeMirror injects `<style>`
-  elements. `app()` in `apps/server/src/server.ts` overrides the package's
-  header; `e2e/built.e2e.ts` fails if CodeMirror goes unstyled.
+  elements. `CSP` in `apps/server/src/server.ts` goes to `serve()`;
+  `e2e/built.e2e.ts` fails if CodeMirror goes unstyled.
 - Don't build ahead of the build order in `docs/decisions.md`: no GitHub
   login, ratings or ghosts before step 6.
 

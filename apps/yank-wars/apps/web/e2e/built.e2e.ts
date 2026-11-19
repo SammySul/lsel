@@ -2,16 +2,17 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { handler } from "@sammysul/lsel/server";
 import { browsers, LSEL_LOOK, launch, lselLook, watchPage } from "@sammysul/lsel/testing";
 import type { Browser } from "playwright-core";
-import { app } from "../../server/src/server.ts";
+import { CSP } from "../../server/src/server.ts";
 
 const DIST = join(import.meta.dir, "../dist");
 let server: ReturnType<typeof Bun.serve>;
 
 beforeAll(() => {
   if (!existsSync(join(DIST, "index.html"))) throw new Error("no dist/: run `bun run build` first");
-  server = Bun.serve({ port: 0, fetch: app(DIST) });
+  server = Bun.serve({ port: 0, fetch: handler(DIST, undefined, { csp: CSP }) });
 });
 afterAll(() => {
   server?.stop(true);

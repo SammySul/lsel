@@ -2,7 +2,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { browsers, launch } from "@sammysul/lsel/testing";
+import { browsers, launch, watchPage } from "@sammysul/lsel/testing";
 import {
   comparePuzzles,
   createSession,
@@ -22,7 +22,7 @@ import { observe } from "@yank-wars/engine/oracle/observe";
 import type { Observed } from "@yank-wars/engine/oracle/types";
 import type { Browser, BrowserContext, Page } from "playwright-core";
 import type { RoundProbeState } from "../src/dev/roundProbe.ts";
-import { requireDevShell, startVite, typeKeys, type Vite, watchPage } from "./lib.ts";
+import { startVite, typeKeys, VITE, type Vite } from "./lib.ts";
 
 const PUZZLES_DIR = join(import.meta.dir, "../../../puzzles/handmade");
 const puzzles: Puzzle[] = readdirSync(PUZZLES_DIR)
@@ -71,7 +71,6 @@ const PARITY_RUNS = [
 
 let vite: Vite;
 beforeAll(async () => {
-  await requireDevShell();
   vite = await startVite();
   // Warm vite's dependency optimizer once, so no test sees its reload.
   const b = await launch("chromium");
@@ -175,7 +174,7 @@ for (const name of browsers()) {
       const ctx = await browser.newContext({ viewport: { width: 1280, height: 800 } });
       if (opts.clock) await ctx.clock.install({ time: Date.UTC(2026, 0, 1) });
       const page = await ctx.newPage();
-      const watch = watchPage(page);
+      const watch = watchPage(page, { ignore: VITE });
       await page.goto(`${vite.base}/#/`, { waitUntil: "networkidle" });
       await page.bringToFront();
       await page.locator(".table a.row").first().waitFor();
@@ -395,7 +394,7 @@ for (const name of browsers()) {
     test("bests and line numbers persist across reload and a stale second tab does not clobber them", async () => {
       const { ctx, page: a, problems } = await fresh();
       const b = await ctx.newPage();
-      const bProblems = watchPage(b).take;
+      const bProblems = watchPage(b, { ignore: VITE }).take;
       await b.goto(`${vite.base}/#/`, { waitUntil: "networkidle" });
       const indent = P("indent-body");
       const css = P("css-comment");
@@ -596,7 +595,7 @@ for (const name of browsers()) {
     test("a phone-sized window gets the keyboard notice; Play anyway shows the list", async () => {
       const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
       const page = await ctx.newPage();
-      const watch = watchPage(page);
+      const watch = watchPage(page, { ignore: VITE });
       await page.goto(`${vite.base}/#/`, { waitUntil: "networkidle" });
       expect(await text(page, ".needs-keyboard h2")).toBe("Yank Wars needs a keyboard");
       expect(await page.locator(".table a.row").count()).toBe(0);
