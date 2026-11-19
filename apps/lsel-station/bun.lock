@@ -5,7 +5,7 @@
     "": {
       "name": "project",
       "dependencies": {
-        "@sammysul/lsel": "0.5.1",
+        "@sammysul/lsel": "0.5.2",
         "svelte": "5.57.3",
         "valibot": "1.5.0",
       },
@@ -74,7 +74,7 @@
 
     "@rolldown/pluginutils": ["@rolldown/pluginutils@1.1.1", "", {}, "sha512-glFIJDvLNDtJhT9qrMFWLPbvS+skxgt4L0K8Ei2YtnhPysAJnsI7nyxSJxKj4ADeKX0OLjC4ntRkwpLOoS3rwA=="],
 
-    "@sammysul/lsel": ["@sammysul/lsel@0.5.1", "https://git.sammysul.com/api/packages/SammySul/npm/%40sammysul%2Flsel/-/0.5.1/lsel-0.5.1.tgz", { "peerDependencies": { "playwright-core": "^1.64.0", "svelte": "^5.57.0", "valibot": "^1.5.0" }, "bin": { "lsel-check": "dist/check.js" } }, "sha512-/y/kksM+ObqfUD0hCgbWB/kkm7XAp6vav0oBQdFPY4D/Fwu3NdSw5GzV+XCo07qALRLN9VG89YHk4lkCwZBl1g=="],
+    "@sammysul/lsel": ["@sammysul/lsel@0.5.2", "https://git.sammysul.com/api/packages/SammySul/npm/%40sammysul%2Flsel/-/0.5.2/lsel-0.5.2.tgz", { "peerDependencies": { "playwright-core": "^1.64.0", "svelte": "^5.57.0", "valibot": "^1.5.0" }, "bin": { "lsel-check": "dist/check.js" } }, "sha512-wTOenKnkWHvFsks06EdhrpdDydZ+ZGqk/eUJqhrTU3JdQsMf3Sk4zk1qoNRu3PbzCgwsfswV4deNGWO9n9OIBw=="],
 
     "@sveltejs/acorn-typescript": ["@sveltejs/acorn-typescript@1.0.13", "", { "peerDependencies": { "acorn": "^8.9.0" } }, "sha512-wgKggnhZVL9Bfx1OaKKTrYY9BFRk6C8UAkQNUcIv1+llzYrIqy+RZm5HPKzn0NpEBvTVhTqB4kQyllZywsRBRQ=="],
 
