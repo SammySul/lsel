@@ -21,6 +21,10 @@ interface Props {
   onopen?: (item: T) => void;
   /** Keys for the selected row; a function when they depend on the row. */
   actions?: readonly Action[] | ((item: T) => readonly Action[]);
+  /** Column headings, aligned with the rows. */
+  head?: Snippet;
+  /** Shows its keys in the page footer. */
+  hint?: boolean;
 }
 
 let {
@@ -32,6 +36,8 @@ let {
   empty,
   onopen,
   actions = [],
+  head,
+  hint = false,
 }: Props = $props();
 
 const index = $derived(
@@ -71,7 +77,13 @@ keys(() =>
   items.length === 0
     ? []
     : [
-        { key: ["j", "ArrowDown"], label: "Next", inField: "search", run: () => select(index + 1) },
+        {
+          key: ["j", "ArrowDown"],
+          label: "Next",
+          hint,
+          inField: "search",
+          run: () => select(index + 1),
+        },
         {
           key: ["k", "ArrowUp"],
           label: "Previous",
@@ -85,6 +97,7 @@ keys(() =>
               {
                 key: "Enter",
                 label: "Open",
+                hint,
                 inField: "search" as const,
                 run: () => current !== undefined && onopen(current),
               },
@@ -102,6 +115,7 @@ keys(() =>
 {#if items.length === 0}
   <p class="lsel-empty">{@render empty()}</p>
 {:else}
+  {#if head}<div class="head" aria-hidden="true">{@render head()}</div>{/if}
   <ul class="lsel-list" aria-label={label}>
     {#each items as item, i (id(item))}
       <!-- the keys above are the keyboard way in; a click is the pointer's -->
@@ -119,10 +133,17 @@ keys(() =>
     padding: 0;
     list-style: none;
   }
-  li {
+  li,
+  .head {
     padding: var(--space-2) var(--space-3);
     border-bottom: var(--border);
     border-left: 2px solid transparent;
+  }
+  .head {
+    color: var(--subtle);
+    font-size: var(--text-xs);
+  }
+  li {
     cursor: default;
     transition: border-color var(--motion-fast) var(--ease);
   }

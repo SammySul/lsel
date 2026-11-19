@@ -43,8 +43,13 @@ export type Routes = (
   url: URL,
 ) => Response | undefined | Promise<Response | undefined>;
 
-export function handler(staticDir: string, routes?: Routes): (req: Request) => Promise<Response> {
-  return async (req) => {
+/** `csp` replaces the default policy on every response (CodeMirror needs inline styles). */
+export function handler(
+  staticDir: string,
+  routes?: Routes,
+  { csp }: { csp?: string | undefined } = {},
+): (req: Request) => Promise<Response> {
+  const answer = async (req: Request) => {
     const url = new URL(req.url);
     if (url.pathname === "/healthz") return text("ok", 200);
     const own = await routes?.(req, url);
@@ -61,6 +66,11 @@ export function handler(staticDir: string, routes?: Routes): (req: Request) => P
         ? "public, max-age=31536000, immutable"
         : "no-cache",
     });
+  };
+  return async (req) => {
+    const res = await answer(req);
+    if (csp !== undefined) res.headers.set("Content-Security-Policy", csp);
+    return res;
   };
 }
 
@@ -118,13 +128,16 @@ export function parseEnv<E extends v.ObjectEntries>(
 /** The app's server; a bad environment exits 2 with every problem named. */
 export function serve<E extends v.ObjectEntries>(opts: {
   name: string;
+  /** The env prefix, when it isn't the name's (`YW` for yank-wars). */
+  prefix?: string;
   extra?: E;
   port?: number;
+  csp?: string;
   routes?: (config: Config<E>) => Routes;
 }) {
   let config: Config<E>;
   try {
-    config = parseEnv(opts.name, process.env, opts.extra, opts.port);
+    config = parseEnv(opts.prefix ?? opts.name, process.env, opts.extra, opts.port);
   } catch (e) {
     console.error(e instanceof Error ? e.message : e);
     process.exit(2);
@@ -132,7 +145,7 @@ export function serve<E extends v.ObjectEntries>(opts: {
   const server = Bun.serve({
     hostname: config.host,
     port: config.port,
-    fetch: handler(config.staticDir, opts.routes?.(config)),
+    fetch: handler(config.staticDir, opts.routes?.(config), { csp: opts.csp }),
   });
   console.log(`${opts.name} listening on ${server.url}`);
   return { server, config };

@@ -76,6 +76,7 @@ let nameError: string | null = $state(null);
         id={(f) => f.id}
         bind:selected
         label="Feeds"
+        hint
         onopen={(f) => say(`Opened ${f.title}`)}
         actions={(f) =>
           f.id === "a"
@@ -95,6 +96,7 @@ let nameError: string | null = $state(null);
           <span class:current>{feed.title}</span>
           <button type="button" onclick={() => say(`Pinned ${feed.title}`)}>Pin</button>
         {/snippet}
+        {#snippet head()}Feed{/snippet}
         {#snippet empty()}No feeds match. <kbd>Esc</kbd> clears the search.{/snippet}
       </List>
     </section>

@@ -10,6 +10,7 @@ import {
   type Page,
   webkit,
 } from "playwright-core";
+import { version as playwrightVersion } from "playwright-core/package.json";
 import { handler, type Routes } from "../server/index.ts";
 
 export { registerSvelteModules } from "./svelte.ts";
@@ -18,8 +19,14 @@ const TYPES: Readonly<Record<string, BrowserType>> = { chromium, firefox, webkit
 
 /** `BROWSERS=chromium,firefox` picks; all three by default. Throws outside the dev shell. */
 export function browsers(): string[] {
-  if (process.env.PLAYWRIGHT_BROWSERS_PATH === undefined) {
+  const driver = process.env.PLAYWRIGHT_DRIVER_VERSION;
+  if (process.env.PLAYWRIGHT_BROWSERS_PATH === undefined || driver === undefined) {
     throw new Error("browser tests need the dev shell's browsers: nix develop -c bun run test:e2e");
+  }
+  if (driver !== playwrightVersion) {
+    throw new Error(
+      `playwright-core is ${playwrightVersion}, the dev shell's browsers are ${driver}`,
+    );
   }
   const names = process.env.BROWSERS?.split(",").filter(Boolean) ?? Object.keys(TYPES);
   for (const n of names) if (!(n in TYPES)) throw new Error(`unknown browser ${n}`);
@@ -36,19 +43,27 @@ export function launch(name: string): Promise<Browser> {
 export const isBrowserNoise = (m: ConsoleMessage) =>
   m.type() === "warning" && m.text().includes("scroll-linked positioning effect");
 
-/** Collects console warnings and errors and uncaught exceptions; `take()` returns and clears them. */
-export function watchPage(page: Page): { take(): Promise<string[]> } {
-  const lines: string[] = [];
+/** Console warnings, errors and uncaught exceptions, but `ignore`; `take()` returns and clears them. */
+export function watchPage(page: Page, { ignore }: { ignore?: RegExp } = {}) {
+  const lines: Promise<string>[] = [];
   page.on("console", (m) => {
-    if ((m.type() === "warning" || m.type() === "error") && !isBrowserNoise(m)) {
-      lines.push(`${m.type()}: ${m.text()}`);
-    }
+    if ((m.type() !== "warning" && m.type() !== "error") || isBrowserNoise(m)) return;
+    // logged objects arrive as handles; the browser's own messages (a CSP violation) have none
+    const args = m.args();
+    const text =
+      args.length === 0
+        ? Promise.resolve(m.text())
+        : Promise.all(args.map((a) => a.jsonValue().catch(() => "?"))).then((v) =>
+            v.map((x) => (typeof x === "string" ? x : JSON.stringify(x))).join(" "),
+          );
+    lines.push(text.then((t) => `${m.type()}: ${t}`));
   });
-  page.on("pageerror", (e) => lines.push(`uncaught: ${e.message}`));
+  page.on("pageerror", (e) => lines.push(Promise.resolve(`uncaught: ${e.message}`)));
   return {
-    async take() {
+    async take(): Promise<string[]> {
       await page.evaluate(() => 0);
-      return lines.splice(0);
+      const all = await Promise.all(lines.splice(0));
+      return all.filter((l) => !ignore?.test(l));
     },
   };
 }

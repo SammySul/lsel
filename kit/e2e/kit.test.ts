@@ -2,6 +2,7 @@
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { join } from "node:path";
 import type { Browser, Page } from "playwright-core";
+import { version } from "../package.json";
 import {
   browsers,
   LSEL_LOOK,
@@ -37,8 +38,24 @@ for (const name of browsers()) {
     test("lsel's look under the strict CSP, with a quiet console", async () => {
       const { page, problems } = await open();
       expect(await lselLook(page)).toEqual(LSEL_LOOK);
-      expect(await page.locator("footer .meta").textContent()).toContain("lsel kit v0.1.0");
+      expect(await page.locator("footer .meta").textContent()).toContain(`lsel kit v${version}`);
+      expect(await page.locator("footer .hints").textContent()).toBe(
+        "/ search · j next · Enter open · ? list the keys",
+      );
       expect(await problems()).toEqual([]);
+    });
+
+    test("the console watch reads logged objects and skips what it's told to", async () => {
+      const page = await browser.newPage();
+      const all = watchPage(page);
+      const some = watchPage(page, { ignore: /^warning: dev / });
+      await page.goto(url(), { waitUntil: "networkidle" });
+      await page.evaluate(() => {
+        console.warn("dev server chatter");
+        console.error("broke", { at: 3 });
+      });
+      expect(await all.take()).toEqual(["warning: dev server chatter", 'error: broke {"at":3}']);
+      expect(await some.take()).toEqual(['error: broke {"at":3}']);
     });
 
     test("a list moves with j and k, acts on the selected row, and opens with Enter", async () => {

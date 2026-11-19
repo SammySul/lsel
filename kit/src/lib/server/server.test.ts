@@ -92,6 +92,19 @@ describe("a project's routes", () => {
   });
 });
 
+test("a project's own CSP replaces the default on every response", async () => {
+  const csp = "default-src 'self'; style-src 'self' 'unsafe-inline'";
+  const h = handler(web, () => undefined, { csp });
+  const answers = await Promise.all(
+    ["/", "/healthz", "/nope.js"].map((p) => h(new Request(`http://app.test${p}`))),
+  );
+  expect(answers.map((r) => [r.status, r.headers.get("content-security-policy")])).toEqual([
+    [200, csp],
+    [200, csp],
+    [404, csp],
+  ]);
+});
+
 describe("environment", () => {
   test("defaults, from the package's name", () => {
     expect(parseEnv("my-app", { MY_APP_STATIC: "/srv/web" })).toEqual({

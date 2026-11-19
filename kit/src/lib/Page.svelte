@@ -31,7 +31,12 @@ let {
 
 keys(() => [{ key: "?", label: "List the keys", hint: true, run: () => (keyHelp.open = true) }]);
 
-const hints = $derived(activeBindings().filter((b) => b.hint));
+// `?` last: it leads to every other key
+const hints = $derived(
+  activeBindings()
+    .filter((b) => b.hint)
+    .toSorted((a, b) => Number(a.key === "?") - Number(b.key === "?")),
+);
 </script>
 
 <main class="lsel-page" class:fill style:max-width="{width}px">
