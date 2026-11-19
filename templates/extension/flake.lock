@@ -4,7 +4,7 @@
       "inputs": {
         "flake-parts": "flake-parts",
         "nixpkgs": [
-          "lsel-nix",
+          "lsel",
           "nixpkgs"
         ],
         "systems": "systems",
@@ -28,7 +28,7 @@
     "flake-parts": {
       "inputs": {
         "nixpkgs-lib": [
-          "lsel-nix",
+          "lsel",
           "bun2nix",
           "nixpkgs"
         ]
@@ -47,7 +47,7 @@
         "type": "github"
       }
     },
-    "lsel-nix": {
+    "lsel": {
       "inputs": {
         "bun2nix": "bun2nix",
         "nixpkgs": [
@@ -55,17 +55,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1795114440,
-        "narHash": "sha256-BS6l5ccp2MOuzFJAlmP3Mk77IE3Y/SzXjE4jmy5Aaa8=",
+        "lastModified": 1795117916,
+        "narHash": "sha256-E1M9EkooK/hV4Y8Fy8zViIlyUiCvDdGBIUbYK9GWNeo=",
         "ref": "refs/heads/main",
-        "rev": "0cc6787faec039d57d0595d5e7e36f88eaca6a90",
-        "revCount": 3,
+        "rev": "74b04f7ed5b4ae7800561e1cf9c10c839337f3c5",
+        "revCount": 54,
         "type": "git",
-        "url": "https://git.sammysul.com/SammySul/lsel-nix"
+        "url": "https://git.sammysul.com/SammySul/lsel"
       },
       "original": {
         "type": "git",
-        "url": "https://git.sammysul.com/SammySul/lsel-nix"
+        "url": "https://git.sammysul.com/SammySul/lsel"
       }
     },
     "nixpkgs": {
@@ -86,7 +86,7 @@
     },
     "root": {
       "inputs": {
-        "lsel-nix": "lsel-nix",
+        "lsel": "lsel",
         "nixpkgs": "nixpkgs"
       }
     },
@@ -108,7 +108,7 @@
     "treefmt-nix": {
       "inputs": {
         "nixpkgs": [
-          "lsel-nix",
+          "lsel",
           "bun2nix",
           "nixpkgs"
         ]

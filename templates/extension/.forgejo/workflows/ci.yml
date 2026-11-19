@@ -21,4 +21,4 @@ jobs:
       - env: { TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
         run: |
           nix build -o extension
-          nix run --inputs-from . lsel-nix#release -- extension
+          nix run --inputs-from . lsel#release -- extension

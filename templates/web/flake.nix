@@ -1,8 +1,8 @@
 {
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
-    lsel-nix = {
-      url = "git+https://git.sammysul.com/SammySul/lsel-nix";
+    lsel = {
+      url = "git+https://git.sammysul.com/SammySul/lsel";
       inputs.nixpkgs.follows = "nixpkgs";
     };
   };
@@ -11,14 +11,14 @@
     {
       self,
       nixpkgs,
-      lsel-nix,
+      lsel,
     }:
     let
-      forEachSystem = nixpkgs.lib.genAttrs lsel-nix.lib.systems;
+      forEachSystem = nixpkgs.lib.genAttrs lsel.lib.systems;
     in
     {
       packages = forEachSystem (system: {
-        default = lsel-nix.legacyPackages.${system}.webApp { root = ./.; };
+        default = lsel.legacyPackages.${system}.webApp { root = ./.; };
       });
 
       # the build, then `bun run check` and `test`, as CI runs them
@@ -31,7 +31,7 @@
       );
 
       devShells = forEachSystem (system: {
-        default = lsel-nix.devShells.${system}.web;
+        default = lsel.devShells.${system}.web;
       });
     };
 }
