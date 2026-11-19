@@ -203,22 +203,73 @@ for (const name of browsers()) {
       expect(await problems()).toEqual([]);
     });
 
-    test("a stored font that can't be read is removed, with one message", async () => {
+    const stored = (page: Page) =>
+      page.evaluate(
+        () =>
+          new Promise<IDBValidKey[]>((resolve, reject) => {
+            const req = indexedDB.open("FontsDB", 1);
+            req.onsuccess = () => {
+              const keys = req.result.transaction("fonts").objectStore("fonts").getAllKeys();
+              keys.onsuccess = () => {
+                req.result.close();
+                resolve(keys.result);
+              };
+              keys.onerror = () => reject(keys.error);
+            };
+            req.onerror = () => reject(req.error);
+          }),
+      );
+    const focused = (page: Page) =>
+      page.evaluate(() => document.activeElement?.getAttribute("aria-label"));
+    const alerts = (page: Page) => page.getByRole("alert").locator("li").allTextContents();
+
+    test("a stored record with no font file in it is removed, with one message", async () => {
       const { page } = await open();
       await seed(page, [
-        { fontName: "Broken", bytes: [...Buffer.from("not a font")] },
+        { fontName: "Empty", fontBase64: "" },
+        { fontName: "Garbled", fontBase64: "data:font/woff2;base64,%%%" },
         { fontName: "Fine", bytes: [...FONT] },
       ]);
       await reload(page);
       await page.getByLabel("Preview in Fine").waitFor();
-      expect(await page.getByRole("alert").allTextContents()).toEqual([
-        "Broken could not be read as a font, so it was removed.",
+      expect(await alerts(page)).toEqual([
+        "Empty held no font file, so it was removed.",
+        "Garbled held no font file, so it was removed.",
       ]);
       expect(await listed(page)).toEqual(["Fine"]);
+      expect(await stored(page)).toEqual(["Fine"]);
 
       await reload(page);
       await page.getByLabel("Preview in Fine").waitFor();
       expect(await page.getByRole("alert").count()).toBe(0);
+    });
+
+    test("a saved font the browser won't load is kept", async () => {
+      const { page } = await open();
+      await seed(page, [{ fontName: "Fine", bytes: [...FONT] }]);
+      await page.addInitScript(() => {
+        FontFace.prototype.load = () => Promise.reject(new DOMException("blocked", "NetworkError"));
+      });
+      await reload(page);
+      await page.getByText("No fonts yet.").waitFor();
+      expect(await alerts(page)).toEqual(["Fine is saved but could not be read as a font."]);
+      expect(await stored(page)).toEqual(["Fine"]);
+    });
+
+    test("a record that can't be deleted doesn't stop the others loading", async () => {
+      const { page } = await open();
+      await seed(page, [
+        { fontName: "Empty", fontBase64: "" },
+        { fontName: "Fine", bytes: [...FONT] },
+      ]);
+      await page.addInitScript(() => {
+        IDBObjectStore.prototype.delete = () => {
+          throw new DOMException("blocked", "UnknownError");
+        };
+      });
+      await reload(page);
+      await page.getByLabel("Preview in Fine").waitFor();
+      expect(await alerts(page)).toEqual(["Empty is saved but could not be read as a font."]);
       expect(await listed(page)).toEqual(["Fine"]);
     });
 
@@ -232,7 +283,12 @@ for (const name of browsers()) {
           blob: async () => new Blob([bytes]),
         });
         Object.assign(window, {
-          queryLocalFonts: async () => [face("Probe Sans"), face("Probe Serif"), face("Other")],
+          queryLocalFonts: async () => [
+            face("Probe Sans"),
+            face("Probe Serif"),
+            face("Probe Mono"),
+            face("Other"),
+          ],
         });
       }, FONT.toString("base64"));
       await reload(page);
@@ -242,17 +298,22 @@ for (const name of browsers()) {
       await search.waitFor();
       await page.keyboard.press("Escape");
       await page.keyboard.press("/");
-      await expect(search.evaluate((el) => el === document.activeElement)).resolves.toBe(true);
+      expect(await focused(page)).toBe("Search installed fonts");
       await search.fill("probe");
+      await page.getByRole("button", { name: "Probe Serif" }).click();
+      await page.getByLabel("Preview in Probe Serif").waitFor();
+      expect(await focused(page)).toBe("Search installed fonts");
+
+      // Enter opens the highlighted row, the first, not the clicked one
+      await page.keyboard.press("Enter");
+      await page.getByLabel("Preview in Probe Mono").waitFor();
       await page.keyboard.press("ArrowDown");
       await page.keyboard.press("Enter");
-      await page.getByLabel("Preview in Probe Serif").waitFor();
-      expect(await listed(page)).toEqual(["Probe Serif"]);
-
-      await page.getByRole("button", { name: "Probe Sans" }).click();
       await page.getByLabel("Preview in Probe Sans").waitFor();
-      expect(await listed(page)).toEqual(["Probe Serif", "Probe Sans"]);
+      expect(await listed(page)).toEqual(["Probe Serif", "Probe Mono", "Probe Sans"]);
 
+      await page.keyboard.press("Escape");
+      await page.keyboard.press("Escape");
       await page.keyboard.press("i");
       await search.waitFor({ state: "detached" });
       expect(await problems()).toEqual([]);

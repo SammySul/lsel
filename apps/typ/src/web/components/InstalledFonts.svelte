@@ -31,6 +31,12 @@ async function show() {
   search?.focus();
 }
 
+// or Enter would press this button again instead of opening the highlighted row
+function pick(family: string) {
+  onpick(family);
+  search?.focus();
+}
+
 function toggle() {
   if (open) open = false;
   else void show();
@@ -63,7 +69,7 @@ keys(() => [
         <div class="families">
           <List items={shown} id={(f) => f} label="Installed fonts" onopen={onpick}>
             {#snippet row(family)}
-              <button class="pick" onclick={() => onpick(family)}>{family}</button>
+              <button class="pick" onclick={() => pick(family)}>{family}</button>
             {/snippet}
             {#snippet empty()}No installed font matches. <kbd>Esc</kbd> clears the search.{/snippet}
           </List>

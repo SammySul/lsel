@@ -31,9 +31,12 @@ const shown = $derived(fonts.filter((f) => !prefs.value.hidden.includes(f.name))
 
 onMount(async () => {
   try {
-    const { loaded, removed } = await loadStored();
+    const { loaded, failed, removed } = await loadStored();
     fonts = loaded.map((name) => ({ name, kept: true }));
-    problems = removed.map((name) => `${name} could not be read as a font, so it was removed.`);
+    problems = [
+      ...removed.map((name) => `${name} held no font file, so it was removed.`),
+      ...failed.map((name) => `${name} is saved but could not be read as a font.`),
+    ];
   } catch {
     problems = ["This browser's storage is not available, so fonts can't be kept."];
   }

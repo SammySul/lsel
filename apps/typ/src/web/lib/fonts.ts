@@ -61,27 +61,46 @@ async function register(name: string, bytes: ArrayBuffer): Promise<void> {
   document.fonts.add(await new FontFace(name, bytes).load());
 }
 
+/** The record's font file, or undefined when it holds nothing a font could be read from. */
+async function payload(r: StoredFont): Promise<ArrayBuffer | undefined> {
+  if (r.bytes) return r.bytes;
+  if (r.blob) return r.blob.arrayBuffer();
+  if (!r.fontBase64) return undefined;
+  try {
+    return base64Bytes(r.fontBase64);
+  } catch {
+    return undefined;
+  }
+}
+
 /**
- * Registers every stored font with the page and deletes the records that can't be read as a
- * font; returns the names of both.
+ * Registers every stored font with the page and deletes the records that hold no font file.
+ * A font the browser won't load is kept: the browser may only be blocking fonts for now.
  */
-export async function loadStored(): Promise<{ loaded: string[]; removed: string[] }> {
+export async function loadStored(): Promise<{
+  loaded: string[];
+  failed: string[];
+  removed: string[];
+}> {
   const records = await run("readonly", (s) => s.getAll() as IDBRequest<StoredFont[]>);
   const loaded: string[] = [];
+  const failed: string[] = [];
   const removed: string[] = [];
   for (const r of records) {
     try {
-      if (r.bytes) await register(r.fontName, r.bytes);
-      else if (r.blob) await register(r.fontName, await r.blob.arrayBuffer());
-      else if (r.fontBase64) await register(r.fontName, base64Bytes(r.fontBase64));
-      else throw new Error("empty record");
-      loaded.push(r.fontName);
+      const bytes = await payload(r);
+      if (bytes === undefined) {
+        await remove(r.fontName);
+        removed.push(r.fontName);
+      } else {
+        await register(r.fontName, bytes);
+        loaded.push(r.fontName);
+      }
     } catch {
-      await remove(r.fontName);
-      removed.push(r.fontName);
+      failed.push(r.fontName);
     }
   }
-  return { loaded, removed };
+  return { loaded, failed, removed };
 }
 
 /** The name a file is shown and stored under: its name without the extension. */
