@@ -55,10 +55,10 @@ describes, fix or delete the note.
   keeps running instead of the dev shell's.
 - **Playwright with Nix's browsers:** `playwright-core` must equal the dev
   shell's `PLAYWRIGHT_DRIVER_VERSION`. The rest of its environment (lsel's
-  `web` dev shell) must come along to any other shell or runner, or the host check
-  fails and, on Linux, WebKit dies opening a page. `web` has only Chromium and
-  sets `BROWSERS=chromium`; `web-all-browsers` is for a project with code
-  specific to one browser.
+  dev shell) must come along to any other shell or runner, or the host check
+  fails and, on Linux, WebKit dies opening a page. `web` has only Chromium
+  (`BROWSERS=chromium`): a project with code for a Firefox or WebKit quirk takes
+  `web-all-browsers`, or that code goes untested.
 - Firefox logs "scroll-linked positioning effect" once per page whenever a
   scroll handler moves content: a test that fails on console warnings must
   ignore exactly that one.
