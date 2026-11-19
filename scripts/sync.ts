@@ -1,4 +1,5 @@
-// bun run sync [--check]: writes lsel's shared files into the template and every projects/<name>/ that has an lsel.json.
+// bun run sync [--check] [<project>…]: writes lsel's shared files into the templates and the named projects/<name>/
+// (every one with an lsel.json when none is named).
 // lsel.json: { "assets"?: "<dir>", "template": "web" | "extension", "files": ["<path>", …] }. The assets directory
 // belongs to lsel, so extra files there are removed (a project on @sammysul/lsel has none); each path in "files" is
 // kept identical to that template's file at the same path ("web" when no template is named).
@@ -7,6 +8,7 @@ import { dirname, join } from "node:path";
 
 const root = join(import.meta.dir, "..");
 const check = process.argv.includes("--check");
+const named = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 
 const built = Bun.spawnSync(["nix", "build", "--no-link", "--print-out-paths", ".#assets"], { cwd: root });
 if (built.exitCode !== 0) throw new Error(`nix build .#assets failed:\n${built.stderr}`);
@@ -14,7 +16,7 @@ const assets = built.stdout.toString().trim();
 const assetFiles = (await readdir(assets)).sort();
 
 const projects = (await readdir(join(root, "projects"), { withFileTypes: true }).catch(() => []))
-  .filter((d) => d.isDirectory())
+  .filter((d) => d.isDirectory() && (named.length === 0 || named.includes(d.name)))
   .map((d) => join("projects", d.name))
   .sort();
 
