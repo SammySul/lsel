@@ -251,8 +251,31 @@ for (const name of browsers()) {
         FontFace.prototype.load = () => Promise.reject(new DOMException("blocked", "NetworkError"));
       });
       await reload(page);
-      await page.getByText("No fonts yet.").waitFor();
-      expect(await alerts(page)).toEqual(["Fine is saved but could not be read as a font."]);
+      await page.getByText("can't be read").waitFor();
+      expect(await listed(page)).toEqual(["Fine"]);
+      expect(await stored(page)).toEqual(["Fine"]);
+    });
+
+    test("an unreadable saved font is listed with Remove, and removing it deletes it for good", async () => {
+      const { page } = await open();
+      await seed(page, [
+        { fontName: "Broken", bytes: [...Buffer.from("not a font")] },
+        { fontName: "Fine", bytes: [...FONT] },
+      ]);
+      await reload(page);
+      await page.getByLabel("Preview in Fine").waitFor();
+      expect(await listed(page)).toEqual(["Fine", "Broken"]);
+      expect(await page.getByText("can't be read").count()).toBe(1);
+      expect(await page.getByRole("checkbox").count()).toBe(1);
+      expect(await page.getByRole("alert").count()).toBe(0);
+      expect(await previews(page)).toEqual([["Preview in Fine", "16px"]]);
+
+      await page.getByRole("button", { name: "Remove Broken" }).click();
+      await page.getByText("can't be read").waitFor({ state: "detached" });
+      expect(await listed(page)).toEqual(["Fine"]);
+      await reload(page);
+      await page.getByLabel("Preview in Fine").waitFor();
+      expect(await listed(page)).toEqual(["Fine"]);
       expect(await stored(page)).toEqual(["Fine"]);
     });
 
@@ -269,8 +292,8 @@ for (const name of browsers()) {
       });
       await reload(page);
       await page.getByLabel("Preview in Fine").waitFor();
-      expect(await alerts(page)).toEqual(["Empty is saved but could not be read as a font."]);
-      expect(await listed(page)).toEqual(["Fine"]);
+      expect(await listed(page)).toEqual(["Fine", "Empty"]);
+      expect(await page.getByText("can't be read").count()).toBe(1);
     });
 
     test("an installed font is found and added from the keyboard, or with one click", async () => {

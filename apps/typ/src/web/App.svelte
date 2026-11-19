@@ -19,6 +19,8 @@ interface Font {
   name: string;
   /** Files are kept in this browser; installed fonts only for this visit. */
   kept: boolean;
+  /** False for a saved file the browser can't load: listed only so it can be removed. */
+  readable: boolean;
 }
 
 let fonts: Font[] = $state([]);
@@ -27,16 +29,16 @@ let ready = $state(false);
 let problems: string[] = $state([]);
 let fileInput: HTMLInputElement | undefined = $state();
 
-const shown = $derived(fonts.filter((f) => !prefs.value.hidden.includes(f.name)));
+const shown = $derived(fonts.filter((f) => f.readable && !prefs.value.hidden.includes(f.name)));
 
 onMount(async () => {
   try {
     const { loaded, failed, removed } = await loadStored();
-    fonts = loaded.map((name) => ({ name, kept: true }));
-    problems = [
-      ...removed.map((name) => `${name} held no font file, so it was removed.`),
-      ...failed.map((name) => `${name} is saved but could not be read as a font.`),
+    fonts = [
+      ...loaded.map((name) => ({ name, kept: true, readable: true })),
+      ...failed.map((name) => ({ name, kept: true, readable: false })),
     ];
+    problems = removed.map((name) => `${name} held no font file, so it was removed.`);
   } catch {
     problems = ["This browser's storage is not available, so fonts can't be kept."];
   }
@@ -66,7 +68,7 @@ async function addFiles(files: FileList | null) {
       kept = false;
       found.push(`${name} is shown for this visit only: the browser didn't let typ keep it.`);
     }
-    fonts = [...fonts, { name, kept }];
+    fonts = [...fonts, { name, kept, readable: true }];
     unhide(name);
   }
   problems = found;
@@ -80,7 +82,7 @@ async function addInstalled(family: string) {
   }
   try {
     await loadLocal(family);
-    fonts = [...fonts, { name: family, kept: false }];
+    fonts = [...fonts, { name: family, kept: false, readable: true }];
     unhide(family);
     problems = [];
   } catch {
@@ -151,15 +153,22 @@ keys(() => [
         <ul class="fonts" aria-label="Your fonts">
           {#each fonts as font (font.name)}
             <li class="lsel-appear">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={!prefs.value.hidden.includes(font.name)}
-                  onchange={() => toggle(font.name)}
-                />
-                <span class="name">{font.name}</span>
-                {#if !font.kept}<span class="tag">installed</span>{/if}
-              </label>
+              {#if font.readable}
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={!prefs.value.hidden.includes(font.name)}
+                    onchange={() => toggle(font.name)}
+                  />
+                  <span class="name">{font.name}</span>
+                  {#if !font.kept}<span class="tag">installed</span>{/if}
+                </label>
+              {:else}
+                <span class="font">
+                  <span class="name">{font.name}</span>
+                  <span class="tag unreadable">can't be read</span>
+                </span>
+              {/if}
               <button onclick={() => drop(font)} aria-label="Remove {font.name}">Remove</button>
             </li>
           {/each}
@@ -235,7 +244,8 @@ keys(() => [
     padding: var(--space-1) 0;
     border-bottom: var(--border);
   }
-  .fonts label {
+  .fonts label,
+  .font {
     display: flex;
     gap: var(--space-2);
     align-items: center;
@@ -249,6 +259,9 @@ keys(() => [
   .tag {
     color: var(--subtle);
     font-size: var(--text-xs);
+  }
+  .unreadable {
+    color: var(--error);
   }
   .problems {
     color: var(--error);
