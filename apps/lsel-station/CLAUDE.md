@@ -40,6 +40,9 @@ traps.
 - **Every send is `keepalive` and may outlive its page unanswered**: the
   link's `sent` and the service's `?sent=` settle it on the next load. Moving
   the link forward before an answer loses a save whose send failed.
+- **`pagehide` fires while the page is still visible**, before
+  `visibilitychange`: a send on close can't hinge on visibility. `sync.leave`
+  sends what's unsent, and is added after the game's own pagehide save.
 - A browser test that closes a page must wait on the service for its last send
   (`revision` in `e2e/saves.test.ts`): the page's ", synced" may be from before.
 - **The Hold caps each item at 500**: a sim test that runs past that (an hour

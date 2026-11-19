@@ -66,6 +66,8 @@ export function createSync(opts: {
   // the save as this page loaded it, before any catch-up moved it on
   const loadedAt = opts.latest().savedAt;
   let lastPush = 0;
+  // a save written since the last send began: closing the page sends it
+  let unsent = false;
   let busy = false;
   let again = false;
 
@@ -128,6 +130,7 @@ export function createSync(opts: {
     }
     busy = true;
     again = false;
+    unsent = false;
     lastPush = Date.now();
     const doc = opts.latest();
     // a send outlives its page, so one under way as the page closes still lands: `sent` lets the next load learn whether it did
@@ -217,9 +220,14 @@ export function createSync(opts: {
     /** After every save: sends it when the page is going away, or when the last send is a while ago. */
     saved(): void {
       if (link === null) return;
+      unsent = true;
       if (document.visibilityState === "hidden" || Date.now() - lastPush >= PUSH_EVERY_MS) {
         void push();
       }
+    },
+    /** On pagehide, after the game's own save: sends the latest save if it hasn't gone out. */
+    leave(): void {
+      if (unsent) void push();
     },
     syncNow: () =>
       status.kind === "conflict" ? Promise.resolve() : pull(false, opts.latest().savedAt),

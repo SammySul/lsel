@@ -286,6 +286,49 @@ for (const name of browsers()) {
     );
 
     test(
+      "a change made just after a send goes out when the tab closes at once",
+      async () => {
+        const now = Date.now();
+        // the clock stands still, so nothing new is saved as the page goes away
+        const first = await browser.newContext();
+        await first.clock.install({ time: now });
+        await first.clock.pauseAt(now + 1000);
+        const { page, problems } = await open(first, "?seed=7");
+        await page.keyboard.press("Enter");
+        await first.clock.fastForward(30_000);
+        await page.keyboard.press("o");
+        await page.getByRole("button", { name: "Turn on sync" }).click();
+        await page.getByText(/^Synced at/).waitFor();
+        const key = await page.locator("#key").inputValue();
+        const before = await revision(key);
+        // within 5 minutes of the last send, so only closing the page sends this
+        await page.keyboard.press("x");
+        expect(await texts(page, ".crew li")).toEqual(["Ana Petrov everything +3% › idle"]);
+        const quiet = await problems();
+        await page.close();
+        const until = Date.now() + 5000;
+        while ((await revision(key)) === before && Date.now() < until) await Bun.sleep(250);
+
+        const second = await browser.newContext();
+        const { page: other, problems: later } = await open(second, "?seed=8");
+        await other.keyboard.press("o");
+        await other.locator("#join").fill(key);
+        await other.getByRole("button", { name: "Link this device" }).click();
+        await other.getByRole("button", { name: "Use the synced one" }).click();
+        await other.getByText("Iron ore 10").waitFor();
+        expect([
+          (await revision(key)) - before,
+          await texts(other, ".crew li"),
+          quiet,
+          await later(),
+        ]).toEqual([1, ["Ana Petrov everything +3% › idle"], [], []]);
+        await first.close();
+        await second.close();
+      },
+      TIMEOUT,
+    );
+
+    test(
       "a save that cannot be read is kept aside, and a new game starts",
       async () => {
         const context = await browser.newContext();

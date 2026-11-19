@@ -71,7 +71,10 @@ const game = startGame({
   },
 });
 if (!untrack(() => readOnly)) void sync.start();
+// added after the game's own pagehide save, so it runs after it
+addEventListener("pagehide", sync.leave);
 onDestroy(() => {
+  removeEventListener("pagehide", sync.leave);
   game.stop();
   sound.stop();
   notices.stop();
