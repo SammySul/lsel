@@ -2,7 +2,7 @@
 import type { Snippet } from "svelte";
 import { flash } from "./flash.svelte.ts";
 import KeyHelp from "./KeyHelp.svelte";
-import { activeBindings, keyHelp, keyName, keys } from "./keys.svelte.ts";
+import { activeBindings, keyHelp, keyName, keys, keysOf } from "./keys.svelte.ts";
 import LoadingBar from "./LoadingBar.svelte";
 
 interface Props {
@@ -55,8 +55,8 @@ const hints = $derived(
     <p class="status" class:error={flash.error} role="status">{flash.text}</p>
     {#if hints.length > 0}
       <p class="hints">
-        {#each hints as b, i (b.label)}
-          {@const first = typeof b.key === "string" ? b.key : (b.key[0] ?? "")}
+        {#each hints as b, i (keysOf(b)[0])}
+          {@const first = keysOf(b)[0] ?? ""}
           {#if i > 0}{" · "}{/if}<kbd>{keyName(first)}</kbd> {b.label.toLowerCase()}
         {/each}
       </p>

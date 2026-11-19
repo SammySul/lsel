@@ -98,7 +98,7 @@ export async function check(root: string): Promise<Finding[]> {
   const out = await configFindings(root);
   for await (const path of files(root)) {
     const file = relative(root, path);
-    if (file.endsWith("tokens.css") && !file.startsWith("src/lib/")) {
+    if (file.endsWith("tokens.css")) {
       out.push({
         file,
         line: 1,

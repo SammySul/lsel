@@ -1,5 +1,6 @@
 <script lang="ts" generics="T">
 import type { Snippet } from "svelte";
+import Empty from "./Empty.svelte";
 import { keys } from "./keys.svelte.ts";
 
 interface Action {
@@ -11,7 +12,7 @@ interface Action {
 interface Props {
   items: readonly T[];
   id: (item: T) => string;
-  /** The selected item's id; the first item when unset or gone. */
+  /** The selected row's id, kept in step with what is shown; a row that goes away hands it on. */
   selected?: string | undefined;
   label: string;
   row: Snippet<[T, boolean]>;
@@ -40,13 +41,19 @@ let {
   hint = false,
 }: Props = $props();
 
-const index = $derived(
-  Math.max(
-    0,
-    items.findIndex((item) => id(item) === selected),
-  ),
-);
+// where the selection was, so a row that goes away hands it to its neighbor, not the first row
+let last = 0;
+const index = $derived.by(() => {
+  const found = items.findIndex((item) => id(item) === selected);
+  return found !== -1 ? found : Math.min(last, Math.max(0, items.length - 1));
+});
 const current = $derived(items[index]);
+
+$effect(() => {
+  last = index;
+  const shown = current === undefined ? undefined : id(current);
+  if (shown !== selected) selected = shown;
+});
 const rows: HTMLElement[] = $state([]);
 
 $effect(() => {
@@ -113,7 +120,7 @@ keys(() =>
 </script>
 
 {#if items.length === 0}
-  <p class="lsel-empty">{@render empty()}</p>
+  <Empty>{@render empty()}</Empty>
 {:else}
   {#if head}<div class="head" aria-hidden="true">{@render head()}</div>{/if}
   <ul class="lsel-list" aria-label={label}>
@@ -149,9 +156,5 @@ keys(() =>
   }
   li[aria-current="true"] {
     border-left-color: var(--accent);
-  }
-  .lsel-empty {
-    margin: 0;
-    color: var(--subtle);
   }
 </style>

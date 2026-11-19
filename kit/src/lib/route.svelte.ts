@@ -10,7 +10,7 @@ if (typeof window !== "undefined") {
   });
 }
 
-export function go(path: string): void {
+export function go(path: `/${string}`): void {
   route.path = path;
   location.hash = path;
 }

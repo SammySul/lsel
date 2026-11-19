@@ -12,7 +12,8 @@ test("numbers read the US way", () => {
 
 test("distances switch to km at a kilometer", () => {
   expect(distance(850)).toBe("850 m");
-  expect(distance(999.6)).toBe("1,000 m");
+  expect(distance(999.4)).toBe("999 m");
+  expect(distance(999.6)).toBe("1.0 km");
   expect(distance(1000)).toBe("1.0 km");
   expect(distance(12345)).toBe("12.3 km");
 });

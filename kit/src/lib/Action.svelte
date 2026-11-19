@@ -1,6 +1,7 @@
 <script lang="ts">
+import { onDestroy } from "svelte";
 import { begin } from "./activity.svelte.ts";
-import { keys } from "./keys.svelte.ts";
+import { keyName, keys } from "./keys.svelte.ts";
 
 interface Props {
   label: string;
@@ -22,6 +23,7 @@ type State = { kind: "idle" | "busy" | "done" } | { kind: "failed"; message: str
 
 let state = $state<State>({ kind: "idle" });
 let timer: ReturnType<typeof setTimeout> | undefined;
+onDestroy(() => clearTimeout(timer));
 
 function settle(next: State): void {
   state = next;
@@ -59,15 +61,17 @@ const text = $derived(
 keys(() => (key === undefined || disabled ? [] : [{ key, label, hint, run: () => void start() }]));
 </script>
 
+<!-- busy is aria-disabled, not disabled: disabling the focused button would drop focus -->
 <button
   type="button"
   class="lsel-action"
   class:failed={state.kind === "failed"}
-  disabled={disabled || state.kind === "busy"}
+  {disabled}
+  aria-disabled={state.kind === "busy"}
   aria-busy={state.kind === "busy"}
   onclick={start}
 >
-  {text}{#if shown !== undefined}{" "}<kbd>{shown}</kbd>{/if}
+  {text}{#if shown !== undefined}{" "}<kbd>{keyName(shown)}</kbd>{/if}
 </button>
 
 <style>

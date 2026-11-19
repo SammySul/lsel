@@ -3,12 +3,14 @@ import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import * as v from "valibot";
-import { handler, json, parseEnv, type Routes, resolveStatic } from "./index.ts";
+import { handler, json, parseEnv, type Routes } from "./index.ts";
 
 let web: string;
 beforeAll(() => {
-  web = join(mkdtempSync(join(tmpdir(), "web-")), "web");
+  const root = mkdtempSync(join(tmpdir(), "web-"));
+  web = join(root, "web");
   mkdirSync(join(web, "assets"), { recursive: true });
+  writeFileSync(join(root, "secret.txt"), "not for the web");
   writeFileSync(join(web, "index.html"), "<!doctype html><title>app</title>");
   writeFileSync(join(web, "assets", "app-abc.js"), "1");
 });
@@ -59,10 +61,18 @@ describe("static files", () => {
     ]).toEqual([404, 405, "GET, HEAD", 200, ""]);
   });
 
-  test("paths leaving the web root are refused", () => {
-    expect(resolveStatic("/srv/web", "/index.html")).toBe("/srv/web/index.html");
-    expect(resolveStatic("/srv/web", "/..%2f..%2fetc/passwd")).toBeNull();
-    expect(resolveStatic("/srv/web", "/index.html%00.js")).toBeNull();
+  test("paths leaving the web root are refused", async () => {
+    const answers = await Promise.all(
+      ["/..%2fsecret.txt", "/%2e%2e/secret.txt", "/index.html%00.js", "/%E0%A4%A"].map((p) =>
+        get(p),
+      ),
+    );
+    expect(answers.map((a) => [a.status, a.body])).toEqual([
+      [404, "not found"],
+      [404, "not found"],
+      [404, "not found"],
+      [404, "not found"],
+    ]);
   });
 });
 
@@ -92,12 +102,15 @@ describe("a project's routes", () => {
   });
 });
 
-test("a project's own CSP replaces the default on every response", async () => {
-  const csp = "default-src 'self'; style-src 'self' 'unsafe-inline'";
-  const h = handler(web, () => undefined, { csp });
+test("a project's CSP adds to the default, replacing directives by name, on every response", async () => {
+  const h = handler(web, () => undefined, {
+    csp: "style-src 'self' 'unsafe-inline'; frame-ancestors 'self'",
+  });
   const answers = await Promise.all(
     ["/", "/healthz", "/nope.js"].map((p) => h(new Request(`http://app.test${p}`))),
   );
+  const csp =
+    "default-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'self'; style-src 'self' 'unsafe-inline'";
   expect(answers.map((r) => [r.status, r.headers.get("content-security-policy")])).toEqual([
     [200, csp],
     [200, csp],

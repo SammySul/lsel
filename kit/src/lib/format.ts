@@ -11,8 +11,11 @@ export const plural = (n: number, one: string, many: string) =>
 
 export const percent = (share: number) => `${whole.format(share * 100)}%`;
 
+// decided on the rounded value, so 999.6 m doesn't print as "1,000 m"
 export const distance = (meters: number) =>
-  Math.abs(meters) < 1000 ? `${whole.format(meters)} m` : `${oneDecimal.format(meters / 1000)} km`;
+  Math.abs(Math.round(meters)) < 1000
+    ? `${whole.format(meters)} m`
+    : `${oneDecimal.format(meters / 1000)} km`;
 
 const pad = (n: number) => String(n).padStart(2, "0");
 
@@ -34,25 +37,33 @@ export function parseDate(value: string | number): Date | null {
 
 type Moment = Date | number;
 
-function parts(at: Moment, options: Intl.DateTimeFormatOptions, timeZone?: string) {
-  const all = new Intl.DateTimeFormat("en-US", {
-    ...options,
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-    ...(timeZone === undefined ? {} : { timeZone }),
-  }).formatToParts(at);
+const formatters = new Map<string, Intl.DateTimeFormat>();
+
+function parts(at: Moment, withDate: boolean, timeZone?: string) {
+  const name = `${withDate}:${timeZone ?? ""}`;
+  let format = formatters.get(name);
+  if (format === undefined) {
+    format = new Intl.DateTimeFormat("en-US", {
+      ...(withDate ? { month: "short", day: "numeric" } : {}),
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+      ...(timeZone === undefined ? {} : { timeZone }),
+    });
+    formatters.set(name, format);
+  }
+  const all = format.formatToParts(at);
   return (type: Intl.DateTimeFormatPartTypes) => all.find((p) => p.type === type)?.value ?? "";
 }
 
 /** "3:05 PM". */
 export function clock(at: Moment, timeZone?: string): string {
-  const part = parts(at, {}, timeZone);
+  const part = parts(at, false, timeZone);
   return `${part("hour")}:${part("minute")} ${part("dayPeriod")}`;
 }
 
 /** "Nov 18, 9:16 PM", from parts: engines join date and time differently ("Nov 18 at 9:16 PM"). */
 export function when(at: Moment, timeZone?: string): string {
-  const part = parts(at, { month: "short", day: "numeric" }, timeZone);
+  const part = parts(at, true, timeZone);
   return `${part("month")} ${part("day")}, ${part("hour")}:${part("minute")} ${part("dayPeriod")}`;
 }

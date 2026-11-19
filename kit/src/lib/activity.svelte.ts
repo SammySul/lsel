@@ -1,3 +1,6 @@
+/** How long a wait goes unshown, so a fast answer doesn't flash a waiting line or the bar. */
+export const DELAY = 300;
+
 /** How many things are waiting right now: requests, busy actions. The loading bar reads it. */
 export const activity = $state({ count: 0 });
 

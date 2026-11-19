@@ -1,6 +1,6 @@
 {
   "name": "@sammysul/lsel",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "lsel's look, components, keys, states, formats and server, shared by every project",
   "license": "MIT",
   "type": "module",
@@ -34,6 +34,7 @@
       "default": "./dist/format.js"
     },
     "./tokens.css": "./dist/assets/tokens.css",
+    "./assets/*": "./dist/assets/*",
     "./biome": "./config/biome.json",
     "./tsconfig.json": "./config/tsconfig.json"
   },

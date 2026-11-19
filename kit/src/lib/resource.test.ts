@@ -65,11 +65,9 @@ test("an error keeps the last answer, and reload asks again", async () => {
   );
   await tick();
   expect(r.value).toBe("answer 1");
-  r.reload();
-  await tick();
+  await r.reload();
   expect([r.value, r.error]).toEqual(["answer 1", "PUBG is rate limiting"]);
-  r.reload();
-  await tick();
+  await r.reload();
   expect([r.value, r.error]).toEqual(["answer 3", null]);
   stop();
 });
@@ -91,4 +89,23 @@ test("the loading bar's count rises while requests run and always returns to zer
   await tick();
   expect([activity.count, r.error]).toEqual([0, "down"]);
   stop();
+});
+
+test("a resource torn down mid-load sets no error and leaves nothing counted as waiting", async () => {
+  let calls = 0;
+  const { r, stop } = owned(() =>
+    resource(
+      (signal) =>
+        new Promise<string>((resolve, reject) => {
+          calls++;
+          if (calls === 1) resolve("first");
+          signal.addEventListener("abort", () => reject(new Error("aborted")));
+        }),
+    ),
+  );
+  await tick();
+  const reloaded = r.reload();
+  stop();
+  await reloaded;
+  expect([r.value, r.error, activity.count]).toEqual(["first", null, 0]);
 });

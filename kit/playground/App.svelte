@@ -49,7 +49,12 @@ const rows = resource(async () => {
 
 let search: HTMLInputElement | undefined = $state();
 keys(() =>
-  view === "list" ? [{ key: "/", label: "Search", hint: true, run: () => search?.focus() }] : [],
+  view === "list"
+    ? [
+        { key: "/", label: "Search", hint: true, run: () => search?.focus() },
+        { key: "o", label: "Open", run: () => say("Opened with o") },
+      ]
+    : [],
 );
 
 let form: HTMLElement | undefined = $state();

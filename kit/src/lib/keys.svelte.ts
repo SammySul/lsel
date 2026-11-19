@@ -26,7 +26,7 @@ const publish = () => {
   scopes = [...registry];
 };
 
-const keysOf = (b: Binding) => (typeof b.key === "string" ? [b.key] : b.key);
+export const keysOf = (b: Binding) => (typeof b.key === "string" ? [b.key] : b.key);
 
 const NOT_TYPING = new Set([
   "button",

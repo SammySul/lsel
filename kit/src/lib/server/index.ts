@@ -1,12 +1,23 @@
 import { isAbsolute, resolve, sep } from "node:path";
 import * as v from "valibot";
 
-export const SECURITY_HEADERS: Readonly<Record<string, string>> = {
-  "Content-Security-Policy":
-    "default-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'",
+const CSP = "default-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'";
+
+const SECURITY_HEADERS: Readonly<Record<string, string>> = {
+  "Content-Security-Policy": CSP,
   "X-Content-Type-Options": "nosniff",
   "Referrer-Policy": "no-referrer",
 };
+
+// a directive named twice in one policy is ignored the second time, so `extra` replaces by name
+function withCsp(extra: string): string {
+  const directives = new Map<string, string>();
+  for (const part of `${CSP}; ${extra}`.split(";")) {
+    const directive = part.trim();
+    if (directive !== "") directives.set(directive.split(/\s+/)[0] ?? directive, directive);
+  }
+  return [...directives.values()].join("; ");
+}
 
 export const respond = (
   body: BodyInit | null,
@@ -14,7 +25,7 @@ export const respond = (
   headers: Record<string, string> = {},
 ) => new Response(body, { status, headers: { ...SECURITY_HEADERS, ...headers } });
 
-export const text = (body: string, status: number) =>
+export const text = (body: string, status = 200) =>
   respond(body, status, { "Content-Type": "text/plain; charset=utf-8" });
 
 export const json = (body: unknown, status = 200) =>
@@ -24,7 +35,7 @@ export const json = (body: unknown, status = 200) =>
   });
 
 /** Null when `pathname` would leave `root`. */
-export function resolveStatic(root: string, pathname: string): string | null {
+function resolveStatic(root: string, pathname: string): string | null {
   let decoded: string;
   try {
     decoded = decodeURIComponent(pathname);
@@ -43,7 +54,7 @@ export type Routes = (
   url: URL,
 ) => Response | undefined | Promise<Response | undefined>;
 
-/** `csp` replaces the default policy on every response (CodeMirror needs inline styles). */
+/** `csp` adds directives to the default policy, replacing ones of the same name (CodeMirror's inline styles). */
 export function handler(
   staticDir: string,
   routes?: Routes,
@@ -67,16 +78,17 @@ export function handler(
         : "no-cache",
     });
   };
+  const policy = csp === undefined ? undefined : withCsp(csp);
   return async (req) => {
     const res = await answer(req);
-    if (csp !== undefined) res.headers.set("Content-Security-Policy", csp);
+    if (policy !== undefined) res.headers.set("Content-Security-Policy", policy);
     return res;
   };
 }
 
-export const envPrefix = (name: string) => name.toUpperCase().replaceAll("-", "_");
+const envPrefix = (name: string) => name.toUpperCase().replaceAll("-", "_");
 
-export type Extra<E extends v.ObjectEntries> = v.InferOutput<v.ObjectSchema<E, undefined>>;
+type Extra<E extends v.ObjectEntries> = v.InferOutput<v.ObjectSchema<E, undefined>>;
 export type Config<E extends v.ObjectEntries> = Extra<E> & {
   host: string;
   port: number;

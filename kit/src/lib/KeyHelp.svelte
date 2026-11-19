@@ -1,5 +1,5 @@
 <script lang="ts">
-import { activeBindings, keyHelp, keyName } from "./keys.svelte.ts";
+import { activeBindings, keyHelp, keyName, keysOf } from "./keys.svelte.ts";
 
 let dialog: HTMLDialogElement | undefined = $state();
 
@@ -21,8 +21,8 @@ $effect(() => {
 >
   <h2>Keys</h2>
   <dl>
-    {#each list as b (b.label)}
-      {@const all = typeof b.key === "string" ? [b.key] : b.key}
+    {#each list as b (keysOf(b)[0])}
+      {@const all = keysOf(b)}
       <dt>{#each all as k, i (k)}{#if i > 0}{" "}{/if}<kbd>{keyName(k)}</kbd>{/each}</dt>
       <dd>{b.label}</dd>
     {/each}

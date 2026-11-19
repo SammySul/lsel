@@ -1,8 +1,5 @@
 <script lang="ts">
-import { activity } from "./activity.svelte.ts";
-
-// the same delay as Status's waiting line, so a fast answer never flashes it
-const DELAY = 300;
+import { activity, DELAY } from "./activity.svelte.ts";
 
 let shown = $state(false);
 const waiting = $derived(activity.count > 0);

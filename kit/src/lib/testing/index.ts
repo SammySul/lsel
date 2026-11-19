@@ -13,8 +13,6 @@ import {
 import { version as playwrightVersion } from "playwright-core/package.json";
 import { handler, type Routes } from "../server/index.ts";
 
-export { registerSvelteModules } from "./svelte.ts";
-
 const TYPES: Readonly<Record<string, BrowserType>> = { chromium, firefox, webkit };
 
 /** `BROWSERS=chromium,firefox` picks; all three by default. Throws outside the dev shell. */
@@ -40,7 +38,7 @@ export function launch(name: string): Promise<Browser> {
 }
 
 /** Firefox's hint whenever a scroll handler moves content, once per page: not the app's problem. */
-export const isBrowserNoise = (m: ConsoleMessage) =>
+const isBrowserNoise = (m: ConsoleMessage) =>
   m.type() === "warning" && m.text().includes("scroll-linked positioning effect");
 
 /** Console warnings, errors and uncaught exceptions, but `ignore`; `take()` returns and clears them. */
@@ -79,7 +77,11 @@ export async function lselLook(page: Page): Promise<{ background: string; font: 
 }
 
 /** Call at a test file's top level; the result gives the address once the file's tests run. */
-export function serveBuilt(dist: string, routes?: Routes): () => string {
+export function serveBuilt(
+  dist: string,
+  routes?: Routes,
+  { csp }: { csp?: string } = {},
+): () => string {
   let server: ReturnType<typeof Bun.serve> | undefined;
   beforeAll(() => {
     if (!existsSync(join(dist, "index.html"))) {
@@ -87,7 +89,7 @@ export function serveBuilt(dist: string, routes?: Routes): () => string {
     }
     server = Bun.serve({
       port: 0,
-      fetch: handler(dist, routes),
+      fetch: handler(dist, routes, { csp }),
     });
   });
   afterAll(() => {
