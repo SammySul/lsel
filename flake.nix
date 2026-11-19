@@ -59,7 +59,22 @@
           pkgs = nixpkgs.legacyPackages.${system};
         in
         {
-          default = pkgs.mkShellNoCC { packages = [ pkgs.bun ]; };
+          default = pkgs.mkShellNoCC (
+            {
+              packages = [
+                pkgs.bun
+                pkgs.biome
+              ];
+              # kit/package.json's playwright-core must equal this driver's version
+              PLAYWRIGHT_BROWSERS_PATH = pkgs.playwright-driver.browsers;
+              PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1";
+              PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = "1";
+              PLAYWRIGHT_DRIVER_VERSION = pkgs.playwright-driver.version;
+            }
+            // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+              __EGL_VENDOR_LIBRARY_DIRS = "${pkgs.mesa}/share/glvnd/egl_vendor.d";
+            }
+          );
         }
       );
 
