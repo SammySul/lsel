@@ -45,5 +45,5 @@ file in `templates/`, commit, then `bun run sync <project>` and commit it there.
 
 ## Changing the palette or tokens
 
-Edit `theme/` and run `bun run test`; the package carries `tokens.css`, so
+Edit `theme/` and run `nix flake check`; the package carries `tokens.css` and the palette, so
 release it as above. `squares` follows with `nix flake update lsel`.

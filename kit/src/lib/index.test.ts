@@ -19,6 +19,7 @@ test("the package root loads in bun test and exports exactly its API", () => {
     "duration",
     "go",
     "keys",
+    "palette",
     "parseDate",
     "percent",
     "persisted",

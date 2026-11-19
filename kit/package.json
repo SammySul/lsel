@@ -1,11 +1,13 @@
 {
   "name": "@sammysul/lsel",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "lsel's look, components, keys, states, formats and server, shared by every project",
   "license": "MIT",
   "type": "module",
   "files": [
     "dist",
+    "!dist/**/*.test.*",
+    "!dist/**/*.fixture.*",
     "config"
   ],
   "sideEffects": [
@@ -41,7 +43,7 @@
   "scripts": {
     "assets": "bun scripts/assets.ts",
     "dev": "bun run assets && bun --bun vite",
-    "package": "bun run assets && svelte-package -i src/lib -o dist && bun scripts/bin.ts",
+    "package": "bun run assets && svelte-package -i src/lib -o dist",
     "build": "bun run assets && bun --bun vite build",
     "check": "bun run assets && tsc --noEmit && svelte-check --tsconfig ./tsconfig.json --output human && biome check .",
     "test": "bun --conditions=browser test ./src",

@@ -1,9 +1,10 @@
 // The text/background pairs DESIGN.md allows, held to WCAG AA (4.5:1) against the palette itself.
+// Runs as the flake's `contrast` check, which hands it the palette: `nix flake check`.
 import { expect, test } from "bun:test";
 
-const palette = JSON.parse(
-  Bun.spawnSync(["nix", "eval", "--json", ".#lib.palette"], { cwd: `${import.meta.dir}/..` }).stdout.toString(),
-) as Record<string, string>;
+const file = process.env.PALETTE;
+if (file === undefined) throw new Error("PALETTE names the palette's JSON: run `nix flake check`");
+const palette = (await Bun.file(file).json()) as Record<string, string>;
 
 function luminance(hex: string): number {
   const [r, g, b] = [1, 3, 5].map((i) => {

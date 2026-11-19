@@ -1,5 +1,6 @@
 <script lang="ts">
-import { onMount, type Snippet } from "svelte";
+import type { Snippet } from "svelte";
+import { palette } from "./assets/palette.ts";
 import { flash } from "./flash.svelte.ts";
 import KeyHelp from "./KeyHelp.svelte";
 import { activeBindings, keyHelp, keyName, keys, keysOf } from "./keys.svelte.ts";
@@ -32,20 +33,6 @@ let {
 
 keys(() => [{ key: "?", label: "List the keys", hint: true, run: () => (keyHelp.open = true) }]);
 
-// the browser's own chrome follows the palette, so no page repeats its base color
-onMount(() => {
-  let meta = document.querySelector('meta[name="theme-color"]');
-  if (meta === null) {
-    meta = document.createElement("meta");
-    meta.setAttribute("name", "theme-color");
-    document.head.append(meta);
-  }
-  meta.setAttribute(
-    "content",
-    getComputedStyle(document.documentElement).getPropertyValue("--base").trim(),
-  );
-});
-
 // `?` last: it leads to every other key
 const hints = $derived(
   activeBindings()
@@ -53,6 +40,11 @@ const hints = $derived(
     .toSorted((a, b) => Number(a.key === "?") - Number(b.key === "?")),
 );
 </script>
+
+<svelte:head>
+  <!-- the browser's own chrome follows the palette, so no page repeats its base color -->
+  <meta name="theme-color" content={palette.base} />
+</svelte:head>
 
 <main class="lsel-page" class:fill style:max-width="{width}px">
   <header>

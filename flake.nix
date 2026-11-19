@@ -43,13 +43,37 @@
                   (builtins.readFile ./scripts/favicon.py)
               );
 
-          # What the package ships: tokens.css, the two weights it loads, their license (kit/scripts/assets.ts).
+          # What the package ships: tokens.css, the palette as data, the fonts and their license (kit/scripts/assets.ts).
           assets = pkgs.runCommand "lsel-assets" { } ''
             mkdir -p $out
             cp ${pkgs.writeText "tokens.css" (import ./theme/tokens.nix palettes.rose-pine-moon)} $out/tokens.css
+            cp ${pkgs.writeText "palette.ts" ''
+              // Generated from lsel's theme/palettes.nix; ships in @sammysul/lsel.
+              export const palette = ${builtins.toJSON palettes.rose-pine-moon} as const;
+            ''} $out/palette.ts
             cp ${font}/fonts/webfonts/JetBrainsMono-Regular.woff2 ${font}/fonts/webfonts/JetBrainsMono-Bold.woff2 $out/
             cp ${font}/OFL.txt $out/OFL.txt
           '';
+        }
+      );
+
+      checks = forEachSystem (
+        system:
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        {
+          contrast =
+            pkgs.runCommand "lsel-contrast"
+              {
+                nativeBuildInputs = [ pkgs.bun ];
+                PALETTE = pkgs.writeText "palette.json" (builtins.toJSON palettes.rose-pine-moon);
+              }
+              ''
+                cp ${./theme/contrast.test.ts} contrast.test.ts
+                HOME=$TMPDIR bun test ./contrast.test.ts
+                touch $out
+              '';
         }
       );
 

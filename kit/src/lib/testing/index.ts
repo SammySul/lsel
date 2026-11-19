@@ -11,6 +11,7 @@ import {
   webkit,
 } from "playwright-core";
 import { version as playwrightVersion } from "playwright-core/package.json";
+import { palette } from "../assets/palette.ts";
 import { handler, type Routes } from "../server/index.ts";
 
 const TYPES: Readonly<Record<string, BrowserType>> = { chromium, firefox, webkit };
@@ -66,7 +67,11 @@ export function watchPage(page: Page, { ignore }: { ignore?: RegExp } = {}) {
   };
 }
 
-export const LSEL_LOOK = { background: "rgb(18, 18, 18)", font: true } as const;
+const rgb = (hex: string) =>
+  `rgb(${[1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16)).join(", ")})`;
+
+/** What `lselLook()` reads on a page drawn in lsel's look. */
+export const LSEL_LOOK = { background: rgb(palette.base), font: true } as const;
 
 export async function lselLook(page: Page): Promise<{ background: string; font: boolean }> {
   await page.evaluate(() => document.fonts.ready);
