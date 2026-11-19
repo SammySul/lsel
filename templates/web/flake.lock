@@ -55,11 +55,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1795111576,
-        "narHash": "sha256-0df+G2ULnRJqqBkOv8HT6Wwc5R8GhcwefBK6etlHFcI=",
+        "lastModified": 1795114440,
+        "narHash": "sha256-BS6l5ccp2MOuzFJAlmP3Mk77IE3Y/SzXjE4jmy5Aaa8=",
         "ref": "refs/heads/main",
-        "rev": "0cbed7202eee72319168f8f77511a72f7e858900",
-        "revCount": 2,
+        "rev": "0cc6787faec039d57d0595d5e7e36f88eaca6a90",
+        "revCount": 3,
         "type": "git",
         "url": "https://git.sammysul.com/SammySul/lsel-nix"
       },
