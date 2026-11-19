@@ -34,8 +34,8 @@ traps.
   game's own calls (`audioSpy`), never `ctx.state === "running"`.
 - In a sound test, `fastForward` is a catch-up, which is silent by design; use
   `runFor` for the few seconds of live play it needs.
-- **A send may outlive its page unanswered** (the one as the page goes away is
-  `keepalive`, which caps a body at 64 KiB): the link's `sent` and the
+- **A send may outlive its page unanswered** (every send under 64 KiB is
+  `keepalive`: any one may be in flight as the page closes): the link's `sent` and the
   service's `?sent=` settle it on the next load. Moving the link forward
   before an answer loses a save whose send failed.
 - **`pagehide` fires while the page is still visible**, before

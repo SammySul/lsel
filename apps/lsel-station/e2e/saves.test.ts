@@ -356,6 +356,48 @@ for (const name of browsers()) {
     );
 
     test(
+      "the send the closing page's own save starts, 5 minutes after the last, still lands",
+      async () => {
+        const now = Date.now();
+        const first = await browser.newContext();
+        await first.clock.install({ time: now });
+        await first.clock.pauseAt(now + 1000);
+        const { page, problems } = await open(first, "?seed=7");
+        await page.keyboard.press("Enter");
+        await first.clock.fastForward(30_000);
+        await page.keyboard.press("o");
+        await page.getByRole("button", { name: "Turn on sync" }).click();
+        await page.getByText(/^Synced at/).waitFor();
+        const key = await page.getByLabel("Save key").inputValue();
+        const before = await revision(key);
+        await page.keyboard.press("x");
+        // 6 minutes of idle ticks, with no save on the way: the save as the page closes starts the send
+        await first.clock.setSystemTime(now + 31_000 + 6 * 60_000);
+        await first.clock.fastForward(1000);
+        const quiet = await problems();
+        await page.close();
+        await moved(key, before);
+
+        const second = await browser.newContext();
+        const { page: other, problems: later } = await open(second, "?seed=8");
+        await other.keyboard.press("o");
+        await other.getByLabel("Or link this device with the key from another").fill(key);
+        await other.getByRole("button", { name: "Link this device" }).click();
+        await other.getByRole("button", { name: "Use the synced one" }).click();
+        await other.getByText("Iron ore 10").waitFor();
+        expect([
+          (await revision(key)) - before,
+          await texts(other, ".crew li"),
+          quiet,
+          await later(),
+        ]).toEqual([1, ["Ana Petrov everything +3% › idle"], [], []]);
+        await first.close();
+        await second.close();
+      },
+      TIMEOUT,
+    );
+
+    test(
       "sync stopped and turned on again while a send is out starts cleanly under the new key",
       async () => {
         const context = await browser.newContext();

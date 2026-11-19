@@ -7,6 +7,8 @@ import { readItem, writeItem } from "./storage.ts";
 const LINK = "lsel-station.sync";
 // besides when the page is put away, the save is sent at most this often
 const PUSH_EVERY_MS = 5 * 60_000;
+// under keepalive's 64 KiB, with room for the request's own headers
+const KEEPALIVE_MAX = 60_000;
 
 const Link = v.object({
   key: v.pipe(v.string(), v.regex(KEY_PATTERN)),
@@ -99,16 +101,18 @@ export function createSync(opts: {
   async function call(
     key: string,
     method: "GET" | "PUT",
-    request: { body?: unknown; keepalive?: boolean; query?: string } = {},
+    request: { body?: unknown; query?: string } = {},
   ): Promise<Reply> {
     const end = begin();
+    const body = request.body === undefined ? undefined : JSON.stringify(request.body);
     try {
       const path = id?.key === key ? id.id : await keyId(key);
       const response = await fetch(`/save/${path}${request.query ?? ""}`, {
         method,
-        keepalive: request.keepalive ?? false,
+        // any send may be the one the page closes on; keepalive refuses a body over 64 KiB
+        keepalive: body !== undefined && body.length <= KEEPALIVE_MAX,
         headers: { authorization: `Bearer ${key}`, "content-type": "application/json" },
-        ...(request.body === undefined ? {} : { body: JSON.stringify(request.body) }),
+        ...(body === undefined ? {} : { body }),
       });
       const json = response.headers.get("content-type") === "application/json";
       return { kind: "answer", status: response.status, body: json ? await response.json() : null };
@@ -136,7 +140,7 @@ export function createSync(opts: {
   }
 
   /** Sends this device's latest save, from the revision it last agreed with; one asked for meanwhile follows it. */
-  async function push(leaving = false): Promise<void> {
+  async function push(): Promise<void> {
     if (link === null || status.kind === "conflict") return;
     if (busy) {
       again = true;
@@ -150,10 +154,8 @@ export function createSync(opts: {
     const key = link.key;
     // a send may outlive its page unanswered: `sent` lets the next load learn whether it landed
     remember({ ...link, sent: doc.savedAt });
-    // only as the page goes away: keepalive caps a body at 64 KiB
     const reply = await call(key, "PUT", {
       body: { base: link.revision, data: exportString(doc) },
-      keepalive: leaving,
     });
     settle();
     // sync was stopped or moved to another key meanwhile: this answer is for nobody
@@ -245,12 +247,13 @@ export function createSync(opts: {
     saved(): void {
       if (link === null) return;
       unsent = true;
-      const hidden = document.visibilityState === "hidden";
-      if (hidden || Date.now() - lastPush >= PUSH_EVERY_MS) void push(hidden);
+      if (document.visibilityState === "hidden" || Date.now() - lastPush >= PUSH_EVERY_MS) {
+        void push();
+      }
     },
     /** On pagehide, after the game's own save: sends the latest save if it hasn't gone out. */
     leave(): void {
-      if (unsent) void push(true);
+      if (unsent) void push();
     },
     syncNow: () =>
       status.kind === "conflict" ? Promise.resolve() : pull(false, opts.latest().savedAt),
