@@ -186,7 +186,8 @@ export function createSync(opts: {
       remember({ key: link.key, revision, syncedAt: link.sent });
     }
     if (theirs.revision === link.revision) {
-      if (mine > link.syncedAt) return push();
+      // `again`: a save asked to be sent while this was reading
+      if (mine > link.syncedAt || again) return push();
       status = { kind: "synced", at: Date.now() };
       return;
     }

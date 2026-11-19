@@ -17,8 +17,9 @@ const address = serveBuilt(join(import.meta.dir, "../dist"), syncRoutes(openSave
 
 /** The synced save's revision, as the service holds it now. */
 async function revision(key: string): Promise<number> {
+  // its own address, so polling doesn't spend the pages' rate limit
   const response = await fetch(`${address()}/save/${await keyId(key)}`, {
-    headers: { authorization: `Bearer ${key}` },
+    headers: { authorization: `Bearer ${key}`, "cf-connecting-ip": "test" },
   });
   return ((await response.json()) as { revision: number }).revision;
 }
@@ -266,7 +267,7 @@ for (const name of browsers()) {
         const quiet = await problems();
         await other.close();
         // nobody waits for a send from a closed page, so the test waits for the service to have it
-        while ((await revision(key)) === before) await Bun.sleep(50);
+        while ((await revision(key)) === before) await Bun.sleep(500);
 
         // back on the first device, whose own save has not moved since it synced
         await first.clock.setSystemTime(now + 5 * 60_000);
