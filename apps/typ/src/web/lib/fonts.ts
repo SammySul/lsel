@@ -61,11 +61,14 @@ async function register(name: string, bytes: ArrayBuffer): Promise<void> {
   document.fonts.add(await new FontFace(name, bytes).load());
 }
 
-/** Registers every stored font with the page; returns the names that loaded and those that did not. */
-export async function loadStored(): Promise<{ loaded: string[]; failed: string[] }> {
+/**
+ * Registers every stored font with the page and deletes the records that can't be read as a
+ * font; returns the names of both.
+ */
+export async function loadStored(): Promise<{ loaded: string[]; removed: string[] }> {
   const records = await run("readonly", (s) => s.getAll() as IDBRequest<StoredFont[]>);
   const loaded: string[] = [];
-  const failed: string[] = [];
+  const removed: string[] = [];
   for (const r of records) {
     try {
       if (r.bytes) await register(r.fontName, r.bytes);
@@ -74,10 +77,11 @@ export async function loadStored(): Promise<{ loaded: string[]; failed: string[]
       else throw new Error("empty record");
       loaded.push(r.fontName);
     } catch {
-      failed.push(r.fontName);
+      await remove(r.fontName);
+      removed.push(r.fontName);
     }
   }
-  return { loaded, failed };
+  return { loaded, removed };
 }
 
 /** The name a file is shown and stored under: its name without the extension. */

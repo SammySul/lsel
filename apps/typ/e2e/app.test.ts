@@ -1,5 +1,5 @@
 // Run `bun run build` first.
-import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { afterAll, afterEach, beforeAll, describe, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
@@ -10,11 +10,11 @@ import {
   serveBuilt,
   watchPage,
 } from "@sammysul/lsel/testing";
-import type { Browser, Page } from "playwright-core";
+import type { Browser, BrowserContext, Page } from "playwright-core";
 
 const url = serveBuilt(join(import.meta.dir, "../dist"));
 const FONT = readFileSync(
-  join(import.meta.dir, "../node_modules/@sammysul/lsel/dist/assets/JetBrainsMono-Bold.woff2"),
+  Bun.resolveSync("@sammysul/lsel/assets/JetBrainsMono-Bold.woff2", import.meta.dir),
 );
 
 const fontFile = (name: string, buffer: Buffer = FONT) => ({
@@ -33,8 +33,14 @@ for (const name of browsers()) {
       await browser?.close();
     });
 
+    let ctx: BrowserContext | undefined;
+    afterEach(async () => {
+      await ctx?.close();
+      ctx = undefined;
+    });
+
     async function open(): Promise<{ page: Page; problems: () => Promise<string[]> }> {
-      const ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
+      ctx = await browser.newContext({ viewport: { width: 1280, height: 900 } });
       const page = await ctx.newPage();
       const watch = watchPage(page);
       await page.goto(url(), { waitUntil: "networkidle" });
@@ -143,15 +149,13 @@ for (const name of browsers()) {
       expect(await listed(page)).toEqual(["Probe"]);
     });
 
-    // The first typ stored a Blob, and before that a base64 data URL. WebKit's private mode,
-    // which Playwright uses, can't store Blobs, so the Blob record is left out there.
-    test("fonts saved by the first typ still load", async () => {
-      const { page, problems } = await open();
-      const old = [
-        { fontName: "Old Base64", fontBase64: `data:font/woff2;base64,${FONT.toString("base64")}` },
-        ...(name === "webkit" ? [] : [{ fontName: "Old Blob", blob: [...FONT] }]),
-      ];
-      await page.evaluate(
+    type Seed = { fontName: string } & (
+      | { fontBase64: string }
+      | { blob: number[] }
+      | { bytes: number[] }
+    );
+    const seed = (page: Page, records: Seed[]) =>
+      page.evaluate(
         (records) =>
           new Promise<void>((resolve, reject) => {
             const req = indexedDB.open("FontsDB", 1);
@@ -163,7 +167,9 @@ for (const name of browsers()) {
                 tx.objectStore("fonts").put(
                   "blob" in r
                     ? { fontName: r.fontName, blob: new Blob([new Uint8Array(r.blob)]) }
-                    : r,
+                    : "bytes" in r
+                      ? { fontName: r.fontName, bytes: new Uint8Array(r.bytes).buffer }
+                      : r,
                 );
               }
               tx.oncomplete = () => {
@@ -173,8 +179,18 @@ for (const name of browsers()) {
               tx.onerror = () => reject(tx.error);
             };
           }),
-        old,
+        records,
       );
+
+    // The first typ stored a Blob, and before that a base64 data URL. WebKit's private mode,
+    // which Playwright uses, can't store Blobs, so the Blob record is left out there.
+    test("fonts saved by the first typ still load", async () => {
+      const { page, problems } = await open();
+      const old = [
+        { fontName: "Old Base64", fontBase64: `data:font/woff2;base64,${FONT.toString("base64")}` },
+        ...(name === "webkit" ? [] : [{ fontName: "Old Blob", blob: [...FONT] }]),
+      ];
+      await seed(page, old);
       await reload(page);
       await page.getByLabel(`Preview in ${old.at(-1)?.fontName}`).waitFor();
       expect(await listed(page)).toEqual(old.map((r) => r.fontName));
@@ -184,6 +200,59 @@ for (const name of browsers()) {
           old.map((r) => r.fontName),
         ),
       ).toEqual(old.map(() => true));
+      expect(await problems()).toEqual([]);
+    });
+
+    test("a stored font that can't be read is removed, with one message", async () => {
+      const { page } = await open();
+      await seed(page, [
+        { fontName: "Broken", bytes: [...Buffer.from("not a font")] },
+        { fontName: "Fine", bytes: [...FONT] },
+      ]);
+      await reload(page);
+      await page.getByLabel("Preview in Fine").waitFor();
+      expect(await page.getByRole("alert").allTextContents()).toEqual([
+        "Broken could not be read as a font, so it was removed.",
+      ]);
+      expect(await listed(page)).toEqual(["Fine"]);
+
+      await reload(page);
+      await page.getByLabel("Preview in Fine").waitFor();
+      expect(await page.getByRole("alert").count()).toBe(0);
+      expect(await listed(page)).toEqual(["Fine"]);
+    });
+
+    test("an installed font is found and added from the keyboard", async () => {
+      const { page, problems } = await open();
+      await page.addInitScript((base64) => {
+        const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+        const face = (family: string) => ({
+          family,
+          style: "Regular",
+          blob: async () => new Blob([bytes]),
+        });
+        Object.assign(window, {
+          queryLocalFonts: async () => [face("Probe Sans"), face("Probe Serif"), face("Other")],
+        });
+      }, FONT.toString("base64"));
+      await reload(page);
+
+      await page.keyboard.press("i");
+      const search = page.getByRole("searchbox", { name: "Search installed fonts" });
+      await search.waitFor();
+      await page.keyboard.press("Escape");
+      await page.keyboard.press("/");
+      await expect(search.evaluate((el) => el === document.activeElement)).resolves.toBe(true);
+      await search.fill("probe");
+      await page.keyboard.press("ArrowDown");
+      await page.keyboard.press("Enter");
+      await page.getByLabel("Preview in Probe Serif").waitFor();
+      expect(await listed(page)).toEqual(["Probe Serif"]);
+
+      await page.keyboard.press("Escape");
+      await page.keyboard.press("Escape");
+      await page.keyboard.press("i");
+      await search.waitFor({ state: "detached" });
       expect(await problems()).toEqual([]);
     });
 

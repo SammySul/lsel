@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Empty, keys, Page } from "@sammysul/lsel";
+import { Action, Empty, keys, Page } from "@sammysul/lsel";
 import { onMount } from "svelte";
 import { version } from "../../package.json";
 import InstalledFonts from "./components/InstalledFonts.svelte";
@@ -22,31 +22,27 @@ interface Font {
 }
 
 let fonts: Font[] = $state([]);
-let hidden: string[] = $state(prefs.value.hidden);
-let size = $state(prefs.value.size);
 let text = $state(SAMPLE);
 let ready = $state(false);
 let problems: string[] = $state([]);
 let fileInput: HTMLInputElement | undefined = $state();
-let installed: InstalledFonts | undefined = $state();
-let installedOpen = $state(false);
 
-const shown = $derived(fonts.filter((f) => !hidden.includes(f.name)));
+const shown = $derived(fonts.filter((f) => !prefs.value.hidden.includes(f.name)));
 
 onMount(async () => {
   try {
-    const { loaded, failed } = await loadStored();
+    const { loaded, removed } = await loadStored();
     fonts = loaded.map((name) => ({ name, kept: true }));
-    problems = failed.map((name) => `${name} is saved but could not be read as a font.`);
+    problems = removed.map((name) => `${name} could not be read as a font, so it was removed.`);
   } catch {
     problems = ["This browser's storage is not available, so fonts can't be kept."];
   }
   ready = true;
 });
 
-$effect(() => {
-  prefs.value = { hidden, size };
-});
+function unhide(name: string) {
+  prefs.value.hidden = prefs.value.hidden.filter((h) => h !== name);
+}
 
 async function addFiles(files: FileList | null) {
   const found: string[] = [];
@@ -68,7 +64,7 @@ async function addFiles(files: FileList | null) {
       found.push(`${name} is shown for this visit only: the browser didn't let typ keep it.`);
     }
     fonts = [...fonts, { name, kept }];
-    hidden = hidden.filter((h) => h !== name);
+    unhide(name);
   }
   problems = found;
   if (fileInput) fileInput.value = "";
@@ -76,13 +72,13 @@ async function addFiles(files: FileList | null) {
 
 async function addInstalled(family: string) {
   if (fonts.some((f) => f.name === family)) {
-    hidden = hidden.filter((h) => h !== family);
+    unhide(family);
     return;
   }
   try {
     await loadLocal(family);
     fonts = [...fonts, { name: family, kept: false }];
-    hidden = hidden.filter((h) => h !== family);
+    unhide(family);
     problems = [];
   } catch {
     problems = [`${family} could not be loaded.`];
@@ -90,33 +86,28 @@ async function addInstalled(family: string) {
 }
 
 async function drop(font: Font) {
-  if (font.kept) await remove(font.name);
+  try {
+    if (font.kept) await remove(font.name);
+  } catch {
+    problems = [`${font.name} could not be removed from this browser's storage.`];
+    return;
+  }
   fonts = fonts.filter((f) => f !== font);
-  hidden = hidden.filter((h) => h !== font.name);
+  unhide(font.name);
 }
 
 function toggle(name: string) {
-  hidden = hidden.includes(name) ? hidden.filter((h) => h !== name) : [...hidden, name];
+  const { hidden } = prefs.value;
+  prefs.value.hidden = hidden.includes(name) ? hidden.filter((h) => h !== name) : [...hidden, name];
 }
 
 keys(() => [
-  { key: "a", label: "Add font files", hint: true, run: () => fileInput?.click() },
-  ...(localFontsSupported()
-    ? [
-        {
-          key: "i",
-          label: "Installed fonts",
-          run: () => {
-            if (installedOpen) installedOpen = false;
-            else void installed?.show();
-          },
-        },
-        { key: "/", label: "Search installed fonts", run: () => void installed?.show() },
-      ]
-    : []),
-  { key: "-", label: "Smaller", run: () => (size = clampSize(size - 2)) },
-  { key: ["=", "+"], label: "Larger", run: () => (size = clampSize(size + 2)) },
-  { key: "r", label: "Bring the sample text back", run: () => (text = SAMPLE) },
+  { key: "-", label: "Smaller", run: () => (prefs.value.size = clampSize(prefs.value.size - 2)) },
+  {
+    key: ["=", "+"],
+    label: "Larger",
+    run: () => (prefs.value.size = clampSize(prefs.value.size + 2)),
+  },
 ]);
 </script>
 
@@ -130,7 +121,7 @@ keys(() => [
 
   <div class="layout">
     <aside aria-label="Fonts">
-      <button onclick={() => fileInput?.click()}>Add font files <kbd>a</kbd></button>
+      <Action label="Add font files" key="a" hint run={() => fileInput?.click()} />
       <input
         bind:this={fileInput}
         class="file"
@@ -142,7 +133,7 @@ keys(() => [
         onchange={(e) => addFiles(e.currentTarget.files)}
       />
       {#if localFontsSupported()}
-        <InstalledFonts bind:this={installed} bind:open={installedOpen} onpick={addInstalled} />
+        <InstalledFonts onpick={addInstalled} />
       {/if}
 
       {#if problems.length > 0}
@@ -160,7 +151,7 @@ keys(() => [
               <label>
                 <input
                   type="checkbox"
-                  checked={!hidden.includes(font.name)}
+                  checked={!prefs.value.hidden.includes(font.name)}
                   onchange={() => toggle(font.name)}
                 />
                 <span class="name">{font.name}</span>
@@ -177,13 +168,11 @@ keys(() => [
       <div class="controls">
         <label class="size">
           Size
-          <input type="range" min={SIZE.min} max={SIZE.max} bind:value={size} />
-          <span class="px">{size} px</span>
+          <input type="range" min={SIZE.min} max={SIZE.max} bind:value={prefs.value.size} />
+          <span class="px">{prefs.value.size} px</span>
           <kbd>-</kbd><kbd>=</kbd>
         </label>
-        <button onclick={() => (text = SAMPLE)} disabled={text === SAMPLE}>
-          Reset text <kbd>r</kbd>
-        </button>
+        <Action label="Reset text" key="r" disabled={text === SAMPLE} run={() => (text = SAMPLE)} />
       </div>
 
       {#if shown.length === 0}
@@ -198,7 +187,7 @@ keys(() => [
                 spellcheck="false"
                 aria-label="Preview in {font.name}"
                 style:font-family={`"${font.name}", var(--font)`}
-                style:font-size={`${size}px`}
+                style:font-size={`${prefs.value.size}px`}
               ></textarea>
             </div>
           {/each}

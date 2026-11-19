@@ -9,4 +9,3 @@ traps.
   before that `fontBase64`) must keep loading; the e2e test covers both.
 - New records keep raw `bytes`: WebKit's private mode (Safari private windows,
   Playwright's WebKit) refuses Blobs in IndexedDB.
-- The server only serves `dist/`; there is no API.

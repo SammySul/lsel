@@ -1,4 +1,4 @@
 import { serve } from "@sammysul/lsel/server";
 import { name } from "../../package.json";
 
-serve({ name });
+serve({ name, port: 7200 });

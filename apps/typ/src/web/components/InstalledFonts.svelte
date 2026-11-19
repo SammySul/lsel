@@ -1,10 +1,11 @@
 <script lang="ts">
-import { Empty } from "@sammysul/lsel";
+import { keys, List } from "@sammysul/lsel";
+import { tick } from "svelte";
 import { localFamilies } from "../lib/fonts.ts";
 
-let { onpick, open = $bindable(false) }: { onpick: (family: string) => void; open?: boolean } =
-  $props();
+let { onpick }: { onpick: (family: string) => void } = $props();
 
+let open = $state(false);
 let families = $state<string[] | null>(null);
 let query = $state("");
 let error = $state<string | null>(null);
@@ -15,7 +16,7 @@ const shown = $derived(
 );
 
 /** Opens the list (asking the browser for the installed fonts the first time) and focuses its search. */
-export async function show() {
+async function show() {
   open = true;
   if (families === null) {
     try {
@@ -26,13 +27,19 @@ export async function show() {
       return;
     }
   }
-  queueMicrotask(() => search?.focus());
+  await tick();
+  search?.focus();
 }
 
 function toggle() {
   if (open) open = false;
   else void show();
 }
+
+keys(() => [
+  { key: "i", label: "Installed fonts", run: toggle },
+  { key: "/", label: "Search installed fonts", run: () => void show() },
+]);
 </script>
 
 <div class="installed">
@@ -53,13 +60,12 @@ function toggle() {
           placeholder="/ search"
           aria-label="Search installed fonts"
         />
-        <ul>
-          {#each shown as family (family)}
-            <li><button class="pick" onclick={() => onpick(family)}>{family}</button></li>
-          {:else}
-            <li><Empty>No installed font matches. <kbd>Esc</kbd> clears the search.</Empty></li>
-          {/each}
-        </ul>
+        <div class="families">
+          <List items={shown} id={(f) => f} label="Installed fonts" onopen={onpick}>
+            {#snippet row(family)}{family}{/snippet}
+            {#snippet empty()}No installed font matches. <kbd>Esc</kbd> clears the search.{/snippet}
+          </List>
+        </div>
       {/if}
     </div>
   {/if}
@@ -76,19 +82,9 @@ function toggle() {
     flex-direction: column;
     gap: var(--space-2);
   }
-  ul {
+  .families {
     max-height: 40vh;
-    margin: 0;
-    padding: 0;
     overflow-y: auto;
-    list-style: none;
-  }
-  .pick {
-    width: 100%;
-    text-align: left;
-  }
-  li + li {
-    margin-top: var(--space-1);
   }
   .note {
     margin: 0;
