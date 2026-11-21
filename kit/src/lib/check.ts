@@ -60,7 +60,7 @@ const RULES: readonly Rule[] = [
   {
     in: MARKUP,
     pattern: /<main[\s>]/,
-    message: "Page draws a page's main; Popup an extension's",
+    message: "Page draws the page's main",
   },
 ];
 

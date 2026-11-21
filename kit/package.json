@@ -22,11 +22,9 @@
     "./format": "./src/lib/format.ts",
     "./tokens.css": "./src/lib/assets/tokens.css",
     "./assets/*": "./src/lib/assets/*",
-    "./biome": "./config/biome.json",
     "./tsconfig.json": "./config/tsconfig.json"
   },
   "scripts": {
-    "assets": "bun scripts/assets.ts",
     "dev": "bun --bun vite",
     "build": "bun --bun vite build",
     "check": "tsc --noEmit && svelte-check --tsconfig ./tsconfig.json --output human",

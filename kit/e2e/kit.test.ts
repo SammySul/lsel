@@ -244,23 +244,6 @@ for (const name of browsers()) {
       expect(segment).toEqual({ animation: "none", full: true });
     });
 
-    test("a popup frames an extension: tabs, keys, the key list and its status line", async () => {
-      const page = await browser.newPage();
-      const watch = watchPage(page);
-      await page.goto(`${url()}#/popup`, { waitUntil: "networkidle" });
-      expect(await page.getByRole("heading", { level: 1 }).textContent()).toBe("kit popup");
-      await page.keyboard.press("2");
-      expect(await page.locator("p.lsel-empty").textContent()).toBe("Nothing saved yet.");
-      await page.keyboard.press("1");
-      await page.keyboard.press("c");
-      expect(await page.locator(".lsel-popup > [role=status]").textContent()).toBe("Copied");
-      await page.keyboard.press("?");
-      expect(
-        await page.getByRole("dialog", { name: "Keys" }).locator("dd").allTextContents(),
-      ).toEqual(["Copy the address", "Show page", "Show saved", "Close this list"]);
-      expect(await watch.take()).toEqual([]);
-    });
-
     test("an action says it worked, then rests; a failed one says so in red; a bad field is marked", async () => {
       const { page, problems } = await open();
       await page.keyboard.press("3");

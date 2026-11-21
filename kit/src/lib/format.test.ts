@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { clock, count, distance, duration, parseDate, percent, plural, when } from "./format.ts";
+import { clock, count, duration, percent, plural, when } from "./format.ts";
 
 test("numbers read the US way", () => {
   expect(count(12480)).toBe("12,480");
@@ -8,14 +8,6 @@ test("numbers read the US way", () => {
   expect(plural(1200, "match", "matches")).toBe("1,200 matches");
   expect(plural(0, "match", "matches")).toBe("0 matches");
   expect(percent(0.05)).toBe("5%");
-});
-
-test("distances switch to km at a kilometer", () => {
-  expect(distance(850)).toBe("850 m");
-  expect(distance(999.4)).toBe("999 m");
-  expect(distance(999.6)).toBe("1.0 km");
-  expect(distance(1000)).toBe("1.0 km");
-  expect(distance(12345)).toBe("12.3 km");
 });
 
 test("durations round down in the three shapes DESIGN.md names", () => {
@@ -32,9 +24,4 @@ test("times use a 12-hour clock and dates never say 'at'", () => {
   expect(clock(Date.UTC(2026, 0, 1, 0, 5), "UTC")).toBe("12:05 AM");
   expect(when(at, "UTC")).toBe("Nov 18, 9:16 PM");
   expect(when(new Date(at), "Europe/Berlin")).toBe("Nov 18, 10:16 PM");
-});
-
-test("dates from outside parse or come back null", () => {
-  expect(parseDate("2026-11-18T21:16:00Z")?.getTime()).toBe(Date.UTC(2026, 10, 18, 21, 16));
-  expect(parseDate("yesterday-ish")).toBeNull();
 });
