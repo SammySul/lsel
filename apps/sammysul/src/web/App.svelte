@@ -10,7 +10,12 @@ function open(project: Project): void {
 }
 </script>
 
-<Page {name} sub="Things I've built, and where they run." {version}>
+<Page
+  {name}
+  sub="Things I've built, and where they run."
+  {version}
+  source="https://git.sammysul.com/SammySul/lsel/src/branch/main/apps/sammysul"
+>
   <List items={projects} id={(p) => p.name} bind:selected label="Projects" onopen={open} hint>
     {#snippet row(project)}
       <span class="project">

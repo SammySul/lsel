@@ -120,7 +120,7 @@ keys(() => [
   name="typ"
   sub="Compare fonts side by side on your own text."
   {version}
-  source="https://git.sammysul.com/SammySul/typ"
+  source="https://git.sammysul.com/SammySul/lsel/src/branch/main/apps/typ"
   width={1600}
 >
 

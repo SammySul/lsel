@@ -639,7 +639,7 @@ for (const name of browsers()) {
         "https://yankwars.app/og.png",
       );
       expect(await attr('footer a[href*="git.sammysul.com"]', "href")).toBe(
-        "https://git.sammysul.com/SammySul/yank-wars",
+        "https://git.sammysul.com/SammySul/lsel/src/branch/main/apps/yank-wars",
       );
       const pkg = JSON.parse(readFileSync(join(import.meta.dir, "../../package.json"), "utf8"));
       expect(await text(page, "footer .version")).toBe(`v${pkg.version}`);

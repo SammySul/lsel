@@ -39,7 +39,7 @@ function toggle(player: string) {
   name="dajaj"
   sub="PUBG stats for the matches you all played"
   {version}
-  source="https://git.sammysul.com/SammySul/dajaj"
+  source="https://git.sammysul.com/SammySul/lsel/src/branch/main/apps/dajaj"
   width={1200}
 >
   <section class="controls" aria-label="Choices">

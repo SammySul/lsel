@@ -51,7 +51,7 @@ keys(() =>
   name="Yank Wars"
   sub="Vim golf against the clock. Fewest keys wins."
   {version}
-  source="https://git.sammysul.com/SammySul/yank-wars"
+  source="https://git.sammysul.com/SammySul/lsel/src/branch/main/apps/yank-wars"
   width={760}
 >
   <ol class="how">

@@ -147,7 +147,7 @@ keys(() => [
 ]);
 </script>
 
-<Page name="Lsel" {version} source="https://git.sammysul.com/SammySul/lsel-station" width={1600} fill>
+<Page name="Lsel" {version} source="https://git.sammysul.com/SammySul/lsel/src/branch/main/apps/lsel-station" width={1600} fill>
   {#snippet actions()}
     <ul class="stock">
       {#each stock as id (id)}
