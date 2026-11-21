@@ -1,0 +1,705 @@
+{
+  "vim": "9.2.1252",
+  "cases": {
+    "puzzle-api-url": {
+      "start": "const BASE = \"http://localhost:3000\";\nexport default BASE;",
+      "keys": "ci\"/api",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "const BASE = \"/api\";\nexport default BASE;",
+      "cursor": {
+        "line": 1,
+        "col": 19
+      },
+      "mode": "insert"
+    },
+    "puzzle-build-row": {
+      "start": "record = {\n    name\n    email\n    age\n}",
+      "keys": ":%s/\\w\\+$/\"&\": row[\"&\"],<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "record = {\n    \"name\": row[\"name\"],\n    \"email\": row[\"email\"],\n    \"age\": row[\"age\"],\n}",
+      "cursor": {
+        "line": 4,
+        "col": 5
+      },
+      "mode": "normal"
+    },
+    "puzzle-class-case": {
+      "start": "class user(base):\n    pass",
+      "keys": "w~f(l~",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "class User(Base):\n    pass",
+      "cursor": {
+        "line": 1,
+        "col": 13
+      },
+      "mode": "normal"
+    },
+    "puzzle-close-gap": {
+      "start": "import os\n\n\nimport sys",
+      "keys": "jdj",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "import os\nimport sys",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-comment-block": {
+      "start": "@cache\ndef load(path):\n    with open(path) as f:\n        text = f.read()\n    rows = text.splitlines()\n    return [r.split(\",\") for r in rows]",
+      "keys": "2jw<C-v>3jI#<Space><Esc>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "@cache\ndef load(path):\n    # with open(path) as f:\n    #     text = f.read()\n    # rows = text.splitlines()\n    # return [r.split(\",\") for r in rows]",
+      "cursor": {
+        "line": 3,
+        "col": 5
+      },
+      "mode": "normal"
+    },
+    "puzzle-count-to-eight": {
+      "start": "const ids = [\n  1,\n];",
+      "keys": "jqqyyp<C-a>q6@q",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "const ids = [\n  1,\n  2,\n  3,\n  4,\n  5,\n  6,\n  7,\n  8,\n];",
+      "cursor": {
+        "line": 9,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "puzzle-css-comment": {
+      "start": ".banner {\n  color: red;\n  margin: 0 auto;\n}",
+      "keys": "O/*<Esc>Go*/",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "/*\n.banner {\n  color: red;\n  margin: 0 auto;\n}\n*/",
+      "cursor": {
+        "line": 6,
+        "col": 3
+      },
+      "mode": "insert"
+    },
+    "puzzle-drop-debug": {
+      "start": "def total(xs):\n    s = 0\n    print(\"debug\", xs)\n    for x in xs:\n        s += x\n    return s",
+      "keys": "jjdd",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "def total(xs):\n    s = 0\n    for x in xs:\n        s += x\n    return s",
+      "cursor": {
+        "line": 3,
+        "col": 5
+      },
+      "mode": "normal"
+    },
+    "puzzle-drop-mut": {
+      "start": "fn main() {\n    let mut count = 0;\n    println!(\"{count}\");\n}",
+      "keys": "jwwdw",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "fn main() {\n    let count = 0;\n    println!(\"{count}\");\n}",
+      "cursor": {
+        "line": 2,
+        "col": 9
+      },
+      "mode": "normal"
+    },
+    "puzzle-drop-todo": {
+      "start": "function clamp(n, lo, hi) {\n  if (n < lo) return lo; // TODO: is this right?\n  return Math.min(n, hi);\n}",
+      "keys": "jf;lD",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "function clamp(n, lo, hi) {\n  if (n < lo) return lo;\n  return Math.min(n, hi);\n}",
+      "cursor": {
+        "line": 2,
+        "col": 24
+      },
+      "mode": "normal"
+    },
+    "puzzle-empty-body": {
+      "start": "func noop() {\n\tlog.Println(\"start\")\n\twork()\n}",
+      "keys": "jdi{",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "\t"
+      },
+      "doc": "func noop() {\n}",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-fewer-zeros": {
+      "start": "delay_ms = 10000",
+      "keys": "$2X",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "delay_ms = 100",
+      "cursor": {
+        "line": 1,
+        "col": 14
+      },
+      "mode": "normal"
+    },
+    "puzzle-five-seconds": {
+      "start": "var limits = Limits{\n\tRead:  0,\n\tWrite: 0,\n\tIdle:  0,\n}",
+      "keys": "jf0<C-v>jjr5",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "\t"
+      },
+      "doc": "var limits = Limits{\n\tRead:  5,\n\tWrite: 5,\n\tIdle:  5,\n}",
+      "cursor": {
+        "line": 2,
+        "col": 9
+      },
+      "mode": "normal"
+    },
+    "puzzle-fix-typo": {
+      "start": "The quick brown fox jumsp over the lazy dog.",
+      "keys": "fsxp",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "The quick brown fox jumps over the lazy dog.",
+      "cursor": {
+        "line": 1,
+        "col": 25
+      },
+      "mode": "normal"
+    },
+    "puzzle-full-width": {
+      "start": ".sidebar {\n  width: 100px;\n}",
+      "keys": "jfpxr%",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": ".sidebar {\n  width: 100%;\n}",
+      "cursor": {
+        "line": 2,
+        "col": 13
+      },
+      "mode": "normal"
+    },
+    "puzzle-indent-body": {
+      "start": "func greet(name string) string {\nmsg := \"hello, \" + name\nmsg += \"!\"\nreturn msg\n}",
+      "keys": "j3>>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "\t"
+      },
+      "doc": "func greet(name string) string {\n\tmsg := \"hello, \" + name\n\tmsg += \"!\"\n\treturn msg\n}",
+      "cursor": {
+        "line": 2,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "puzzle-join-lines": {
+      "start": "let v = vec![\n    1,\n    2,\n    3,\n];",
+      "keys": "Jx4JXx",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "let v = vec![1, 2, 3];",
+      "cursor": {
+        "line": 1,
+        "col": 21
+      },
+      "mode": "normal"
+    },
+    "puzzle-last-arg": {
+      "start": "const res = await fetch(url, opts, retries);",
+      "keys": "2f,dt)",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "const res = await fetch(url, opts);",
+      "cursor": {
+        "line": 1,
+        "col": 34
+      },
+      "mode": "normal"
+    },
+    "puzzle-make-async": {
+      "start": "class Client:\n    def fetch(self, url):\n        return get(url)",
+      "keys": "jIasync<Space>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "class Client:\n    async def fetch(self, url):\n        return get(url)",
+      "cursor": {
+        "line": 2,
+        "col": 11
+      },
+      "mode": "insert"
+    },
+    "puzzle-missing-commas": {
+      "start": "names = [\n    \"ada\"\n    \"linus\"\n    \"grace\"\n    \"barbara\"\n    \"margaret\"\n]",
+      "keys": "j<C-v>4j$A,<Esc>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "names = [\n    \"ada\",\n    \"linus\",\n    \"grace\",\n    \"barbara\",\n    \"margaret\",\n]",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-move-port": {
+      "start": "{\n  \"name\": \"api\",\n  \"port\": 8080,\n  \"debug\": false\n}",
+      "keys": "jj1010<C-a>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "{\n  \"name\": \"api\",\n  \"port\": 9090,\n  \"debug\": false\n}",
+      "cursor": {
+        "line": 3,
+        "col": 14
+      },
+      "mode": "normal"
+    },
+    "puzzle-no-comments": {
+      "start": "def area(w, h):\n    # width times height\n    result = w * h\n    # that's it\n    return result",
+      "keys": ":g/#/d<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "def area(w, h):\n    result = w * h\n    return result",
+      "cursor": {
+        "line": 3,
+        "col": 5
+      },
+      "mode": "normal"
+    },
+    "puzzle-number-steps": {
+      "start": "1. Clone\n1. Build\n1. Test",
+      "keys": "j<C-a>j2<C-a>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "1. Clone\n2. Build\n3. Test",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-one-per-line": {
+      "start": "apples, pears, plums, figs",
+      "keys": ":s/, /\\r/g<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "apples\npears\nplums\nfigs",
+      "cursor": {
+        "line": 4,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-optional-name": {
+      "start": "interface User {\n  id: number;\n  name: string;\n}",
+      "keys": "jjf:i?",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "interface User {\n  id: number;\n  name?: string;\n}",
+      "cursor": {
+        "line": 3,
+        "col": 8
+      },
+      "mode": "insert"
+    },
+    "puzzle-outdent": {
+      "start": "def run():\n        step_one()\n        step_two()",
+      "keys": "j2<lt><lt>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "def run():\n    step_one()\n    step_two()",
+      "cursor": {
+        "line": 2,
+        "col": 5
+      },
+      "mode": "normal"
+    },
+    "puzzle-plain-print": {
+      "start": "def report(msg):\n    print(msg, end=\"\", flush=True)",
+      "keys": "jf,dt)",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "def report(msg):\n    print(msg)",
+      "cursor": {
+        "line": 2,
+        "col": 14
+      },
+      "mode": "normal"
+    },
+    "puzzle-quote-keys": {
+      "start": "{\n  id: 7,\n  name: \"ada\",\n  admin: true\n}",
+      "keys": ":%s/\\w\\+/\"\\0\"/<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "{\n  \"id\": 7,\n  \"name\": \"ada\",\n  \"admin\": true\n}",
+      "cursor": {
+        "line": 4,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "puzzle-quote-name": {
+      "start": "const name = alice;\nconsole.log(name);",
+      "keys": "f;i\"<Esc>bi\"",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "const name = \"alice\";\nconsole.log(name);",
+      "cursor": {
+        "line": 1,
+        "col": 15
+      },
+      "mode": "insert"
+    },
+    "puzzle-quote-style": {
+      "start": "const names = ['ada', 'linus', 'grace'];\nconst greet = (n) => `hi ${n}`;\nexport default names.map(greet);",
+      "keys": ":s/'/\"/g<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "const names = [\"ada\", \"linus\", \"grace\"];\nconst greet = (n) => `hi ${n}`;\nexport default names.map(greet);",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-quote-words": {
+      "start": "[\n  apple,\n  pear,\n  plum\n]",
+      "keys": ":%s/\\w\\+/\"&\"<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "[\n  \"apple\",\n  \"pear\",\n  \"plum\"\n]",
+      "cursor": {
+        "line": 4,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "puzzle-rename-handler": {
+      "start": "func handle(w http.ResponseWriter, r *http.Request) {\n\tfmt.Fprintln(w, \"ok\")\n}",
+      "keys": "wcwserve",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "\t"
+      },
+      "doc": "func serve(w http.ResponseWriter, r *http.Request) {\n\tfmt.Fprintln(w, \"ok\")\n}",
+      "cursor": {
+        "line": 1,
+        "col": 11
+      },
+      "mode": "insert"
+    },
+    "puzzle-rename-res": {
+      "start": "async function load(url) {\n  const res = await fetch(url);\n  if (!res.ok) throw new Error(res.status);\n  return res.json();\n}",
+      "keys": ":%s/res/resp/g<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "async function load(url) {\n  const resp = await fetch(url);\n  if (!resp.ok) throw new Error(resp.status);\n  return resp.json();\n}",
+      "cursor": {
+        "line": 4,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "puzzle-rename-var": {
+      "start": "export function summarize(data: number[], meta: Meta): Summary {\n  const total = data.reduce((sum, n) => sum + n, 0);\n  const mean = data.length > 0 ? total / data.length : 0;\n  return {\n    metadata: meta,\n    stats: { total, mean },\n  };\n}",
+      "keys": ":%s/\\<lt>data\\>/payload/g<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "export function summarize(payload: number[], meta: Meta): Summary {\n  const total = payload.reduce((sum, n) => sum + n, 0);\n  const mean = payload.length > 0 ? total / payload.length : 0;\n  return {\n    metadata: meta,\n    stats: { total, mean },\n  };\n}",
+      "cursor": {
+        "line": 3,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "puzzle-reorder-rule": {
+      "start": ".card {\n  border: 0;\n  margin: 0;\n  color: red;\n  padding: 8px;\n}",
+      "keys": ":2,3m5<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": ".card {\n  color: red;\n  padding: 8px;\n  border: 0;\n  margin: 0;\n}",
+      "cursor": {
+        "line": 5,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "puzzle-same-margin": {
+      "start": ".btn {\n  padding: 4px;\n}",
+      "keys": "jyypcwmargin",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": ".btn {\n  padding: 4px;\n  margin: 4px;\n}",
+      "cursor": {
+        "line": 3,
+        "col": 9
+      },
+      "mode": "insert"
+    },
+    "puzzle-self-close": {
+      "start": "export function Loading() {\n  return <Spinner></Spinner>;\n}",
+      "keys": "jf>C />;",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "export function Loading() {\n  return <Spinner />;\n}",
+      "cursor": {
+        "line": 2,
+        "col": 22
+      },
+      "mode": "insert"
+    },
+    "puzzle-semicolons": {
+      "start": "let total = 0\ntotal += price\ntotal *= 1.2",
+      "keys": "A;<Esc>j.j.",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "let total = 0;\ntotal += price;\ntotal *= 1.2;",
+      "cursor": {
+        "line": 3,
+        "col": 13
+      },
+      "mode": "normal"
+    },
+    "puzzle-shebang-first": {
+      "start": "import sys\n\nprint(sys.argv)\n#!/usr/bin/env python3",
+      "keys": "G:m0<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "#!/usr/bin/env python3\nimport sys\n\nprint(sys.argv)",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-shout-constant": {
+      "start": "max_retries = 3\ntimeout = 10",
+      "keys": "gUiw",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "MAX_RETRIES = 3\ntimeout = 10",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-shout-sql": {
+      "start": "select id, name from users where active = 1",
+      "keys": "gUiw4w.2w.",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "SELECT id, name FROM users WHERE active = 1",
+      "cursor": {
+        "line": 1,
+        "col": 28
+      },
+      "mode": "normal"
+    },
+    "puzzle-show-result": {
+      "start": "x = 3\ny = 4\nx * x + y * y",
+      "keys": "GIprint(<Esc>A)",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "x = 3\ny = 4\nprint(x * x + y * y)",
+      "cursor": {
+        "line": 3,
+        "col": 21
+      },
+      "mode": "insert"
+    },
+    "puzzle-skip-two": {
+      "start": "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tfmt.Println(\"one\")\n\tfmt.Println(\"two\")\n\tfmt.Println(\"three\")\n}",
+      "keys": "7Gdd",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "\t"
+      },
+      "doc": "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tfmt.Println(\"one\")\n\tfmt.Println(\"three\")\n}",
+      "cursor": {
+        "line": 7,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "puzzle-sort-imports": {
+      "start": "package main\n\nimport (\n\t\"strings\"\n\t\"os\"\n\t\"fmt\"\n\t\"errors\"\n)",
+      "keys": ":4,7sor<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "\t"
+      },
+      "doc": "package main\n\nimport (\n\t\"errors\"\n\t\"fmt\"\n\t\"os\"\n\t\"strings\"\n)",
+      "cursor": {
+        "line": 4,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "puzzle-stdlib-first": {
+      "start": "from app import db\nimport os\nimport sys",
+      "keys": "ddGp",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "import os\nimport sys\nfrom app import db",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-swap-args": {
+      "start": "def area(width, height):\n    return width * height\n\nprint(area(3, 4))\nprint(area(10, 2))\nprint(area(7, 5))",
+      "keys": ":%s/(\\(\\w\\+\\), \\(\\w\\+\\))/(\\2, \\1)/<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "def area(height, width):\n    return width * height\n\nprint(area(4, 3))\nprint(area(2, 10))\nprint(area(5, 7))",
+      "cursor": {
+        "line": 6,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-swap-imports": {
+      "start": "import sys\nimport os\n\nprint(os.getcwd(), sys.argv)",
+      "keys": "ddp",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "import os\nimport sys\n\nprint(os.getcwd(), sys.argv)",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-uncomment": {
+      "start": "def get(key):\n    # if key in cache:\n    #     return cache[key]\n    return load(key)",
+      "keys": "j^2xj.",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "def get(key):\n    if key in cache:\n        return cache[key]\n    return load(key)",
+      "cursor": {
+        "line": 3,
+        "col": 5
+      },
+      "mode": "normal"
+    },
+    "puzzle-underline": {
+      "start": "Release notes\n\n- faster startup",
+      "keys": "yypVr=",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "Release notes\n=============\n\n- faster startup",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-wrap-in-call": {
+      "start": "count = len(items)\ntotal = sum(prices)\nratio = total / count",
+      "keys": "qaf=wistr(<Esc>A)<Esc>+q2@a",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "count = str(len(items))\ntotal = str(sum(prices))\nratio = str(total / count)",
+      "cursor": {
+        "line": 3,
+        "col": 26
+      },
+      "mode": "normal"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "id": "class-case",
+  "title": "Capital classes",
+  "difficulty": "easy",
+  "description": "Class names start with a capital letter.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "class user(base):\n    pass",
+  "target": "class User(Base):\n    pass",
+  "solution": "w~f(l~",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["case"]
+}

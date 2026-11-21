@@ -1,0 +1,17 @@
+{
+  "id": "outdent",
+  "title": "Too far in",
+  "difficulty": "easy",
+  "description": "The body takes one level of indent.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "def run():\n        step_one()\n        step_two()",
+  "target": "def run():\n    step_one()\n    step_two()",
+  "solution": "j2<lt><lt>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["indent"]
+}

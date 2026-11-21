@@ -1,0 +1,17 @@
+{
+  "id": "sort-imports",
+  "title": "Sort the imports",
+  "difficulty": "medium",
+  "description": "gofmt sorts the import block; do it by hand.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "package main\n\nimport (\n\t\"strings\"\n\t\"os\"\n\t\"fmt\"\n\t\"errors\"\n)",
+  "target": "package main\n\nimport (\n\t\"errors\"\n\t\"fmt\"\n\t\"os\"\n\t\"strings\"\n)",
+  "solution": ":4,7sor<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["ex", "sort"]
+}

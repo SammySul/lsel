@@ -1,0 +1,705 @@
+{
+  "vim": "9.2.1252",
+  "cases": {
+    "seed-word-motions": {
+      "start": "foo bar.baz qux",
+      "keys": "wwdw",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "foo barbaz qux",
+      "cursor": {
+        "line": 1,
+        "col": 8
+      },
+      "mode": "normal"
+    },
+    "seed-count-word-D": {
+      "start": "a b c d e f",
+      "keys": "3wD",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a b c ",
+      "cursor": {
+        "line": 1,
+        "col": 6
+      },
+      "mode": "normal"
+    },
+    "seed-f-semicolon": {
+      "start": "a,b,c,d",
+      "keys": "f,;;x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a,b,cd",
+      "cursor": {
+        "line": 1,
+        "col": 6
+      },
+      "mode": "normal"
+    },
+    "seed-percent": {
+      "start": "if (a(b)) { x }",
+      "keys": "f(%x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "if (a(b) { x }",
+      "cursor": {
+        "line": 1,
+        "col": 9
+      },
+      "mode": "normal"
+    },
+    "seed-count-G": {
+      "start": "1\n2\n3\n4\n5",
+      "keys": "3Gdd",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "1\n2\n4\n5",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-j-fails-on-last": {
+      "start": "ab\ncd",
+      "keys": "jjx",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "ab\nd",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-M": {
+      "start": "1\n2\n3\n4\n5\n6\n7",
+      "keys": "GMx",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "1\n2\n3\n\n5\n6\n7",
+      "cursor": {
+        "line": 4,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-count-dollar": {
+      "start": "abc\ndef\nghi",
+      "keys": "2$x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abc\nde\nghi",
+      "cursor": {
+        "line": 2,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "seed-ciw": {
+      "start": "foo(bar, baz)",
+      "keys": "fbciwX<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "foo(X, baz)",
+      "cursor": {
+        "line": 1,
+        "col": 5
+      },
+      "mode": "normal"
+    },
+    "seed-di-paren": {
+      "start": "f(a, (b), c)",
+      "keys": "fbdi(",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "f(a, (), c)",
+      "cursor": {
+        "line": 1,
+        "col": 7
+      },
+      "mode": "normal"
+    },
+    "seed-dap": {
+      "start": "a\nb\n\nc\nd",
+      "keys": "dap",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "c\nd",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-ct": {
+      "start": "key = value;",
+      "keys": "wwct;x<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "key = x;",
+      "cursor": {
+        "line": 1,
+        "col": 7
+      },
+      "mode": "normal"
+    },
+    "seed-dot-x": {
+      "start": "a1 a2 a3",
+      "keys": "xw.w.",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "1 2 3",
+      "cursor": {
+        "line": 1,
+        "col": 5
+      },
+      "mode": "normal"
+    },
+    "seed-shift-tab": {
+      "start": "a\nb",
+      "keys": ">>j>>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "\t"
+      },
+      "doc": "\ta\n\tb",
+      "cursor": {
+        "line": 2,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "seed-count-J": {
+      "start": "a\n  b\nc",
+      "keys": "3J",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a b c",
+      "cursor": {
+        "line": 1,
+        "col": 4
+      },
+      "mode": "normal"
+    },
+    "seed-gUiw": {
+      "start": "hello world",
+      "keys": "wgUiw",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "hello WORLD",
+      "cursor": {
+        "line": 1,
+        "col": 7
+      },
+      "mode": "normal"
+    },
+    "seed-Vc": {
+      "start": "a\nb\nc",
+      "keys": "Vjcx<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "x\nc",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-ddp-dot-undo": {
+      "start": "one\ntwo\nthree",
+      "keys": "ddp.ux",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "two\nne\nthree",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-ends-in-insert": {
+      "start": "abc",
+      "keys": "Ahello",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abchello",
+      "cursor": {
+        "line": 1,
+        "col": 9
+      },
+      "mode": "insert"
+    },
+    "seed-count-o": {
+      "start": "x",
+      "keys": "3ox<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "x\nx\nx\nx",
+      "cursor": {
+        "line": 4,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-insert-ctrl-w": {
+      "start": "foo bar",
+      "keys": "A baz<C-w><C-w>X<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "foo barX",
+      "cursor": {
+        "line": 1,
+        "col": 8
+      },
+      "mode": "normal"
+    },
+    "seed-insert-bs-joins": {
+      "start": "ab\ncd",
+      "keys": "jI<BS><BS>X<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "aXcd",
+      "cursor": {
+        "line": 1,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "seed-R-dot": {
+      "start": "abcdef",
+      "keys": "Rxy<Esc>l.",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "xyxyef",
+      "cursor": {
+        "line": 1,
+        "col": 4
+      },
+      "mode": "normal"
+    },
+    "seed-ends-in-replace": {
+      "start": "abcdef",
+      "keys": "lRZZ",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "aZZdef",
+      "cursor": {
+        "line": 1,
+        "col": 4
+      },
+      "mode": "replace"
+    },
+    "seed-block-I": {
+      "start": "ab\ncd\nef",
+      "keys": "<C-v>jjIZ<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "Zab\nZcd\nZef",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-block-dollar-A": {
+      "start": "a\nbcd\nef",
+      "keys": "<C-v>jj$A;<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a;\nbcd;\nef;",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-ends-in-visual": {
+      "start": "abc def",
+      "keys": "wve",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abc def",
+      "cursor": {
+        "line": 1,
+        "col": 7
+      },
+      "mode": "visual"
+    },
+    "seed-arrow-splits-undo": {
+      "start": "abc",
+      "keys": "iX<Left>Y<Esc>u",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "Xabc",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-ends-in-ctrl-o": {
+      "start": "abc",
+      "keys": "A<C-o>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abc",
+      "cursor": {
+        "line": 1,
+        "col": 3
+      },
+      "mode": "insert-normal"
+    },
+    "seed-ctrl-o-x-at-eol": {
+      "start": "abc",
+      "keys": "A<C-o>xZ<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abZ",
+      "cursor": {
+        "line": 1,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "seed-s-escaped-quotes": {
+      "start": "const a = ['x', 'y'];",
+      "keys": ":s/\\'/\\\"/g<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "const a = [\"x\", \"y\"];",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-s-group": {
+      "start": "a1\na2\nb3",
+      "keys": ":%s/a\\(\\d\\)/\\1x/<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "1x\n2x\nb3",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-g-d": {
+      "start": "x1\ny\nx2",
+      "keys": ":g/x/d<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "y",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-search-n": {
+      "start": "foo bar foo baz foo",
+      "keys": "/foo<CR>nx",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "foo bar foo baz oo",
+      "cursor": {
+        "line": 1,
+        "col": 17
+      },
+      "mode": "normal"
+    },
+    "seed-smartcase": {
+      "start": "Foo foo FOO",
+      "keys": "w/Foo<CR>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "oo foo FOO",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-star": {
+      "start": "abc x abc y abc",
+      "keys": "*x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abc x bc y abc",
+      "cursor": {
+        "line": 1,
+        "col": 7
+      },
+      "mode": "normal"
+    },
+    "seed-sort": {
+      "start": "c\na\nb",
+      "keys": ":sort<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a\nb\nc",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-norm-range": {
+      "start": "a\nb\nc",
+      "keys": ":%norm A;<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a;\nb;\nc;",
+      "cursor": {
+        "line": 3,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "seed-s-ampersand": {
+      "start": "ab",
+      "keys": ":s/a/[&]/<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "[a]b",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-ends-in-prompt": {
+      "start": "abc",
+      "keys": ":s/a",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abc",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "prompt"
+    },
+    "seed-ctrl-o-macro": {
+      "start": "abc\nabc",
+      "keys": "qqA<C-o>0X<Esc>jq@q",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "Xabc\nXabc",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-macro-count": {
+      "start": "a\nb\nc\nd",
+      "keys": "qaA,<Esc>jq3@a",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a,\nb,\nc,\nd,",
+      "cursor": {
+        "line": 4,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "seed-macro-abort": {
+      "start": "1\n2\n3\n4\n5\n6",
+      "keys": "jqqddjq3@q",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "1\n3\n5",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-named-register": {
+      "start": "one\ntwo",
+      "keys": "\"ayyj\"ap",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "one\ntwo\none",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-append-register": {
+      "start": "a\nb\nc",
+      "keys": "\"qyyj\"Qyyj\"qp",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a\nb\nc\na\nb",
+      "cursor": {
+        "line": 4,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-numbered-register": {
+      "start": "1\n2\n3",
+      "keys": "dddd\"2p",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "3\n1",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-undo-redo": {
+      "start": "abc",
+      "keys": "xxxuu<C-r>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "c",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-mark-line": {
+      "start": "a\nb\nc\nd",
+      "keys": "majjd'a",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "d",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-mark-char": {
+      "start": "abc def",
+      "keys": "wmb0d`b",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "def",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "seed-ctrl-a-hex": {
+      "start": "x 0x0f 7",
+      "keys": "<C-a>w<C-a>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "x 0x10 8",
+      "cursor": {
+        "line": 1,
+        "col": 8
+      },
+      "mode": "normal"
+    }
+  }
+}

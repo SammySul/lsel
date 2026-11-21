@@ -1,0 +1,28 @@
+{
+  "name": "@yank-wars/web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --bun vite",
+    "build": "bun --bun vite build",
+    "preview": "bun --bun vite preview",
+    "check": "bun --bun svelte-check --tsconfig ./tsconfig.json --output human"
+  },
+  "dependencies": {
+    "@codemirror/language": "catalog:",
+    "@codemirror/merge": "6.12.3",
+    "@codemirror/state": "catalog:",
+    "@codemirror/view": "catalog:",
+    "@lezer/highlight": "1.2.5",
+    "@sammysul/lsel": "0.5.3",
+    "@yank-wars/engine": "workspace:*",
+    "svelte": "5.57.3",
+    "valibot": "1.5.0"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "7.3.1",
+    "svelte-check": "4.7.7",
+    "typescript": "catalog:",
+    "vite": "8.3.5"
+  }
+}

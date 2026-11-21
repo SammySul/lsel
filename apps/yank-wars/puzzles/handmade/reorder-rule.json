@@ -1,0 +1,17 @@
+{
+  "id": "reorder-rule",
+  "title": "Reorder the rule",
+  "difficulty": "medium",
+  "description": "Move border and margin to the end.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".card {\n  border: 0;\n  margin: 0;\n  color: red;\n  padding: 8px;\n}",
+  "target": ".card {\n  color: red;\n  padding: 8px;\n  border: 0;\n  margin: 0;\n}",
+  "solution": ":2,3m5<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["ex"]
+}

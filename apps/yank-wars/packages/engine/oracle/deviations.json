@@ -1,0 +1,1649 @@
+{
+  "ci-backtick-paren-close": {
+    "group": "marks",
+    "engineDoc": "One Two. Three.",
+    "engineCursor": {
+      "line": 1,
+      "col": 4
+    },
+    "engineMode": "normal"
+  },
+  "ci-backtick-paren-open": {
+    "group": "marks",
+    "engineDoc": "One. Two. Three",
+    "engineCursor": {
+      "line": 1,
+      "col": 15
+    },
+    "engineMode": "normal"
+  },
+  "ci-backtick-para-end": {
+    "group": "marks",
+    "engineDoc": "\nb\n\nc",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ci-backtick-para-start": {
+    "group": "marks",
+    "engineDoc": "a\n\nb\n",
+    "engineCursor": {
+      "line": 4,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ci-quote-bracket-close": {
+    "group": "marks",
+    "engineDoc": "a\nb\nc\n",
+    "engineCursor": {
+      "line": 4,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ci-page-up": {
+    "group": "virtual-window",
+    "engineDoc": "l1\nl2\nl3\nl4\nl5\nl6\nl7\nl8\nl9\nl10\nl11\n12\nl13\nl14\nl15\nl16\nl17\nl18\nl19\nl20\nl21\nl22\nl23\nl24\nl25\nl26\nl27\nl28\nl29\nl30\nl31\nl32\nl33\nl34\nl35\nl36\nl37\nl38\nl39\nl40",
+    "engineCursor": {
+      "line": 12,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ci-s-up": {
+    "group": "virtual-window",
+    "engineDoc": "l1\nl2\nl3\nl4\nl5\nl6\nl7\nl8\nl9\nl10\nl11\n12\nl13\nl14\nl15\nl16\nl17\nl18\nl19\nl20\nl21\nl22\nl23\nl24\nl25\nl26\nl27\nl28\nl29\nl30\nl31\nl32\nl33\nl34\nl35\nl36\nl37\nl38\nl39\nl40",
+    "engineCursor": {
+      "line": 12,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ci-g-minus": {
+    "group": "undo-tree",
+    "engineDoc": "abc",
+    "engineCursor": {
+      "line": 1,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "ci-g-minus-twice": {
+    "group": "undo-tree",
+    "engineDoc": "abc",
+    "engineCursor": {
+      "line": 1,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "ci-g-minus-g-plus": {
+    "group": "undo-tree",
+    "engineDoc": "abc",
+    "engineCursor": {
+      "line": 1,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "ci-i-caret-ctrl-d": {
+    "group": "insert-ctrl",
+    "engineDoc": "  ab^x",
+    "engineCursor": {
+      "line": 1,
+      "col": 6
+    },
+    "engineMode": "normal"
+  },
+  "ci-c-esc-in-macro-executes": {
+    "group": "macro",
+    "engineDoc": "a\na",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "esr-search-gN": {
+    "group": "other",
+    "engineDoc": " a foo",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "esr-re-newline-join-all": {
+    "group": "cursor",
+    "engineDoc": "abc",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "irv-count-O": {
+    "group": "cursor",
+    "engineDoc": "a\nX\nX\nX\nb",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "irv-dot-ctrl-u": {
+    "group": "dot-repeat",
+    "engineDoc": "fooq\nfoobq",
+    "engineCursor": {
+      "line": 2,
+      "col": 5
+    },
+    "engineMode": "normal"
+  },
+  "irv-dot-ctrl-r": {
+    "group": "dot-repeat",
+    "engineDoc": "foo\nxfoo\nfooy",
+    "engineCursor": {
+      "line": 3,
+      "col": 4
+    },
+    "engineMode": "normal"
+  },
+  "irv-gi-no-mark": {
+    "group": "gi-gv",
+    "engineDoc": "xabc",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "irv-gi-after-dd-above": {
+    "group": "gi-gv",
+    "engineDoc": "ybx\nc",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "irv-gi-mid-insert-left": {
+    "group": "gi-gv",
+    "engineDoc": "abcdxy",
+    "engineCursor": {
+      "line": 1,
+      "col": 6
+    },
+    "engineMode": "normal"
+  },
+  "irv-gi-dot": {
+    "group": "gi-gv",
+    "engineDoc": "axyyb\ncd",
+    "engineCursor": {
+      "line": 1,
+      "col": 4
+    },
+    "engineMode": "normal"
+  },
+  "irv-ctrl-d-odd-indent": {
+    "group": "insert-ctrl",
+    "engineDoc": " abx",
+    "engineCursor": {
+      "line": 1,
+      "col": 4
+    },
+    "engineMode": "normal"
+  },
+  "irv-ctrl-d-zero": {
+    "group": "insert-ctrl",
+    "engineDoc": "  ab0x",
+    "engineCursor": {
+      "line": 1,
+      "col": 6
+    },
+    "engineMode": "normal"
+  },
+  "irv-ctrl-r-ctrl-r": {
+    "group": "insert-ctrl",
+    "engineDoc": "foo bara",
+    "engineCursor": {
+      "line": 1,
+      "col": 8
+    },
+    "engineMode": "normal"
+  },
+  "irv-ctrl-a": {
+    "group": "insert-ctrl",
+    "engineDoc": "abxy\ncd",
+    "engineCursor": {
+      "line": 2,
+      "col": 2
+    },
+    "engineMode": "normal"
+  },
+  "irv-ctrl-a-twice": {
+    "group": "insert-ctrl",
+    "engineDoc": "xya",
+    "engineCursor": {
+      "line": 1,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "irv-ctrl-at": {
+    "group": "insert-ctrl",
+    "engineDoc": "abxy\ncd",
+    "engineCursor": {
+      "line": 2,
+      "col": 3
+    },
+    "engineMode": "insert"
+  },
+  "irv-ctrl-n-word": {
+    "group": "insert-keys",
+    "engineDoc": "foobar\nf",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "irv-ctrl-p-word": {
+    "group": "insert-keys",
+    "engineDoc": "foobar fizz\nf",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "irv-ctrl-o-p": {
+    "group": "cursor",
+    "engineDoc": "foo bfooar",
+    "engineCursor": {
+      "line": 1,
+      "col": 7
+    },
+    "engineMode": "normal"
+  },
+  "irv-ctrl-o-P": {
+    "group": "cursor",
+    "engineDoc": "foo foobar",
+    "engineCursor": {
+      "line": 1,
+      "col": 6
+    },
+    "engineMode": "normal"
+  },
+  "irv-down-down-curswant": {
+    "group": "insert-ctrl",
+    "engineDoc": "abcdef\na\naxbcdef",
+    "engineCursor": {
+      "line": 3,
+      "col": 2
+    },
+    "engineMode": "normal"
+  },
+  "irv-down-down-mid-curswant": {
+    "group": "insert-ctrl",
+    "engineDoc": "abcxdef\na\naybcdef",
+    "engineCursor": {
+      "line": 3,
+      "col": 2
+    },
+    "engineMode": "normal"
+  },
+  "irv-R-BS-restores": {
+    "group": "replace-bs",
+    "engineDoc": "xyzdef",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "irv-R-BS-past-end-restores": {
+    "group": "replace-bs",
+    "engineDoc": "axyz",
+    "engineCursor": {
+      "line": 1,
+      "col": 2
+    },
+    "engineMode": "normal"
+  },
+  "irv-R-ctrl-w": {
+    "group": "replace-bs",
+    "engineDoc": "abc z",
+    "engineCursor": {
+      "line": 1,
+      "col": 5
+    },
+    "engineMode": "normal"
+  },
+  "irv-R-ctrl-o": {
+    "group": "replace-mode",
+    "engineDoc": "xbycdef",
+    "engineCursor": {
+      "line": 1,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "irv-R-ctrl-r": {
+    "group": "replace-mode",
+    "engineDoc": "foo foobar",
+    "engineCursor": {
+      "line": 1,
+      "col": 7
+    },
+    "engineMode": "normal"
+  },
+  "irv-v-a-quote": {
+    "group": "visual",
+    "engineDoc": "say  now",
+    "engineCursor": {
+      "line": 1,
+      "col": 5
+    },
+    "engineMode": "normal"
+  },
+  "irv-v-P-keeps-register": {
+    "group": "registers",
+    "engineDoc": "a a b",
+    "engineCursor": {
+      "line": 1,
+      "col": 5
+    },
+    "engineMode": "normal"
+  },
+  "irv-gv-linewise": {
+    "group": "gi-gv",
+    "engineDoc": "\nc",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "irv-gv-block": {
+    "group": "visual-block",
+    "engineDoc": "f",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "irv-v-dot-multiline": {
+    "group": "visual",
+    "engineDoc": "a\nh",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "irv-v-dot-r": {
+    "group": "visual",
+    "engineDoc": "xxcd\nxbcd",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "irv-V-count": {
+    "group": "visual",
+    "engineDoc": "b\nc\nd",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "irv-V-gv-dot": {
+    "group": "gi-gv",
+    "engineDoc": "\nb\nc",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "irv-b-p-charwise-reg": {
+    "group": "visual-block",
+    "engineDoc": "x\nax\nc",
+    "engineCursor": {
+      "line": 2,
+      "col": 2
+    },
+    "engineMode": "normal"
+  },
+  "irv-b-p-block-reg": {
+    "group": "visual-block",
+    "engineDoc": "ab\ncd\nea\ng\n",
+    "engineCursor": {
+      "line": 3,
+      "col": 2
+    },
+    "engineMode": "normal"
+  },
+  "irv-b-p-linewise-reg": {
+    "group": "visual-block",
+    "engineDoc": "x\n\nx\nb\nd",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "irv-b-r-dot": {
+    "group": "visual-block",
+    "engineDoc": "xxcd\nxxcd\nxbcd",
+    "engineCursor": {
+      "line": 3,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-v-d-dot": {
+    "group": "visual",
+    "engineDoc": "  aL mnOP\n  qrST uvWX\n  ",
+    "engineCursor": {
+      "line": 3,
+      "col": 2
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-v-x-dot": {
+    "group": "visual",
+    "engineDoc": "  aL mnOP\n  qrST uvWX\n  ",
+    "engineCursor": {
+      "line": 3,
+      "col": 2
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-v-c-dot": {
+    "group": "visual",
+    "engineDoc": "  a_L mnOP\n  qrST uvWX\n  _",
+    "engineCursor": {
+      "line": 3,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-v-s-dot": {
+    "group": "visual",
+    "engineDoc": "  a_L mnOP\n  qrST uvWX\n  _",
+    "engineCursor": {
+      "line": 3,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-v-r-dot": {
+    "group": "visual",
+    "engineDoc": "  a########\n#####L mnOP\n  qrST uvWX\n  #z12 34Z6",
+    "engineCursor": {
+      "line": 4,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-v-tilde-dot": {
+    "group": "visual",
+    "engineDoc": "  aBcd EFgh\n  IJkL mnOP\n  qrST uvWX\n  YZ12 34z6",
+    "engineCursor": {
+      "line": 4,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-v-u-dot": {
+    "group": "visual",
+    "engineDoc": "  abcd efgh\n  ijkL mnOP\n  qrST uvWX\n  yz12 34z6",
+    "engineCursor": {
+      "line": 4,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-v-gtilde-dot": {
+    "group": "visual",
+    "engineDoc": "  aBcd EFgh\n  IJkL mnOP\n  qrST uvWX\n  YZ12 34z6",
+    "engineCursor": {
+      "line": 4,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-v-gu-dot": {
+    "group": "visual",
+    "engineDoc": "  abcd efgh\n  ijkL mnOP\n  qrST uvWX\n  yz12 34z6",
+    "engineCursor": {
+      "line": 4,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-v-rot13-dot": {
+    "group": "visual",
+    "engineDoc": "  aoPQ rsTU\n  vwXL mnOP\n  qrST uvWX\n  lm12 34M6",
+    "engineCursor": {
+      "line": 4,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-v-A-one": {
+    "group": "visual",
+    "engineDoc": " _ abCD efGH\n  ijKL mnOP\n  qrST uvWX\n  yz12 34Z6",
+    "engineCursor": {
+      "line": 1,
+      "col": 2
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-v-A-dollar": {
+    "group": "visual",
+    "engineDoc": "  abCD efGH\n  ijKL mnOP_\n  qrST uvWX\n  yz12 34Z6",
+    "engineCursor": {
+      "line": 2,
+      "col": 12
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-v-A-dot": {
+    "group": "visual",
+    "engineDoc": "  abCD efGH\n  ijK_L mnOP\n  qrST uvWX\n  _yz12 34Z6",
+    "engineCursor": {
+      "line": 4,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-v-p-dollar": {
+    "group": "visual",
+    "engineDoc": "  34Z6\n  qrST uvWX\n  yz12 34Z6",
+    "engineCursor": {
+      "line": 1,
+      "col": 6
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-v-p-dot": {
+    "group": "visual",
+    "engineDoc": "  a34Z6L mnOP\n  qrST uvWX\n  ybCD efGH\n  ijKz12 34Z6",
+    "engineCursor": {
+      "line": 3,
+      "col": 4
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-v-P-dollar": {
+    "group": "visual",
+    "engineDoc": "  34Z6\n  qrST uvWX\n  yz12 34Z6",
+    "engineCursor": {
+      "line": 1,
+      "col": 6
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-v-P-dot": {
+    "group": "visual",
+    "engineDoc": "  a34Z6L mnOP\n  qrST uvWX\n  bCD efGH\n  ijKyz12 34Z6",
+    "engineCursor": {
+      "line": 3,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-V-r-dot": {
+    "group": "visual",
+    "engineDoc": "###########\n###########\n  qrST uvWX\n  #z12 34Z6",
+    "engineCursor": {
+      "line": 4,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-V-A-one": {
+    "group": "visual",
+    "engineDoc": " _ abCD efGH\n  ijKL mnOP\n  qrST uvWX\n  yz12 34Z6",
+    "engineCursor": {
+      "line": 1,
+      "col": 2
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-V-A-dollar": {
+    "group": "visual",
+    "engineDoc": "  abCD efGH\n  ijKL mnOP_\n  qrST uvWX\n  yz12 34Z6",
+    "engineCursor": {
+      "line": 2,
+      "col": 12
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-V-A-dot": {
+    "group": "visual",
+    "engineDoc": "  abCD efGH\n  ijK_L mnOP\n  qrST uvWX\n  _yz12 34Z6",
+    "engineCursor": {
+      "line": 4,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-V-p-dot": {
+    "group": "visual",
+    "engineDoc": "34Z6\n  qrST uvWX\n  y  abCD efGH\n  ijKL mnOPz12 34Z6",
+    "engineCursor": {
+      "line": 3,
+      "col": 4
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-V-P-dot": {
+    "group": "visual",
+    "engineDoc": "34Z6\n  qrST uvWX\n    abCD efGH\n  ijKL mnOPyz12 34Z6",
+    "engineCursor": {
+      "line": 3,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-b-r-dot": {
+    "group": "visual-block",
+    "engineDoc": "  a##D efGH\n  i##L mnOP\n  qrST uvWX\n  #z12 34Z6",
+    "engineCursor": {
+      "line": 4,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-b-p-word": {
+    "group": "visual-block",
+    "engineDoc": "  34Z6 efGH\n  ijKL mnOP\n  qrST uvWX\n  yz12 34Z6",
+    "engineCursor": {
+      "line": 1,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-b-p-twoline": {
+    "group": "visual-block",
+    "engineDoc": "  a34Z6D efGH\n  iL mnOP\n  qrST uvWX\n  yz12 34Z6",
+    "engineCursor": {
+      "line": 1,
+      "col": 4
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-b-p-one": {
+    "group": "visual-block",
+    "engineDoc": "34Z6 abCD efGH\n  ijKL mnOP\n  qrST uvWX\n  yz12 34Z6",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-b-p-dollar": {
+    "group": "visual-block",
+    "engineDoc": "  34Z6\n  \n  qrST uvWX\n  yz12 34Z6",
+    "engineCursor": {
+      "line": 1,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-b-p-dot": {
+    "group": "visual-block",
+    "engineDoc": "  a34Z6D efGH\n  iL mnOP\n  qrST uvWX\n  ybC\njKz12 34Z6",
+    "engineCursor": {
+      "line": 4,
+      "col": 4
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-b-P-word": {
+    "group": "visual-block",
+    "engineDoc": "  34Z6 efGH\n  ijKL mnOP\n  qrST uvWX\n  yz12 34Z6",
+    "engineCursor": {
+      "line": 1,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-b-P-twoline": {
+    "group": "visual-block",
+    "engineDoc": "  a34Z6D efGH\n  iL mnOP\n  qrST uvWX\n  yz12 34Z6",
+    "engineCursor": {
+      "line": 1,
+      "col": 4
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-b-P-one": {
+    "group": "visual-block",
+    "engineDoc": "34Z6 abCD efGH\n  ijKL mnOP\n  qrST uvWX\n  yz12 34Z6",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-b-P-dollar": {
+    "group": "visual-block",
+    "engineDoc": "  34Z6\n  \n  qrST uvWX\n  yz12 34Z6",
+    "engineCursor": {
+      "line": 1,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "irv-mx-b-P-dot": {
+    "group": "visual-block",
+    "engineDoc": "  a34Z6D efGH\n  iL mnOP\n  qrST uvWX\n  bC\njKyz12 34Z6",
+    "engineCursor": {
+      "line": 4,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "mr-q-yank-line-run-newline": {
+    "group": "macro",
+    "engineDoc": "0x\nc\nabc\nabc",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-q-delete-line-run": {
+    "group": "macro",
+    "engineDoc": "bc\nabc",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-q-append-yank-other-reg": {
+    "group": "macro",
+    "engineDoc": "foo\nbar\nbaz\n\nfoo\nbar\nbaz",
+    "engineCursor": {
+      "line": 4,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-q-dq-not-stop": {
+    "group": "macro",
+    "engineDoc": "bc\nbc",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-reg-append-charwise-to-linewise": {
+    "group": "registers",
+    "engineDoc": "foo\nbar baz\nfoo\nba",
+    "engineCursor": {
+      "line": 3,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-reg-count-before-quote": {
+    "group": "registers",
+    "engineDoc": "aab",
+    "engineCursor": {
+      "line": 1,
+      "col": 2
+    },
+    "engineMode": "normal"
+  },
+  "mr-reg-count-linewise": {
+    "group": "registers",
+    "engineDoc": "x\nx\ny",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-reg-numbered-dot-increments": {
+    "group": "registers",
+    "engineDoc": "x\n3\n3\n3",
+    "engineCursor": {
+      "line": 4,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-reg-numbered-u-dot": {
+    "group": "registers",
+    "engineDoc": "x\nc",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-reg-d-percent-to-1": {
+    "group": "registers",
+    "engineDoc": "x  y\nz",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-reg-d-search-to-1": {
+    "group": "registers",
+    "engineDoc": "baz\nq",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-reg-dn-to-1": {
+    "group": "registers",
+    "engineDoc": "a x\nq",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-reg-d-backtick-to-1": {
+    "group": "registers",
+    "engineDoc": "def\nq",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-reg-named-delete-also-1": {
+    "group": "registers",
+    "engineDoc": "b\nc",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-reg-dot-register-multiline": {
+    "group": "registers",
+    "engineDoc": "ab\nc\nb\nc",
+    "engineCursor": {
+      "line": 1,
+      "col": 2
+    },
+    "engineMode": "normal"
+  },
+  "mr-reg-dot-register-count": {
+    "group": "registers",
+    "engineDoc": "axx",
+    "engineCursor": {
+      "line": 1,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "mr-reg-ctrl-r-then-dot": {
+    "group": "registers",
+    "engineDoc": "fofooo\nbar foo",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-reg-visual-line-paste-then-p": {
+    "group": "registers",
+    "engineDoc": "a\na\ncb",
+    "engineCursor": {
+      "line": 3,
+      "col": 2
+    },
+    "engineMode": "normal"
+  },
+  "mr-reg-blockwise-count": {
+    "group": "visual-block",
+    "engineDoc": "aab\ncacd\nc",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-reg-named-uppercase-yank-fresh": {
+    "group": "registers",
+    "engineDoc": "abc\ndef\n\nabc",
+    "engineCursor": {
+      "line": 3,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-dot-3o": {
+    "group": "dot-repeat",
+    "engineDoc": "a\nX\nX\nX\nX",
+    "engineCursor": {
+      "line": 5,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-dot-r-count-override": {
+    "group": "dot-repeat",
+    "engineDoc": "xbcdefgh",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-dot-ctrl-a-count-override": {
+    "group": "dot-repeat",
+    "engineDoc": "3",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-dot-insert-ctrl-r": {
+    "group": "dot-repeat",
+    "engineDoc": "foofoo\nbafoor",
+    "engineCursor": {
+      "line": 2,
+      "col": 6
+    },
+    "engineMode": "normal"
+  },
+  "mr-dot-gi": {
+    "group": "gi-gv",
+    "engineDoc": "abc XYYdef",
+    "engineCursor": {
+      "line": 1,
+      "col": 7
+    },
+    "engineMode": "normal"
+  },
+  "mr-undo-U": {
+    "group": "line-undo",
+    "engineDoc": "bc ef",
+    "engineCursor": {
+      "line": 1,
+      "col": 4
+    },
+    "engineMode": "normal"
+  },
+  "mr-undo-U-other-line": {
+    "group": "line-undo",
+    "engineDoc": "bc\nef",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-undo-U-then-u": {
+    "group": "line-undo",
+    "engineDoc": "bc",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-mark-deleted-line": {
+    "group": "marks",
+    "engineDoc": "a\n\nd",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-mark-col-after-insert-same-line": {
+    "group": "marks",
+    "engineDoc": "XYabc ef",
+    "engineCursor": {
+      "line": 1,
+      "col": 7
+    },
+    "engineMode": "normal"
+  },
+  "mr-mark-col-after-delete-same-line": {
+    "group": "marks",
+    "engineDoc": "bc ef",
+    "engineCursor": {
+      "line": 1,
+      "col": 4
+    },
+    "engineMode": "normal"
+  },
+  "mr-mark-backtick-dot-after-insert": {
+    "group": "marks",
+    "engineDoc": "abc12",
+    "engineCursor": {
+      "line": 1,
+      "col": 5
+    },
+    "engineMode": "normal"
+  },
+  "mr-mark-bracket-yank-start": {
+    "group": "marks",
+    "engineDoc": "a\nb\nc\n",
+    "engineCursor": {
+      "line": 4,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-mark-bracket-yank-end": {
+    "group": "marks",
+    "engineDoc": "oo bar baz",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-mark-bracket-after-paste": {
+    "group": "marks",
+    "engineDoc": "abc\nx\nbc",
+    "engineCursor": {
+      "line": 3,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-mark-bracket-after-change": {
+    "group": "marks",
+    "engineDoc": "oo XYZ baz",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-mark-caret": {
+    "group": "marks",
+    "engineDoc": "bc XYdef",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-mark-jumplist-ctrl-o-ctrl-i": {
+    "group": "marks",
+    "engineDoc": "a\nb\n",
+    "engineCursor": {
+      "line": 3,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mr-inc-dec-count-dot-override": {
+    "group": "dot-repeat",
+    "engineDoc": "10",
+    "engineCursor": {
+      "line": 1,
+      "col": 2
+    },
+    "engineMode": "normal"
+  },
+  "mr-inc-ctrl-x-dot-count": {
+    "group": "dot-repeat",
+    "engineDoc": "4\n4",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mc-match-percent-dquote-paren": {
+    "group": "percent",
+    "engineDoc": "f(a \"\" b)",
+    "engineCursor": {
+      "line": 1,
+      "col": 6
+    },
+    "engineMode": "normal"
+  },
+  "mc-match-percent-squote-paren": {
+    "group": "percent",
+    "engineDoc": "f(a '' b)",
+    "engineCursor": {
+      "line": 1,
+      "col": 6
+    },
+    "engineMode": "normal"
+  },
+  "mc-match-percent-comment": {
+    "group": "percent",
+    "engineDoc": "* a */ x",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mc-match-percent-ifdef": {
+    "group": "percent",
+    "engineDoc": "if X\na\n#endif",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mc-sent-close-paren-overshoot": {
+    "group": "sentence",
+    "engineDoc": "One. Two. Three",
+    "engineCursor": {
+      "line": 1,
+      "col": 15
+    },
+    "engineMode": "normal"
+  },
+  "mc-sent-closing-quote": {
+    "group": "sentence",
+    "engineDoc": "He said \"Hi.\" Then",
+    "engineCursor": {
+      "line": 1,
+      "col": 18
+    },
+    "engineMode": "normal"
+  },
+  "mc-sent-closing-paren-after-dot": {
+    "group": "sentence",
+    "engineDoc": "(Yes.) No",
+    "engineCursor": {
+      "line": 1,
+      "col": 9
+    },
+    "engineMode": "normal"
+  },
+  "mc-win-ctrl-d-count-sticks": {
+    "group": "virtual-window",
+    "engineDoc": "l1\nl2\nl3\nl4\nl5\nl6\nl7\nl8\nl9\nl10\nl11\nl12\nl13\nl14\nl15\nl16\nl17\nl18\nl19\n20",
+    "engineCursor": {
+      "line": 20,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mc-win-ctrl-f": {
+    "group": "virtual-window",
+    "engineDoc": "l1\nl2\nl3\nl4\nl5\nl6\nl7\nl8\nl9\nl10\nl11\nl12\nl13\nl14\nl15\nl16\nl17\nl18\nl19\nl20\nl21\nl22\nl23\nl24\nl25\nl26\nl27\nl28\n29\nl30",
+    "engineCursor": {
+      "line": 29,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "mc-win-ctrl-b": {
+    "group": "virtual-window",
+    "engineDoc": "l1\n2\nl3\nl4\nl5\nl6\nl7\nl8\nl9\nl10\nl11\nl12\nl13\nl14\nl15\nl16\nl17\nl18\nl19\nl20\nl21\nl22\nl23\nl24\nl25\nl26\nl27\nl28\nl29\nl30",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-d-forced-1": {
+    "group": "forced-motion",
+    "engineDoc": "abc\ndef",
+    "engineCursor": {
+      "line": 2,
+      "col": 2
+    },
+    "engineMode": "normal"
+  },
+  "ot-d-forced-2": {
+    "group": "forced-motion",
+    "engineDoc": "abc\ndef",
+    "engineCursor": {
+      "line": 1,
+      "col": 2
+    },
+    "engineMode": "normal"
+  },
+  "ot-d-forced-3": {
+    "group": "forced-motion",
+    "engineDoc": "abc\ndef",
+    "engineCursor": {
+      "line": 1,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "ot-d-forced-4": {
+    "group": "forced-motion",
+    "engineDoc": "abc\ndef",
+    "engineCursor": {
+      "line": 1,
+      "col": 2
+    },
+    "engineMode": "normal"
+  },
+  "ot-d-forced-5": {
+    "group": "forced-motion",
+    "engineDoc": "abc\ndef",
+    "engineCursor": {
+      "line": 1,
+      "col": 3
+    },
+    "engineMode": "normal"
+  },
+  "ot-cw-on-empty-line": {
+    "group": "other",
+    "engineDoc": "a\nXb",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-D-7": {
+    "group": "other",
+    "engineDoc": "",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-case-op-42": {
+    "group": "cursor",
+    "engineDoc": "FOO BAR BAZ\nQUX QUUX\n  Mixed",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-w-count-3aw-p3": {
+    "group": "text-objects",
+    "engineDoc": "  foo.bar  baz-",
+    "engineCursor": {
+      "line": 1,
+      "col": 15
+    },
+    "engineMode": "normal"
+  },
+  "ot-w-count-2aW-p3": {
+    "group": "text-objects",
+    "engineDoc": "  foo.bar  ",
+    "engineCursor": {
+      "line": 1,
+      "col": 11
+    },
+    "engineMode": "normal"
+  },
+  "ot-w-count-5aw-p2": {
+    "group": "text-objects",
+    "engineDoc": "  foo.bar",
+    "engineCursor": {
+      "line": 1,
+      "col": 9
+    },
+    "engineMode": "normal"
+  },
+  "ot-w-count-5aw-p3": {
+    "group": "text-objects",
+    "engineDoc": "  foo.bar  baz-",
+    "engineCursor": {
+      "line": 1,
+      "col": 15
+    },
+    "engineMode": "normal"
+  },
+  "ot-w-count-4iw-p3": {
+    "group": "text-objects",
+    "engineDoc": "  foo.bar  baz-",
+    "engineCursor": {
+      "line": 1,
+      "col": 15
+    },
+    "engineMode": "normal"
+  },
+  "ot-w-iw-empty-line": {
+    "group": "text-objects",
+    "engineDoc": "a\n",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-w-aw-empty-line": {
+    "group": "text-objects",
+    "engineDoc": "a\n",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-par-in-quotes": {
+    "group": "text-objects",
+    "engineDoc": "f(\"()",
+    "engineCursor": {
+      "line": 1,
+      "col": 5
+    },
+    "engineMode": "normal"
+  },
+  "ot-sen-is-p4-d": {
+    "group": "sentence",
+    "engineDoc": "One two.  Five?",
+    "engineCursor": {
+      "line": 1,
+      "col": 9
+    },
+    "engineMode": "normal"
+  },
+  "ot-sen-is-p4-c": {
+    "group": "sentence",
+    "engineDoc": "One two.X  Five?",
+    "engineCursor": {
+      "line": 1,
+      "col": 9
+    },
+    "engineMode": "normal"
+  },
+  "ot-sen-is-p4-y": {
+    "group": "sentence",
+    "engineDoc": "One two.  Three four!  Three four!  Five?",
+    "engineCursor": {
+      "line": 1,
+      "col": 21
+    },
+    "engineMode": "normal"
+  },
+  "ot-sen-as-p4-d": {
+    "group": "sentence",
+    "engineDoc": "One two. Five?",
+    "engineCursor": {
+      "line": 1,
+      "col": 10
+    },
+    "engineMode": "normal"
+  },
+  "ot-sen-as-p4-c": {
+    "group": "sentence",
+    "engineDoc": "One two. XFive?",
+    "engineCursor": {
+      "line": 1,
+      "col": 10
+    },
+    "engineMode": "normal"
+  },
+  "ot-sen-as-p4-y": {
+    "group": "sentence",
+    "engineDoc": "One two.  Three four!   Three four!  Five?",
+    "engineCursor": {
+      "line": 1,
+      "col": 23
+    },
+    "engineMode": "normal"
+  },
+  "ot-sen-as-p5-d": {
+    "group": "sentence",
+    "engineDoc": "One two. Five?",
+    "engineCursor": {
+      "line": 1,
+      "col": 10
+    },
+    "engineMode": "normal"
+  },
+  "ot-sen-as-p5-c": {
+    "group": "sentence",
+    "engineDoc": "One two. XFive?",
+    "engineCursor": {
+      "line": 1,
+      "col": 10
+    },
+    "engineMode": "normal"
+  },
+  "ot-sen-as-p5-y": {
+    "group": "sentence",
+    "engineDoc": "One two.  Three four!   Three four!  Five?",
+    "engineCursor": {
+      "line": 1,
+      "col": 23
+    },
+    "engineMode": "normal"
+  },
+  "ot-sen-as-p6-d": {
+    "group": "sentence",
+    "engineDoc": "One two. Five?",
+    "engineCursor": {
+      "line": 1,
+      "col": 10
+    },
+    "engineMode": "normal"
+  },
+  "ot-sen-as-p6-c": {
+    "group": "sentence",
+    "engineDoc": "One two. XFive?",
+    "engineCursor": {
+      "line": 1,
+      "col": 10
+    },
+    "engineMode": "normal"
+  },
+  "ot-sen-as-p6-y": {
+    "group": "sentence",
+    "engineDoc": "One two.  Three four!   Three four!  Five?",
+    "engineCursor": {
+      "line": 1,
+      "col": 23
+    },
+    "engineMode": "normal"
+  },
+  "ot-sen-count-d3is": {
+    "group": "sentence",
+    "engineDoc": "",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-sen-multiline": {
+    "group": "sentence",
+    "engineDoc": "One two\nFour.",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-sen-multiline-is": {
+    "group": "sentence",
+    "engineDoc": "One two\n Four.",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-pp-ap-p6-d": {
+    "group": "text-objects",
+    "engineDoc": "a\nb\n\nc\nd\n\n",
+    "engineCursor": {
+      "line": 7,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-pp-ap-p6-c": {
+    "group": "text-objects",
+    "engineDoc": "a\nb\n\nc\nd\n\n\nX",
+    "engineCursor": {
+      "line": 8,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-pp-ap-p6-y": {
+    "group": "text-objects",
+    "engineDoc": "a\nb\n\nc\nd\n\n\ne\ne",
+    "engineCursor": {
+      "line": 8,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-para-count-6": {
+    "group": "text-objects",
+    "engineDoc": "a\nb\n",
+    "engineCursor": {
+      "line": 3,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-para-count-8": {
+    "group": "text-objects",
+    "engineDoc": "",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-para-ws-only-line-ip": {
+    "group": "text-objects",
+    "engineDoc": "",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-para-ws-only-line-ap": {
+    "group": "text-objects",
+    "engineDoc": "",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-para-ws-only-line-on-it": {
+    "group": "text-objects",
+    "engineDoc": "",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-min-is-blank": {
+    "group": "sentence",
+    "engineDoc": "a.",
+    "engineCursor": {
+      "line": 1,
+      "col": 2
+    },
+    "engineMode": "normal"
+  },
+  "ot-min-as-blank": {
+    "group": "sentence",
+    "engineDoc": "a.",
+    "engineCursor": {
+      "line": 1,
+      "col": 2
+    },
+    "engineMode": "normal"
+  },
+  "ot-min-iw-empty-line": {
+    "group": "text-objects",
+    "engineDoc": "a\n",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-min-aw-count-too-big": {
+    "group": "text-objects",
+    "engineDoc": "a",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-min-ap-count-too-big": {
+    "group": "text-objects",
+    "engineDoc": "",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-min-bracket-in-quotes": {
+    "group": "text-objects",
+    "engineDoc": "(\"()",
+    "engineCursor": {
+      "line": 1,
+      "col": 4
+    },
+    "engineMode": "normal"
+  },
+  "ot-min-ip-blank-line": {
+    "group": "text-objects",
+    "engineDoc": "",
+    "engineCursor": {
+      "line": 1,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-min-ap-end-of-buffer": {
+    "group": "text-objects",
+    "engineDoc": "a\n\nb\n",
+    "engineCursor": {
+      "line": 4,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "ot-min-gU-upward-cursor": {
+    "group": "cursor",
+    "engineDoc": "A\nB",
+    "engineCursor": {
+      "line": 2,
+      "col": 1
+    },
+    "engineMode": "normal"
+  },
+  "block-dollar-before-ctrl-v": {
+    "group": "curswant",
+    "engineDoc": "abcx\na  x\nabcxde",
+    "engineCursor": {
+      "line": 1,
+      "col": 3
+    },
+    "engineMode": "normal"
+  }
+}

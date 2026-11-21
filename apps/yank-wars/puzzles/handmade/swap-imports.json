@@ -1,0 +1,17 @@
+{
+  "id": "swap-imports",
+  "title": "Alphabetical imports",
+  "difficulty": "easy",
+  "description": "os before sys.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "import sys\nimport os\n\nprint(os.getcwd(), sys.argv)",
+  "target": "import os\nimport sys\n\nprint(os.getcwd(), sys.argv)",
+  "solution": "ddp",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["swap"]
+}

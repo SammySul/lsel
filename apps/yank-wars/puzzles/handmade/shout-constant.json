@@ -1,0 +1,17 @@
+{
+  "id": "shout-constant",
+  "title": "It's a constant",
+  "difficulty": "easy",
+  "description": "Constants are upper case.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "max_retries = 3\ntimeout = 10",
+  "target": "MAX_RETRIES = 3\ntimeout = 10",
+  "solution": "gUiw",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["case"]
+}

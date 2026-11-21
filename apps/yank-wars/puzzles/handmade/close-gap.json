@@ -1,0 +1,17 @@
+{
+  "id": "close-gap",
+  "title": "Close the gap",
+  "difficulty": "easy",
+  "description": "No blank lines between the imports.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "import os\n\n\nimport sys",
+  "target": "import os\nimport sys",
+  "solution": "jdj",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

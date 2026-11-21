@@ -1,0 +1,17 @@
+{
+  "id": "self-close",
+  "title": "Self-closing",
+  "difficulty": "easy",
+  "description": "An empty element closes itself.",
+  "language": "jsx",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "export function Loading() {\n  return <Spinner></Spinner>;\n}",
+  "target": "export function Loading() {\n  return <Spinner />;\n}",
+  "solution": "jf>C />;",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change"]
+}

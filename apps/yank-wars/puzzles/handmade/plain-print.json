@@ -1,0 +1,17 @@
+{
+  "id": "plain-print",
+  "title": "Plain print",
+  "difficulty": "easy",
+  "description": "Keep only the message.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "def report(msg):\n    print(msg, end=\"\", flush=True)",
+  "target": "def report(msg):\n    print(msg)",
+  "solution": "jf,dt)",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

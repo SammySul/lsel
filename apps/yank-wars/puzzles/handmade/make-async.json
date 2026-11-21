@@ -1,0 +1,17 @@
+{
+  "id": "make-async",
+  "title": "Make it async",
+  "difficulty": "easy",
+  "description": "fetch should be a coroutine.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "class Client:\n    def fetch(self, url):\n        return get(url)",
+  "target": "class Client:\n    async def fetch(self, url):\n        return get(url)",
+  "solution": "jIasync<Space>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

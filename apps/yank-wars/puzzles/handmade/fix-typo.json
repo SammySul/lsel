@@ -1,0 +1,17 @@
+{
+  "id": "fix-typo",
+  "title": "Fix the typo",
+  "difficulty": "easy",
+  "description": "Swap the two letters in the wrong order.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "The quick brown fox jumsp over the lazy dog.",
+  "target": "The quick brown fox jumps over the lazy dog.",
+  "solution": "fsxp",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["swap"]
+}

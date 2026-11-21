@@ -1,0 +1,17 @@
+{
+  "id": "comment-block",
+  "title": "Comment out the body",
+  "difficulty": "medium",
+  "description": "Comment out the four body lines at the body's indent.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "@cache\ndef load(path):\n    with open(path) as f:\n        text = f.read()\n    rows = text.splitlines()\n    return [r.split(\",\") for r in rows]",
+  "target": "@cache\ndef load(path):\n    # with open(path) as f:\n    #     text = f.read()\n    # rows = text.splitlines()\n    # return [r.split(\",\") for r in rows]",
+  "solution": "2jw<C-v>3jI#<Space><Esc>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block"]
+}

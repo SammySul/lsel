@@ -1,0 +1,17 @@
+{
+  "id": "number-steps",
+  "title": "Number the steps",
+  "difficulty": "easy",
+  "description": "Count up from one.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "1. Clone\n1. Build\n1. Test",
+  "target": "1. Clone\n2. Build\n3. Test",
+  "solution": "j<C-a>j2<C-a>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["increment"]
+}

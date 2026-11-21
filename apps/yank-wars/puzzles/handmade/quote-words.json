@@ -1,0 +1,17 @@
+{
+  "id": "quote-words",
+  "title": "Quote the words",
+  "difficulty": "medium",
+  "description": "JSON wants strings.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "[\n  apple,\n  pear,\n  plum\n]",
+  "target": "[\n  \"apple\",\n  \"pear\",\n  \"plum\"\n]",
+  "solution": ":%s/\\w\\+/\"&\"<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["regex"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "quote-keys",
+  "title": "Quote the keys",
+  "difficulty": "medium",
+  "description": "JSON needs its keys in double quotes.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\n  id: 7,\n  name: \"ada\",\n  admin: true\n}",
+  "target": "{\n  \"id\": 7,\n  \"name\": \"ada\",\n  \"admin\": true\n}",
+  "solution": ":%s/\\w\\+/\"\\0\"/<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

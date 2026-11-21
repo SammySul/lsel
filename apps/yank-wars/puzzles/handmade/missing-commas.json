@@ -1,0 +1,17 @@
+{
+  "id": "missing-commas",
+  "title": "Missing commas",
+  "difficulty": "medium",
+  "description": "Python glues adjacent strings together.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "names = [\n    \"ada\"\n    \"linus\"\n    \"grace\"\n    \"barbara\"\n    \"margaret\"\n]",
+  "target": "names = [\n    \"ada\",\n    \"linus\",\n    \"grace\",\n    \"barbara\",\n    \"margaret\",\n]",
+  "solution": "j<C-v>4j$A,<Esc>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block"]
+}

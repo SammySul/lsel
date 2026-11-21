@@ -1,0 +1,17 @@
+{
+  "id": "css-comment",
+  "title": "Disable the rule",
+  "difficulty": "easy",
+  "description": "Comment out the whole rule, with the markers on lines of their own.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".banner {\n  color: red;\n  margin: 0 auto;\n}",
+  "target": "/*\n.banner {\n  color: red;\n  margin: 0 auto;\n}\n*/",
+  "solution": "O/*<Esc>Go*/",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["open-line"]
+}

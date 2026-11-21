@@ -1,0 +1,17 @@
+{
+  "id": "rename-res",
+  "title": "Rename res",
+  "difficulty": "medium",
+  "description": "Call it resp everywhere.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "async function load(url) {\n  const res = await fetch(url);\n  if (!res.ok) throw new Error(res.status);\n  return res.json();\n}",
+  "target": "async function load(url) {\n  const resp = await fetch(url);\n  if (!resp.ok) throw new Error(resp.status);\n  return resp.json();\n}",
+  "solution": ":%s/res/resp/g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

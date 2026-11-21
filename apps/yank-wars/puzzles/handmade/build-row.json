@@ -1,0 +1,17 @@
+{
+  "id": "build-row",
+  "title": "Build the row",
+  "difficulty": "hard",
+  "description": "Each key reads its own column.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "record = {\n    name\n    email\n    age\n}",
+  "target": "record = {\n    \"name\": row[\"name\"],\n    \"email\": row[\"email\"],\n    \"age\": row[\"age\"],\n}",
+  "solution": ":%s/\\w\\+$/\"&\": row[\"&\"],<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["regex"]
+}

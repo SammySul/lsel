@@ -1,0 +1,17 @@
+{
+  "id": "full-width",
+  "title": "Full width",
+  "difficulty": "easy",
+  "description": "The sidebar fills its container.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".sidebar {\n  width: 100px;\n}",
+  "target": ".sidebar {\n  width: 100%;\n}",
+  "solution": "jfpxr%",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace"]
+}

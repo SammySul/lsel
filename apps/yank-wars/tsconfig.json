@@ -1,0 +1,3 @@
+{
+  "extends": "@sammysul/lsel/tsconfig.json"
+}

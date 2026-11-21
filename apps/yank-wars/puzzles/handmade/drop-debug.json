@@ -1,0 +1,17 @@
+{
+  "id": "drop-debug",
+  "title": "Drop the debug print",
+  "difficulty": "easy",
+  "description": "Delete the print line.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "def total(xs):\n    s = 0\n    print(\"debug\", xs)\n    for x in xs:\n        s += x\n    return s",
+  "target": "def total(xs):\n    s = 0\n    for x in xs:\n        s += x\n    return s",
+  "solution": "jjdd",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

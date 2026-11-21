@@ -1,0 +1,17 @@
+{
+  "id": "quote-style",
+  "title": "Double quotes",
+  "difficulty": "medium",
+  "description": "The linter wants double quotes.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const names = ['ada', 'linus', 'grace'];\nconst greet = (n) => `hi ${n}`;\nexport default names.map(greet);",
+  "target": "const names = [\"ada\", \"linus\", \"grace\"];\nconst greet = (n) => `hi ${n}`;\nexport default names.map(greet);",
+  "solution": ":s/'/\"/g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}
