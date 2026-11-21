@@ -27,7 +27,7 @@ const url = serveBuilt(join(import.meta.dir, "../playground-dist"));
 
 const current = (page: Page) =>
   page.locator('ul[aria-label="Feeds"] li[aria-current="true"] span').textContent();
-const status = (page: Page) => page.locator("footer [role=status]").textContent();
+const status = (page: Page) => page.locator("p.said").textContent();
 
 for (const name of browsers()) {
   describe(name, () => {

@@ -3,7 +3,6 @@ export { begin } from "./activity.svelte.ts";
 export { palette } from "./assets/palette.ts";
 export { default as Empty } from "./Empty.svelte";
 export { default as Field } from "./Field.svelte";
-export { say } from "./flash.svelte.ts";
 export * from "./format.ts";
 export { type Binding, keys } from "./keys.svelte.ts";
 export { default as List } from "./List.svelte";

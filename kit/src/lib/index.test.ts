@@ -24,7 +24,6 @@ test("the package root loads in bun test and exports exactly its API", () => {
     "reducedMotion",
     "resource",
     "route",
-    "say",
     "when",
   ]);
 });

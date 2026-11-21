@@ -9,9 +9,14 @@ import {
   Page,
   resource,
   Status,
-  say,
   Tabs,
 } from "../src/lib/index.ts";
+
+// what the last action did, so the e2e test can see it
+let said = $state("");
+const say = (text: string) => {
+  said = text;
+};
 
 type View = "list" | "states" | "form";
 const VIEWS = [
@@ -136,6 +141,7 @@ let nameError: string | null = $state(null);
       </div>
     </section>
   {/if}
+  <p class="said" role="status">{said}</p>
 </Page>
 
 <style>
@@ -151,5 +157,9 @@ let nameError: string | null = $state(null);
   }
   .current {
     color: var(--text);
+  }
+  .said {
+    min-height: 1.5em;
+    color: var(--subtle);
   }
 </style>

@@ -1,7 +1,6 @@
 <script lang="ts">
 import type { Snippet } from "svelte";
 import { palette } from "./assets/palette.ts";
-import { flash } from "./flash.svelte.ts";
 import KeyHelp from "./KeyHelp.svelte";
 import { activeBindings, keyHelp, keyName, keys, keysOf } from "./keys.svelte.ts";
 import LoadingBar from "./LoadingBar.svelte";
@@ -58,7 +57,6 @@ const hints = $derived(
   {#if fill}<div class="body">{@render children()}</div>{:else}{@render children()}{/if}
 
   <footer>
-    <p class="status" class:error={flash.error} role="status">{flash.text}</p>
     {#if hints.length > 0}
       <p class="hints">
         {#each hints as b, i (keysOf(b)[0])}
@@ -126,11 +124,5 @@ const hints = $derived(
   }
   footer p {
     margin: 0;
-  }
-  .status {
-    min-height: 1.5em;
-  }
-  .status.error {
-    color: var(--error);
   }
 </style>
