@@ -6,11 +6,11 @@ fewest keystrokes among finishers wins, ties go to whoever finished first.
 Rationale for every stack choice is in `docs/decisions.md`.
 
 ```
-packages/engine/   pure TS, no I/O: puzzle + protocol types, key notation,
+engine/           pure TS, no I/O: puzzle + protocol types, key notation,
                    headless replay, match rules (lock-in, grace, scoring).
                    Imported by everything else.
-apps/web/          Svelte 5 + Vite SPA, CodeMirror 6 + @replit/codemirror-vim
-apps/server/       serve() from @sammysul/lsel: the built web app; rooms come later
+web/               Svelte 5 + Vite SPA, CodeMirror 6 + @replit/codemirror-vim
+server/            serve() from @sammysul/lsel: the built web app; rooms come later
 puzzles/           handmade puzzles as JSON (data, not code)
 ```
 
@@ -24,7 +24,7 @@ Shared rules, the stack, release and deploy come from lsel's `CLAUDE.md` and
   test:e2e`. `bunfig.toml` (happy-dom and Svelte preloads) is read from the cwd
   only, so `bun test` in a subdirectory runs without DOM globals.
 - **The CSP allows inline styles**, unlike lsel's: CodeMirror injects `<style>`
-  elements. `CSP` in `apps/server/src/server.ts` goes to `serve()`;
+  elements. `CSP` in `server/src/server.ts` goes to `serve()`;
   `e2e/built.e2e.ts` fails if CodeMirror goes unstyled.
 - Don't build ahead of the build order in `docs/decisions.md`: no GitHub
   login, ratings or ghosts before step 6.
@@ -35,7 +35,7 @@ Shared rules, the stack, release and deploy come from lsel's `CLAUDE.md` and
   `svelte-check` only in their workspace's `.bin`. Use `bun run --filter`.
 - Pin every `@codemirror/*` in lsel's root `catalog` and write `"catalog:"`: a
   second copy of `state` or `view` throws "Unrecognized extension value".
-- `apps/web` deliberately lacks `@replit/codemirror-vim`, `@codemirror/commands`
+- `web` deliberately lacks `@replit/codemirror-vim`, `@codemirror/commands`
   and `@codemirror/lang-*`; an import failing there is the "visuals only" guard.
 - `typescript` stays 5.x or 6.x: svelte-check 4.7.7 refuses TS 7.
 - Every `.svelte` file needs `<script lang="ts">`, even empty; without it

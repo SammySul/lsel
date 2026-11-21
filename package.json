@@ -6,8 +6,9 @@
     "packages": [
       "kit",
       "apps/*",
-      "apps/yank-wars/apps/*",
-      "apps/yank-wars/packages/*",
+      "apps/yank-wars/engine",
+      "apps/yank-wars/server",
+      "apps/yank-wars/web",
       "templates/web"
     ],
     "catalog": {

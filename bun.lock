@@ -85,7 +85,26 @@
         "typescript": "catalog:",
       },
     },
-    "apps/yank-wars/apps/server": {
+    "apps/yank-wars/engine": {
+      "name": "@yank-wars/engine",
+      "version": "0.0.0",
+      "dependencies": {
+        "@codemirror/commands": "catalog:",
+        "@codemirror/lang-css": "6.3.1",
+        "@codemirror/lang-go": "6.0.1",
+        "@codemirror/lang-javascript": "6.2.5",
+        "@codemirror/lang-json": "6.0.2",
+        "@codemirror/lang-python": "6.2.1",
+        "@codemirror/lang-rust": "6.0.2",
+        "@codemirror/language": "catalog:",
+        "@codemirror/search": "catalog:",
+        "@codemirror/state": "catalog:",
+        "@codemirror/view": "catalog:",
+        "@replit/codemirror-vim": "catalog:",
+        "valibot": "catalog:",
+      },
+    },
+    "apps/yank-wars/server": {
       "name": "@yank-wars/server",
       "version": "0.0.0",
       "dependencies": {
@@ -93,7 +112,7 @@
         "valibot": "catalog:",
       },
     },
-    "apps/yank-wars/apps/web": {
+    "apps/yank-wars/web": {
       "name": "@yank-wars/web",
       "dependencies": {
         "@codemirror/language": "catalog:",
@@ -111,25 +130,6 @@
         "svelte-check": "catalog:",
         "typescript": "catalog:",
         "vite": "catalog:",
-      },
-    },
-    "apps/yank-wars/packages/engine": {
-      "name": "@yank-wars/engine",
-      "version": "0.0.0",
-      "dependencies": {
-        "@codemirror/commands": "catalog:",
-        "@codemirror/lang-css": "6.3.1",
-        "@codemirror/lang-go": "6.0.1",
-        "@codemirror/lang-javascript": "6.2.5",
-        "@codemirror/lang-json": "6.0.2",
-        "@codemirror/lang-python": "6.2.1",
-        "@codemirror/lang-rust": "6.0.2",
-        "@codemirror/language": "catalog:",
-        "@codemirror/search": "catalog:",
-        "@codemirror/state": "catalog:",
-        "@codemirror/view": "catalog:",
-        "@replit/codemirror-vim": "catalog:",
-        "valibot": "catalog:",
       },
     },
     "kit": {
@@ -319,11 +319,11 @@
 
     "@types/ws": ["@types/ws@8.18.2", "", { "dependencies": { "@types/node": "*" } }, "sha512-67MQl+fpWKVTT1NYdnmo3U4sc/xPo/zQBncVnI74qmQa0z/b+1g6iYqNmGCPbxO+zz2aklb08a0oHfegiVd0/w=="],
 
-    "@yank-wars/engine": ["@yank-wars/engine@workspace:apps/yank-wars/packages/engine"],
+    "@yank-wars/engine": ["@yank-wars/engine@workspace:apps/yank-wars/engine"],
 
-    "@yank-wars/server": ["@yank-wars/server@workspace:apps/yank-wars/apps/server"],
+    "@yank-wars/server": ["@yank-wars/server@workspace:apps/yank-wars/server"],
 
-    "@yank-wars/web": ["@yank-wars/web@workspace:apps/yank-wars/apps/web"],
+    "@yank-wars/web": ["@yank-wars/web@workspace:apps/yank-wars/web"],
 
     "acorn": ["acorn@8.19.0", "", { "bin": { "acorn": "bin/acorn" } }, "sha512-oJlA3XiRm7Cyk6qFD2Jn8ak9B7jSy0qy00ADO3+8dpT0LSjFihQYv4C02LFCSYJV3Q37xYwwRy5m+IpIiUzqWw=="],
 

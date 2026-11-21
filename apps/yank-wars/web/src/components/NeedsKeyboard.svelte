@@ -1,6 +1,6 @@
 <script lang="ts">
 import { Page } from "@sammysul/lsel";
-import { version } from "../../../../package.json";
+import { version } from "../../../package.json";
 import { MIN_WIDTH } from "../lib/device.ts";
 
 interface Props {

@@ -146,7 +146,7 @@ interface Pin {
   engineMode: OracleMode;
 }
 
-/** Case id -> how the engine knowingly differs from vim on it; written by `bun packages/engine/oracle/pin.ts`. */
+/** Case id -> how the engine knowingly differs from vim on it; written by `bun engine/oracle/pin.ts`. */
 export const DEVIATIONS: Readonly<Record<string, Deviation>> = Object.fromEntries(
   Object.entries(pins as Record<string, Pin>).map(([id, p]) => {
     const g = DEVIATION_GROUPS[p.group];

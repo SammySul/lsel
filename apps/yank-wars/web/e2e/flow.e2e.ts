@@ -24,7 +24,7 @@ import type { Browser, BrowserContext, Page } from "playwright-core";
 import type { RoundProbeState } from "../src/dev/roundProbe.ts";
 import { startVite, typeKeys, VITE, type Vite } from "./lib.ts";
 
-const PUZZLES_DIR = join(import.meta.dir, "../../../puzzles/handmade");
+const PUZZLES_DIR = join(import.meta.dir, "../../puzzles/handmade");
 const puzzles: Puzzle[] = readdirSync(PUZZLES_DIR)
   .filter((f) => f.endsWith(".json"))
   .map((f) => parsePuzzle(JSON.parse(readFileSync(join(PUZZLES_DIR, f), "utf8")), f.slice(0, -5)));
@@ -641,7 +641,7 @@ for (const name of browsers()) {
       expect(await attr('footer a[href*="git.sammysul.com"]', "href")).toBe(
         "https://git.sammysul.com/SammySul/yank-wars",
       );
-      const pkg = JSON.parse(readFileSync(join(import.meta.dir, "../../../package.json"), "utf8"));
+      const pkg = JSON.parse(readFileSync(join(import.meta.dir, "../../package.json"), "utf8"));
       expect(await text(page, "footer .version")).toBe(`v${pkg.version}`);
       for (const [path, type] of [
         ["/favicon.svg", "image/svg+xml"],

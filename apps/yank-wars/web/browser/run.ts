@@ -106,9 +106,7 @@ async function main() {
           if (k !== undefined && out.length > 0) known++;
           else if (k !== undefined) {
             failed++;
-            console.log(
-              `${name} FAIL ${what}\n  passes now: remove it from apps/web/browser/known.ts`,
-            );
+            console.log(`${name} FAIL ${what}\n  passes now: remove it from web/browser/known.ts`);
           } else if (out.length === 0) ok++;
           else {
             failed++;

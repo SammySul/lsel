@@ -6,7 +6,7 @@ import { type EngineRun, puzzleOf, replayCase } from "./engine.ts";
 import type { FixtureEntry, Observed, OracleCase } from "./types.ts";
 import { vimVersion } from "./vim.ts";
 
-// ORACLE_CATEGORY=seed,motions-counts bun test packages/engine/oracle
+// ORACLE_CATEGORY=seed,motions-counts bun test engine/oracle
 const only = process.env.ORACLE_CATEGORY?.split(",").filter(Boolean);
 const corpus = await loadCorpus(only);
 const fixtures = new Map<string, FixtureEntry | undefined>();

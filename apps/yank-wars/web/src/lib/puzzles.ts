@@ -7,7 +7,7 @@ export interface PuzzleLoadError {
   readonly message: string;
 }
 
-const files = import.meta.glob("../../../../puzzles/handmade/*.json", {
+const files = import.meta.glob("../../../puzzles/handmade/*.json", {
   eager: true,
   import: "default",
 });

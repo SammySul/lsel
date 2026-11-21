@@ -270,9 +270,9 @@
     url = "https://registry.npmjs.org/@types/ws/-/ws-8.18.2.tgz";
     hash = "sha512-67MQl+fpWKVTT1NYdnmo3U4sc/xPo/zQBncVnI74qmQa0z/b+1g6iYqNmGCPbxO+zz2aklb08a0oHfegiVd0/w==";
   };
-  "@yank-wars/engine" = copyPathToStore ./apps/yank-wars/packages/engine;
-  "@yank-wars/server" = copyPathToStore ./apps/yank-wars/apps/server;
-  "@yank-wars/web" = copyPathToStore ./apps/yank-wars/apps/web;
+  "@yank-wars/engine" = copyPathToStore ./apps/yank-wars/engine;
+  "@yank-wars/server" = copyPathToStore ./apps/yank-wars/server;
+  "@yank-wars/web" = copyPathToStore ./apps/yank-wars/web;
   "acorn@8.19.0" = fetchurl {
     url = "https://registry.npmjs.org/acorn/-/acorn-8.19.0.tgz";
     hash = "sha512-oJlA3XiRm7Cyk6qFD2Jn8ak9B7jSy0qy00ADO3+8dpT0LSjFihQYv4C02LFCSYJV3Q37xYwwRy5m+IpIiUzqWw==";

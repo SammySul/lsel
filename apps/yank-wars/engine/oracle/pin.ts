@@ -1,7 +1,7 @@
 // Pins every case where the engine differs from vim into deviations.json, under a group of deviations.ts.
-// bun packages/engine/oracle/pin.ts   (run from the repo root; needs no vim)
+// bun engine/oracle/pin.ts   (run from the repo root; needs no vim)
 // Run it only after deciding a difference stays; the test suite fails on any pinned case that changes.
-import "../../../test/dom.ts";
+import "../../test/dom.ts";
 import { join } from "node:path";
 import { loadCorpus, readFixtures } from "./corpus.ts";
 import { DEVIATION_GROUPS } from "./deviations.ts";

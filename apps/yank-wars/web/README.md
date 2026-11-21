@@ -5,7 +5,7 @@ The solo client: puzzle list, round flow, split view with live diff. Run everyth
 
 ```sh
 bun run dev     # vite dev server; DEV build, so the result card shows the self-check badge
-bun run build   # production build into apps/web/dist
+bun run build   # production build into web/dist
 bun run check   # tsc (engine, server), svelte-check (web), lsel-check
 ```
 
@@ -16,9 +16,9 @@ browsers and are not part of plain `bun test` (the files end in `.e2e.ts`):
 
 ```sh
 nix develop -c bun run test:browser                    # every oracle case typed into the player view
-nix develop -c bun test ./apps/web/e2e/flow.e2e.ts     # the real app, list to result card
-nix develop -c bun test ./apps/web/e2e/parity.e2e.ts   # oracle cases: live == replay of the log == vim
-nix develop -c bun test ./apps/web/e2e/built.e2e.ts    # the production build behind the server's CSP
+nix develop -c bun test ./web/e2e/flow.e2e.ts     # the real app, list to result card
+nix develop -c bun test ./web/e2e/parity.e2e.ts   # oracle cases: live == replay of the log == vim
+nix develop -c bun test ./web/e2e/built.e2e.ts    # the production build behind the server's CSP
 ```
 
 CI runs them all (`bun run test:e2e` is the three `e2e/` files; `built.e2e.ts` needs `bun run build`). `test:browser` (`browser/run.ts`) expects vim's answer, or the pinned engine output for a case in

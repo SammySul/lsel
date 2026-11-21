@@ -1,4 +1,4 @@
 {
   "extends": "//",
-  "files": { "includes": ["**", "!!packages/engine/oracle/**/*.vim.json"] }
+  "files": { "includes": ["**", "!!engine/oracle/**/*.vim.json"] }
 }

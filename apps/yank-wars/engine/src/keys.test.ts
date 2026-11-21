@@ -34,7 +34,7 @@ const SPIKE_CASES = [
   "qaqqaA,<Esc>j@aq@a",
 ];
 
-const PUZZLE_DIR = join(import.meta.dir, "../../../puzzles/handmade");
+const PUZZLE_DIR = join(import.meta.dir, "../../puzzles/handmade");
 const PUZZLE_SOLUTIONS: [string, string][] = await Promise.all(
   [...new Bun.Glob("*.json").scanSync({ cwd: PUZZLE_DIR })].sort().map(async (f) => {
     const json: { solution: string } = await Bun.file(join(PUZZLE_DIR, f)).json();

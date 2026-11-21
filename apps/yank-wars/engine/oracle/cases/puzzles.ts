@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { defineCases, type OracleCase, type OracleSettings } from "../types.ts";
 
 // Each handmade puzzle's reference solution, so vim confirms it reaches the target.
-const DIR = join(import.meta.dir, "../../../../puzzles/handmade");
+const DIR = join(import.meta.dir, "../../../puzzles/handmade");
 
 export default defineCases(
   readdirSync(DIR)

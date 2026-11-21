@@ -6,12 +6,12 @@
   "scripts": {
     "dev": "bun run --filter @yank-wars/web dev",
     "build": "bun run --filter @yank-wars/web build",
-    "check": "tsc --noEmit -p packages/engine && tsc --noEmit -p apps/server && bun run --filter @yank-wars/web check && lsel-check",
+    "check": "tsc --noEmit -p engine && tsc --noEmit -p server && bun run --filter @yank-wars/web check && lsel-check",
     "test": "bun --conditions=browser test",
-    "test:e2e": "bun test ./apps/web/e2e/flow.e2e.ts ./apps/web/e2e/parity.e2e.ts ./apps/web/e2e/built.e2e.ts",
-    "oracle": "bun packages/engine/oracle/run.ts",
-    "test:browser": "bun apps/web/browser/run.ts",
-    "brand": "bun apps/web/brand/render.ts"
+    "test:e2e": "bun test ./web/e2e/flow.e2e.ts ./web/e2e/parity.e2e.ts ./web/e2e/built.e2e.ts",
+    "oracle": "bun engine/oracle/run.ts",
+    "test:browser": "bun web/browser/run.ts",
+    "brand": "bun web/brand/render.ts"
   },
   "devDependencies": {
     "@sammysul/lsel": "workspace:*",

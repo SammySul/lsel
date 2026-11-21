@@ -2,7 +2,7 @@
 
 Each puzzle is one JSON file, `handmade/<id>.json`. Puzzles are data: no code
 lives here. The engine loads them through `parsePuzzle`
-(`packages/engine/src/puzzle.ts`), which enforces every rule below that is not
+(`engine/src/puzzle.ts`), which enforces every rule below that is not
 marked _test_. The web app loads them with `import.meta.glob`; the engine tests
 load them with `Bun.Glob`.
 
@@ -57,7 +57,7 @@ Unknown keys are rejected, so a stored `par` or a misspelt field fails loudly.
    10 (_test_); _medium_: two ideas or an ex command; _hard_: macros, regex
    or a plan. Most puzzles are easy: they are the most fun.
 6. _test_: ids are unique and equal their file names. Par is between 3 and 60,
-   and it is listed in `PAR` in `packages/engine/src/puzzles.test.ts`, so every
+   and it is listed in `PAR` in `engine/src/puzzles.test.ts`, so every
    change to a solution is deliberate.
 
 ## Engine semantics authors must know
@@ -87,7 +87,7 @@ and in replay.
 From the repo root:
 
 ```sh
-bun test packages/engine/src/puzzles.test.ts
+bun test engine/src/puzzles.test.ts
 ```
 
 Write the solution, run the test, then set the puzzle's entry in `PAR` to the

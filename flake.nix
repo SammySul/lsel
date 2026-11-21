@@ -39,8 +39,8 @@
         yank-wars = {
           dir = "apps/yank-wars";
           prefix = "YW";
-          server = "apps/server/src/main.ts";
-          web = "apps/web/dist";
+          server = "server/src/main.ts";
+          web = "web/dist";
           # its tests check the answer files were made with this vim
           checkInputs = [ pkgs.vim ];
         };

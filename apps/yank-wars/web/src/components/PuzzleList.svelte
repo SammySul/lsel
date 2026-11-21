@@ -2,7 +2,7 @@
 import { duration, go, keys, List, Page } from "@sammysul/lsel";
 import { DIFFICULTIES, type Difficulty } from "@yank-wars/engine";
 import { untrack } from "svelte";
-import { version } from "../../../../package.json";
+import { version } from "../../../package.json";
 import { CHORD_LABELS } from "../lib/chords.ts";
 import { prefs } from "../lib/prefs.svelte.ts";
 import { markOf, progressOf } from "../lib/progress.ts";
