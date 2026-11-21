@@ -1,0 +1,28 @@
+import { count } from "@sammysul/lsel/format";
+import { ITEMS, type Stack } from "../../content/items.ts";
+
+/** 3000 as "3.0 s". */
+export const seconds = (ms: number) => `${(ms / 1000).toFixed(1)} s`;
+
+/** 600000 as "10:00", 4000 as "4.0 s": bars under a minute are read in seconds. */
+export function span(ms: number): string {
+  if (ms < 60_000) return seconds(ms);
+  const total = Math.round(ms / 1000);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = String(total % 60).padStart(2, "0");
+  return h > 0 ? `${h}:${String(m).padStart(2, "0")}:${s}` : `${m}:${s}`;
+}
+
+/** Stacks as "20 iron plate, 10 water". */
+export const stacks = (list: readonly Stack[]) =>
+  list
+    .map(({ item, amount }) => {
+      const { name, one } = ITEMS[item];
+      return `${count(amount)} ${(amount === 1 ? (one ?? name) : name).toLowerCase()}`;
+    })
+    .join(", ");
+
+/** Item names alone, as "iron ore, ice". */
+export const names = (list: readonly Stack[]) =>
+  [...new Set(list.map(({ item }) => ITEMS[item].name.toLowerCase()))].join(", ");
