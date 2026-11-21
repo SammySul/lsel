@@ -23,15 +23,14 @@ describes, fix or delete the note.
   what is untested, especially anything checked only headless or only on one OS.
 - **Comments: one line or none**, only for a why the code can't show.
 - **Commits: subject line only.** No body, no trailers. Signed with the
-  personal SSH key, author `Sammy Suleiman <mail@sammysul.com>`; every repo lives
-  on Forgejo (`forgejo:SammySul/<name>.git`, git.sammysul.com); public ones are mirrored
-  to `github.com/SammySul/<name>` by Forgejo's push mirror, MIT, `Copyright (c) <year> SammySul`. A repo
-  goes public only with a history free of older names and emails (fresh, or
-  rewritten), since a public history can't be taken back. Set the mirror up
-  yourself with the keychain's tokens (`security find-generic-password -s <item>
-  -w`, never printed): `github-mirror` creates the GitHub repo (all SammySul
-  repos, administration and contents), `forgejo` adds the push mirror
-  (repository read/write).
+  personal SSH key, author `Sammy Suleiman <mail@sammysul.com>`. lsel lives on
+  Forgejo (`forgejo:SammySul/lsel.git`, git.sammysul.com), mirrored to GitHub by
+  Forgejo's push mirror; MIT, `Copyright (c) <year> SammySul`.
+- **A repo goes public only with a history free of older names and emails**
+  (fresh, or rewritten): a public history can't be taken back. The keychain's
+  tokens (`security find-generic-password -s <item> -w`, never printed):
+  `github-mirror` for GitHub (all SammySul repos, administration and contents),
+  `forgejo` for Forgejo (repository read/write).
 - **Specs are deleted once built**; `docs/decisions.md` keeps the why.
 - **When Sammy has to act** (a login, `sudo`, a dashboard), one step per
   message, then wait.
@@ -41,7 +40,7 @@ describes, fix or delete the note.
 ## Traps
 
 - **The palette** (`theme/palettes.nix`) feeds the terminal, nvim and desktop
-  through `squares` as well as every project: all 16 `term` slots must be
+  through `squares` as well as every app: all 16 `term` slots must be
   filled, and `base` sits below Moon's own base, which stays as `raise`, or the
   ramp skips a step. `squares` follows with `nix flake update lsel`.
 - A flake sees only git-tracked files: `git add` new files before `nix build`
@@ -74,11 +73,13 @@ describes, fix or delete the note.
   in `patches/`.
 - **Run an app's scripts in its directory** (the root's `--filter` scripts do):
   bun reads `bunfig.toml`, and with it the tests' preload, from the cwd only.
+- **Biome formats Markdown too**: after editing a doc, `biome format --write`
+  it, or `nix flake check` fails on its tables and line breaks.
 - **An app is built, checked and deployable only once it's in `flake.nix`'s
   `apps`**; CI releases every `apps/*` whose version has no `<name>-v` tag.
 - **The CSP is `default-src 'self'` with no inline styles**: an inline `<style>`
   in `index.html` or a `style` attribute string breaks the page. Svelte's
-  `style:` directive and anything set through the DOM is allowed. A project that
+  `style:` directive and anything set through the DOM is allowed. An app that
   needs more (CodeMirror's injected styles) passes `serve({ csp })`, which adds
   to the policy.
 - Vite's root is `src/web`, so `public/` and `index.html` live there; the build

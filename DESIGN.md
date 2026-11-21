@@ -1,9 +1,9 @@
 # Design
 
 One look for everything: the terminal's. Dark only, monospace, square, quiet.
-The values live in `theme/` and reach projects as `tokens.css` in
+The values live in `theme/` and reach every app as `tokens.css` in
 `@sammysul/lsel`; use the variables, never the hex values. The package's
-components (`Page`, `Popup`, `Tabs`, `List`, `Status`, `Empty`, `Action`,
+components (`Page`, `Tabs`, `List`, `Status`, `Empty`, `Action`,
 `Field`) are these rules in code: use them rather than rebuilding them.
 
 ## Palette
@@ -28,7 +28,7 @@ the desktop use (`squares` imports it from here).
 Readable pairs are pinned by `theme/contrast.test.ts` (WCAG AA, 4.5:1). Text
 on a filled `--accent` button is `--base`.
 
-A project may add a content palette for its art (lsel-station's pixel art);
+An app may add a content palette for its art (lsel-station's pixel art);
 the interface around it still uses these variables.
 
 ## Type
@@ -48,8 +48,7 @@ the interface around it still uses these variables.
 - 1px borders in `--overlay`; no shadows, gradients, blur or transparency
   effects.
 - A page's content sits in `main`, which `tokens.css` frames with a border and
-  a gap to the window; the app sets only its `max-width` and padding. A popup
-  has no `main`: the browser frames it.
+  a gap to the window; the app sets only its `max-width` and padding.
 - Spacing on a 4px grid: `--space-1` … `--space-7` (4, 8, 12, 16, 24, 32, 48).
 
 ## Elements
@@ -85,7 +84,7 @@ the user is `role="alert"`.
 
 - **Loading**: one line in `--subtle` naming what it waits for ("Asking
   PUBG…", not "Loading…"), and a 2px `--accent` bar sliding along the top of the
-  window (`Page` and `Popup` draw it; still under reduced motion), both shown
+  window (`Page` draws it; still under reduced motion), both shown
   only after 300 ms so a fast answer doesn't flash. The bar floats over the page
   and never moves it. A refresh keeps the old content on screen. No spinners or
   skeletons; a progress bar in the content only when the progress is known (a
@@ -109,7 +108,7 @@ the user is `role="alert"`.
 
 ## Icon
 
-A project's favicon is its first letter, lowercase, in JetBrains Mono Bold, in
+An app's favicon is its first letter, lowercase, in JetBrains Mono Bold, in
 `--accent` on `--base`, square: `nix run lsel#favicon -- <letter> >
 favicon.svg` (the letter is a path, so no font is needed to show it).
 

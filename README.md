@@ -1,16 +1,17 @@
 # lsel
 
-Home base: the shared rules, the kit every app renders through, the apps
-themselves and the Nix that builds them, in one Bun workspace and one flake.
+Sammy's apps and the kit they share, in one Bun workspace and one flake. What
+each app is and where it runs: [sammysul.com](https://sammysul.com).
 
 ```
 CLAUDE.md          rules and traps every app inherits
 DESIGN.md          look and feel
-STACK.md           stack, release and deploy defaults
+STACK.md           stack, release and deploy
+docs/decisions.md  why it is shaped this way
 theme/             palettes.nix, tokens.nix and the contrast test
-nix/               the app builder, bun2nix's patch, the release script
+nix/               the workspace builders, bun2nix's patch, the release script
 kit/               @sammysul/lsel: tokens.css and fonts, components, keys, states,
-                   formats, the server, test helpers, shared configs, lsel-check
+                   formats, the server, test helpers, the shared tsconfig, lsel-check
 apps/              typ, dajaj, lsel-station, yank-wars, sammysul (the sammysul.com page)
 templates/web/     the starting point for a new app: a Svelte page served by Bun
 patches/           `bun patch` patches, for the whole workspace
@@ -28,24 +29,25 @@ bun run build        # every member
 bun run test:e2e     # every member's browser tests
 ```
 
-Inside an app, its own scripts (`bun run dev`, `check`, `test`, …) work as
-before. The kit's playground (`bun run dev` in `kit/`) shows every component
-in every state.
+Inside an app or `kit/`, its own scripts (`bun run dev`, `check`, `test`, …)
+cover just that member. The kit's playground (`bun run dev` in `kit/`) shows
+every component in every state.
 
 ## A new app
 
 ```sh
 cp -R templates/web apps/<name>
-# set "name" (the binary, the env prefix and the page take it from there) and "version" in its package.json
+# in apps/<name>: "name" and "version" in package.json (the binary, the env
+# prefix and the page take the name from there), and <title> in src/web/index.html
 nix run .#favicon -- <letter> > apps/<name>/src/web/public/favicon.svg
 bun install
 ```
 
-Then add it to `apps` in `flake.nix`, which builds and checks it, and deploy it
-from `squares` (STACK.md).
+Then add it to `apps` in `flake.nix`, which builds and checks it, and to the
+list in `apps/sammysul/src/web/projects.ts`, and deploy it from `squares`
+(STACK.md).
 
-## Changing the kit, the palette or the Nix
+## Releasing
 
-Edit it and run the checks above: every app uses the kit from source, so a
-change and its fixes in the apps land in one commit. A palette change also
-reaches `squares` with `nix flake update lsel`.
+Bump `version` in an app's `package.json` and push `main`: CI tags
+`<name>-v<version>`, and twelve runs it within five minutes (STACK.md).

@@ -17,13 +17,14 @@ app is a cache hit. The four apps' histories were rewritten under `apps/`
 (signatures only survive on the archived originals); archived apps and moloch
 stay in their own repos.
 
-## The package is the source of truth
+## The kit is the source of truth
 
-Projects adopt what the package provides and delete their own copies; when a
-project doesn't fit, the project changes unless something real is missing, and
-then the package grows. `lsel-check` fails a project that rolls its own keys,
-storage, date formats, server or styling, so the copies don't come back. It
-grows only from what two or more projects need; one project's piece stays there.
+Apps use what the kit provides rather than their own copies; when an app
+doesn't fit, the app changes unless something real is missing, and then the
+kit grows. `lsel-check` fails an app that rolls its own keys, storage, date
+formats, server or styling, so the copies don't come back. The kit grows only
+from what two or more apps need, and loses what none uses any more; one app's
+piece stays in that app.
 
 ## The kit is read from source
 
