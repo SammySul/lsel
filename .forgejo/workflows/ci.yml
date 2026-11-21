@@ -1,65 +1,33 @@
-# Runs on twelve's own runner, with the host's Nix.
+# Runs on twelve's own runner, with the host's Nix. GitHub only mirrors this repository.
 name: ci
 on: { pull_request: {}, push: { branches: [main] } }
 jobs:
+  # every app's build, check and tests, the kit's, Biome and the palette; an app nothing touched is a cache hit
   check:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v7
       - run: nix flake check
+      - name: yank-wars' test harness stays out of its production build
+        run: '! grep -rlq -e __yw -e harness "$(nix build .#yank-wars --no-link --print-out-paths)/share/yank-wars/web"'
 
-  kit:
+  browsers:
     runs-on: self-hosted
-    defaults: { run: { working-directory: kit } }
     steps:
       - uses: actions/checkout@v7
       - run: nix develop -c bun install --frozen-lockfile
-      - run: nix develop -c bun run check
-      - run: nix develop -c bun run test
       - run: nix develop -c bun run build
       - run: nix develop -c bun run test:e2e
-      - run: nix develop -c bun run package
+      - run: nix develop -c bun run test:browser
+        working-directory: apps/yank-wars
 
-  # A template is a whole project: it must pass its own checks as shipped. After publish, which may be
-  # releasing the kit version it pins; on a pull request publish is skipped and they run anyway.
-  template:
-    needs: publish
-    if: ${{ !cancelled() && !failure() }}
-    runs-on: self-hosted
-    defaults: { run: { working-directory: templates/web } }
-    steps:
-      - uses: actions/checkout@v7
-      - run: nix flake check
-      - run: nix develop -c bun install --frozen-lockfile
-      - run: nix develop -c bun run build
-      - run: nix develop -c bun run test:e2e
-
-  template-extension:
-    needs: publish
-    if: ${{ !cancelled() && !failure() }}
-    runs-on: self-hosted
-    defaults: { run: { working-directory: templates/extension } }
-    steps:
-      - uses: actions/checkout@v7
-      - run: nix flake check
-
-  # A kit version not yet in Forgejo's registry is published; any other push publishes nothing.
-  publish:
-    needs: kit
+  # An app whose version has no <name>-v tag yet is released; `squares` deploys the newest tag.
+  release:
+    needs: [check, browsers]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: self-hosted
-    defaults: { run: { working-directory: kit } }
     steps:
       - uses: actions/checkout@v7
-      - run: nix develop -c bun install --frozen-lockfile
-      - env:
-          # the run's own token can't write packages: Forgejo wants the owner's
-          NPM_CONFIG_TOKEN: "${{ secrets.PACKAGES_TOKEN }}"
-        run: |
-          registry="$GITHUB_SERVER_URL/api/packages/SammySul/npm/"
-          version=$(jq -r .version package.json)
-          if curl -fsS "${registry}@sammysul%2flsel" | jq -e --arg v "$version" '.versions[$v]' >/dev/null; then
-            echo "@sammysul/lsel $version is already published"
-            exit 0
-          fi
-          nix develop -c bun publish --registry "$registry"
+        with: { fetch-depth: 0 }
+      - env: { TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
+        run: for dir in apps/*/; do nix run .#release -- "${dir%/}"; done

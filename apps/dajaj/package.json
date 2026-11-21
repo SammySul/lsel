@@ -1,28 +1,27 @@
 {
   "name": "dajaj",
-  "version": "1.2.2",
+  "version": "1.2.3",
   "private": true,
   "type": "module",
   "scripts": {
     "dev": "bun --bun vite",
     "build": "bun --bun vite build",
-    "check": "tsc --noEmit && svelte-check --tsconfig ./tsconfig.json --output human && biome check . && lsel-check",
+    "check": "tsc --noEmit && svelte-check --tsconfig ./tsconfig.json --output human && lsel-check",
     "test": "bun --conditions=browser test ./src",
-    "test:e2e": "bun test ./e2e",
-    "postinstall": "bun2nix -o bun.nix"
+    "test:e2e": "BROWSERS=chromium bun test ./e2e"
   },
   "dependencies": {
-    "@sammysul/lsel": "0.5.3",
+    "@sammysul/lsel": "workspace:*",
     "chart.js": "4.6.1",
-    "svelte": "5.57.3",
-    "valibot": "1.5.0"
+    "svelte": "catalog:",
+    "valibot": "catalog:"
   },
   "devDependencies": {
-    "@sveltejs/vite-plugin-svelte": "7.3.1",
-    "@types/bun": "1.4.4",
-    "playwright-core": "1.64.1",
-    "svelte-check": "4.7.7",
-    "typescript": "5.9.3",
-    "vite": "8.3.5"
+    "@sveltejs/vite-plugin-svelte": "catalog:",
+    "@types/bun": "catalog:",
+    "playwright-core": "catalog:",
+    "svelte-check": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
   }
 }

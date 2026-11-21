@@ -1,4 +1,4 @@
 {
-  "extends": ["@sammysul/lsel/biome"],
+  "extends": "//",
   "files": { "includes": ["**", "!!packages/engine/oracle/**/*.vim.json"] }
 }

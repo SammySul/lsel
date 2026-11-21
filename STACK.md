@@ -1,25 +1,25 @@
 # Stack
 
-The defaults every project starts from (`nix flake init -t ../..#web` from a
-new `projects/<name>/`). `templates/web/` is all of it, and lsel's CI builds
-and tests it.
+The defaults every app starts from: `templates/web/`, a workspace member that
+CI builds and tests like the apps. A new app is a copy of it in `apps/<name>/`
+(README.md).
 
-| Concern | Default | Why |
-|---|---|---|
-| Environment | Nix flake dev shell, direnv | The same toolchain locally, in CI and on `twelve`; pins Bun, Biome and browsers |
-| Build, checks, release | lsel's flake (`webApp`, `extension`, `lsel-release`) | One copy of the Nix build, its checks and the release for every project; a project overrides what differs |
-| Runtime, packages, tests | Bun | One tool for install, run, test and `bun patch` |
-| Language | TypeScript, strict (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`) | The template's `tsconfig.json` |
-| Lint, format | Biome, `recommended` preset | Fast, one tool; never run `biome migrate` (it switches the linter off) |
-| Interface | Svelte 5 + Vite, single page | Small, no framework server. Several screens are `#/…` routes in the app (yank-wars). SvelteKit only when pages must render on the server: indexed content, a link preview per page, working without JavaScript |
-| Games | A 2D canvas inside the Svelte shell | The shell keeps keyboard, focus and layout consistent with the rest |
-| Validation | Valibot, only where outside data enters | Inside the boundary, trust the types |
-| Data | Content as files, state in `bun:sqlite` | One file in the service's state directory, backed up by `squares` |
-| Server | `serve()` from `@sammysul/lsel/server` (Bun.serve, no framework) | Static files, `/healthz`, strict CSP, loopback only; the project adds its routes |
-| Unit tests | `bun --conditions=browser test`, the package's preload | Call code as its users do, assert literal values; the condition and preload let Svelte compile in tests |
-| Browser tests | Playwright with the dev shell's browsers | Real-browser checks in Chromium; Firefox and WebKit too (`web-all-browsers`) once a project has code specific to one of them |
-| Interface pieces | `@sammysul/lsel` | The frame, keys, states, formats and preferences, once; `lsel-check` fails a project that rolls its own |
-| Styling | `tokens.css` from `@sammysul/lsel` | `DESIGN.md` |
+| Concern                  | Default                                                                       | Why                                                                                                                                                                                                            |
+| ------------------------ | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Environment              | Nix flake dev shell, direnv                                                   | The same toolchain locally, in CI and on `twelve`; pins Bun, Biome and browsers                                                                                                                                |
+| Build, checks, release   | lsel's flake (`nix/app.nix`, `lsel-release`), one Bun workspace               | One build, its checks and the release for every app; the kit and the apps change in one commit                                                                                                                 |
+| Runtime, packages, tests | Bun                                                                           | One tool for install, run, test and `bun patch`                                                                                                                                                                |
+| Language                 | TypeScript, strict (`noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`) | The kit's `config/tsconfig.json`, which every app extends                                                                                                                                                      |
+| Lint, format             | Biome, `recommended` preset, one root config                                  | Fast, one tool; never run `biome migrate` (it switches the linter off)                                                                                                                                         |
+| Interface                | Svelte 5 + Vite, single page                                                  | Small, no framework server. Several screens are `#/…` routes in the app (yank-wars). SvelteKit only when pages must render on the server: indexed content, a link preview per page, working without JavaScript |
+| Games                    | A 2D canvas inside the Svelte shell                                           | The shell keeps keyboard, focus and layout consistent with the rest                                                                                                                                            |
+| Validation               | Valibot, only where outside data enters                                       | Inside the boundary, trust the types                                                                                                                                                                           |
+| Data                     | Content as files, state in `bun:sqlite`                                       | One file in the service's state directory, backed up by `squares`                                                                                                                                              |
+| Server                   | `serve()` from `@sammysul/lsel/server` (Bun.serve, no framework)              | Static files, `/healthz`, strict CSP, loopback only; the project adds its routes                                                                                                                               |
+| Unit tests               | `bun --conditions=browser test`, the kit's preload                            | Call code as its users do, assert literal values; the condition and preload let Svelte compile in tests                                                                                                        |
+| Browser tests            | Playwright with the dev shell's browsers                                      | Real-browser checks in Chromium; Firefox and WebKit too once an app has code specific to one of them                                                                                                           |
+| Interface pieces         | `@sammysul/lsel` (`kit/`)                                                     | The frame, keys, states, formats and preferences, once; `lsel-check` fails an app that rolls its own                                                                                                           |
+| Styling                  | `tokens.css` from `@sammysul/lsel`                                            | `DESIGN.md`                                                                                                                                                                                                    |
 
 ## Patterns
 
@@ -38,26 +38,23 @@ and tests it.
 
 ## Browser extension
 
-`templates/extension/` (`nix flake init -t ../..#extension`), also built and
-tested by lsel's CI. Svelte 5 + Vite with `vite-plugin-web-extension`,
-built on `@sammysul/lsel` like any app (`Popup` frames it), checked
-and tested the same way; the popup keeps its own width. No server and no
-updater. It releases like everything else (Release, below), and the release
-carries the built extension as `<name>.zip` for loading unpacked; the manifest
-takes its version from `package.json` at build. On tanaka, its flake's package builds
-it and `squares` loads it (`localExtensions`), updated with that flake input and
-a deploy. The manifest's `key` pins the extension id, which the extension's
-storage belongs to, so every copy shares it.
+No extension lives here now. dontstudy (archived, in its own repo) has the last
+setup: Svelte 5 + Vite with `vite-plugin-web-extension`, `Popup` from the kit,
+a release carrying `<name>.zip`, and a manifest `key` pinning the extension id
+its storage belongs to. The next extension brings that builder back into
+`nix/`.
 
 ## Release
 
-1. `version` in the root `package.json` is the only version.
-2. Pushing `main` runs CI on twelve's Forgejo runner (`.forgejo/workflows/`,
-   `runs-on: self-hosted`, the host's Nix): `nix flake check` builds the package
-   and runs `bun run check` and `test`; the browser tests run in the dev shell. Then `lsel-release`
-   turns a version without its `v<version>` tag into a Forgejo release listing
-   the commit subjects since the last tag; any other push releases nothing. A public repo gets a push
-   mirror to GitHub, with no workflows there.
+1. `version` in an app's `package.json` is its only version.
+2. Pushing `main` runs CI on twelve's Forgejo runner (`.forgejo/workflows/ci.yml`,
+   `runs-on: self-hosted`, the host's Nix): `nix flake check` builds every app
+   and runs each one's `bun run check` and `test` (an app nothing touched is a
+   cache hit); the browser tests run in the dev shell. Then `lsel-release` turns
+   each app version without its `<name>-v<version>` tag into a Forgejo release
+   listing the commit subjects under that app since its last tag; any other
+   push releases nothing. GitHub mirrors the repository, with no workflows
+   there.
 3. On `twelve`, the app's updater (`squares`, `hosts/twelve/apps.nix`: one
    module for every app) sees the new tag within 5 minutes, builds it, restarts
    only that service and rolls back if `/healthz` fails. A tag that fails is
@@ -65,21 +62,19 @@ storage belongs to, so every copy shares it.
 
 ## Deploy (a new service)
 
-The project ships only its package (lsel's `webApp`). The
+The app ships only its package (an entry in `flake.nix`'s `apps`). The
 server reads `<PREFIX>_HOST` and `<PREFIX>_PORT` and answers `ok` on `/healthz`;
 the prefix is `package.json`'s `name` in capitals, `-` as `_`.
 Then in `squares`:
 
-1. A flake input `git+https://git.sammysul.com/SammySul/<name>` following
-   `nixpkgs-twelve`.
-2. `twelve.apps.<name>` in `hosts/twelve/native.nix` with a free loopback port
+1. `twelve.apps.<name>` in `hosts/twelve/native.nix` with a free loopback port
    and its `envPrefix` (`state = true` for a `/var/lib/<name>`), and the app in
    `hosts/twelve/apps-test.nix`.
-3. An `ingress."<domain>"` line on the existing cloudflared tunnel, then the DNS
+2. An `ingress."<domain>"` line on the existing cloudflared tunnel, then the DNS
    record (`cloudflared tunnel route dns`, see the trap in `CLAUDE.md`).
-4. Its state directory in the nightly restic paths, or `stateIgnored` with the
+3. Its state directory in the nightly restic paths, or `stateIgnored` with the
    reason: `squares` refuses to build otherwise.
-5. Build `twelve` on `twelve` without switching, read `nix store
+4. Build `twelve` on `twelve` without switching, read `nix store
    diff-closures` against the running system, then `deploy`.
 
 Domains live on Cloudflare in the tunnel's account; a `.app` domain is

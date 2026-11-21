@@ -1,0 +1,4 @@
+{
+  "extends": ["./kit/config/biome.json"],
+  "files": { "includes": ["**", "!!kit/config/biome.json"] }
+}

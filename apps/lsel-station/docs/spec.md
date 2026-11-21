@@ -56,7 +56,7 @@ Locked decisions:
 | Length           | About three months of real time to finish everything                                 |
 | Audience         | Personal on twelve, built so it could be opened to anyone later                      |
 | Saves            | Local saves plus a sync service from the first deployed version                      |
-| Folder           | `lsel/projects/lsel-station` (`lsel` is the home base)                               |
+| Folder           | `lsel/apps/lsel-station` (`lsel` is the home base)                                   |
 
 ---
 

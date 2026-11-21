@@ -10,7 +10,7 @@ Everything runs in the Nix dev shell (`direnv allow`, or `nix develop -c …`):
 
 ```sh
 bun install
-bun run check        # tsc, svelte-check, biome
+bun run check        # tsc, svelte-check, lsel-check
 bun run test         # unit tests
 bun run dev          # vite
 bun run build        # the web app into dist/
@@ -25,6 +25,6 @@ bun run test:e2e     # dist/ in Chromium, Firefox and WebKit
 | `TYP_HOST`, `TYP_PORT` | `127.0.0.1`, `7200`   |                          |
 
 A version bump in `package.json` releases it; the host that runs it follows
-the release tags. The repository lives at
-[git.sammysul.com/SammySul/typ](https://git.sammysul.com/SammySul/typ), where CI
-runs; GitHub is a mirror.
+the release tags. It lives in
+[lsel](https://git.sammysul.com/SammySul/lsel), where CI runs; GitHub is a
+mirror.

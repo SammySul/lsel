@@ -14,7 +14,7 @@ function project(files: Record<string, string>): string {
 }
 
 const CONFIGS = {
-  "biome.json": '{ "extends": ["@sammysul/lsel/biome"] }',
+  "biome.json": '{ "extends": "//" }',
   "tsconfig.json": '{ "extends": "@sammysul/lsel/tsconfig.json" }',
 };
 
@@ -47,7 +47,7 @@ test("names each hand-rolled piece and design break, by file and line", async ()
   });
   const found = (await check(root)).map((f) => `${f.file}:${f.line}: ${f.message}`).sort();
   expect(found).toEqual([
-    'biome.json:1: extends ["@sammysul/lsel/biome"]',
+    'biome.json:1: extends "//", lsel\'s root config',
     "src/server/main.ts:1: serve() from @sammysul/lsel/server runs the server",
     "src/web/App.svelte:1: keys() from @sammysul/lsel handles keys",
     "src/web/App.svelte:2: Page draws a page's main; Popup an extension's",

@@ -11,19 +11,19 @@ components (`Page`, `Popup`, `Tabs`, `List`, `Status`, `Empty`, `Action`,
 Rosé Pine Moon on a near-black base, the same palette the terminal, nvim and
 the desktop use (`squares` imports it from here).
 
-| Variable | Use |
-|---|---|
-| `--base` | page background |
-| `--raise`, `--surface` | panels, rows, inputs: one step up each; depth comes from these steps, never from shadows |
-| `--overlay` | borders and dividers |
-| `--highlight` | text selection |
-| `--text` | body text |
-| `--subtle` | secondary text, on `--base` or `--raise` only |
-| `--muted` | disabled and decorative text only: it fails AA for reading |
-| `--accent` | focus, links, the primary action, the selected row's left bar, a pressed toggle's border; as text it sits on `--base` only (it fails AA on anything raised) |
-| `--error`, `--warning`, `--success` | states; text in a state color sits on `--base`, so a selected row or a pressed toggle gets a border, not a fill |
-| `--select` | the text cursor |
-| `--term-0` … `--term-15` | the terminal's 16 colors, for syntax and charts |
+| Variable                            | Use                                                                                                                                                         |
+| ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `--base`                            | page background                                                                                                                                             |
+| `--raise`, `--surface`              | panels, rows, inputs: one step up each; depth comes from these steps, never from shadows                                                                    |
+| `--overlay`                         | borders and dividers                                                                                                                                        |
+| `--highlight`                       | text selection                                                                                                                                              |
+| `--text`                            | body text                                                                                                                                                   |
+| `--subtle`                          | secondary text, on `--base` or `--raise` only                                                                                                               |
+| `--muted`                           | disabled and decorative text only: it fails AA for reading                                                                                                  |
+| `--accent`                          | focus, links, the primary action, the selected row's left bar, a pressed toggle's border; as text it sits on `--base` only (it fails AA on anything raised) |
+| `--error`, `--warning`, `--success` | states; text in a state color sits on `--base`, so a selected row or a pressed toggle gets a border, not a fill                                             |
+| `--select`                          | the text cursor                                                                                                                                             |
+| `--term-0` … `--term-15`            | the terminal's 16 colors, for syntax and charts                                                                                                             |
 
 Readable pairs are pinned by `theme/contrast.test.ts` (WCAG AA, 4.5:1). Text
 on a filled `--accent` button is `--base`.

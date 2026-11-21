@@ -19,10 +19,10 @@ Shared rules, the stack, release and deploy come from lsel's `CLAUDE.md` and
 
 ## Working here
 
-- **Validate from the repo root:** `bun run check` (tsc, svelte-check, biome,
-  lsel-check), `bun run test`, `bun run build`, then `bun run test:e2e`.
-  `bunfig.toml` (happy-dom and Svelte preloads) is read from the cwd only, so
-  `bun test` in a subdirectory runs without DOM globals.
+- **Run its scripts from `apps/yank-wars`:** `bun run check` (tsc,
+  svelte-check, lsel-check), `bun run test`, `bun run build`, then `bun run
+  test:e2e`. `bunfig.toml` (happy-dom and Svelte preloads) is read from the cwd
+  only, so `bun test` in a subdirectory runs without DOM globals.
 - **The CSP allows inline styles**, unlike lsel's: CodeMirror injects `<style>`
   elements. `CSP` in `apps/server/src/server.ts` goes to `serve()`;
   `e2e/built.e2e.ts` fails if CodeMirror goes unstyled.
@@ -33,7 +33,7 @@ Shared rules, the stack, release and deploy come from lsel's `CLAUDE.md` and
 
 - Root scripts can't call member bins: the isolated linker puts `vite` and
   `svelte-check` only in their workspace's `.bin`. Use `bun run --filter`.
-- Pin every `@codemirror/*` in the root `catalog` and write `"catalog:"`: a
+- Pin every `@codemirror/*` in lsel's root `catalog` and write `"catalog:"`: a
   second copy of `state` or `view` throws "Unrecognized extension value".
 - `apps/web` deliberately lacks `@replit/codemirror-vim`, `@codemirror/commands`
   and `@codemirror/lang-*`; an import failing there is the "visuals only" guard.
@@ -68,14 +68,6 @@ Shared rules, the stack, release and deploy come from lsel's `CLAUDE.md` and
   cases, or a nixpkgs bump that moves vim, run `bun run oracle` yourself.
 - `bun run oracle` and `bun run test:browser` need the dev shell's vim and
   browsers: `nix develop -c …` (the system vim answers differently).
-
-## Nix traps
-
-- `bun.nix` comes from the root `postinstall: bun2nix -o bun.nix`, which needs the
-  dev shell's `bun2nix`: run `bun install` inside it after any dependency change,
-  or the Nix build uses a stale `bun.nix`. The Nix build would rerun it without,
-  hence `dontRunLifecycleScripts` in every `package.nix`, which also skips any
-  dependency's own install script.
 
 ## Engine traps (codemirror-vim, headless)
 

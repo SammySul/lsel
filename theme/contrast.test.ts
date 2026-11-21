@@ -32,7 +32,8 @@ const ALLOWED: Record<string, string[]> = {
 };
 
 test.each(Object.entries(ALLOWED))("%s is readable on %j", (fg, bgs) => {
-  for (const bg of bgs) expect({ fg, bg, ok: contrast(fg, bg) >= 4.5 }).toEqual({ fg, bg, ok: true });
+  for (const bg of bgs)
+    expect({ fg, bg, ok: contrast(fg, bg) >= 4.5 }).toEqual({ fg, bg, ok: true });
 });
 
 test("muted is never body text: it fails AA even on base", () => {

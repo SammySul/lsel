@@ -79,9 +79,10 @@ const isTest = (path: string) => /\.(test|spec|fixture)\.|[/\\](e2e|test|tests)[
 
 async function configFindings(root: string): Promise<Finding[]> {
   const out: Finding[] = [];
-  const biome = await readFile(join(root, "biome.json"), "utf8").catch(() => "");
-  if (!biome.includes('"@sammysul/lsel/biome"')) {
-    out.push({ file: "biome.json", line: 1, message: 'extends ["@sammysul/lsel/biome"]' });
+  // without one, lsel's root biome.json applies
+  const biome = await readFile(join(root, "biome.json"), "utf8").catch(() => undefined);
+  if (biome !== undefined && !/"extends"\s*:\s*"\/\/"/.test(biome)) {
+    out.push({ file: "biome.json", line: 1, message: 'extends "//", lsel\'s root config' });
   }
   const tsconfig = await readFile(join(root, "tsconfig.json"), "utf8").catch(() => "");
   if (!/"extends"\s*:\s*"(@sammysul\/lsel\/tsconfig\.json|\.{1,2}\/[^"]+)"/.test(tsconfig)) {

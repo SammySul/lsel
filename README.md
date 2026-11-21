@@ -1,59 +1,52 @@
 # lsel
 
-Home base: the shared rules, the `@sammysul/lsel` package every project
-builds on, the Nix every project builds with and the project templates, with
-every project checked out under `projects/`.
+Home base: the shared rules, the kit every app renders through, the apps
+themselves and the Nix that builds them, in one Bun workspace and one flake.
 
 ```
-CLAUDE.md          rules and traps every project inherits
+CLAUDE.md          rules and traps every app inherits
 DESIGN.md          look and feel
 STACK.md           stack, release and deploy defaults
-ideas.md           ideas not yet in a project
+ideas.md           ideas not yet in an app
 theme/             palettes.nix, tokens.nix and the contrast test
-nix/               the builders, bun2nix's patch and cache fix, the release script
+nix/               the app builder, bun2nix's patch, the release script
 kit/               @sammysul/lsel: tokens.css and fonts, components, keys, states,
                    formats, the server, test helpers, shared configs, lsel-check
+apps/              typ, dajaj, lsel-station, yank-wars
 templates/web/     the starting point for a new app: a Svelte page served by Bun
-templates/extension/  the starting point for a browser extension
-projects/          one repo per project (ignored here)
+patches/           `bun patch` patches, for the whole workspace
+projects/          repos that stay separate (ignored here)
 ```
 
-## A new project
+## Working on it
+
+Everything runs in the dev shell (`direnv allow`, or `nix develop -c …`):
 
 ```sh
-mkdir projects/<name> && cd projects/<name>
-nix flake init -t ../..#web        # or ../..#extension
-# set "name" in package.json: the binary, the env prefix and the page take it from there
-# (an extension: also "name" and "description" in manifest.json)
-nix run ../..#favicon -- <letter> > src/web/public/favicon.svg   # an app only
-git init && git add -A && direnv allow
+bun install          # the whole workspace, from anywhere in it
+nix flake check      # every app's build, check and tests, the kit's, Biome
+bun run build        # every member
+bun run test:e2e     # every member's browser tests
+```
+
+Inside an app, its own scripts (`bun run dev`, `check`, `test`, …) work as
+before. The kit's playground (`bun run dev` in `kit/`) shows every component
+in every state.
+
+## A new app
+
+```sh
+cp -R templates/web apps/<name>
+# set "name" (the binary, the env prefix and the page take it from there) and "version" in its package.json
+nix run .#favicon -- <letter> > apps/<name>/src/web/public/favicon.svg
 bun install
 ```
 
-## Changing the package
+Then add it to `apps` in `flake.nix`, which builds and checks it, and deploy it
+from `squares` (STACK.md).
 
-Edit `kit/` (its playground, `bun run dev` there, shows every component in every
-state), bump `kit/package.json`'s version and push: CI tests it and publishes
-any version not yet in Forgejo's registry. Then `bun add @sammysul/lsel@<version>
---exact` in each project; a breaking change updates them all in the same sitting.
+## Changing the kit, the palette or the Nix
 
-## Changing the shared Nix
-
-A template is copied once; nothing keeps a project in step with it. What every
-project builds with comes from this flake, which each project takes as its
-`lsel` input: the builders (`legacyPackages.<system>.webApp` and `.extension`,
-each with `.tests.check`), the dev shells (`web` with Chromium,
-`web-all-browsers`, `extension`), the patched bun2nix and `lsel-release`. Change
-it here and push, then `nix flake update lsel` in each project and commit. Try a
-change on a project first with `--override-input lsel git+file:../..`, which
-takes the tracked files only.
-
-A project that differs changes what it gets back rather than this flake:
-`.overrideAttrs` on a package or shell, or its own derivation built with
-`packages.<system>.bun2nix` and `lib.bunCacheAlias`. Something moves here only
-once two projects need it.
-
-## Changing the palette or tokens
-
-Edit `theme/` and run `nix flake check`; the package carries `tokens.css` and the palette, so
-release it as above. `squares` follows with `nix flake update lsel`.
+Edit it and run the checks above: every app uses the kit from source, so a
+change and its fixes in the apps land in one commit. A palette change also
+reaches `squares` with `nix flake update lsel`.

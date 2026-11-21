@@ -3,12 +3,19 @@
 Why lsel is shaped the way it is. The rules themselves live in `CLAUDE.md`,
 `DESIGN.md` and `STACK.md`.
 
-## A package, not a monorepo
+## One repo for the kit and the apps
 
-Shared code lives in `@sammysul/lsel` (`kit/`), and each project stays its own
-repo. A monorepo would have bought one-commit changes across projects, but
-every project has its own releases, its own public GitHub mirror with a clean
-history, and its own `squares` flake input; all three assume separate repos.
+The kit and every app live in one repo, one Bun workspace and one flake. It was
+a published package with a repo per app, kept separate for each app's releases,
+its own GitHub mirror and its own `squares` input. In practice every kit
+release was followed by a bump in every app the same day, and a kit change
+could only be tried in an app after publishing it. Now a kit change and its
+fixes in the apps are one commit, checked together before anything merges.
+What separate repos gave, the workspace keeps another way: per-app tags
+(`<name>-v<version>`) and releases, and per-app Nix sources, so an untouched
+app is a cache hit. The four apps' histories were rewritten under `apps/`
+(signatures only survive on the archived originals); archived apps and moloch
+stay in their own repos.
 
 ## The package is the source of truth
 
@@ -18,33 +25,31 @@ then the package grows. `lsel-check` fails a project that rolls its own keys,
 storage, date formats, server or styling, so the copies don't come back. It
 grows only from what two or more projects need; one project's piece stays there.
 
-## Published to Forgejo, pinned exactly
+## The kit is read from source
 
-The package is public on Forgejo's npm registry. Projects pin an exact version:
-an update is a deliberate bump, tested in that project, and `bun.nix` hashes the
-tarball. CI publishes any version in `kit/package.json` not yet in the registry.
-A git dependency on lsel can't replace it: bun (1.4) installs no subdirectory of
-a repo, and the tarball carries files Nix generates (`tokens.css`, the fonts).
+Apps take `@sammysul/lsel` as `workspace:*`, and its exports point at
+`kit/src`: no build, no registry, no version to bump. The files Nix generates
+(`tokens.css`, the palette, the fonts) reach `kit/src/lib/assets` through the
+root `postinstall` in the dev shell and through the flake in a build. Versions
+every member shares sit in the root catalog so there is one copy of Svelte.
+Versions already on Forgejo's registry stay there for the archived apps.
 
-## Shared Nix is lsel's flake, not synced copies
+## One flake, one builder
 
-The Nix build, dev shells, bun2nix fixes and release live in lsel's flake
-(`nix/`), which every project takes as its `lsel` input. It replaced a script
-that copied template files into each project: copies had no version, and a
-project that differed had to stop taking the file and with it every later fix.
-A project overrides what differs (`overrideAttrs`, or its own derivation on the
-shared bun2nix); something moves into `nix/` only once two projects need it.
-Templates are copied once, by `nix flake init`. It was a separate public flake,
-`lsel-nix`, only while lsel was private; once lsel went public, one repo meant
-one input to update and nothing to keep in step.
+`nix/app.nix` builds any member as a web app from the workspace's one
+`bun.lock`, with only that app's directory, the kit and the manifests as its
+source. An app differs through arguments (yank-wars' server and web paths, its
+`YW` prefix, vim for its checks), not its own derivation. Templates are
+workspace members rather than `nix flake init` templates, so CI builds the
+starting point like any app.
 
 ## Chromium by default, all three browsers where code differs
 
-The `web` shell carries only Chromium: most projects have no code that differs
-by browser, and Firefox and WebKit cost CI downloads, a Linux EGL workaround and
-flaky runs. The kit, which every project renders through, and a project with
-code written for one browser's quirks (typ, lsel-station, yank-wars) take
-`web-all-browsers`, so those fixes stay tested.
+The dev shell carries all three browsers, since the kit and three apps have
+code for one browser's quirks (typ, lsel-station, yank-wars). An app without
+any runs its browser tests in Chromium only (`BROWSERS=chromium` in its
+`test:e2e`): Firefox and WebKit would add time and flaky runs and test nothing
+of its own.
 
 ## Waiting is shown twice: a line and a bar
 

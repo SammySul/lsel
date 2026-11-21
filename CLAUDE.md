@@ -1,8 +1,9 @@
 # lsel
 
-The home base. Every project lives in `projects/<name>/` (its own repo, ignored
-here), so Claude Code reads this file in all of them; each project's own
-`CLAUDE.md` adds only its traps. Look and feel: `DESIGN.md`. Stack and deploy:
+The home base and the one repo for the kit and every app (`apps/<name>/`), so
+Claude Code reads this file in all of them; each app's own `CLAUDE.md` adds only
+its traps. `projects/` (ignored) holds the repos that stay separate: moloch and
+the archived ones. Look and feel: `DESIGN.md`. Stack and deploy:
 `STACK.md`. Deviating from either needs Sammy's yes.
 
 ## What a CLAUDE.md is for
@@ -14,12 +15,12 @@ describes, fix or delete the note.
 
 ## Working here
 
-- **Nix dev shell per project** (`direnv allow`, or `nix develop -c …`);
+- **One Nix dev shell, the root's** (`direnv allow`, or `nix develop -c …`);
   nothing is installed globally. **Bun only** for install, test, run and
   `bun patch`; no npm, no npx.
-- **Validate before calling it done**, with the project's own check, test and
-  build scripts, and say plainly what is untested, especially anything checked
-  only headless or only on one OS.
+- **Validate before calling it done**: `nix flake check`, then the root's
+  `bun run build` and `test:e2e` (each runs in every member), and say plainly
+  what is untested, especially anything checked only headless or only on one OS.
 - **Comments: one line or none**, only for a why the code can't show.
 - **Commits: subject line only.** No body, no trailers. Signed with the
   personal SSH key, author `Sammy Suleiman <mail@sammysul.com>`; every repo lives
@@ -53,31 +54,35 @@ describes, fix or delete the note.
 - Package scripts put `node_modules/.bin` first on PATH: after dropping a
   dependency that shipped a binary, `rm -rf node_modules`, or the stale copy
   keeps running instead of the dev shell's.
-- **Playwright with Nix's browsers:** `playwright-core` must equal the dev
-  shell's `PLAYWRIGHT_DRIVER_VERSION`. The rest of its environment (lsel's
-  dev shell) must come along to any other shell or runner, or the host check
-  fails and, on Linux, WebKit dies opening a page. `web` has only Chromium
-  (`BROWSERS=chromium`): a project with code for a Firefox or WebKit quirk takes
-  `web-all-browsers`, or that code goes untested.
+- **Playwright with Nix's browsers:** `playwright-core` in the root catalog must
+  equal the dev shell's `PLAYWRIGHT_DRIVER_VERSION`. The rest of the shell's
+  environment must come along to any other shell or runner, or the host check
+  fails and, on Linux, WebKit dies opening a page. An app with no code for a
+  Firefox or WebKit quirk sets `BROWSERS=chromium` in its `test:e2e`; one that
+  has some leaves it out, or that code goes untested.
 - Firefox logs "scroll-linked positioning effect" once per page whenever a
   scroll handler moves content: a test that fails on console warnings must
   ignore exactly that one.
 - **Build with lsel's bun2nix, never nixpkgs' or upstream's**: 2.1.2
-  rejects bun ≥ 1.3's lockfile (patched until a release has PR #110) and drops
-  the `@sammysul` registry's hash from bun's cache paths (`lib.bunCacheAlias`,
-  until draft PR #103). Moving the registry needs a new hash there.
-- **Publish a kit version before a project pins it**: CI publishes on push to
-  lsel's `main`, and `bun add @sammysul/lsel@<version> --exact` (not `bun
-  update`: the pin is exact) fails until then.
+  rejects bun ≥ 1.3's lockfile (patched until a release has PR #110).
+- **Run `bun install` after changing a dependency or the palette**, in the dev
+  shell: its `postinstall` rewrites `bun.nix`, which the Nix build reads, and
+  `kit/src/lib/assets`, which the kit exports from source.
+- **A version every member uses goes in the root `catalog`**, written
+  `"catalog:"` in the member: a second copy of `svelte` or `@codemirror/state`
+  breaks at runtime. `patchedDependencies` lives only in the root, its patches
+  in `patches/`.
+- **Run an app's scripts in its directory** (the root's `--filter` scripts do):
+  bun reads `bunfig.toml`, and with it the tests' preload, from the cwd only.
+- **An app is built, checked and deployable only once it's in `flake.nix`'s
+  `apps`**; CI releases every `apps/*` whose version has no `<name>-v` tag.
 - **The CSP is `default-src 'self'` with no inline styles**: an inline `<style>`
   in `index.html` or a `style` attribute string breaks the page. Svelte's
   `style:` directive and anything set through the DOM is allowed. A project that
   needs more (CodeMirror's injected styles) passes `serve({ csp })`, which adds
   to the policy.
 - Vite's root is `src/web`, so `public/` and `index.html` live there; the build
-  lands in `dist/` at the repo root, which `bun run test:e2e` needs first.
-- **Extension icons reach `dist/` only through Vite's `public/`**:
-  vite-plugin-web-extension does not copy the files the manifest names.
+  lands in the app's `dist/`, which `bun run test:e2e` needs first.
 - `cloudflared tunnel route dns` writes into the zone its cert was issued for;
   for any other zone it silently creates `<host>.<that zone>`. The certs are
   `~/.cloudflared/cert-<zone>.pem` (one per zone; `ls ~/.cloudflared`):

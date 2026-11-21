@@ -1,12 +1,12 @@
 # @yank-wars/web
 
-The solo client: puzzle list, round flow, split view with live diff. Run everything from the
-repo root (`bunfig.toml` is read from the cwd only):
+The solo client: puzzle list, round flow, split view with live diff. Run everything from
+`apps/yank-wars` (`bunfig.toml` is read from the cwd only):
 
 ```sh
 bun run dev     # vite dev server; DEV build, so the result card shows the self-check badge
 bun run build   # production build into apps/web/dist
-bun run check   # tsc (engine, server), svelte-check (web), biome, lsel-check
+bun run check   # tsc (engine, server), svelte-check (web), lsel-check
 ```
 
 ## Browser tests

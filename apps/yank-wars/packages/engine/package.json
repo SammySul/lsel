@@ -20,6 +20,6 @@
     "@codemirror/lang-json": "6.0.2",
     "@codemirror/lang-python": "6.2.1",
     "@codemirror/lang-rust": "6.0.2",
-    "valibot": "1.5.0"
+    "valibot": "catalog:"
   }
 }
