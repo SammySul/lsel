@@ -36,14 +36,6 @@ CI builds and tests like the apps. A new app is a copy of it in `apps/<name>/`
 - **Show upstream failures**: a rate limit or outage is a message on screen,
   never an empty table.
 
-## Browser extension
-
-No extension lives here now. dontstudy (archived, in its own repo) has the last
-setup: Svelte 5 + Vite with `vite-plugin-web-extension`, `Popup` from the kit,
-a release carrying `<name>.zip`, and a manifest `key` pinning the extension id
-its storage belongs to. The next extension brings that builder back into
-`nix/`.
-
 ## Release
 
 1. `version` in an app's `package.json` is its only version.

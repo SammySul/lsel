@@ -7,7 +7,6 @@ themselves and the Nix that builds them, in one Bun workspace and one flake.
 CLAUDE.md          rules and traps every app inherits
 DESIGN.md          look and feel
 STACK.md           stack, release and deploy defaults
-ideas.md           ideas not yet in an app
 theme/             palettes.nix, tokens.nix and the contrast test
 nix/               the app builder, bun2nix's patch, the release script
 kit/               @sammysul/lsel: tokens.css and fonts, components, keys, states,

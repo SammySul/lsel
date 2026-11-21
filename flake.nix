@@ -55,15 +55,17 @@
           bunDeps = bun2nix'.fetchBunDeps {
             bunNix = ./bun.nix;
             overrides = bun2nix'.patchedDependenciesToOverrides {
-              patchedDependencies = nixpkgs.lib.mapAttrs (_: path: root + "/${path}") (
-                nixpkgs.lib.importJSON ./package.json
-              ).patchedDependencies;
+              patchedDependencies = nixpkgs.lib.mapAttrs (
+                _: path: root + "/${path}"
+              ) (nixpkgs.lib.importJSON ./package.json).patchedDependencies;
             };
           };
-          app = pkgs.callPackage ./nix/app.nix {
+          member = import ./nix/member.nix {
+            inherit (nixpkgs) lib;
             bun2nix = bun2nix';
             inherit root assets bunDeps;
           };
+          app = pkgs.callPackage ./nix/app.nix { inherit root member; };
         in
         {
           apps = nixpkgs.lib.mapAttrs (name: args: app ({ inherit name; } // args)) (
@@ -75,23 +77,10 @@
           );
 
           # the kit's `bun run check` and `test`; its browser tests run in CI's dev shell
-          kit = bun2nix'.mkDerivation {
+          kit = member [ (root + "/kit") ] {
             pname = "lsel-kit-check";
             version = "0";
-            inherit bunDeps;
-            src = nixpkgs.lib.fileset.toSource {
-              inherit root;
-              fileset = nixpkgs.lib.fileset.unions [
-                (root + "/bun.lock")
-                (root + "/patches")
-                (nixpkgs.lib.fileset.fileFilter (f: f.name == "package.json") root)
-                (root + "/kit")
-              ];
-            };
-            dontRunLifecycleScripts = true;
             buildPhase = ''
-              cp -R ${assets} kit/src/lib/assets
-              chmod -R u+w kit/src/lib/assets
               cd kit
               bun run check
               bun run test
