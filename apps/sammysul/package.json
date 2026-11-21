@@ -1,0 +1,26 @@
+{
+  "name": "sammysul",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --bun vite",
+    "build": "bun --bun vite build",
+    "check": "tsc --noEmit && svelte-check --tsconfig ./tsconfig.json --output human && lsel-check",
+    "test": "bun --conditions=browser test --pass-with-no-tests ./src",
+    "test:e2e": "BROWSERS=chromium bun test ./e2e"
+  },
+  "dependencies": {
+    "@sammysul/lsel": "workspace:*",
+    "svelte": "catalog:",
+    "valibot": "catalog:"
+  },
+  "devDependencies": {
+    "@sveltejs/vite-plugin-svelte": "catalog:",
+    "@types/bun": "catalog:",
+    "playwright-core": "catalog:",
+    "svelte-check": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}

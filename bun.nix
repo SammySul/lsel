@@ -451,6 +451,7 @@
     url = "https://registry.npmjs.org/sade/-/sade-1.8.1.tgz";
     hash = "sha512-xal3CZX1Xlo/k4ApwCFrHVACi9fBqJ7V+mwhBsuf/1IOKbBy098Fex+Wa/5QMubw09pSZ/u8EY8PWgevJsXp1A==";
   };
+  "sammysul" = copyPathToStore ./apps/sammysul;
   "source-map-js@1.2.4" = fetchurl {
     url = "https://registry.npmjs.org/source-map-js/-/source-map-js-1.2.4.tgz";
     hash = "sha512-J7ZjMvHd9O1fcT/5V09QWaaSl2BbWx3F6O08spde82Namf9UB0GxRVIPiNbVsdKkoizHiSpTodo3vp2bAy91MA==";

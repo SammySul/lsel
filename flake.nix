@@ -34,6 +34,8 @@
         typ.dir = "apps/typ";
         dajaj.dir = "apps/dajaj";
         lsel-station.dir = "apps/lsel-station";
+        # sammysul.com: what the others are and where they run
+        sammysul.dir = "apps/sammysul";
         yank-wars = {
           dir = "apps/yank-wars";
           prefix = "YW";
