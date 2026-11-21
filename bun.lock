@@ -7,7 +7,7 @@
     },
     "apps/dajaj": {
       "name": "dajaj",
-      "version": "1.2.4",
+      "version": "1.2.5",
       "dependencies": {
         "@sammysul/lsel": "workspace:*",
         "chart.js": "4.6.1",
@@ -25,7 +25,7 @@
     },
     "apps/lsel-station": {
       "name": "lsel-station",
-      "version": "0.5.4",
+      "version": "0.5.5",
       "dependencies": {
         "@sammysul/lsel": "workspace:*",
         "svelte": "catalog:",
@@ -42,7 +42,7 @@
     },
     "apps/sammysul": {
       "name": "sammysul",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "dependencies": {
         "@sammysul/lsel": "workspace:*",
         "svelte": "catalog:",
@@ -59,7 +59,7 @@
     },
     "apps/typ": {
       "name": "typ",
-      "version": "1.1.4",
+      "version": "1.1.5",
       "dependencies": {
         "@sammysul/lsel": "workspace:*",
         "svelte": "catalog:",
@@ -76,7 +76,7 @@
     },
     "apps/yank-wars": {
       "name": "yank-wars",
-      "version": "1.3.4",
+      "version": "1.3.5",
       "devDependencies": {
         "@sammysul/lsel": "workspace:*",
         "@types/bun": "catalog:",
@@ -134,7 +134,7 @@
     },
     "kit": {
       "name": "@sammysul/lsel",
-      "version": "0.5.3",
+      "version": "0.5.4",
       "bin": {
         "lsel-check": "./src/lib/check.ts",
       },

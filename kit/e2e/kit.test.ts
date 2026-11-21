@@ -54,7 +54,7 @@ for (const name of browsers()) {
       const { page, problems } = await open();
       expect(await lselLook(page)).toEqual(LSEL_LOOK);
       expect(await page.locator('meta[name="theme-color"]').getAttribute("content")).toBe(
-        "#121212",
+        "#000000",
       );
       expect(await page.locator("footer .meta").textContent()).toContain(`lsel kit v${version}`);
       expect(await page.locator("footer .hints").textContent()).toBe(

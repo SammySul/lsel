@@ -1,7 +1,7 @@
 # Each role is annotated with the Rosé Pine color it takes (rose-pine/palette).
 # term: ghostty's bundled Rose Pine themes, with upstream's current text color.
 {
-  # Moon on a neutral near-black; Moon's own base becomes the first step up.
+  # Moon on pure black; Moon's own base becomes the first step up.
   rose-pine-moon = {
     label = "Rosé Pine Moon";
 
@@ -24,7 +24,7 @@
       "#e0def4"
     ];
 
-    base = "#121212";
+    base = "#000000";
     raise = "#232136"; # base
     surface = "#2a273f"; # surface
     overlay = "#393552"; # overlay

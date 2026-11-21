@@ -8,7 +8,7 @@ components (`Page`, `Tabs`, `List`, `Status`, `Empty`, `Action`,
 
 ## Palette
 
-Rosé Pine Moon on a near-black base, the same palette the terminal, nvim and
+Rosé Pine Moon on a black base, the same palette the terminal, nvim and
 the desktop use (`squares` imports it from here).
 
 | Variable                            | Use                                                                                                                                                         |
