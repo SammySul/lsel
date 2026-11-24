@@ -24,11 +24,11 @@ function contrast(fg: string, bg: string): number {
 const ALLOWED: Record<string, string[]> = {
   text: ["base", "raise", "surface"],
   accent: ["base"],
-  error: ["base", "raise", "surface"],
+  error: ["base"],
   warning: ["base", "raise", "surface"],
   select: ["base", "raise", "surface"],
   subtle: ["base", "raise"],
-  success: ["base", "raise", "surface"],
+  success: ["base"],
 };
 
 test.each(Object.entries(ALLOWED))("%s is readable on %j", (fg, bgs) => {

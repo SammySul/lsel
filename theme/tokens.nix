@@ -2,6 +2,20 @@
 p: ''
   /* Generated from lsel's theme/tokens.nix; ships in @sammysul/lsel. */
   @font-face {
+    font-family: "Inter";
+    src: url("./Inter-Regular.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Inter";
+    src: url("./Inter-Bold.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
     font-family: "JetBrains Mono";
     src: url("./JetBrainsMono-Regular.woff2") format("woff2");
     font-weight: 400;
@@ -36,7 +50,8 @@ p: ''
     builtins.genList (i: "  --term-${toString i}: ${builtins.elemAt p.term i};") 16
   )}
 
-    --font: "JetBrains Mono", ui-monospace, monospace;
+    --font: "Inter", system-ui, sans-serif;
+    --font-mono: "JetBrains Mono", ui-monospace, monospace;
     --text-xs: 12px;
     --text-sm: 14px;
     --text-md: 16px;
@@ -159,7 +174,7 @@ p: ''
   }
 
   kbd {
-    font-family: var(--font);
+    font-family: var(--font-mono);
     font-size: var(--text-xs);
     color: var(--subtle);
     border: var(--border);
@@ -169,7 +184,7 @@ p: ''
 
   pre,
   code {
-    font-family: var(--font);
+    font-family: var(--font-mono);
   }
   pre {
     margin: 0;

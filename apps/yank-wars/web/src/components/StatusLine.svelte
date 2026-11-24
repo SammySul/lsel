@@ -69,7 +69,7 @@ const hint = $derived(
     display: grid;
     gap: 4px;
     padding: 8px 16px;
-    font-family: var(--font);
+    font-family: var(--font-mono);
     font-size: var(--text-sm);
   }
   .line {

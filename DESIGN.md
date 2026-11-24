@@ -1,6 +1,6 @@
 # Design
 
-One look for everything: the terminal's. Dark only, monospace, square, quiet.
+One look for everything: the terminal's colors. Dark only, square, quiet.
 The values live in `theme/` and reach every app as `tokens.css` in
 `@sammysul/lsel`; use the variables, never the hex values. The package's
 components (`Page`, `Tabs`, `List`, `Status`, `Empty`, `Action`,
@@ -8,7 +8,7 @@ components (`Page`, `Tabs`, `List`, `Status`, `Empty`, `Action`,
 
 ## Palette
 
-Rosé Pine Moon on a black base, the same palette the terminal, nvim and
+Melange (dark) as published, the same palette the terminal, nvim and
 the desktop use (`squares` imports it from here).
 
 | Variable                            | Use                                                                                                                                                         |
@@ -33,10 +33,11 @@ the interface around it still uses these variables.
 
 ## Type
 
-- **JetBrains Mono, everywhere**: interface and code, Regular (400) and Bold
-  (700) only, self-hosted (`tokens.css` loads the `.woff2` files beside it; the
-  OFL license ships with them). No other family, except a pixel display face
-  for a game's title.
+- **Inter for the interface, JetBrains Mono for code**: `--font` and
+  `--font-mono`, Regular (400) and Bold (700) only, self-hosted (`tokens.css`
+  loads the `.woff2` files beside it; the OFL licenses ship with them). Mono
+  covers `pre`, `code`, `kbd` and an app's code-editing surface. No other
+  family, except a pixel display face for a game's title.
 - Sizes: `--text-xs` 12, `--text-sm` 14 (body), `--text-md` 16, `--text-lg`
   20, `--text-xl` 28; `--text-display` 40 for the one number a screen is about
   (a score, a timer). Line height 1.5.

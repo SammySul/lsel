@@ -41,8 +41,7 @@ describes, fix or delete the note.
 
 - **The palette** (`theme/palettes.nix`) feeds the terminal, nvim and desktop
   through `squares` as well as every app: all 16 `term` slots must be
-  filled, and `base` sits below Moon's own base, which stays as `raise`, or the
-  ramp skips a step. `squares` follows with `nix flake update lsel`.
+  filled. `squares` follows with `nix flake update lsel`.
 - A flake sees only git-tracked files: `git add` new files before `nix build`
   or `nix develop`, or it fails with "does not exist in Git repository".
 - zsh doesn't split `$var` into words: a variable holding several paths is one

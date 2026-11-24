@@ -10,7 +10,7 @@ export const ywTheme = EditorView.theme(
     },
     "&.cm-focused": { outline: "none" },
     ".cm-scroller": {
-      fontFamily: "var(--font)",
+      fontFamily: "var(--font-mono)",
       lineHeight: "var(--leading)",
     },
     ".cm-gutters": {

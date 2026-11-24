@@ -54,7 +54,7 @@ test("names each hand-rolled piece and design break, by file and line", async ()
     "src/web/App.svelte:4: colors come from tokens.css variables",
     "src/web/App.svelte:4: no shadows, gradients or blur (DESIGN.md)",
     "src/web/App.svelte:4: nothing is rounded (DESIGN.md)",
-    "src/web/App.svelte:5: JetBrains Mono only, through var(--font)",
+    "src/web/App.svelte:5: Inter or JetBrains Mono only, through var(--font) or var(--font-mono)",
     "src/web/lib/prefs.ts:1: persisted() keeps a screen's choices",
     "src/web/lib/when.ts:1: clock() and when() format times",
     'src/web/lsel/tokens.css:1: a copy of tokens.css: import "@sammysul/lsel/tokens.css"',

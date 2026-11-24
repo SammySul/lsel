@@ -77,7 +77,7 @@ export async function lselLook(page: Page): Promise<{ background: string; font: 
   await page.evaluate(() => document.fonts.ready);
   return page.evaluate(() => ({
     background: getComputedStyle(document.body).backgroundColor,
-    font: document.fonts.check('14px "JetBrains Mono"'),
+    font: document.fonts.check('14px "Inter"') && document.fonts.check('14px "JetBrains Mono"'),
   }));
 }
 

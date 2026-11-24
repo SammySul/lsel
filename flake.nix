@@ -92,13 +92,14 @@
     {
       lib = {
         inherit palettes systems;
-        palette = palettes.rose-pine-moon;
+        palette = palettes.melange;
       };
 
       packages = forEachSystem (
         pkgs:
         let
           font = pkgs.jetbrains-mono.src;
+          inter = pkgs.inter.src;
         in
         {
           bun2nix = bun2nixFor pkgs;
@@ -125,8 +126,8 @@
                   [ "@font@" "@base@" "@accent@" ]
                   [
                     "${pkgs.jetbrains-mono}/share/fonts/truetype/JetBrainsMono-Bold.ttf"
-                    palettes.rose-pine-moon.base
-                    palettes.rose-pine-moon.accent
+                    palettes.melange.base
+                    palettes.melange.accent
                   ]
                   (builtins.readFile ./scripts/favicon.py)
               );
@@ -134,13 +135,15 @@
           # The kit's generated files: tokens.css, the palette as data, the fonts and their license.
           assets = pkgs.runCommand "lsel-assets" { } ''
             mkdir -p $out
-            cp ${pkgs.writeText "tokens.css" (import ./theme/tokens.nix palettes.rose-pine-moon)} $out/tokens.css
+            cp ${pkgs.writeText "tokens.css" (import ./theme/tokens.nix palettes.melange)} $out/tokens.css
             cp ${pkgs.writeText "palette.ts" ''
               // Generated from lsel's theme/palettes.nix.
-              export const palette = ${builtins.toJSON palettes.rose-pine-moon} as const;
+              export const palette = ${builtins.toJSON palettes.melange} as const;
             ''} $out/palette.ts
             cp ${font}/fonts/webfonts/JetBrainsMono-Regular.woff2 ${font}/fonts/webfonts/JetBrainsMono-Bold.woff2 $out/
             cp ${font}/OFL.txt $out/OFL.txt
+            cp ${inter}/web/Inter-Regular.woff2 ${inter}/web/Inter-Bold.woff2 $out/
+            cp ${inter}/LICENSE.txt $out/Inter-OFL.txt
           '';
         }
         // removeAttrs (workspace pkgs).apps [ "template-web" ]
@@ -158,7 +161,7 @@
             pkgs.runCommand "lsel-contrast"
               {
                 nativeBuildInputs = [ pkgs.bun ];
-                PALETTE = pkgs.writeText "palette.json" (builtins.toJSON palettes.rose-pine-moon);
+                PALETTE = pkgs.writeText "palette.json" (builtins.toJSON palettes.melange);
               }
               ''
                 cp ${./theme/contrast.test.ts} contrast.test.ts

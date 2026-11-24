@@ -11,6 +11,7 @@ import {
 import { join } from "node:path";
 import type { Browser, Page } from "playwright-core";
 import { version } from "../package.json";
+import { palette } from "../src/lib/assets/palette.ts";
 import {
   browsers,
   LSEL_LOOK,
@@ -54,7 +55,7 @@ for (const name of browsers()) {
       const { page, problems } = await open();
       expect(await lselLook(page)).toEqual(LSEL_LOOK);
       expect(await page.locator('meta[name="theme-color"]').getAttribute("content")).toBe(
-        "#000000",
+        "#292522",
       );
       expect(await page.locator("footer .meta").textContent()).toContain(`lsel kit v${version}`);
       expect(await page.locator("footer .hints").textContent()).toBe(
@@ -262,13 +263,14 @@ for (const name of browsers()) {
       const failed = page.getByRole("button", { name: /^Send failed/ });
       await failed.waitFor();
       // colors ease in over --motion-fast, so wait for the end of it
+      const error = `rgb(${[1, 3, 5].map((i) => Number.parseInt(palette.error.slice(i, i + 2), 16)).join(", ")})`;
       const settles = (sel: string, prop: "color" | "borderTopColor") =>
         page.waitForFunction(
-          ([s, p]) => {
+          ([s, p, want]) => {
             const el = document.querySelector(s as string);
-            return el !== null && getComputedStyle(el)[p as "color"] === "rgb(235, 111, 146)";
+            return el !== null && getComputedStyle(el)[p as "color"] === want;
           },
-          [sel, prop],
+          [sel, prop, error],
           { timeout: 1000 },
         );
       await settles("button.failed", "color");
