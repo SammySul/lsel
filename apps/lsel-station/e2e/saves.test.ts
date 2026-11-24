@@ -35,7 +35,7 @@ async function store(key: string, base: number, data: string): Promise<void> {
   if (!response.ok) throw new Error(`the service answered ${response.status}`);
 }
 
-/** Waits up to 5 s for the service to move past `before`; a closed page's send has no answer to wait on. */
+/** Waits up to 5 s for the service to move past `before`; a send from a page that is gone has no answer to wait on. */
 async function moved(key: string, before: number): Promise<void> {
   const until = Date.now() + 5000;
   while ((await revision(key)) === before && Date.now() < until) await Bun.sleep(250);
@@ -288,13 +288,13 @@ for (const name of browsers()) {
         await other.getByRole("button", { name: "Link this device" }).click();
         await other.getByRole("button", { name: "Use the synced one" }).click();
         await other.getByText("Iron ore 10").waitFor();
-        // the second device moves on: Ana stops mining, and the tab closes while that is still being sent
+        // the second device moves on: Ana stops mining, and the page is left while that is still being sent
         const before = await revision(key);
         await other.keyboard.press("x");
         expect(await texts(other, ".crew li")).toEqual(["Ana Petrov everything +3% › idle"]);
         const quiet = await problems();
-        await other.close();
-        // nobody waits for a send from a closed page, so the test waits for the service to have it
+        await other.goto("about:blank");
+        // nobody waits for a send from a page that is gone, so the test waits for the service to have it
         await moved(key, before);
 
         // back on the first device, whose own save has not moved since it synced
@@ -314,7 +314,7 @@ for (const name of browsers()) {
     );
 
     test(
-      "a change made just after a send goes out when the tab closes at once",
+      "a change made just after a send goes out when the page is left at once",
       async () => {
         const now = Date.now();
         // the clock stands still, so nothing new is saved as the page goes away
@@ -333,7 +333,7 @@ for (const name of browsers()) {
         await page.keyboard.press("x");
         expect(await texts(page, ".crew li")).toEqual(["Ana Petrov everything +3% › idle"]);
         const quiet = await problems();
-        await page.close();
+        await page.goto("about:blank");
         await moved(key, before);
 
         const second = await browser.newContext();
@@ -356,7 +356,7 @@ for (const name of browsers()) {
     );
 
     test(
-      "the send the closing page's own save starts, 5 minutes after the last, still lands",
+      "the send the leaving page's own save starts, 5 minutes after the last, still lands",
       async () => {
         const now = Date.now();
         const first = await browser.newContext();
@@ -371,11 +371,11 @@ for (const name of browsers()) {
         const key = await page.getByLabel("Save key").inputValue();
         const before = await revision(key);
         await page.keyboard.press("x");
-        // 6 minutes of idle ticks, with no save on the way: the save as the page closes starts the send
+        // 6 minutes of idle ticks, with no save on the way: the save as the page is left starts the send
         await first.clock.setSystemTime(now + 31_000 + 6 * 60_000);
         await first.clock.fastForward(1000);
         const quiet = await problems();
-        await page.close();
+        await page.goto("about:blank");
         await moved(key, before);
 
         const second = await browser.newContext();

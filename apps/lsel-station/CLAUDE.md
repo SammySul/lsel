@@ -41,8 +41,11 @@ traps.
 - **`pagehide` fires while the page is still visible**, before
   `visibilitychange`: a send on close can't hinge on visibility. `sync.leave`
   sends what's unsent, and is added after the game's own pagehide save.
-- A browser test that closes a page must wait on the service for its last send
+- A browser test that leaves a page must wait on the service for its last send
   (`revision` in `e2e/saves.test.ts`): the page's ", synced" may be from before.
+- **A test that needs the leaving send to land goes to `about:blank`**, not
+  `page.close()`: Firefox drops pagehide's keepalive send (and at times its
+  localStorage write) when Playwright closes the tab; failed 1 in 4 on twelve.
 - **The Hold caps each item at 500**: a sim test that runs past that (an hour
   of mining, `while` until N bars) needs `station({ hold: 5 })`, or its job
   waits and the loop spins forever, hanging `bun test` with no output.
