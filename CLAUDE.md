@@ -39,9 +39,13 @@ describes, fix or delete the note.
 
 ## Traps
 
-- **The palette** (`theme/palettes.nix`) feeds the terminal, nvim and desktop
-  through `squares` as well as every app: all 16 `term` slots must be
-  filled. `squares` follows with `nix flake update lsel`.
+- **The palettes** (`theme/palettes.nix`, a light and a dark one picked in
+  `flake.nix`'s `scheme`) feed the terminal, nvim and desktop through
+  `squares` as well as every app: all 16 `term` slots must be filled, and
+  `squares` follows with `nix flake update lsel`.
+- **Playwright pages default to `prefers-color-scheme: light`**: `LSEL_LOOK`
+  is the light look; check dark with `emulateMedia({ colorScheme: "dark" })`
+  and `LSEL_LOOK_DARK`.
 - A flake sees only git-tracked files: `git add` new files before `nix build`
   or `nix develop`, or it fails with "does not exist in Git repository".
 - zsh doesn't split `$var` into words: a variable holding several paths is one

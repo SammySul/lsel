@@ -1,6 +1,6 @@
 <script lang="ts">
 import type { Snippet } from "svelte";
-import { palette } from "./assets/palette.ts";
+import { palettes } from "./assets/palette.ts";
 import KeyHelp from "./KeyHelp.svelte";
 import { activeBindings, keyHelp, keyName, keys, keysOf } from "./keys.svelte.ts";
 import LoadingBar from "./LoadingBar.svelte";
@@ -42,7 +42,8 @@ const hints = $derived(
 
 <svelte:head>
   <!-- the browser's own chrome follows the palette, so no page repeats its base color -->
-  <meta name="theme-color" content={palette.base} />
+  <meta name="theme-color" media="(prefers-color-scheme: light)" content={palettes.light.base} />
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content={palettes.dark.base} />
 </svelte:head>
 
 <main class="lsel-page" class:fill style:max-width="{width}px">

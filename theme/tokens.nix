@@ -1,57 +1,58 @@
 # The palette as CSS custom properties, plus the type, spacing and shape every project shares.
-p: ''
+scheme:
+let
+  face = family: file: weight: ''
+    @font-face {
+      font-family: "${family}";
+      src: url("./${file}.woff2") format("woff2");
+      font-weight: ${toString weight};
+      font-style: normal;
+      font-display: swap;
+    }
+  '';
+  # Each line carries its own indent: Nix doesn't re-indent an interpolated block.
+  vars =
+    indent: p:
+    builtins.concatStringsSep "\n" (
+      map (role: "${indent}--${role}: ${p.${role}};") [
+        "base"
+        "raise"
+        "surface"
+        "overlay"
+        "highlight"
+        "muted"
+        "subtle"
+        "text"
+        "accent"
+        "error"
+        "warning"
+        "success"
+        "select"
+      ]
+      ++ builtins.genList (i: "${indent}--term-${toString i}: ${builtins.elemAt p.term i};") 16
+    );
+in
+''
   /* Generated from lsel's theme/tokens.nix; ships in @sammysul/lsel. */
-  @font-face {
-    font-family: "Inter";
-    src: url("./Inter-Regular.woff2") format("woff2");
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
+  ${face "Aporetic Sans" "aporetic-sans-regular" 400}
+  ${face "Aporetic Sans" "aporetic-sans-bold" 700}
+  ${face "Aporetic Sans Mono" "aporetic-sans-mono-regular" 400}
+  ${face "Aporetic Sans Mono" "aporetic-sans-mono-bold" 700}
+
+  /* Light is the base; the system's dark setting swaps every colour at once. */
+  :root {
+    color-scheme: light dark;
+  ${vars "  " scheme.light}
   }
-  @font-face {
-    font-family: "Inter";
-    src: url("./Inter-Bold.woff2") format("woff2");
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: "JetBrains Mono";
-    src: url("./JetBrainsMono-Regular.woff2") format("woff2");
-    font-weight: 400;
-    font-style: normal;
-    font-display: swap;
-  }
-  @font-face {
-    font-family: "JetBrains Mono";
-    src: url("./JetBrainsMono-Bold.woff2") format("woff2");
-    font-weight: 700;
-    font-style: normal;
-    font-display: swap;
+  @media (prefers-color-scheme: dark) {
+    :root {
+  ${vars "    " scheme.dark}
+    }
   }
 
   :root {
-    color-scheme: dark;
-
-    --base: ${p.base};
-    --raise: ${p.raise};
-    --surface: ${p.surface};
-    --overlay: ${p.overlay};
-    --highlight: ${p.highlight};
-    --muted: ${p.muted};
-    --subtle: ${p.subtle};
-    --text: ${p.text};
-    --accent: ${p.accent};
-    --error: ${p.error};
-    --warning: ${p.warning};
-    --success: ${p.success};
-    --select: ${p.select};
-  ${builtins.concatStringsSep "\n" (
-    builtins.genList (i: "  --term-${toString i}: ${builtins.elemAt p.term i};") 16
-  )}
-
-    --font: "Inter", system-ui, sans-serif;
-    --font-mono: "JetBrains Mono", ui-monospace, monospace;
+    --font: "Aporetic Sans", system-ui, sans-serif;
+    --font-mono: "Aporetic Sans Mono", ui-monospace, monospace;
     --text-xs: 12px;
     --text-sm: 14px;
     --text-md: 16px;

@@ -22,6 +22,11 @@
       ];
       forEachSystem = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
       palettes = import ./theme/palettes.nix;
+      # The system's light/dark setting picks one; squares renders both too.
+      scheme = {
+        light = palettes.modus-operandi-tinted;
+        dark = palettes.modus-vivendi;
+      };
       # 2.1.2 rejects bun >= 1.3's lockfileVersion 2; upstream PR #110. Drop once released.
       bun2nixFor =
         pkgs:
@@ -91,15 +96,23 @@
     in
     {
       lib = {
-        inherit palettes systems;
-        palette = palettes.melange;
+        inherit palettes scheme systems;
       };
 
       packages = forEachSystem (
         pkgs:
         let
-          font = pkgs.jetbrains-mono.src;
-          inter = pkgs.inter.src;
+          # nixpkgs' own pin; the repo ships the release TTFs beside their license.
+          aporetic = pkgs.fetchFromGitHub {
+            owner = "protesilaos";
+            repo = "aporetic";
+            tag = "1.2.0";
+            hash = "sha256-1BbuC/mWEcXJxzDppvsukhNtdOLz0QosD6QqI/93Khc=";
+          };
+          woff2 = pkgs.python3.withPackages (p: [
+            p.fonttools
+            p.brotli
+          ]);
         in
         {
           bun2nix = bun2nixFor pkgs;
@@ -125,25 +138,32 @@
                 builtins.replaceStrings
                   [ "@font@" "@base@" "@accent@" ]
                   [
-                    "${pkgs.jetbrains-mono}/share/fonts/truetype/JetBrainsMono-Bold.ttf"
-                    palettes.melange.base
-                    palettes.melange.accent
+                    "${aporetic}/aporetic-sans-mono/TTF/aporetic-sans-mono-normalboldupright.ttf"
+                    scheme.dark.base
+                    scheme.dark.accent
                   ]
                   (builtins.readFile ./scripts/favicon.py)
               );
 
           # The kit's generated files: tokens.css, the palette as data, the fonts and their license.
-          assets = pkgs.runCommand "lsel-assets" { } ''
+          assets = pkgs.runCommand "lsel-assets" { nativeBuildInputs = [ woff2 ]; } ''
             mkdir -p $out
-            cp ${pkgs.writeText "tokens.css" (import ./theme/tokens.nix palettes.melange)} $out/tokens.css
+            cp ${pkgs.writeText "tokens.css" (import ./theme/tokens.nix scheme)} $out/tokens.css
             cp ${pkgs.writeText "palette.ts" ''
               // Generated from lsel's theme/palettes.nix.
-              export const palette = ${builtins.toJSON palettes.melange} as const;
+              export const palettes = ${builtins.toJSON scheme} as const;
             ''} $out/palette.ts
-            cp ${font}/fonts/webfonts/JetBrainsMono-Regular.woff2 ${font}/fonts/webfonts/JetBrainsMono-Bold.woff2 $out/
-            cp ${font}/OFL.txt $out/OFL.txt
-            cp ${inter}/web/Inter-Regular.woff2 ${inter}/web/Inter-Bold.woff2 $out/
-            cp ${inter}/LICENSE.txt $out/Inter-OFL.txt
+            for set in sans sans-mono; do
+              for weight in regular bold; do
+                # Iosevka carries thousands of glyphs and ~200 variant features (1.4 MB a weight);
+                # keep the blocks lsel's text uses and the features a page can reach (~80 KB).
+                pyftsubset ${aporetic}/aporetic-$set/TTF/aporetic-$set-normal''${weight}upright.ttf \
+                  --unicodes=U+0020-017F,U+2000-206F,U+20A0-20CF,U+2100-214F,U+2190-22FF,U+2500-27BF,U+FFFD \
+                  --layout-features+=calt,ccmp,locl,lnum,frac,numr,dnom,zero \
+                  --flavor=woff2 --output-file=$out/aporetic-$set-$weight.woff2
+              done
+            done
+            cp ${aporetic}/LICENSE.md $out/OFL.md
           '';
         }
         // removeAttrs (workspace pkgs).apps [ "template-web" ]
@@ -161,7 +181,7 @@
             pkgs.runCommand "lsel-contrast"
               {
                 nativeBuildInputs = [ pkgs.bun ];
-                PALETTE = pkgs.writeText "palette.json" (builtins.toJSON palettes.melange);
+                PALETTE = pkgs.writeText "palette.json" (builtins.toJSON scheme);
               }
               ''
                 cp ${./theme/contrast.test.ts} contrast.test.ts

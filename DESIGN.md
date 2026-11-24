@@ -1,6 +1,6 @@
 # Design
 
-One look for everything: the terminal's colors. Dark only, square, quiet.
+One look for everything: the terminal's colors. Light and dark, square, quiet.
 The values live in `theme/` and reach every app as `tokens.css` in
 `@sammysul/lsel`; use the variables, never the hex values. The package's
 components (`Page`, `Tabs`, `List`, `Status`, `Empty`, `Action`,
@@ -8,8 +8,11 @@ components (`Page`, `Tabs`, `List`, `Status`, `Empty`, `Action`,
 
 ## Palette
 
-Melange (dark) as published, the same palette the terminal, nvim and
-the desktop use (`squares` imports it from here).
+Modus Operandi Tinted (light) and Modus Vivendi (dark), the same pair the
+terminal, nvim and the desktop use (`squares` imports them from here). The
+system's light/dark setting picks one: `tokens.css` swaps every variable, so
+nothing in an app names a mode. A light palette inverts the ramp: `--raise`
+through `--overlay` step darker than `--base`.
 
 | Variable                            | Use                                                                                                                                                         |
 | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -25,19 +28,20 @@ the desktop use (`squares` imports it from here).
 | `--select`                          | the text cursor                                                                                                                                             |
 | `--term-0` … `--term-15`            | the terminal's 16 colors, for syntax and charts                                                                                                             |
 
-Readable pairs are pinned by `theme/contrast.test.ts` (WCAG AA, 4.5:1). Text
-on a filled `--accent` button is `--base`.
+Readable pairs are pinned by `theme/contrast.test.ts` (WCAG AA, 4.5:1, in
+both modes). Text on a filled `--accent` button is `--base`.
 
 An app may add a content palette for its art (lsel-station's pixel art);
 the interface around it still uses these variables.
 
 ## Type
 
-- **Inter for the interface, JetBrains Mono for code**: `--font` and
-  `--font-mono`, Regular (400) and Bold (700) only, self-hosted (`tokens.css`
-  loads the `.woff2` files beside it; the OFL licenses ship with them). Mono
-  covers `pre`, `code`, `kbd` and an app's code-editing surface. No other
-  family, except a pixel display face for a game's title.
+- **Aporetic Sans for the interface, Aporetic Sans Mono for code**: `--font`
+  and `--font-mono`, Regular (400) and Bold (700) only, self-hosted and
+  subset to the Latin, punctuation and symbol blocks (`tokens.css` loads the
+  `.woff2` files beside it; the OFL license ships with them). Mono covers
+  `pre`, `code`, `kbd` and an app's code-editing surface. No other family,
+  except a pixel display face for a game's title.
 - Sizes: `--text-xs` 12, `--text-sm` 14 (body), `--text-md` 16, `--text-lg`
   20, `--text-xl` 28; `--text-display` 40 for the one number a screen is about
   (a score, a timer). Line height 1.5.
@@ -109,8 +113,8 @@ the user is `role="alert"`.
 
 ## Icon
 
-An app's favicon is its first letter, lowercase, in JetBrains Mono Bold, in
-`--accent` on `--base`, square: `nix run lsel#favicon -- <letter> >
+An app's favicon is its first letter, lowercase, in Aporetic Sans Mono Bold,
+in the dark palette's `--accent` on `--base`, square: `nix run lsel#favicon -- <letter> >
 favicon.svg` (the letter is a path, so no font is needed to show it).
 
 ## Words

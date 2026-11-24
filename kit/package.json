@@ -1,6 +1,6 @@
 {
   "name": "@sammysul/lsel",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "private": true,
   "description": "lsel's look, components, keys, states, formats and server, shared by every app",
   "type": "module",

@@ -1,10 +1,10 @@
-// The text/background pairs DESIGN.md allows, held to WCAG AA (4.5:1) against the palette itself.
-// Runs as the flake's `contrast` check, which hands it the palette: `nix flake check`.
-import { expect, test } from "bun:test";
+// The text/background pairs DESIGN.md allows, held to WCAG AA (4.5:1) against both palettes.
+// Runs as the flake's `contrast` check, which hands it the palettes: `nix flake check`.
+import { describe, expect, test } from "bun:test";
 
 const file = process.env.PALETTE;
-if (file === undefined) throw new Error("PALETTE names the palette's JSON: run `nix flake check`");
-const palette = (await Bun.file(file).json()) as Record<string, string>;
+if (file === undefined) throw new Error("PALETTE names the palettes' JSON: run `nix flake check`");
+const scheme = (await Bun.file(file).json()) as Record<"light" | "dark", Record<string, string>>;
 
 function luminance(hex: string): number {
   const [r, g, b] = [1, 3, 5].map((i) => {
@@ -14,32 +14,37 @@ function luminance(hex: string): number {
   return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 }
 
-function contrast(fg: string, bg: string): number {
-  const [hi, lo] = [luminance(palette[fg] as string), luminance(palette[bg] as string)].sort(
-    (a, b) => b - a,
-  ) as [number, number];
-  return (hi + 0.05) / (lo + 0.05);
-}
-
 const ALLOWED: Record<string, string[]> = {
   text: ["base", "raise", "surface"],
   accent: ["base"],
-  error: ["base"],
+  // Vivendi's red is 4.42:1 on surface.
+  error: ["base", "raise"],
   warning: ["base", "raise", "surface"],
   select: ["base", "raise", "surface"],
   subtle: ["base", "raise"],
-  success: ["base"],
+  success: ["base", "raise", "surface"],
 };
 
-test.each(Object.entries(ALLOWED))("%s is readable on %j", (fg, bgs) => {
-  for (const bg of bgs)
-    expect({ fg, bg, ok: contrast(fg, bg) >= 4.5 }).toEqual({ fg, bg, ok: true });
-});
+for (const [mode, palette] of Object.entries(scheme)) {
+  const contrast = (fg: string, bg: string): number => {
+    const [hi, lo] = [luminance(palette[fg] as string), luminance(palette[bg] as string)].sort(
+      (a, b) => b - a,
+    ) as [number, number];
+    return (hi + 0.05) / (lo + 0.05);
+  };
 
-test("muted is never body text: it fails AA even on base", () => {
-  expect(contrast("muted", "base")).toBeLessThan(4.5);
-});
+  describe(mode, () => {
+    test.each(Object.entries(ALLOWED))("%s is readable on %j", (fg, bgs) => {
+      for (const bg of bgs)
+        expect({ fg, bg, ok: contrast(fg, bg) >= 4.5 }).toEqual({ fg, bg, ok: true });
+    });
 
-test("the accent carries text drawn in base, for filled buttons", () => {
-  expect(contrast("base", "accent")).toBeGreaterThanOrEqual(4.5);
-});
+    test("muted is never body text: it fails AA even on base", () => {
+      expect(contrast("muted", "base")).toBeLessThan(4.5);
+    });
+
+    test("the accent carries text drawn in base, for filled buttons", () => {
+      expect(contrast("base", "accent")).toBeGreaterThanOrEqual(4.5);
+    });
+  });
+}

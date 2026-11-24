@@ -11,7 +11,7 @@ import {
   webkit,
 } from "playwright-core";
 import { version as playwrightVersion } from "playwright-core/package.json";
-import { palette } from "../assets/palette.ts";
+import { palettes } from "../assets/palette.ts";
 import { handler, type Routes } from "../server/index.ts";
 
 const TYPES: Readonly<Record<string, BrowserType>> = { chromium, firefox, webkit };
@@ -70,14 +70,18 @@ export function watchPage(page: Page, { ignore }: { ignore?: RegExp } = {}) {
 const rgb = (hex: string) =>
   `rgb(${[1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16)).join(", ")})`;
 
-/** What `lselLook()` reads on a page drawn in lsel's look. */
-export const LSEL_LOOK = { background: rgb(palette.base), font: true } as const;
+/** What `lselLook()` reads on a page drawn in lsel's look, in the browser's default light scheme. */
+export const LSEL_LOOK = { background: rgb(palettes.light.base), font: true } as const;
+/** The same page under `emulateMedia({ colorScheme: "dark" })`. */
+export const LSEL_LOOK_DARK = { background: rgb(palettes.dark.base), font: true } as const;
 
 export async function lselLook(page: Page): Promise<{ background: string; font: boolean }> {
   await page.evaluate(() => document.fonts.ready);
   return page.evaluate(() => ({
     background: getComputedStyle(document.body).backgroundColor,
-    font: document.fonts.check('14px "Inter"') && document.fonts.check('14px "JetBrains Mono"'),
+    font:
+      document.fonts.check('14px "Aporetic Sans"') &&
+      document.fonts.check('14px "Aporetic Sans Mono"'),
   }));
 }
 
