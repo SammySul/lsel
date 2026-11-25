@@ -77,4 +77,43 @@
     success = "#44bc44"; # green
     select = "#b6a0ff"; # magenta-cooler
   };
+
+  # Mr. Robot: Kali's black terminal, the show's cold grade, fsociety red. Dark only.
+  fsociety = {
+    label = "fsociety";
+
+    term = [
+      "#0b0d0d"
+      "#e8383c"
+      "#5fb98a"
+      "#d9b44a"
+      "#6f9bc4"
+      "#b07fa8"
+      "#5fb3b3"
+      "#a8b0b0"
+      "#5c6666"
+      "#ff6b57"
+      "#7fd4a5"
+      "#f0cd6a"
+      "#8fb3d9"
+      "#c99ac1"
+      "#7fd0d0"
+      "#eef2f2"
+    ];
+
+    base = "#0b0d0d";
+    raise = "#141717";
+    surface = "#1e2222";
+    overlay = "#2e3434";
+    highlight = "#4a1619";
+    muted = "#4f5959";
+    subtle = "#8a9696";
+    text = "#d4dbdb";
+
+    accent = "#e8383c";
+    error = "#ff6b57";
+    warning = "#d9b44a";
+    success = "#5fb98a";
+    select = "#8fb3c9";
+  };
 }

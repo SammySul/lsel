@@ -1,6 +1,6 @@
 # Design
 
-One look for everything: the terminal's colors. Light and dark, square, quiet.
+One look for everything: the terminal's colors. Mr. Robot's Kali: dark, square, quiet.
 The values live in `theme/` and reach every app as `tokens.css` in
 `@sammysul/lsel`; use the variables, never the hex values. The package's
 components (`Page`, `Tabs`, `List`, `Status`, `Empty`, `Action`,
@@ -8,11 +8,10 @@ components (`Page`, `Tabs`, `List`, `Status`, `Empty`, `Action`,
 
 ## Palette
 
-Modus Operandi Tinted (light) and Modus Vivendi (dark), the same pair the
-terminal, nvim and the desktop use (`squares` imports them from here). The
-system's light/dark setting picks one: `tokens.css` swaps every variable, so
-nothing in an app names a mode. A light palette inverts the ramp: `--raise`
-through `--overlay` step darker than `--base`.
+fsociety: near-black with a cold grade, grey-white text and one red accent,
+the same palette the terminal, nvim and the desktop use (`squares` imports it
+from here). It fills both of `scheme`'s slots, so the system's light/dark
+setting changes nothing; nothing in an app names a mode.
 
 | Variable                            | Use                                                                                                                                                         |
 | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -36,10 +35,11 @@ the interface around it still uses these variables.
 
 ## Type
 
-- **Aporetic Sans for the interface, Aporetic Sans Mono for code**: `--font`
-  and `--font-mono`, Regular (400) and Bold (700) only, self-hosted and
-  subset to the Latin, punctuation and symbol blocks (`tokens.css` loads the
-  `.woff2` files beside it; the OFL license ships with them). Mono covers
+- **Cantarell for the interface, DejaVu Sans Mono for code** (Kali's GNOME
+  pair): `--font` and `--font-mono`, Regular (400) and Bold (700) only,
+  self-hosted and subset to the Latin, punctuation and symbol blocks
+  (`tokens.css` loads the `.woff2` files beside it; their licenses ship with
+  them). Mono covers
   `pre`, `code`, `kbd` and an app's code-editing surface. No other family,
   except a pixel display face for a game's title.
 - Sizes: `--text-xs` 12, `--text-sm` 14 (body), `--text-md` 16, `--text-lg`
@@ -113,7 +113,7 @@ the user is `role="alert"`.
 
 ## Icon
 
-An app's favicon is its first letter, lowercase, in Aporetic Sans Mono Bold,
+An app's favicon is its first letter, lowercase, in DejaVu Sans Mono Bold,
 in the dark palette's `--accent` on `--base`, square: `nix run lsel#favicon -- <letter> >
 favicon.svg` (the letter is a path, so no font is needed to show it).
 

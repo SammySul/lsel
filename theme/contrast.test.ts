@@ -17,7 +17,6 @@ function luminance(hex: string): number {
 const ALLOWED: Record<string, string[]> = {
   text: ["base", "raise", "surface"],
   accent: ["base"],
-  // Vivendi's red is 4.42:1 on surface.
   error: ["base", "raise"],
   warning: ["base", "raise", "surface"],
   select: ["base", "raise", "surface"],

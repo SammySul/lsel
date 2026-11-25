@@ -22,10 +22,10 @@
       ];
       forEachSystem = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
       palettes = import ./theme/palettes.nix;
-      # The system's light/dark setting picks one; squares renders both too.
+      # Dark only: both slots are fsociety, so the system's setting changes nothing.
       scheme = {
-        light = palettes.modus-operandi-tinted;
-        dark = palettes.modus-vivendi;
+        light = palettes.fsociety;
+        dark = palettes.fsociety;
       };
       # 2.1.2 rejects bun >= 1.3's lockfileVersion 2; upstream PR #110. Drop once released.
       bun2nixFor =
@@ -102,13 +102,13 @@
       packages = forEachSystem (
         pkgs:
         let
-          # nixpkgs' own pin; the repo ships the release TTFs beside their license.
-          aporetic = pkgs.fetchFromGitHub {
-            owner = "protesilaos";
-            repo = "aporetic";
-            tag = "1.2.0";
-            hash = "sha256-1BbuC/mWEcXJxzDppvsukhNtdOLz0QosD6QqI/93Khc=";
+          # nixpkgs builds DejaVu without its license; the release tarball has both.
+          dejavu = pkgs.fetchzip {
+            url = "https://github.com/dejavu-fonts/dejavu-fonts/releases/download/version_2_37/dejavu-fonts-ttf-2.37.tar.bz2";
+            hash = "sha256-eUV9CThmZLXMosUjvwvMwnWtZpgwFGZZws848kcOgE4=";
           };
+          # Only a variable font ships; the kit wants static Regular and Bold.
+          cantarell = pkgs.cantarell-fonts;
           woff2 = pkgs.python3.withPackages (p: [
             p.fonttools
             p.brotli
@@ -138,7 +138,7 @@
                 builtins.replaceStrings
                   [ "@font@" "@base@" "@accent@" ]
                   [
-                    "${aporetic}/aporetic-sans-mono/TTF/aporetic-sans-mono-normalboldupright.ttf"
+                    "${dejavu}/ttf/DejaVuSansMono-Bold.ttf"
                     scheme.dark.base
                     scheme.dark.accent
                   ]
@@ -153,17 +153,21 @@
               // Generated from lsel's theme/palettes.nix.
               export const palettes = ${builtins.toJSON scheme} as const;
             ''} $out/palette.ts
-            for set in sans sans-mono; do
-              for weight in regular bold; do
-                # Iosevka carries thousands of glyphs and ~200 variant features (1.4 MB a weight);
-                # keep the blocks lsel's text uses and the features a page can reach (~80 KB).
-                pyftsubset ${aporetic}/aporetic-$set/TTF/aporetic-$set-normal''${weight}upright.ttf \
-                  --unicodes=U+0020-017F,U+2000-206F,U+20A0-20CF,U+2100-214F,U+2190-22FF,U+2500-27BF,U+FFFD \
-                  --layout-features+=calt,ccmp,locl,lnum,frac,numr,dnom,zero \
-                  --flavor=woff2 --output-file=$out/aporetic-$set-$weight.woff2
-              done
-            done
-            cp ${aporetic}/LICENSE.md $out/OFL.md
+            subset() {
+              pyftsubset "$1" \
+                --unicodes=U+0020-017F,U+2000-206F,U+20A0-20CF,U+2100-214F,U+2190-22FF,U+2500-27BF,U+FFFD \
+                --layout-features+=calt,ccmp,locl,lnum,frac,numr,dnom,zero \
+                --recalc-bounds \
+                --flavor=woff2 --output-file="$out/$2.woff2"
+            }
+            fonttools varLib.instancer -q -o cantarell-regular.otf ${cantarell}/share/fonts/cantarell/Cantarell-VF.otf wght=400
+            fonttools varLib.instancer -q -o cantarell-bold.otf ${cantarell}/share/fonts/cantarell/Cantarell-VF.otf wght=700
+            subset cantarell-regular.otf cantarell-regular
+            subset cantarell-bold.otf cantarell-bold
+            subset ${dejavu}/ttf/DejaVuSansMono.ttf dejavu-sans-mono-regular
+            subset ${dejavu}/ttf/DejaVuSansMono-Bold.ttf dejavu-sans-mono-bold
+            cp ${cantarell.src}/COPYING $out/OFL.md
+            cp ${dejavu}/LICENSE $out/DEJAVU-LICENSE
           '';
         }
         // removeAttrs (workspace pkgs).apps [ "template-web" ]

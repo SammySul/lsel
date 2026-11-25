@@ -34,14 +34,14 @@ let
 in
 ''
   /* Generated from lsel's theme/tokens.nix; ships in @sammysul/lsel. */
-  ${face "Aporetic Sans" "aporetic-sans-regular" 400}
-  ${face "Aporetic Sans" "aporetic-sans-bold" 700}
-  ${face "Aporetic Sans Mono" "aporetic-sans-mono-regular" 400}
-  ${face "Aporetic Sans Mono" "aporetic-sans-mono-bold" 700}
+  ${face "Cantarell" "cantarell-regular" 400}
+  ${face "Cantarell" "cantarell-bold" 700}
+  ${face "DejaVu Sans Mono" "dejavu-sans-mono-regular" 400}
+  ${face "DejaVu Sans Mono" "dejavu-sans-mono-bold" 700}
 
   /* Light is the base; the system's dark setting swaps every colour at once. */
   :root {
-    color-scheme: light dark;
+    color-scheme: ${if scheme.light == scheme.dark then "dark" else "light dark"};
   ${vars "  " scheme.light}
   }
   @media (prefers-color-scheme: dark) {
@@ -51,8 +51,8 @@ in
   }
 
   :root {
-    --font: "Aporetic Sans", system-ui, sans-serif;
-    --font-mono: "Aporetic Sans Mono", ui-monospace, monospace;
+    --font: "Cantarell", system-ui, sans-serif;
+    --font-mono: "DejaVu Sans Mono", ui-monospace, monospace;
     --text-xs: 12px;
     --text-sm: 14px;
     --text-md: 16px;

@@ -14,7 +14,7 @@ import type { Browser, BrowserContext, Page } from "playwright-core";
 
 const url = serveBuilt(join(import.meta.dir, "../dist"));
 const FONT = readFileSync(
-  Bun.resolveSync("@sammysul/lsel/assets/aporetic-sans-mono-bold.woff2", import.meta.dir),
+  Bun.resolveSync("@sammysul/lsel/assets/dejavu-sans-mono-bold.woff2", import.meta.dir),
 );
 
 const fontFile = (name: string, buffer: Buffer = FONT) => ({

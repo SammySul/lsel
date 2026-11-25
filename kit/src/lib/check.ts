@@ -55,7 +55,7 @@ const RULES: readonly Rule[] = [
   {
     in: STYLE,
     pattern: /font-family\s*:(?!\s*var\(--font(?:-mono)?\)|\s*inherit)/,
-    message: "Aporetic only, through var(--font) or var(--font-mono)",
+    message: "Cantarell and DejaVu Sans Mono only, through var(--font) or var(--font-mono)",
   },
   {
     in: MARKUP,

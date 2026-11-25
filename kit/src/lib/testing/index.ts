@@ -80,8 +80,7 @@ export async function lselLook(page: Page): Promise<{ background: string; font: 
   return page.evaluate(() => ({
     background: getComputedStyle(document.body).backgroundColor,
     font:
-      document.fonts.check('14px "Aporetic Sans"') &&
-      document.fonts.check('14px "Aporetic Sans Mono"'),
+      document.fonts.check('14px "Cantarell"') && document.fonts.check('14px "DejaVu Sans Mono"'),
   }));
 }
 
