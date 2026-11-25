@@ -11,11 +11,10 @@ import {
 import { join } from "node:path";
 import type { Browser, Page } from "playwright-core";
 import { version } from "../package.json";
-import { palettes } from "../src/lib/assets/palette.ts";
+import { palette } from "../src/lib/assets/palette.ts";
 import {
   browsers,
   LSEL_LOOK,
-  LSEL_LOOK_DARK,
   launch,
   lselLook,
   serveBuilt,
@@ -60,23 +59,11 @@ for (const name of browsers()) {
         .evaluateAll((metas) =>
           metas.map((m) => [m.getAttribute("media"), m.getAttribute("content")]),
         );
-      expect(themeColors).toEqual([
-        ["(prefers-color-scheme: light)", palettes.light.base],
-        ["(prefers-color-scheme: dark)", palettes.dark.base],
-      ]);
+      expect(themeColors).toEqual([[null, palette.base]]);
       expect(await page.locator("footer .meta").textContent()).toContain(`lsel kit v${version}`);
       expect(await page.locator("footer .hints").textContent()).toBe(
         "/ search · j next · Enter open · ? list the keys",
       );
-      expect(await problems()).toEqual([]);
-    });
-
-    test("the system's dark setting swaps the whole palette, live", async () => {
-      const { page, problems } = await open();
-      await page.emulateMedia({ colorScheme: "dark" });
-      expect(await lselLook(page)).toEqual(LSEL_LOOK_DARK);
-      await page.emulateMedia({ colorScheme: "light" });
-      expect(await lselLook(page)).toEqual(LSEL_LOOK);
       expect(await problems()).toEqual([]);
     });
 
@@ -279,7 +266,7 @@ for (const name of browsers()) {
       const failed = page.getByRole("button", { name: /^Send failed/ });
       await failed.waitFor();
       // colors ease in over --motion-fast, so wait for the end of it
-      const error = `rgb(${[1, 3, 5].map((i) => Number.parseInt(palettes.light.error.slice(i, i + 2), 16)).join(", ")})`;
+      const error = `rgb(${[1, 3, 5].map((i) => Number.parseInt(palette.error.slice(i, i + 2), 16)).join(", ")})`;
       const settles = (sel: string, prop: "color" | "borderTopColor") =>
         page.waitForFunction(
           ([s, p, want]) => {

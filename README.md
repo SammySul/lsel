@@ -8,7 +8,7 @@ CLAUDE.md          rules and traps every app inherits
 DESIGN.md          look and feel
 STACK.md           stack, release and deploy
 docs/decisions.md  why it is shaped this way
-theme/             palettes.nix, tokens.nix and the contrast test
+theme/             palette.nix, tokens.nix and the contrast test
 nix/               the workspace builders, bun2nix's patch, the release script
 kit/               @sammysul/lsel: tokens.css and fonts, components, keys, states,
                    formats, the server, test helpers, the shared tsconfig, lsel-check

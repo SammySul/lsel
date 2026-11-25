@@ -1,6 +1,6 @@
 export { default as Action } from "./Action.svelte";
 export { begin } from "./activity.svelte.ts";
-export { palettes } from "./assets/palette.ts";
+export { palette } from "./assets/palette.ts";
 export { default as Empty } from "./Empty.svelte";
 export { default as Field } from "./Field.svelte";
 export * from "./format.ts";

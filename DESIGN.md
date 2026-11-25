@@ -10,8 +10,8 @@ components (`Page`, `Tabs`, `List`, `Status`, `Empty`, `Action`,
 
 fsociety: near-black with a cold grade, grey-white text and one red accent,
 the same palette the terminal, nvim and the desktop use (`squares` imports it
-from here). It fills both of `scheme`'s slots, so the system's light/dark
-setting changes nothing; nothing in an app names a mode.
+from here). There is one palette and no light mode; the system's setting
+changes nothing.
 
 | Variable                            | Use                                                                                                                                                         |
 | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -27,8 +27,7 @@ setting changes nothing; nothing in an app names a mode.
 | `--select`                          | the text cursor                                                                                                                                             |
 | `--term-0` … `--term-15`            | the terminal's 16 colors, for syntax and charts                                                                                                             |
 
-Readable pairs are pinned by `theme/contrast.test.ts` (WCAG AA, 4.5:1, in
-both modes). Text on a filled `--accent` button is `--base`.
+Readable pairs are pinned by `theme/contrast.test.ts` (WCAG AA, 4.5:1). Text on a filled `--accent` button is `--base`.
 
 An app may add a content palette for its art (lsel-station's pixel art);
 the interface around it still uses these variables.
@@ -114,7 +113,7 @@ the user is `role="alert"`.
 ## Icon
 
 An app's favicon is its first letter, lowercase, in DejaVu Sans Mono Bold,
-in the dark palette's `--accent` on `--base`, square: `nix run lsel#favicon -- <letter> >
+in `--accent` on `--base`, square: `nix run lsel#favicon -- <letter> >
 favicon.svg` (the letter is a path, so no font is needed to show it).
 
 ## Words

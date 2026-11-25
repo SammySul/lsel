@@ -45,17 +45,6 @@ let { report, view, stat }: Props = $props();
 let canvas: HTMLCanvasElement | undefined = $state();
 let chart: Chart<View> | undefined;
 
-// Chart.js holds the colors it was built with, so a light/dark switch rebuilds it.
-const darkQuery = matchMedia("(prefers-color-scheme: dark)");
-let dark = $state(darkQuery.matches);
-$effect(() => {
-  const follow = () => {
-    dark = darkQuery.matches;
-  };
-  darkQuery.addEventListener("change", follow);
-  return () => darkQuery.removeEventListener("change", follow);
-});
-
 const css = (name: string) =>
   getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
@@ -120,7 +109,6 @@ function config(report: Report, view: View, stat: Stat): ChartConfiguration<View
 // App remounts this for another view; new data or another stat animates the same chart.
 $effect(() => {
   if (canvas === undefined) return;
-  void dark;
   Chart.defaults.font.family = css("--font");
   Chart.defaults.font.size = 12;
   Chart.defaults.color = css("--subtle");

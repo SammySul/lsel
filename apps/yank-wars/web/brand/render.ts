@@ -5,11 +5,7 @@ import { chromium } from "playwright-core";
 const PUBLIC = join(import.meta.dir, "../public");
 const browser = await chromium.launch({ headless: true });
 try {
-  // The brand images are the dark palette, like the favicon.
-  const page = await browser.newPage({
-    viewport: { width: 1200, height: 630 },
-    colorScheme: "dark",
-  });
+  const page = await browser.newPage({ viewport: { width: 1200, height: 630 } });
   await page.goto(`file://${join(import.meta.dir, "og.html")}`, { waitUntil: "load" });
   await page.screenshot({ path: join(PUBLIC, "og.png") });
   await page.setViewportSize({ width: 180, height: 180 });

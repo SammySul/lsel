@@ -58,3 +58,10 @@ A waiting line names what it waits for, which also serves screen readers; a 2px
 bar along the top shows that something moves, without shifting the layout. Both
 wait 300 ms, so a fast answer shows neither. No spinners: a spinner is the one
 rounded, decorative thing a terminal look would carry.
+
+## One palette, no light mode
+
+fsociety (Mr. Robot's Kali: a black terminal, a cold grade, one red accent) is
+the only palette, for the sites, the terminal and the desktop alike. With one
+mode there is nothing to switch, no media query to keep in step and nothing to
+test twice. Cantarell and DejaVu Sans Mono, Kali's GNOME pair, go with it.

@@ -1,39 +1,28 @@
 import { HighlightStyle } from "@codemirror/language";
 import { tags as t } from "@lezer/highlight";
 
-// The terminal's colors (lsel's --term-*), assigned as Modus's own syntax theme assigns them
-// (modus-themes.nvim, untinted). Where Modus picks a shade the 16 slots lack, the nearest slot stands in.
+// lsel's base16 slots (--base08 …), assigned as mini.base16 assigns them, so code reads as it does in nvim.
 export const ywHighlight = HighlightStyle.define([
-  // keyword: magenta-cooler
-  { tag: [t.keyword, t.controlKeyword, t.operatorKeyword], color: "var(--term-13)" },
-  // preproc (imports, modules, attributes): red-cooler, nearest red
-  { tag: [t.moduleKeyword, t.namespace, t.attributeName], color: "var(--term-1)" },
-  // string: blue-warmer
-  { tag: [t.string, t.special(t.string), t.regexp], color: "var(--term-12)" },
-  // boolean: blue, bold; constants: blue-cooler, nearest blue
-  { tag: t.bool, color: "var(--term-4)", fontWeight: "bold" },
-  { tag: [t.null, t.atom], color: "var(--term-4)" },
-  // function: magenta
-  { tag: [t.function(t.variableName), t.function(t.propertyName)], color: "var(--term-5)" },
-  // type: cyan-cooler
-  { tag: [t.typeName, t.className], color: "var(--term-14)" },
-  // identifier, label, tag: cyan
-  { tag: [t.propertyName, t.labelName, t.tagName], color: "var(--term-6)" },
-  // comment: fg-dim
-  { tag: [t.comment, t.lineComment, t.blockComment], color: "var(--subtle)" },
-  // numbers, operators, delimiters and variables: fg-main (variables are slate, which no slot has)
-  {
-    tag: [
-      t.number,
-      t.integer,
-      t.float,
-      t.operator,
-      t.punctuation,
-      t.bracket,
-      t.variableName,
-      t.definition(t.variableName),
-    ],
-    color: "var(--text)",
-  },
+  // Keyword, Conditional
+  { tag: [t.keyword, t.controlKeyword, t.operatorKeyword], color: "var(--base0E)" },
+  // Include
+  { tag: t.moduleKeyword, color: "var(--base0D)" },
+  // Identifier, Macro (@property, @module, @attribute)
+  { tag: [t.propertyName, t.namespace, t.attributeName], color: "var(--base08)" },
+  // String; a regexp is Special
+  { tag: [t.string, t.special(t.string)], color: "var(--base0B)" },
+  { tag: t.regexp, color: "var(--base0C)" },
+  // Boolean, Constant, Number, Float
+  { tag: [t.bool, t.null, t.atom, t.number, t.integer, t.float], color: "var(--base09)" },
+  // Function
+  { tag: [t.function(t.variableName), t.function(t.propertyName)], color: "var(--base0D)" },
+  // Type, Label, Tag
+  { tag: [t.typeName, t.className, t.labelName, t.tagName], color: "var(--base0A)" },
+  // Comment
+  { tag: [t.comment, t.lineComment, t.blockComment], color: "var(--base03)" },
+  // Delimiter
+  { tag: [t.punctuation, t.bracket], color: "var(--base0F)" },
+  // @variable, Operator
+  { tag: [t.variableName, t.definition(t.variableName), t.operator], color: "var(--base05)" },
   { tag: t.invalid, color: "var(--error)" },
 ]);

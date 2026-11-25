@@ -21,12 +21,8 @@
         "x86_64-linux"
       ];
       forEachSystem = f: nixpkgs.lib.genAttrs systems (system: f nixpkgs.legacyPackages.${system});
-      palettes = import ./theme/palettes.nix;
-      # Dark only: both slots are fsociety, so the system's setting changes nothing.
-      scheme = {
-        light = palettes.fsociety;
-        dark = palettes.fsociety;
-      };
+      palette = import ./theme/palette.nix;
+      base16 = import ./theme/base16.nix palette;
       # 2.1.2 rejects bun >= 1.3's lockfileVersion 2; upstream PR #110. Drop once released.
       bun2nixFor =
         pkgs:
@@ -96,7 +92,7 @@
     in
     {
       lib = {
-        inherit palettes scheme systems;
+        inherit palette base16 systems;
       };
 
       packages = forEachSystem (
@@ -139,8 +135,8 @@
                   [ "@font@" "@base@" "@accent@" ]
                   [
                     "${dejavu}/ttf/DejaVuSansMono-Bold.ttf"
-                    scheme.dark.base
-                    scheme.dark.accent
+                    palette.base
+                    palette.accent
                   ]
                   (builtins.readFile ./scripts/favicon.py)
               );
@@ -148,10 +144,10 @@
           # The kit's generated files: tokens.css, the palette as data, the fonts and their license.
           assets = pkgs.runCommand "lsel-assets" { nativeBuildInputs = [ woff2 ]; } ''
             mkdir -p $out
-            cp ${pkgs.writeText "tokens.css" (import ./theme/tokens.nix scheme)} $out/tokens.css
+            cp ${pkgs.writeText "tokens.css" (import ./theme/tokens.nix palette)} $out/tokens.css
             cp ${pkgs.writeText "palette.ts" ''
-              // Generated from lsel's theme/palettes.nix.
-              export const palettes = ${builtins.toJSON scheme} as const;
+              // Generated from lsel's theme/palette.nix.
+              export const palette = ${builtins.toJSON palette} as const;
             ''} $out/palette.ts
             subset() {
               pyftsubset "$1" \
@@ -185,7 +181,7 @@
             pkgs.runCommand "lsel-contrast"
               {
                 nativeBuildInputs = [ pkgs.bun ];
-                PALETTE = pkgs.writeText "palette.json" (builtins.toJSON scheme);
+                PALETTE = pkgs.writeText "palette.json" (builtins.toJSON palette);
               }
               ''
                 cp ${./theme/contrast.test.ts} contrast.test.ts

@@ -1,6 +1,7 @@
 # The palette as CSS custom properties, plus the type, spacing and shape every project shares.
-scheme:
+palette:
 let
+  base16 = import ./base16.nix palette;
   face = family: file: weight: ''
     @font-face {
       font-family: "${family}";
@@ -30,6 +31,7 @@ let
         "select"
       ]
       ++ builtins.genList (i: "${indent}--term-${toString i}: ${builtins.elemAt p.term i};") 16
+      ++ map (slot: "${indent}--${slot}: ${base16.${slot}};") (builtins.attrNames base16)
     );
 in
 ''
@@ -39,15 +41,9 @@ in
   ${face "DejaVu Sans Mono" "dejavu-sans-mono-regular" 400}
   ${face "DejaVu Sans Mono" "dejavu-sans-mono-bold" 700}
 
-  /* Light is the base; the system's dark setting swaps every colour at once. */
   :root {
-    color-scheme: ${if scheme.light == scheme.dark then "dark" else "light dark"};
-  ${vars "  " scheme.light}
-  }
-  @media (prefers-color-scheme: dark) {
-    :root {
-  ${vars "    " scheme.dark}
-    }
+    color-scheme: dark;
+  ${vars "  " palette}
   }
 
   :root {
