@@ -1,0 +1,73 @@
+import { describe, expect, test } from "bun:test";
+import { type ClientFrame, parseClientFrame, parseKeys, RESET } from "./index.ts";
+
+const parse = (frame: unknown) => parseClientFrame(JSON.stringify(frame));
+
+describe("client frames", () => {
+  test("a hello creating a room, and one taking a seat back, trimmed", () => {
+    expect(parse({ v: 1, t: "hello", name: "  ada " })).toEqual({
+      ok: true,
+      frame: { v: 1, t: "hello", name: "ada" },
+    });
+    const back: ClientFrame = {
+      v: 1,
+      t: "hello",
+      room: "abcdefgh23",
+      seat: "0".repeat(32),
+      name: "ada",
+    };
+    expect(parse(back)).toEqual({ ok: true, frame: back });
+  });
+
+  test("keys with reset markers", () => {
+    const f: ClientFrame = {
+      v: 1,
+      t: "keys",
+      round: 2,
+      from: 3,
+      entries: [...parseKeys("d"), RESET, ...parseKeys("<C-v><lt>")],
+    };
+    expect(parse(f)).toEqual({ ok: true, frame: f });
+  });
+
+  test("lobby difficulty: a level, any (null), or unchanged (missing)", () => {
+    for (const difficulty of ["hard", null, undefined]) {
+      const f = { v: 1, t: "lobby", ready: true, difficulty };
+      expect(parse(f).ok).toBe(true);
+    }
+    expect(parse({ v: 1, t: "lobby", ready: true, difficulty: "brutal" })).toEqual({
+      ok: false,
+      stale: false,
+      error:
+        'difficulty: Invalid type: Expected ("easy" | "medium" | "hard") but received "brutal"',
+    });
+  });
+
+  test("an entry that is not a key, a bad room id, an unknown field", () => {
+    expect(parse({ v: 1, t: "keys", round: 1, from: 0, entries: ["dd"] })).toEqual({
+      ok: false,
+      stale: false,
+      error: "entries.0: not a key or reset marker",
+    });
+    expect(parse({ v: 1, t: "hello", room: "ABC", name: "x" })).toEqual({
+      ok: false,
+      stale: false,
+      error: "room: not a room id",
+    });
+    expect(parse({ v: 1, t: "ready", extra: 1 }).ok).toBe(false);
+  });
+
+  test("another protocol version is stale; garbage and huge frames are not frames", () => {
+    expect(parse({ v: 2, t: "hello", name: "x" })).toEqual({
+      ok: false,
+      stale: true,
+      error: "protocol 2, expected 1",
+    });
+    expect(parseClientFrame("{")).toEqual({ ok: false, stale: false, error: "not JSON" });
+    expect(parseClientFrame(" ".repeat(16_385))).toEqual({
+      ok: false,
+      stale: false,
+      error: "frame too large",
+    });
+  });
+});

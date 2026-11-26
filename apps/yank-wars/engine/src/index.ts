@@ -7,6 +7,19 @@ export { formatKeys, isVimKey, parseKeys, type VimKey } from "./keys.ts";
 export { languageExtension } from "./languages.ts";
 export { currentRun, type KeyLog, type LogEntry, RESET, scoreOf } from "./log.ts";
 export {
+  type ClientFrame,
+  LIMITS,
+  type PlayerStatus,
+  type PlayerView,
+  PROTOCOL,
+  parseClientFrame,
+  type RoomPhase,
+  type RoomView,
+  type RoundResult,
+  type Seat,
+  type ServerFrame,
+} from "./protocol.ts";
+export {
   comparePuzzles,
   DIFFICULTIES,
   type Difficulty,
@@ -18,6 +31,7 @@ export { replay, verifyRun } from "./replay.ts";
 export {
   createRound,
   elapsedMs,
+  ROUND,
   type RoundEvent,
   type RoundPhase,
   type RoundState,
