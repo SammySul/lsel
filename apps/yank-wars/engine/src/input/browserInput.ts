@@ -1,9 +1,9 @@
 import { EditorState, type Extension, Prec, Transaction } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
-import { feedKey, type KeyResult } from "./feedKey.ts";
+import { feedKey, type KeyResult } from "../feedKey.ts";
+import type { EditorSession } from "../session.ts";
 import { keyFromEvent, type Platform } from "./keyFromEvent.ts";
 import type { VimKey } from "./keys.ts";
-import type { EditorSession } from "./session.ts";
 
 export type BlockedReason = "ime" | "dead" | "meta" | "fkey" | "unfocused";
 

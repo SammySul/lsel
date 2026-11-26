@@ -8,7 +8,7 @@ import {
   remainingMs,
   scoreOf,
   type VimKey,
-} from "./index.ts";
+} from "../index.ts";
 
 const k = (s: string) => s as VimKey;
 const key = (s: string, solved = false) => ({ type: "key", key: k(s), solved }) as const;

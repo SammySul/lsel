@@ -1,4 +1,4 @@
-import type { VimKey } from "./keys.ts";
+import type { VimKey } from "../input/keys.ts";
 
 export const RESET = "<Reset>" as const;
 export type ResetMarker = typeof RESET;

@@ -1,7 +1,7 @@
 import { feedKey } from "./feedKey.ts";
-import type { VimKey } from "./keys.ts";
-import { currentRun, type KeyLog } from "./log.ts";
-import type { Puzzle } from "./puzzle.ts";
+import { currentRun, type KeyLog } from "./game/log.ts";
+import type { Puzzle } from "./game/puzzle.ts";
+import type { VimKey } from "./input/keys.ts";
 import { createSession, destroySession } from "./session.ts";
 import { type HudState, sessionSnapshot } from "./snapshot.ts";
 

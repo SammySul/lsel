@@ -1,8 +1,8 @@
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { parseKeys, type VimKey } from "../src/keys.ts";
-import { VIRTUAL_WINDOW_LINES } from "../src/vimSetup.ts";
+import { parseKeys, type VimKey } from "../src/input/keys.ts";
+import { VIRTUAL_WINDOW_LINES } from "../src/vim/vimSetup.ts";
 import { type Observed, type OracleCase, type OracleMode, settingsOf } from "./types.ts";
 
 const VIM_NAME: Readonly<Record<string, string>> = { Ins: "Insert" };

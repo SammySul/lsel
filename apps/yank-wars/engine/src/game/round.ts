@@ -1,4 +1,4 @@
-import type { VimKey } from "./keys.ts";
+import type { VimKey } from "../input/keys.ts";
 import { type KeyLog, RESET } from "./log.ts";
 
 export const ROUND = { studyMs: 5_000, capMs: 240_000 } as const;

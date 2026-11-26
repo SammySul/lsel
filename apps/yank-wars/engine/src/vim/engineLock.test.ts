@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { CodeMirror, Vim } from "@replit/codemirror-vim";
-import { testPuzzle as puzzle } from "../oracle/engine.ts";
+import { testPuzzle as puzzle } from "../../oracle/engine.ts";
 import {
   createSession,
   destroySession,
@@ -10,7 +10,7 @@ import {
   parseKeys,
   replay,
   sessionSnapshot,
-} from "./index.ts";
+} from "../index.ts";
 import { applyEngineOptions, lockEngine } from "./vimSetup.ts";
 
 const run = (start: string, notation: string) => replay(puzzle(start), parseKeys(notation));

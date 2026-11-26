@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
-import { parsePuzzle, replay, verifyRun } from "./index.ts";
+import { parsePuzzle, replay, verifyRun } from "../index.ts";
 
-const DIR = join(import.meta.dir, "../../puzzles/handmade");
+const DIR = join(import.meta.dir, "../../../puzzles/handmade");
 
 // Par is derived from the solution; listing it here makes every change to a solution deliberate.
 const PAR: Record<string, number> = {
@@ -158,7 +158,9 @@ const PAR: Record<string, number> = {
 };
 
 // vim's own answers for each reference solution, written by `bun run oracle puzzles`.
-const VIM = (await Bun.file(join(import.meta.dir, "../oracle/cases/puzzles.vim.json")).json()) as {
+const VIM = (await Bun.file(
+  join(import.meta.dir, "../../oracle/cases/puzzles.vim.json"),
+).json()) as {
   cases: Record<string, { start: string; keys: string; doc: string }>;
 };
 

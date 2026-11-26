@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { comparePuzzles, type PuzzleJson, parsePuzzle } from "./index.ts";
+import { comparePuzzles, type PuzzleJson, parsePuzzle } from "../index.ts";
 import { PuzzleError } from "./puzzle.ts";
 
 const example: PuzzleJson = {

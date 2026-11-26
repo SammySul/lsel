@@ -6,9 +6,8 @@ fewest keystrokes among finishers wins, ties go to whoever finished first.
 Rationale for every stack choice is in `docs/decisions.md`.
 
 ```
-engine/           pure TS, no I/O: puzzle + protocol types, key notation,
-                   headless replay, match rules (lock-in, grace, scoring).
-                   Imported by everything else.
+engine/           pure TS, no I/O, imported by everything else; its README
+                   maps the folders (vim layer, input, game rules)
 web/               Svelte 5 + Vite SPA, CodeMirror 6 + @replit/codemirror-vim
 server/            serve() from @sammysul/lsel: the built web app and the rooms
 puzzles/           handmade puzzles as JSON (data, not code)

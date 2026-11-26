@@ -10,7 +10,7 @@ import { jsonLanguage } from "@codemirror/lang-json";
 import { pythonLanguage } from "@codemirror/lang-python";
 import { rustLanguage } from "@codemirror/lang-rust";
 import type { Extension } from "@codemirror/state";
-import type { LanguageId } from "./puzzle.ts";
+import type { LanguageId } from "./game/puzzle.ts";
 
 // Language.extension only: LanguageSupport.support adds autoCloseTags and keymaps that type text.
 const EXTENSIONS: Readonly<Record<LanguageId, Extension>> = {

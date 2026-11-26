@@ -205,7 +205,7 @@ Every oracle case that still differs from vim is listed by reason in `engine/ora
 
 _Accepted:_ the fixed 30-line window for `<C-d>`/`<C-f>`/`H`/`L`, replace-mode `<BS>` not restoring, insert completion and digraphs, and `\=` expressions in `:s` being an error (an expression evaluator for a feature golfers rarely use was dropped on 2026-11-26). Everything else in `known.ts` is a bug, ordered by how likely golfers hit it.
 
-Visual-block `I`, `A`, `c`, `s`, `C`, `D`, `X` and `Y` follow vim since 2026-11-12 (`engine/src/blockInsert.ts`, cases in `oracle/cases/visual-block.ts`): an insert types on the first line only and is copied to the other lines at `<Esc>` or `<C-o>`, skipping lines too short for `I`/`c` and padding them for `A`.
+Visual-block `I`, `A`, `c`, `s`, `C`, `D`, `X` and `Y` follow vim since 2026-11-12 (`engine/src/vim/blockInsert.ts`, cases in `oracle/cases/visual-block.ts`): an insert types on the first line only and is copied to the other lines at `<Esc>` or `<C-o>`, skipping lines too short for `I`/`c` and padding them for `A`.
 
 ## Rooms (2026-11-26)
 
@@ -231,7 +231,7 @@ restarted, which bounds `999@q` without an engine change and drops vim's
 process-global state with it. _Rejected:_ replaying on the main thread (one
 slow claim stalls every socket).
 
-**Protocol:** JSON frames on `/ws`, parsed with Valibot (`engine/src/protocol.ts`),
+**Protocol:** JSON frames on `/ws`, parsed with Valibot (`engine/src/game/protocol.ts`),
 every client frame stamped `v: 1`; a frame from another version gets `reload`,
 so an old tab after a deploy refreshes. The server sends durations, never
 timestamps, so client clocks don't matter; state frames go out at most every

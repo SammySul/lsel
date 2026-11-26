@@ -1,7 +1,7 @@
 import { Vim, type vimState } from "@replit/codemirror-vim";
-import { isVimKey, parseKeys, type VimKey } from "./keys.ts";
+import { isVimKey, parseKeys, type VimKey } from "../input/keys.ts";
+import type { EditorSession } from "../session.ts";
 import type { BoundSession } from "./registry.ts";
-import type { EditorSession } from "./session.ts";
 
 // Far below where any browser's stack runs out, so a recursive macro stops at the same key everywhere.
 export const MAX_MACRO_DEPTH = 100;

@@ -8,7 +8,7 @@ import {
 } from "@codemirror/state";
 import { type Command, keymap } from "@codemirror/view";
 import { Vim } from "@replit/codemirror-vim";
-import type { VimKey } from "./keys.ts";
+import type { VimKey } from "../input/keys.ts";
 
 export const INSERT_LITERALS: Readonly<Record<string, string>> = {
   "<Space>": " ",

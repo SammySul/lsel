@@ -1,4 +1,4 @@
-import { parseKeys } from "../src/keys.ts";
+import { parseKeys } from "../src/input/keys.ts";
 
 export interface OracleSettings {
   tabSize: 2 | 4 | 8;

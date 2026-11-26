@@ -1,6 +1,6 @@
 import type { CodeMirror } from "@replit/codemirror-vim";
-import type { VimKey } from "./keys.ts";
-import type { EditorSession } from "./session.ts";
+import type { VimKey } from "../input/keys.ts";
+import type { EditorSession } from "../session.ts";
 
 export interface BoundSession {
   readonly session: EditorSession;

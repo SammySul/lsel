@@ -1,14 +1,19 @@
 import { forceParsing } from "@codemirror/language";
 import { type CodeMirror as CM, CodeMirror, Vim, type vimState } from "@replit/codemirror-vim";
-import { blockInsertCtrlO } from "./blockInsert.ts";
-import { insertCommands, literalOf, recordInsertKey } from "./insertKeys.ts";
-import { insertKeyTyped, insertRestarted } from "./insertRepeat.ts";
-import { beforeInsertEdit, captureInsertStart, insertStartOf, noteArrow } from "./insertStart.ts";
-import { toCoreKey, type VimKey } from "./keys.ts";
-import { chAtVcol, vcolOf } from "./lines.ts";
-import { inMacro, recordingOf, stopRecording, stopsRecording } from "./macro.ts";
-import { routePromptKey } from "./prompt.ts";
+import { toCoreKey, type VimKey } from "./input/keys.ts";
 import type { EditorSession } from "./session.ts";
+import { blockInsertCtrlO } from "./vim/blockInsert.ts";
+import { insertCommands, literalOf, recordInsertKey } from "./vim/insertKeys.ts";
+import { insertKeyTyped, insertRestarted } from "./vim/insertRepeat.ts";
+import {
+  beforeInsertEdit,
+  captureInsertStart,
+  insertStartOf,
+  noteArrow,
+} from "./vim/insertStart.ts";
+import { chAtVcol, vcolOf } from "./vim/lines.ts";
+import { inMacro, recordingOf, stopRecording, stopsRecording } from "./vim/macro.ts";
+import { routePromptKey } from "./vim/prompt.ts";
 
 export interface KeyResult {
   solved: boolean;

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { type ClientFrame, parseClientFrame, parseKeys, RESET } from "./index.ts";
+import { type ClientFrame, parseClientFrame, parseKeys, RESET } from "../index.ts";
 
 const parse = (frame: unknown) => parseClientFrame(JSON.stringify(frame));
 

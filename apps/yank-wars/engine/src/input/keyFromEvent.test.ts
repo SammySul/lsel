@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { Vim } from "@replit/codemirror-vim";
-import { detectPlatform, type KeyEventLike, keyFromEvent, type Platform } from "./index.ts";
+import { detectPlatform, type KeyEventLike, keyFromEvent, type Platform } from "../index.ts";
 
 type Mods = Partial<Omit<KeyEventLike, "key">> & { repeat?: boolean };
 

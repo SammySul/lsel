@@ -1,6 +1,6 @@
 // The room protocol: JSON text frames on /ws. The server parses every client frame with `parseClientFrame`.
 import * as v from "valibot";
-import { isVimKey } from "./keys.ts";
+import { isVimKey } from "../input/keys.ts";
 import { type LogEntry, RESET } from "./log.ts";
 
 export const PROTOCOL = 2;

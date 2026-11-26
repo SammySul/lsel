@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { testPuzzle as puzzle } from "../oracle/engine.ts";
+import type { LanguageId } from "./game/puzzle.ts";
 import { parseKeys, RESET, replay, verifyRun } from "./index.ts";
-import type { LanguageId } from "./puzzle.ts";
 import type { ReplayOptions } from "./replay.ts";
 
 function run(start: string, notation: string, target?: string, opts?: ReplayOptions) {

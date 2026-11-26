@@ -1,5 +1,5 @@
 import * as v from "valibot";
-import { parseKeys, type VimKey } from "./keys.ts";
+import { parseKeys, type VimKey } from "../input/keys.ts";
 
 export type LanguageId =
   | "text"

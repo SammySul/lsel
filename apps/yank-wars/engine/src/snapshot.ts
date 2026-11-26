@@ -1,5 +1,5 @@
-import { recordingOf } from "./macro.ts";
 import type { EditorSession } from "./session.ts";
+import { recordingOf } from "./vim/macro.ts";
 
 export type VimMode = "normal" | "insert" | "replace" | "visual" | "visual line" | "visual block";
 

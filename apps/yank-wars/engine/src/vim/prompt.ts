@@ -1,8 +1,8 @@
 import { Vim } from "@replit/codemirror-vim";
+import { keyToDomKey, type SyntheticKeyInit, type VimKey } from "../input/keys.ts";
+import type { EditorSession } from "../session.ts";
 import { literalOf } from "./insertKeys.ts";
-import { keyToDomKey, type SyntheticKeyInit, type VimKey } from "./keys.ts";
 import { takeSearchLine } from "./search.ts";
-import type { EditorSession } from "./session.ts";
 
 export type PromptHandler = (
   e: SyntheticPromptEvent,

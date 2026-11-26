@@ -1,8 +1,8 @@
 import { Vim } from "@replit/codemirror-vim";
+import type { VimKey } from "../input/keys.ts";
+import type { EditorSession } from "../session.ts";
 import { blockDotCount } from "./blockInsert.ts";
-import type { VimKey } from "./keys.ts";
 import { boundTo } from "./registry.ts";
-import type { EditorSession } from "./session.ts";
 
 // . and a count repeat an insert as the keys typed in it (vim's redo buffer), so <C-w>, <BS>, <C-r> and friends repeat as typed.
 const typed = new WeakMap<EditorSession, VimKey[]>();

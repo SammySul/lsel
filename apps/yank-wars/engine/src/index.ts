@@ -1,11 +1,7 @@
 export type { Extension, Text } from "@codemirror/state";
 export type { EditorView } from "@codemirror/view";
-export { type BlockedReason, type BrowserInputOptions, browserInput } from "./browserInput.ts";
 export { feedKey, type KeyResult } from "./feedKey.ts";
-export { detectPlatform, type KeyEventLike, keyFromEvent, type Platform } from "./keyFromEvent.ts";
-export { formatKeys, isVimKey, parseKeys, type VimKey } from "./keys.ts";
-export { languageExtension } from "./languages.ts";
-export { currentRun, type KeyLog, type LogEntry, RESET, scoreOf } from "./log.ts";
+export { currentRun, type KeyLog, type LogEntry, RESET, scoreOf } from "./game/log.ts";
 export {
   type ClientFrame,
   LIMITS,
@@ -18,7 +14,7 @@ export {
   type RoundResult,
   type Seat,
   type ServerFrame,
-} from "./protocol.ts";
+} from "./game/protocol.ts";
 export {
   comparePuzzles,
   DIFFICULTIES,
@@ -26,8 +22,7 @@ export {
   type Puzzle,
   type PuzzleJson,
   parsePuzzle,
-} from "./puzzle.ts";
-export { replay, verifyRun } from "./replay.ts";
+} from "./game/puzzle.ts";
 export {
   createRound,
   elapsedMs,
@@ -37,7 +32,21 @@ export {
   type RoundState,
   reduceRound,
   remainingMs,
-} from "./round.ts";
+} from "./game/round.ts";
+export {
+  type BlockedReason,
+  type BrowserInputOptions,
+  browserInput,
+} from "./input/browserInput.ts";
+export {
+  detectPlatform,
+  type KeyEventLike,
+  keyFromEvent,
+  type Platform,
+} from "./input/keyFromEvent.ts";
+export { formatKeys, isVimKey, parseKeys, type VimKey } from "./input/keys.ts";
+export { languageExtension } from "./languages.ts";
+export { replay, verifyRun } from "./replay.ts";
 export { createSession, destroySession, type EditorSession, engineExtensions } from "./session.ts";
 export { type HudState, sessionSnapshot, type VimMode } from "./snapshot.ts";
-export { VIRTUAL_WINDOW_LINES } from "./vimSetup.ts";
+export { VIRTUAL_WINDOW_LINES } from "./vim/vimSetup.ts";

@@ -1,8 +1,8 @@
 import { describe, expect, setSystemTime, test } from "bun:test";
 import { Compartment } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
-import { testPuzzle } from "../oracle/engine.ts";
-import { createSession, destroySession, type EditorSession, feedKey, parseKeys } from "./index.ts";
+import { testPuzzle } from "../../oracle/engine.ts";
+import { createSession, destroySession, type EditorSession, feedKey, parseKeys } from "../index.ts";
 
 type Clock = "real" | "advancing" | "frozen";
 const CLOCKS: readonly Clock[] = ["real", "advancing", "frozen"];

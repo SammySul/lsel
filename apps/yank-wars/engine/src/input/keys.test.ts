@@ -1,9 +1,9 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
-import { formatKeys, isVimKey, parseKeys, RESET, type VimKey } from "./index.ts";
+import { formatKeys, isVimKey, parseKeys, RESET, type VimKey } from "../index.ts";
 import { KeyNotationError, keyToDomKey, NAMED_KEYS, toCoreKey } from "./keys.ts";
 
-const PUZZLE_DIR = join(import.meta.dir, "../../puzzles/handmade");
+const PUZZLE_DIR = join(import.meta.dir, "../../../puzzles/handmade");
 const PUZZLE_SOLUTIONS: [string, string][] = await Promise.all(
   [...new Bun.Glob("*.json").scanSync({ cwd: PUZZLE_DIR })].sort().map(async (f) => {
     const json: { solution: string } = await Bun.file(join(PUZZLE_DIR, f)).json();

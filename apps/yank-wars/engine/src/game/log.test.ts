@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { currentRun, isVimKey, type LogEntry, RESET, scoreOf, type VimKey } from "./index.ts";
+import { currentRun, isVimKey, type LogEntry, RESET, scoreOf, type VimKey } from "../index.ts";
 import { isReset } from "./log.ts";
 
 const k = (s: string) => s as VimKey;
