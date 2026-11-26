@@ -1,7 +1,8 @@
 // The puzzle files bundled into the web app, parsed once.
 
+import { go } from "@sammysul/lsel";
 import { comparePuzzles, type Puzzle, parsePuzzle } from "@yank-wars/engine";
-import { filterPuzzles, nextAfter } from "./filter.ts";
+import { filterPuzzles, nextAfter, quickPick } from "./filter.ts";
 import { prefs } from "./prefs.svelte.ts";
 
 interface PuzzleLoadError {
@@ -35,6 +36,12 @@ export function findPuzzle(id: string): Puzzle | undefined {
 /** The puzzles the list's filter shows, in list order. */
 export function visiblePuzzles(): Puzzle[] {
   return filterPuzzles(puzzles, prefs.filter, (id) => prefs.best[id] !== undefined);
+}
+
+/** Quick play: opens a random unsolved puzzle among the filtered ones. */
+export function quickPlay(): void {
+  const p = quickPick(visiblePuzzles(), (id) => prefs.best[id] !== undefined);
+  if (p !== undefined) go(`/p/${p.id}`);
 }
 
 /** Next in list order among the filtered puzzles; the whole list when the filter shows no other. */

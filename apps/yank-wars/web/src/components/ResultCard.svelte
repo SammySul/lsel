@@ -2,6 +2,7 @@
 <script lang="ts">
 import { Action, duration, go, keys } from "@sammysul/lsel";
 import { formatKeys } from "@yank-wars/engine";
+import { quickPlay } from "../lib/puzzles.ts";
 import type { RoundController } from "../lib/round.svelte.ts";
 import { shareText } from "../lib/share.ts";
 import ResultFrame, { fresh } from "./ResultFrame.svelte";
@@ -30,6 +31,7 @@ keys(() => [
   { key: "s", label: "Par solution", run: fresh(() => (showSolution = !showSolution)) },
   { key: "Escape", label: "Puzzles", run: fresh(onList) },
   { key: "f", label: "Play a friend", run: fresh(() => go("/r")) },
+  { key: "p", label: "Quick play", run: fresh(quickPlay) },
 ]);
 </script>
 

@@ -47,3 +47,14 @@ export function nextAfter(
   }
   return undefined;
 }
+
+/** Quick play: a random unsolved puzzle among those shown, or any shown once all are solved. */
+export function quickPick(
+  visible: readonly Puzzle[],
+  solved: (id: string) => boolean,
+  random: () => number = Math.random,
+): Puzzle | undefined {
+  const unsolved = visible.filter((p) => !solved(p.id));
+  const pool = unsolved.length > 0 ? unsolved : visible;
+  return pool[Math.floor(random() * pool.length)];
+}

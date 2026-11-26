@@ -33,6 +33,8 @@ const listOrder = [...puzzles].sort(comparePuzzles);
 // Unit tests check every solution against the engine and vim, parity.e2e every browser's keys:
 // Chromium walks the whole list, the others its start.
 const walked = (name: string) => (name === "chromium" ? listOrder : listOrder.slice(0, 15));
+// rows per page of the puzzle list
+const PAGE = 10;
 const ofDifficulty = (d: Puzzle["difficulty"]) => listOrder.filter((p) => p.difficulty === d);
 const P = (id: string): Puzzle => {
   const p = puzzles.find((x) => x.id === id);
@@ -184,9 +186,9 @@ eachBrowser((browser, name) => {
   test("the puzzle list opens a round from the keyboard, easiest first", async () => {
     const { ctx, page, problems } = await fresh();
     const titles = await page.locator(".table a.row .title").allTextContents();
-    expect(titles).toEqual(listOrder.map((p) => p.title));
+    expect(titles).toEqual(listOrder.slice(0, PAGE).map((p) => p.title));
     const pars = await page.locator(".table a.row span.num:nth-of-type(3)").allTextContents();
-    expect(pars.map(Number)).toEqual(listOrder.map((p) => p.solution.length));
+    expect(pars.map(Number)).toEqual(listOrder.slice(0, PAGE).map((p) => p.solution.length));
     await page.keyboard.press("j");
     await page.keyboard.press("j");
     await page.keyboard.press("k");
@@ -401,10 +403,11 @@ eachBrowser((browser, name) => {
       location.hash = "#/";
     });
     await a.locator(".table a.row").first().waitFor();
-    const best = async (title: string) =>
-      ((await a.locator(".table a.row", { hasText: title }).locator(".best").textContent()) ?? "")
-        .trim()
-        .replace(/ in .*/, "");
+    const best = async (title: string) => {
+      await a.locator(".search").fill(title);
+      const row = a.locator(".table a.row", { hasText: title });
+      return ((await row.locator(".best").textContent()) ?? "").trim().replace(/ in .*/, "");
+    };
     expect([await best(indent.title), await best(css.title)]).toEqual([
       String(indent.solution.length),
       String(css.solution.length),
@@ -515,11 +518,27 @@ eachBrowser((browser, name) => {
   });
 
   const titles = (page: Page) => page.locator(".table a.row .title").allTextContents();
+  /** The titles of the page of `list` that holds the selected row, as the list shows them. */
+  const pageOf = async (page: Page, list: readonly Puzzle[]) => {
+    const selected = await text(page, '.lsel-list li[aria-current="true"] .title');
+    const start =
+      Math.floor(
+        Math.max(
+          0,
+          list.findIndex((p) => p.title === selected),
+        ) / PAGE,
+      ) * PAGE;
+    return list.slice(start, start + PAGE).map((p) => p.title);
+  };
 
   test("the filter: number keys and chips pick a difficulty, / searches, Esc clears, 0 shows all", async () => {
     const { ctx, page, problems } = await fresh();
     await page.keyboard.press("1");
-    expect(await titles(page)).toEqual(ofDifficulty("easy").map((p) => p.title));
+    expect(await titles(page)).toEqual(
+      ofDifficulty("easy")
+        .slice(0, PAGE)
+        .map((p) => p.title),
+    );
     await page.keyboard.press("/");
     await page.keyboard.type("rust");
     expect(await page.locator(".search").inputValue()).toBe("rust");
@@ -537,11 +556,11 @@ eachBrowser((browser, name) => {
       "search",
     );
     await page.keyboard.press("0");
-    expect(await titles(page)).toEqual(listOrder.map((p) => p.title));
+    expect(await titles(page)).toEqual(await pageOf(page, listOrder));
     await page.locator(".chip", { hasText: "hard" }).click();
-    expect(await titles(page)).toEqual(ofDifficulty("hard").map((p) => p.title));
+    expect(await titles(page)).toEqual(await pageOf(page, ofDifficulty("hard")));
     await page.locator(".chip", { hasText: "hard" }).click();
-    expect(await titles(page)).toEqual(listOrder.map((p) => p.title));
+    expect(await titles(page)).toEqual(await pageOf(page, listOrder));
     await done(ctx, problems);
   });
 
@@ -550,11 +569,43 @@ eachBrowser((browser, name) => {
     await page.keyboard.press("/");
     await page.keyboard.type("substitute");
     const matches = listOrder.filter((p) => p.tags?.includes("substitute"));
-    expect(await titles(page)).toEqual(matches.map((p) => p.title));
+    expect(await titles(page)).toEqual(matches.slice(0, PAGE).map((p) => p.title));
     await page.keyboard.type(" ");
     await page.keyboard.press("ArrowDown");
     await page.keyboard.press("Enter");
     await waitRound(page, (matches[1] as Puzzle).id);
+    await done(ctx, problems);
+  });
+
+  test("the list pages with l and h, keeps its height through every filter, and p quick-plays an unsolved puzzle", async () => {
+    const { ctx, page, problems } = await fresh();
+    const pages = Math.ceil(listOrder.length / PAGE);
+    const pager = () => text(page, ".pager span");
+    const height = () => page.evaluate(() => document.documentElement.scrollHeight);
+    const tall = await height();
+    expect(await pager()).toBe(`Page 1 of ${pages}`);
+    await page.keyboard.press("l");
+    expect([await pager(), await titles(page)]).toEqual([
+      `Page 2 of ${pages}`,
+      listOrder.slice(PAGE, 2 * PAGE).map((p) => p.title),
+    ]);
+    await page.keyboard.press("h");
+    for (let i = 0; i < PAGE; i++) await page.keyboard.press("j");
+    expect(await pager()).toBe(`Page 2 of ${pages}`);
+    const heights = [];
+    for (const key of ["2", "0", "3", "u", "u", "0"]) {
+      await page.keyboard.press(key);
+      heights.push(await height());
+    }
+    expect(heights).toEqual(Array(6).fill(tall));
+    await playToLockIn(page, listOrder[0] as Puzzle);
+    await page.keyboard.press("Escape");
+    await page.locator(".table a.row").first().waitFor();
+    await page.keyboard.press("1");
+    await page.keyboard.press("p");
+    await page.locator(".hud h1").waitFor();
+    const id = (await hash(page)).replace("#/p/", "");
+    expect([P(id).difficulty, id === (listOrder[0] as Puzzle).id]).toEqual(["easy", false]);
     await done(ctx, problems);
   });
 
@@ -571,7 +622,7 @@ eachBrowser((browser, name) => {
     await page.reload({ waitUntil: "networkidle" });
     await page.locator(".table a.row").first().waitFor();
     expect(await page.locator(".search").inputValue()).toBe("");
-    expect(await titles(page)).toEqual(easy.slice(1).map((p) => p.title));
+    expect(await titles(page)).toEqual(easy.slice(1, 1 + PAGE).map((p) => p.title));
     expect(await page.locator(".chip[aria-pressed=true]").allTextContents()).toEqual([
       "easy",
       "Unsolved",
@@ -587,7 +638,7 @@ eachBrowser((browser, name) => {
     expect(await text(page, ".needs-keyboard h2")).toBe("Yank Wars needs a keyboard");
     expect(await page.locator(".table a.row").count()).toBe(0);
     await page.getByRole("button", { name: "Play anyway" }).click();
-    expect(await page.locator(".table a.row").count()).toBe(puzzles.length);
+    expect(await page.locator(".table a.row").count()).toBe(PAGE);
     await done(ctx, watch.take);
   });
 

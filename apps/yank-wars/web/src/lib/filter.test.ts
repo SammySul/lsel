@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { comparePuzzles, type PuzzleJson } from "@yank-wars/engine";
 import { playablePuzzle } from "@yank-wars/engine/oracle/engine";
-import { filterPuzzles, NO_FILTER, nextAfter } from "./filter.ts";
+import { filterPuzzles, NO_FILTER, nextAfter, quickPick } from "./filter.ts";
 
 const make = (id: string, over: Partial<PuzzleJson>) =>
   playablePuzzle("a", "b", "rbx<Esc>", { ...over, id });
@@ -79,4 +79,20 @@ test("when the filter shows nothing else, next walks the whole list", () => {
   const onlyThis = filterPuzzles(list, { ...NO_FILTER, query: "stringify" }, none);
   expect(nextAfter(list, onlyThis, "stringify")?.id).toBe("indent");
   expect(nextAfter(list, [], "indent")?.id).toBe("one-line");
+});
+
+test("quick play picks among the unsolved shown, and among all shown once every one is solved", () => {
+  const solved = (id: string) => id !== "double-quotes" && id !== "stringify";
+  expect([0, 0.99].map((r) => quickPick(list, solved, () => r)?.id)).toEqual([
+    "double-quotes",
+    "stringify",
+  ]);
+  expect(
+    quickPick(
+      list,
+      () => true,
+      () => 0,
+    )?.id,
+  ).toBe("indent");
+  expect(quickPick([], none, () => 0)).toBeUndefined();
 });

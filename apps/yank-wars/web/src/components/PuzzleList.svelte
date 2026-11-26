@@ -7,7 +7,7 @@ import { version } from "../../../package.json";
 import { CHORD_LABELS } from "../lib/chords.ts";
 import { prefs } from "../lib/prefs.svelte.ts";
 import { markOf, progressOf } from "../lib/progress.ts";
-import { puzzleErrors, puzzles, visiblePuzzles } from "../lib/puzzles.ts";
+import { puzzleErrors, puzzles, quickPlay, visiblePuzzles } from "../lib/puzzles.ts";
 
 interface Props {
   selected?: string | undefined;
@@ -35,6 +35,7 @@ keys(() =>
   puzzles.length === 0
     ? []
     : [
+        { key: "p", label: "Quick play", hint: true, run: quickPlay },
         { key: "/", label: "Search", hint: true, run: () => search?.focus() },
         {
           key: ["1", "2", "3"],
@@ -64,8 +65,10 @@ keys(() =>
       <kbd>{CHORD_LABELS.forfeit}</kbd> gives up.
     </li>
   </ol>
-  <p class="friend">
-    <a href="#/r">Play a friend</a> <kbd>f</kbd>: a room for two, an invite link, the same puzzle.
+  <p class="start">
+    <button onclick={quickPlay} disabled={shown.length === 0}>Quick play <kbd>p</kbd></button>
+    a random unsolved puzzle, or <a href="#/r">play a friend</a> <kbd>f</kbd>: a room for two, the
+    same puzzle.
   </p>
   {#if progress.solved > 0}
     <p class="progress">
@@ -119,6 +122,7 @@ keys(() =>
         label="Puzzles"
         onopen={(p) => go(`/p/${p.id}`)}
         hint
+        pageSize={10}
       >
         {#snippet head()}
           <div class="row heading">
@@ -175,8 +179,11 @@ keys(() =>
     color: var(--subtle);
     line-height: 1.6;
   }
-  .friend {
+  .start {
     margin: 0;
+  }
+  .start button {
+    margin-right: 4px;
   }
   .progress {
     margin: 0;
