@@ -1,6 +1,6 @@
 <!-- A room before a round: invite link, names and ready. -->
 <script lang="ts">
-import { Action, keys, Page } from "@sammysul/lsel";
+import { Action, keys, Page, Swap } from "@sammysul/lsel";
 import { LIMITS } from "@yank-wars/engine";
 import { version } from "../../../package.json";
 import { prefs } from "../lib/prefs.svelte.ts";
@@ -101,7 +101,8 @@ keys(() => [
 
   <div class="actions">
     <button onclick={() => room.lobby({ ready: !me?.lobbyReady })}
-      >{me?.lobbyReady ? "Not ready" : "Ready"} <kbd>Enter</kbd></button
+      ><Swap text={me?.lobbyReady ? "Not ready" : "Ready"} options={["Ready", "Not ready"]} />
+      <kbd>Enter</kbd></button
     >
     <button onclick={onLeave}>Leave <kbd>Esc</kbd></button>
   </div>

@@ -3,6 +3,7 @@
 import { onDestroy } from "svelte";
 import { begin } from "./activity.svelte.ts";
 import { keyName, keys } from "./keys.svelte.ts";
+import Swap from "./Swap.svelte";
 
 interface Props {
   label: string;
@@ -59,6 +60,9 @@ const text = $derived(
         : label,
 );
 
+// a failure's own message can't be known ahead, so only the labels given are reserved
+const options = $derived([label, busy, done, failed].filter((o) => o !== undefined));
+
 keys(() => (key === undefined || disabled ? [] : [{ key, label, hint, run: () => void start() }]));
 </script>
 
@@ -72,7 +76,7 @@ keys(() => (key === undefined || disabled ? [] : [{ key, label, hint, run: () =>
   aria-busy={state.kind === "busy"}
   onclick={start}
 >
-  {text}{#if shown !== undefined}{" "}<kbd>{keyName(shown)}</kbd>{/if}
+  <Swap {text} {options} />{#if shown !== undefined}{" "}<kbd>{keyName(shown)}</kbd>{/if}
 </button>
 
 <style>

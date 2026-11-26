@@ -10,6 +10,7 @@ test("the package root loads in bun test and exports exactly its API", () => {
     "List",
     "Page",
     "Status",
+    "Swap",
     "Tabs",
     "begin",
     "clock",

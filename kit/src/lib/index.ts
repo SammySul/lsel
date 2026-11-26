@@ -14,4 +14,5 @@ export { persisted, type Store } from "./persisted.svelte.ts";
 export { type Resource, resource } from "./resource.svelte.ts";
 export { go, route } from "./route.svelte.ts";
 export { default as Status } from "./Status.svelte";
+export { default as Swap } from "./Swap.svelte";
 export { default as Tabs } from "./Tabs.svelte";
