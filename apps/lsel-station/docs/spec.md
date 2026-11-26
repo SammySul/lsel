@@ -552,8 +552,8 @@ below; the rail becomes a drawer.
 - With `prefers-reduced-motion` the scene is drawn as still frames; there is no
   setting for it.
 - Factions are told apart by icon shape as well as color.
-- The interface is lsel's `tokens.css`: its variables, its elements, JetBrains
-  Mono. The palette in section 12.2 is for the scene only. A pixel face is used
+- The interface is lsel's `tokens.css`: its variables, its elements, DejaVu
+  Sans Mono. The palette in section 12.2 is for the scene only. A pixel face is used
   only for the title.
 
 ---

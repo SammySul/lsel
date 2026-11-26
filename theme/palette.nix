@@ -1,4 +1,4 @@
-# fsociety: Mr. Robot's Kali, a black terminal in the show's cold grade with one red accent.
+# fsociety: a black terminal in a cold grade with one red accent.
 {
   label = "fsociety";
 

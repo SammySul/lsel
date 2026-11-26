@@ -1,6 +1,6 @@
 # Design
 
-One look for everything: the terminal's colors. Mr. Robot's Kali: dark, square, quiet.
+One look for everything, taken from the terminal: dark, square, quiet.
 The values live in `theme/` and reach every app as `tokens.css` in
 `@sammysul/lsel`; use the variables, never the hex values. The package's
 components (`Page`, `Tabs`, `List`, `Status`, `Empty`, `Action`,
