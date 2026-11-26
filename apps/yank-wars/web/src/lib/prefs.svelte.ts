@@ -1,5 +1,5 @@
 import type { Store } from "@sammysul/lsel";
-import { DIFFICULTIES, type Difficulty } from "@yank-wars/engine";
+import { DIFFICULTIES, type Difficulty, LIMITS } from "@yank-wars/engine";
 import * as v from "valibot";
 import type { PuzzleFilter } from "./filter.ts";
 
@@ -19,6 +19,7 @@ export interface StoredFilter {
 /** Field by field: a bad value falls back on its own, and a bad best is dropped. */
 export const Stored = v.object({
   relativeNumbers: v.fallback(v.boolean(), true),
+  name: v.fallback(v.pipe(v.string(), v.maxLength(LIMITS.nameLength)), ""),
   best: v.fallback(
     v.pipe(
       v.record(v.string(), v.unknown()),
@@ -71,6 +72,7 @@ export function isBetter(a: Best, b: Best): boolean {
 
 export class Prefs {
   #relativeNumbers = $state(true);
+  #name = $state("");
   best = $state.raw<Readonly<Record<string, Best>>>({});
   #lasting = $state.raw<StoredFilter>({ difficulty: null, unsolved: false });
   #query = $state("");
@@ -80,6 +82,7 @@ export class Prefs {
     this.#storage = storage;
     const stored = read(storage) ?? this.#mine();
     this.#relativeNumbers = stored.relativeNumbers;
+    this.#name = stored.name;
     this.best = stored.best;
     this.#lasting = stored.filter;
   }
@@ -115,6 +118,18 @@ export class Prefs {
     });
   }
 
+  /** What a room shows the other player. */
+  get name(): string {
+    return this.#name;
+  }
+
+  set name(name: string) {
+    this.#name = name;
+    this.#update((s) => {
+      s.name = name;
+    });
+  }
+
   /** Stores `run` if it beats the best for `id` in any tab; returns whether it did. */
   recordBest(id: string, run: Best): boolean {
     let better = false;
@@ -129,6 +144,7 @@ export class Prefs {
   #mine(): Stored {
     return {
       relativeNumbers: this.#relativeNumbers,
+      name: this.#name,
       best: { ...this.best },
       filter: this.#lasting,
     };

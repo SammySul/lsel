@@ -1,5 +1,5 @@
 <script lang="ts">
-import { Action, duration, keys } from "@sammysul/lsel";
+import { Action, duration, go, keys } from "@sammysul/lsel";
 import { formatKeys } from "@yank-wars/engine";
 import { onMount } from "svelte";
 import type { RoundController } from "../lib/round.svelte.ts";
@@ -37,6 +37,7 @@ keys(() => [
   { key: "r", label: "Retry", run: fresh(onRetry) },
   { key: "s", label: "Par solution", run: fresh(() => (showSolution = !showSolution)) },
   { key: "Escape", label: "Puzzles", run: fresh(onList) },
+  { key: "f", label: "Play a friend", run: fresh(() => go("/r")) },
 ]);
 </script>
 
@@ -126,6 +127,7 @@ keys(() => [
       {/if}
       <button onclick={onNext}>Next <kbd>Enter</kbd></button>
       <button onclick={onRetry}>Retry <kbd>r</kbd></button>
+      <button onclick={() => go("/r")}>Play a friend <kbd>f</kbd></button>
       <button onclick={onList}>Puzzles <kbd>Esc</kbd></button>
     </div>
   </div>

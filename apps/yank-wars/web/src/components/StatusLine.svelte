@@ -50,9 +50,15 @@ const hint = $derived(
     {/if}
     <span class="spacer"></span>
     <span class="pending">{snap.prompt ? "" : snap.pending}</span>
-    <span class="off" class:match={ctl.linesOff === 0}>
-      {ctl.linesOff === 0 ? "matches" : `${ctl.linesOff} line${ctl.linesOff === 1 ? "" : "s"} off`}
-    </span>
+    {#if ctl.claim === "checking"}
+      <span class="claim">checking…</span>
+    {:else if ctl.claim === "rejected"}
+      <span class="claim rejected">the server disagrees, keep going</span>
+    {:else}
+      <span class="off" class:match={ctl.linesOff === 0}>
+        {ctl.linesOff === 0 ? "matches" : `${ctl.linesOff} line${ctl.linesOff === 1 ? "" : "s"} off`}
+      </span>
+    {/if}
   </div>
   <div class="line sub">
     <span class="hint">{hint ?? ""}</span>
@@ -120,8 +126,12 @@ const hint = $derived(
     min-width: 6ch;
     text-align: right;
   }
-  .off {
+  .off,
+  .claim.rejected {
     color: var(--warning);
+  }
+  .claim {
+    color: var(--subtle);
   }
   .off.match {
     color: var(--success);

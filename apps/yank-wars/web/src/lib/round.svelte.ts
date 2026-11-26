@@ -5,11 +5,14 @@ import {
   detectPlatform,
   type EditorSession,
   elapsedMs,
+  feedKey,
   formatKeys,
   type HudState,
+  type KeyLog,
   type KeyResult,
   type Platform,
   type Puzzle,
+  RESET,
   type RoundEvent,
   type RoundPhase,
   type RoundState,
@@ -28,6 +31,18 @@ import { FORFEIT_KEY, NUMBERS_KEY, READY_KEYS, RESET_KEY } from "./chords.ts";
 import type { Best, Prefs } from "./prefs.svelte.ts";
 
 export type SelfCheck = "off" | "pending" | "ok" | "mismatch";
+
+/** A round played in a room: the room starts and ends it, and hears every key. */
+export interface RoundLink {
+  ready(): void;
+  /** the log changed: send the room what it hasn't had */
+  log(log: KeyLog): void;
+  claim(length: number, doc: string): void;
+  forfeit(): void;
+}
+
+/** A room round's lock-in: a match is only a claim until the server's replay agrees. */
+export type Claim = "none" | "checking" | "rejected";
 
 export const LOCK_PULSE_MS = 400;
 
@@ -62,6 +77,8 @@ export class RoundController {
   showResult = $state(false);
   bestBefore = $state.raw<Best | undefined>(undefined);
   newBest = $state(false);
+  claim = $state<Claim>("none");
+  readySent = $state(false);
 
   // $derived.by: a plain $derived(this.round…) initializer trips TS2729 (set in the constructor).
   phase = $derived.by(() => this.round.phase);
@@ -71,10 +88,10 @@ export class RoundController {
   remaining = $derived.by(() => remainingMs(this.round, this.now));
   notation = $derived.by(() => formatKeys(currentRun(this.round.log)));
   capLeft = $derived.by(() => {
-    const { startedAt, endsAt, finishedAt } = this.round;
-    if (startedAt === null || endsAt === null) return 1;
+    const { startedAt, finishedAt, capMs } = this.round;
+    if (startedAt === null) return 1;
     const at = finishedAt ?? this.now;
-    return Math.min(1, Math.max(0, (endsAt - at) / (endsAt - startedAt)));
+    return Math.min(1, Math.max(0, (startedAt + capMs - at) / capMs));
   });
 
   #player: PlayerView | null = null;
@@ -83,12 +100,23 @@ export class RoundController {
   #raf = 0;
   #pulse: ReturnType<typeof setTimeout> | undefined;
   #keyAt = 0;
+  readonly #link: RoundLink | null;
+  /** keys a reload must type into the buffer once it mounts */
+  #replay: readonly VimKey[] = [];
 
-  constructor(puzzle: Puzzle, prefs: Prefs, clock: () => number) {
+  /** `studyMs`: what is left of the room's study window. */
+  constructor(
+    puzzle: Puzzle,
+    prefs: Prefs,
+    clock: () => number,
+    link: RoundLink | null = null,
+    studyMs?: number,
+  ) {
     this.puzzle = puzzle;
     this.prefs = prefs;
     this.#clock = clock;
-    this.round = $state.raw(createRound(clock()));
+    this.#link = link;
+    this.round = $state.raw(createRound(clock(), studyMs === undefined ? {} : { studyMs }));
     this.now = clock();
     this.bestBefore = prefs.best[puzzle.id];
   }
@@ -115,22 +143,83 @@ export class RoundController {
   }
 
   ready(): void {
-    this.#dispatch({ type: "ready" });
+    if (this.#link === null) this.#dispatch({ type: "ready" });
+    else if (this.phase === "study" && !this.readySent) {
+      this.readySent = true;
+      this.#link.ready();
+    }
   }
 
   reset(): void {
-    if (this.phase !== "playing") return;
+    if (this.phase !== "playing" || this.claim === "checking") return;
     this.#dispatch({ type: "reset" });
     this.#player?.destroy();
     this.#player = null;
     this.blocked = null;
     this.#startPlayer();
     this.flash++;
+    this.#sendLog();
   }
 
   forfeit(): void {
-    if (this.phase !== "playing") return;
+    if (this.phase !== "playing" || this.claim === "checking") return;
     this.#dispatch({ type: "forfeit" });
+    this.#link?.forfeit();
+  }
+
+  /** Room only: the round runs, `elapsed` ms in, `left` ms before its deadline (the cap or grace). */
+  sync(elapsed: number, left: number): void {
+    const now = this.#clock();
+    const endsAt = now + left;
+    if (this.round.phase === "study") {
+      this.round = { ...this.round, phase: "playing", startedAt: now - elapsed, endsAt };
+    } else if (this.round.phase === "playing") {
+      this.round = { ...this.round, endsAt };
+    }
+    this.now = now;
+  }
+
+  /** Room only: the server's replay of this round's claim agreed, or didn't; `after`: its lock-in time. */
+  verdict(ok: boolean, after?: number | null): void {
+    if (this.claim !== "checking") return;
+    if (!ok) {
+      this.claim = "rejected";
+      // A matched session takes no more keys; the player keeps going from this buffer.
+      if (this.#player !== null) this.#player.session.solved = false;
+      return;
+    }
+    const { startedAt } = this.round;
+    this.claim = "none";
+    this.round = {
+      ...this.round,
+      phase: "locked",
+      finishedAt: after == null || startedAt === null ? this.#keyAt : startedAt + after,
+    };
+    this.#onEnded();
+  }
+
+  /** Room only: the room ended this player's round (the deadline, a forfeit by dropping out). */
+  stop(): void {
+    if (isOver(this.phase)) return;
+    this.claim = "none";
+    this.round = { ...this.round, phase: "expired", finishedAt: this.#clock() };
+    this.#onEnded();
+  }
+
+  /** Room only, after a reload: takes the room's copy of this round's log; its last run is typed into the buffer. */
+  restore(log: KeyLog): void {
+    this.round = { ...this.round, log: [...log], runs: 1 + log.filter((e) => e === RESET).length };
+    this.#replay = currentRun(log);
+    if (this.#player !== null) {
+      this.#player.destroy();
+      this.#player = null;
+      this.#startPlayer();
+    }
+  }
+
+  /** Room only: claims again what a dropped socket may have lost. */
+  reclaim(): void {
+    if (this.claim === "checking" && this.#player !== null) this.#sendClaim();
   }
 
   toggleNumbers(): void {
@@ -175,7 +264,15 @@ export class RoundController {
       onDoc: (doc) => this.#onDoc(doc),
     });
     this.#player = player;
+    const replay = this.#replay;
+    this.#replay = [];
+    for (const k of replay) feedKey(player.session, k);
     this.snap = sessionSnapshot(player.session);
+    // A reload after a claim the server never answered: claim again.
+    if (player.session.solved && this.phase === "playing" && this.claim === "none") {
+      this.claim = "checking";
+      this.#sendClaim();
+    }
     this.#onDoc(player.session.view.state.doc);
     player.focus();
   }
@@ -194,14 +291,30 @@ export class RoundController {
   #accepting(): boolean {
     this.#keyAt = this.#clock();
     this.#dispatch({ type: "tick" }, this.#keyAt);
-    return this.phase === "playing";
+    return this.phase === "playing" && this.claim !== "checking";
   }
 
   // Logged at the time it was accepted: a slow feed that crosses the cap already changed the buffer.
   #onKey(key: VimKey, result: KeyResult): void {
-    this.#dispatch({ type: "key", key, solved: result.solved }, this.#keyAt);
+    this.#dispatch({ type: "key", key, solved: result.solved && this.#link === null }, this.#keyAt);
     if (this.#player !== null) this.snap = sessionSnapshot(this.#player.session);
     this.blocked = null;
+    if (this.#link === null) return;
+    this.#sendLog();
+    if (this.claim === "rejected") this.claim = "none";
+    if (result.solved && this.phase === "playing") {
+      this.claim = "checking";
+      this.#sendClaim();
+    }
+  }
+
+  #sendLog(): void {
+    this.#link?.log(this.round.log);
+  }
+
+  #sendClaim(): void {
+    const doc = this.#player?.session.view.state.doc.toString() ?? "";
+    this.#link?.claim(this.round.log.length, doc);
   }
 
   // An IME may compose without any keydown the key capture could flag (Chromium's CDP does).
@@ -223,6 +336,8 @@ export class RoundController {
 
   #dispatch(e: RoundEvent, now = this.#clock()): void {
     const prev = this.round;
+    // In a room, play starts when the server says so (sync), not on the study clock or Space.
+    if (this.#link !== null && prev.phase === "study") return;
     const next = reduceRound(prev, e, now);
     if (next === prev) return;
     this.round = next;
@@ -231,6 +346,10 @@ export class RoundController {
 
   #onEnded(): void {
     this.now = this.#clock();
+    if (this.#link !== null) {
+      if (import.meta.env.DEV && this.round.phase === "locked") this.#selfCheck();
+      return;
+    }
     if (this.round.phase !== "locked") {
       // The key that ran into the cap is still propagating; a card mounted now would act on it.
       this.#pulse = setTimeout(() => {

@@ -76,7 +76,7 @@
     },
     "apps/yank-wars": {
       "name": "yank-wars",
-      "version": "1.3.9",
+      "version": "1.4.0",
       "devDependencies": {
         "@sammysul/lsel": "workspace:*",
         "@types/bun": "catalog:",
@@ -134,7 +134,7 @@
     },
     "kit": {
       "name": "@sammysul/lsel",
-      "version": "0.6.0",
+      "version": "0.7.0",
       "bin": {
         "lsel-check": "./src/lib/check.ts",
       },

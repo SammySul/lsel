@@ -34,16 +34,18 @@ test("a worse run in a stale tab does not replace another tab's best", () => {
   expect(new Prefs(storage).best).toEqual({ "join-lines": { keys: 6, ms: 4000 } });
 });
 
-test("recording a best keeps another tab's line-number choice and filter", () => {
+test("recording a best keeps another tab's line-number choice, name and filter", () => {
   const storage = memoryStorage();
   const tabA = new Prefs(storage);
   const tabB = new Prefs(storage);
   tabA.relativeNumbers = false;
+  tabA.name = "ada";
   tabA.filter = { difficulty: "hard", unsolved: false, query: "x" };
   tabB.recordBest("join-lines", { keys: 6, ms: 4000 });
   const later = new Prefs(storage);
-  expect([later.relativeNumbers, later.filter]).toEqual([
+  expect([later.relativeNumbers, later.name, later.filter]).toEqual([
     false,
+    "ada",
     { difficulty: "hard", unsolved: false, query: "" },
   ]);
 });
@@ -74,16 +76,19 @@ test("unreadable stored values fall back field by field, and bad bests are dropp
   expect(
     v.parse(Stored, {
       relativeNumbers: "no",
+      name: "x".repeat(25),
       best: { a: { keys: 3, ms: 10 }, b: { keys: -1, ms: 10 }, c: { keys: 1.5, ms: 1 }, d: "x" },
       filter: { difficulty: "expert", unsolved: true },
     }),
   ).toEqual({
     relativeNumbers: true,
+    name: "",
     best: { a: { keys: 3, ms: 10 } },
     filter: { difficulty: null, unsolved: true },
   });
-  expect(v.parse(Stored, { relativeNumbers: false })).toEqual({
+  expect(v.parse(Stored, { relativeNumbers: false, name: "ada" })).toEqual({
     relativeNumbers: false,
+    name: "ada",
     best: {},
     filter: { difficulty: null, unsolved: false },
   });

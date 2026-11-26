@@ -1,6 +1,6 @@
 {
   "name": "yank-wars",
-  "version": "1.3.9",
+  "version": "1.4.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,7 +8,7 @@
     "build": "bun run --filter @yank-wars/web build",
     "check": "tsc --noEmit -p engine && tsc --noEmit -p server && bun run --filter @yank-wars/web check && lsel-check",
     "test": "bun --conditions=browser test",
-    "test:e2e": "bun test ./web/e2e/flow.e2e.ts ./web/e2e/parity.e2e.ts ./web/e2e/built.e2e.ts",
+    "test:e2e": "bun test ./web/e2e/flow.e2e.ts ./web/e2e/parity.e2e.ts ./web/e2e/room.e2e.ts ./web/e2e/built.e2e.ts",
     "oracle": "bun engine/oracle/run.ts",
     "brand": "bun web/brand/render.ts"
   },

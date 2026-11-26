@@ -22,6 +22,8 @@ const Index = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(LIMITS.l
 const RoomId = v.pipe(v.string(), v.regex(/^[a-z2-7]{10}$/, "not a room id"));
 const SeatToken = v.pipe(v.string(), v.regex(/^[0-9a-f]{32}$/, "not a seat token"));
 
+const Name = v.pipe(v.string(), v.trim(), v.maxLength(LIMITS.nameLength));
+
 const frame = <T extends string, E extends v.ObjectEntries>(t: T, entries: E) =>
   v.strictObject({ v: v.literal(PROTOCOL), t: v.literal(t), ...entries });
 
@@ -29,11 +31,12 @@ const ClientFrame = v.variant("t", [
   frame("hello", {
     room: v.optional(RoomId),
     seat: v.optional(SeatToken),
-    name: v.pipe(v.string(), v.trim(), v.maxLength(LIMITS.nameLength)),
+    name: Name,
   }),
   frame("lobby", {
     ready: v.boolean(),
     difficulty: v.optional(v.nullable(v.picklist(DIFFICULTIES))),
+    name: v.optional(Name),
   }),
   frame("ready", {}),
   frame("keys", {
@@ -105,6 +108,8 @@ export interface RoomView {
   tally: [number, number];
   /** ms left in the study window or the round (the cap, or grace once it runs) */
   phaseLeft: number | null;
+  /** ms since play started, while it runs */
+  elapsed: number | null;
   graceLeft: number | null;
   last: RoundResult | null;
 }

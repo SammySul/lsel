@@ -66,8 +66,9 @@ describe("lobby and study", () => {
     const h = new Harness()
       .at(0, { type: "join", seat: 0, name: "ada" })
       .at(0, { type: "lobby", seat: 0, ready: true, difficulty: "medium" })
-      .at(S, { type: "join", seat: 1, name: "bob" });
-    expect(h.room.phase).toBe("lobby");
+      .at(S, { type: "join", seat: 1, name: "bob" })
+      .at(S, { type: "lobby", seat: 1, ready: false, name: "" });
+    expect([h.room.phase, h.room.players[1]?.name]).toEqual(["lobby", "anonymous"]);
     h.at(2 * S, { type: "lobby", seat: 1, ready: true });
     expect([h.room.phase, h.room.round, h.room.puzzleId, h.room.studyEndsAt]).toEqual([
       "study",
@@ -246,12 +247,12 @@ describe("drops, rematch and the view", () => {
     ]);
   });
 
-  test("the view counts keys and runs, and the time left in study, the round and grace", () => {
+  test("the view counts keys and runs, the time played, and the time left in the round and grace", () => {
     const h = Harness.playing()
       .type(S, 1, "dd<Reset>x")
       .lockIn(10 * S, 0, 7);
     const v = viewOf(h.room, 12 * S);
-    expect([v.phaseLeft, v.graceLeft]).toEqual([8 * S, 8 * S]);
+    expect([v.phaseLeft, v.elapsed, v.graceLeft]).toEqual([8 * S, 12 * S, 8 * S]);
     expect(v.players.map((p) => [p?.status, p?.score, p?.runs, p?.lockedAfter])).toEqual([
       ["locked", 7, 1, 10 * S],
       ["playing", 1, 2, null],

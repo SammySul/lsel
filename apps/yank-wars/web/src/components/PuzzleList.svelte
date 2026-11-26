@@ -43,6 +43,7 @@ keys(() =>
         },
         { key: "0", label: "All difficulties", hint: true, run: () => setDifficulty(null) },
         { key: "u", label: "Unsolved only", hint: true, run: toggleUnsolved },
+        { key: "f", label: "Play a friend", hint: true, run: () => go("/r") },
       ],
 );
 </script>
@@ -62,6 +63,9 @@ keys(() =>
       <kbd>{CHORD_LABELS.forfeit}</kbd> gives up.
     </li>
   </ol>
+  <p class="friend">
+    <a href="#/r">Play a friend</a> <kbd>f</kbd>: a room for two, an invite link, the same puzzle.
+  </p>
   {#if progress.solved > 0}
     <p class="progress">
       {progress.solved} of {puzzles.length} solved · {progress.parOrBetter} at par or better
@@ -169,6 +173,9 @@ keys(() =>
     padding-left: 20px;
     color: var(--subtle);
     line-height: 1.6;
+  }
+  .friend {
+    margin: 0;
   }
   .progress {
     margin: 0;

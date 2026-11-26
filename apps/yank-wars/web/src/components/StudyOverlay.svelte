@@ -33,7 +33,11 @@ function ready() {
     <span class="secs">{Math.ceil(left / 1000)}</span>
   </div>
   <div class="text">
-    <p><strong>Study the target.</strong> <kbd>Space</kbd> or <kbd>Enter</kbd> when ready.</p>
+    {#if ctl.readySent}
+      <p><strong>Ready.</strong> Waiting for the other player, or the countdown.</p>
+    {:else}
+      <p><strong>Study the target.</strong> <kbd>Space</kbd> or <kbd>Enter</kbd> when ready.</p>
+    {/if}
     <p class="chords">
       <kbd>{CHORD_LABELS.reset}</kbd> reset (counter to 0, clock keeps running) ·
       <kbd>{CHORD_LABELS.forfeit}</kbd> give up · <kbd>{CHORD_LABELS.numbers}</kbd> line numbers ·
@@ -41,7 +45,9 @@ function ready() {
         · Ctrl+W closes the tab in Chrome{/if}
     </p>
   </div>
-  <button onmousedown={(e) => e.preventDefault()} onclick={ready}>Ready</button>
+  <button onmousedown={(e) => e.preventDefault()} onclick={ready} disabled={ctl.readySent}
+    >Ready</button
+  >
 </div>
 
 <style>

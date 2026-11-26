@@ -14,6 +14,7 @@ import type { Verdict } from "./replay.ts";
 import {
   createRoom,
   type Effect,
+  nameOf,
   nextWake,
   type Pick,
   type Room,
@@ -137,7 +138,7 @@ export class Rooms {
 
   #hello(ws: Ws, f: Extract<ClientFrame, { t: "hello" }>): void {
     if (ws.data.room !== null) return;
-    const name = f.name === "" ? "anonymous" : f.name;
+    const name = nameOf(f.name);
     let live: Live | undefined;
     if (f.room === undefined) {
       const id = this.#id(10, (b) => BASE32[b % 32] as string);
@@ -307,7 +308,7 @@ export class Rooms {
 function eventOf(f: Exclude<ClientFrame, { t: "hello" }>, seat: Seat): RoomEvent {
   switch (f.t) {
     case "lobby":
-      return { type: "lobby", seat, ready: f.ready, difficulty: f.difficulty };
+      return { type: "lobby", seat, ready: f.ready, difficulty: f.difficulty, name: f.name };
     case "ready":
       return { type: "ready", seat };
     case "keys":

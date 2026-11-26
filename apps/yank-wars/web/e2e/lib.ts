@@ -41,7 +41,10 @@ export interface Vite {
 }
 
 /** The DEV server (so the self-check badge and the probes exist); serves index.html and harness.html. */
-export async function startVite(config = "e2e/vite.config.ts"): Promise<Vite> {
+export async function startVite(
+  config = "e2e/vite.config.ts",
+  env: Record<string, string> = {},
+): Promise<Vite> {
   const port = await freePort();
   const proc = Bun.spawn(
     [
@@ -56,7 +59,7 @@ export async function startVite(config = "e2e/vite.config.ts"): Promise<Vite> {
       "--host",
       "127.0.0.1",
     ],
-    { cwd: WEB, stdout: "ignore", stderr: "pipe" },
+    { cwd: WEB, stdout: "ignore", stderr: "pipe", env: { ...process.env, ...env } },
   );
   // Drained so vite never blocks on a full pipe; shown only if it fails to start.
   const stderr = new Response(proc.stderr).text();

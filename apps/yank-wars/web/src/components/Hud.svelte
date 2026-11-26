@@ -1,11 +1,29 @@
 <script lang="ts">
 import { duration } from "@sammysul/lsel";
+import type { PlayerStatus, PlayerView } from "@yank-wars/engine";
 import { CHORD_LABELS } from "../lib/chords.ts";
+import type { RoomClient } from "../lib/room.svelte.ts";
 import type { RoundController } from "../lib/round.svelte.ts";
 
-let { ctl }: { ctl: RoundController } = $props();
+let { ctl, room }: { ctl: RoundController; room?: RoomClient | undefined } = $props();
 
-const playing = $derived(ctl.phase === "playing");
+const playing = $derived(ctl.phase === "playing" && ctl.claim !== "checking");
+const them = $derived(room?.them ?? null);
+const grace = $derived(room?.graceLeft(ctl.now) ?? null);
+
+const STATUS: Record<PlayerStatus, string> = {
+  waiting: "waiting",
+  playing: "playing",
+  claiming: "checking a lock-in",
+  locked: "locked in",
+  forfeited: "gave up",
+};
+
+function stateOf(p: PlayerView): string {
+  if (!p.connected) return "disconnected";
+  if (room?.view?.phase === "study") return "studying";
+  return STATUS[p.status];
+}
 
 // The editor is the only keyboard target in a round; a button must not take its focus.
 function keepFocus(e: MouseEvent) {
@@ -28,7 +46,17 @@ function keepFocus(e: MouseEvent) {
 
   <div class="right">
     {#if ctl.round.runs > 1}<span class="runs">run {ctl.round.runs}</span>{/if}
-    <span class="clock">{duration(ctl.elapsed, "m:ss.t")}</span>
+    <span class="clock">
+      {duration(ctl.elapsed, "m:ss.t")}
+      {#if grace !== null && room !== undefined}
+        <span class="grace" title="The round ends when grace runs out">
+          grace {duration(grace, "m:ss")}
+          <span class="grace-bar"
+            ><span style:width="{(grace / Math.max(1, room.graceMax)) * 100}%"></span></span
+          >
+        </span>
+      {/if}
+    </span>
     <button
       onmousedown={keepFocus}
       onclick={() => ctl.reset()}
@@ -51,6 +79,15 @@ function keepFocus(e: MouseEvent) {
       title={CHORD_LABELS.numbers}>{ctl.prefs.relativeNumbers ? "Relative" : "Absolute"} numbers</button
     >
   </div>
+
+  {#if them !== null}
+    <div class="opponent" class:away={!them.connected}>
+      <span class="name">{them.name}</span>
+      <span>{them.score} keys</span>
+      {#if them.runs > 1}<span>run {them.runs}</span>{/if}
+      <span class="state">{stateOf(them)}</span>
+    </div>
+  {/if}
 
   <div class="cap" aria-hidden="true">
     <div class="fill" class:low={ctl.capLeft < 0.15} style:width="{ctl.capLeft * 100}%"></div>
@@ -130,6 +167,36 @@ function keepFocus(e: MouseEvent) {
     font-variant-numeric: tabular-nums;
     min-width: 6ch;
     text-align: right;
+  }
+  .grace {
+    display: block;
+    font-size: var(--text-xs);
+    color: var(--warning);
+  }
+  .grace-bar {
+    display: block;
+    height: 3px;
+    background: var(--overlay);
+  }
+  .grace-bar span {
+    display: block;
+    height: 100%;
+    background: var(--warning);
+  }
+  .opponent {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 12px;
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+    color: var(--subtle);
+  }
+  .opponent .name {
+    font-weight: 700;
+    color: var(--text);
+  }
+  .opponent.away .state {
+    color: var(--warning);
   }
   .cap {
     position: absolute;

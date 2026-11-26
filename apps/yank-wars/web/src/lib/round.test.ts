@@ -287,6 +287,7 @@ test("lock-in: input stops, self-check ok, best recorded, card after the pulse",
   expect(r.ctl.newBest).toBe(true);
   expect(JSON.parse(r.storage.getItem("yank-wars:prefs:v1") ?? "null")).toEqual({
     relativeNumbers: true,
+    name: "",
     best: { "round-flow": { keys: 2, ms: 2_500 } },
     filter: { difficulty: null, unsolved: false },
   });

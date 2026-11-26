@@ -207,6 +207,47 @@ _Accepted:_ the fixed 30-line window for `<C-d>`/`<C-f>`/`H`/`L`, replace-mode `
 
 Visual-block `I`, `A`, `c`, `s`, `C`, `D`, `X` and `Y` follow vim since 2026-11-12 (`engine/src/blockInsert.ts`, cases in `oracle/cases/visual-block.ts`): an insert types on the first line only and is copied to the other lines at `<Esc>` or `<C-o>`, skipping lines too short for `I`/`c` and padding them for `A`.
 
+## Rooms (2026-11-26)
+
+**Two players, an invite link.** A third gets "room full". The lobby sets the
+difficulty (`1`/`2`/`3`, `0` any; easy by default) and the round's puzzle is
+random at it, one the room hasn't played first. Names are typed, remembered in
+prefs, and editable in the lobby; accounts come with part 3.
+
+**The cap wins over grace.** A lock-in at 3:55 leaves 5 s, not 10: the
+4-minute cap is a promise about how long a round can take.
+
+**A match is a claim.** The client sends the log's length and its buffer; the
+server replays that log and only then locks the player in, at the time the
+claim arrived (the replay's duration never costs anyone). A rejected claim
+keeps the player in the round and writes one line to `mismatches.jsonl` (the
+log, both buffers; capped at 10 MB), which is how parity bugs get found.
+
+**Replays run in one worker** compiled into the binary (`bun build --compile`
+with the worker as an extra entrypoint; CI's smoke test plays a claim against
+the built binary). Over 2 s, a replay is rejected as too slow and the worker is
+restarted, which bounds `999@q` without an engine change and drops vim's
+process-global state with it. _Rejected:_ replaying on the main thread (one
+slow claim stalls every socket).
+
+**Protocol:** JSON frames on `/ws`, parsed with Valibot (`engine/src/protocol.ts`),
+every client frame stamped `v: 1`; a frame from another version gets `reload`,
+so an old tab after a deploy refreshes. The server sends durations, never
+timestamps, so client clocks don't matter; state frames go out at most every
+100 ms per room. Frames are capped at 16 KB, 60 per second per socket.
+
+**The rules are a pure reducer** (`server/src/room.ts`, like `reduceRound`),
+with sockets, timers and the worker in a thin shell, so every rule is tested on
+a fake clock. In the client, a round played in a room is the solo
+`RoundController` with a `RoundLink`: the room starts and ends it, and hears
+every key.
+
+**Reconnects:** the seat token lives in `sessionStorage`, so a reload keeps the
+seat and a second tab gets its own. A reload types the room's copy of the log
+into a fresh buffer; a dropped socket retries for the 15 s the seat is held and
+resends what the server missed. Rooms are in memory: a deploy ends them, and the
+client says so.
+
 ## Project
 
 Lives in lsel under `apps/yank-wars` (since 2026-11-21), MIT; release and
@@ -216,9 +257,9 @@ deploy are lsel's (`STACK.md`).
 
 0–3. Done (2026-11-17, `v1.0.0`): the solo game live at `yankwars.app`, ~50
 handmade puzzles. The daily puzzle page comes after v1
-4. Rooms (step 2 parts 2 and 3): invite links, grace timer, round cap,
-reconnect, headless replay with mismatch logging, Better Auth anonymous
-sessions on `bun:sqlite`, upstream PRs for the core patch
+4. Rooms (step 2 parts 2 and 3): part 2 done 2026-11-26 (invite links, grace
+timer, round cap, reconnect, replay with mismatch logging); part 3 next: Better
+Auth anonymous sessions on `bun:sqlite`, upstream PRs for the core patch
 5. Matchmaking queue with daily/solo fallback
 6. Only if people rematch: GitHub login + linking, ratings (Glicko-2 /
 OpenSkill), ghosts

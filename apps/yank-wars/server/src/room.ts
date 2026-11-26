@@ -58,7 +58,13 @@ export type RoomEvent =
   | { type: "join"; seat: Seat; name: string }
   | { type: "rejoin"; seat: Seat }
   | { type: "drop"; seat: Seat }
-  | { type: "lobby"; seat: Seat; ready: boolean; difficulty?: Difficulty | null | undefined }
+  | {
+      type: "lobby";
+      seat: Seat;
+      ready: boolean;
+      difficulty?: Difficulty | null | undefined;
+      name?: string | undefined;
+    }
   | { type: "ready"; seat: Seat }
   | { type: "keys"; seat: Seat; round: number; from: number; entries: readonly LogEntry[] }
   | { type: "claim"; seat: Seat; round: number; length: number }
@@ -94,6 +100,8 @@ export function createRoom(id: string): Room {
 }
 
 const SEATS: readonly Seat[] = [0, 1];
+
+export const nameOf = (typed: string) => (typed === "" ? "anonymous" : typed);
 
 function newPlayer(name: string): Player {
   return {
@@ -243,7 +251,11 @@ function apply(room: Room, e: RoomEvent, now: number, pick: Pick, effects: Effec
       return update(room, e.seat, (p) => ({ ...p, connected: false, droppedAt: now }));
     case "lobby": {
       if (room.phase !== "lobby") return room;
-      let r = update(room, e.seat, (p) => ({ ...p, lobbyReady: e.ready }));
+      let r = update(room, e.seat, (p) => ({
+        ...p,
+        lobbyReady: e.ready,
+        name: e.name === undefined ? p.name : nameOf(e.name),
+      }));
       if (e.difficulty !== undefined) r = { ...r, difficulty: e.difficulty };
       return both(r, (p) => p.connected && p.lobbyReady) ? startRound(r, now, pick) : r;
     }
@@ -365,6 +377,7 @@ export function viewOf(room: Room, now: number): RoomView {
     tally: [room.tally[0], room.tally[1]],
     phaseLeft:
       room.phase === "study" ? left(room.studyEndsAt) : room.phase === "playing" ? left(end) : null,
+    elapsed: room.phase === "playing" && room.startedAt !== null ? now - room.startedAt : null,
     graceLeft: room.phase === "playing" ? left(room.graceEndsAt) : null,
     last: room.last,
   };
