@@ -61,9 +61,32 @@ for (const name of browsers()) {
         );
       expect(themeColors).toEqual([[null, palette.base]]);
       expect(await page.locator("footer .meta").textContent()).toContain(`lsel kit v${version}`);
-      expect(await page.locator("footer .hints").textContent()).toBe(
+      expect(await page.locator(".top .hints").textContent()).toBe(
         "/ search · j next · Enter open · ? list the keys",
       );
+      expect(await problems()).toEqual([]);
+    });
+
+    test("K folds the key hints away and back, and the page remembers it", async () => {
+      const { page, problems } = await open();
+      const hints = page.locator(".top .hints");
+      const toggle = page.getByRole("button", { name: "Keys" });
+      const state = async () => [
+        await toggle.getAttribute("aria-pressed"),
+        await hints.getAttribute("aria-hidden"),
+        Math.round((await hints.boundingBox())?.height ?? -1),
+      ];
+      const open_ = await state();
+      expect(open_.slice(0, 2)).toEqual(["true", "false"]);
+      expect(open_[2]).toBeGreaterThan(0);
+      await page.keyboard.press("K");
+      await page.waitForTimeout(400);
+      expect(await state()).toEqual(["false", "true", 0]);
+      await page.reload({ waitUntil: "networkidle" });
+      expect(await state()).toEqual(["false", "true", 0]);
+      await toggle.click();
+      await page.waitForTimeout(400);
+      expect(await state()).toEqual(open_);
       expect(await problems()).toEqual([]);
     });
 
@@ -176,6 +199,7 @@ for (const name of browsers()) {
       expect(listed).toEqual([
         "Search",
         "Open",
+        "Hide these keys",
         "Show list",
         "Show states",
         "Show form",

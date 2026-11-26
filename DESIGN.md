@@ -68,7 +68,8 @@ button).
 
 - **Keyboard first**: every action has a key, and the key is shown next to it
   (`<kbd>`). `j`/`k` move, `Enter` opens, `Esc` backs out, `/` searches, `?`
-  lists the keys.
+  lists the keys. A page's main keys sit under its title (`Page` draws them);
+  `K` or the Keys button folds them away, remembered per app.
 - Focus is always visible: `--focus`, a 2px accent outline.
 - Nothing only works on hover or with a mouse.
 - **Motion is subtle and on by default**, one curve (`--ease`): controls ease
