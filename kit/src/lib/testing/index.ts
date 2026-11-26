@@ -1,6 +1,6 @@
 // e2e helpers every app shares: which browsers to run, launching them and the look checks.
 
-import { afterAll, beforeAll } from "bun:test";
+import { afterAll, beforeAll, describe } from "bun:test";
 import { existsSync } from "node:fs";
 import { join } from "node:path";
 import {
@@ -38,6 +38,26 @@ export function launch(name: string): Promise<Browser> {
   const type = TYPES[name];
   if (type === undefined) throw new Error(`unknown browser ${name}`);
   return type.launch({ headless: true });
+}
+
+/** A describe block per browser in browsers(), the browser launched once for it; `browser()` returns it. */
+export function eachBrowser(body: (browser: () => Browser, name: string) => void): void {
+  for (const name of browsers()) {
+    describe(name, () => {
+      let launched: Browser | undefined;
+      // WebKit on Linux can take most of a minute to start
+      beforeAll(async () => {
+        launched = await launch(name);
+      }, 60_000);
+      afterAll(async () => {
+        await launched?.close();
+      });
+      body(() => {
+        if (launched === undefined) throw new Error(`${name} has not launched`);
+        return launched;
+      }, name);
+    });
+  }
 }
 
 /** Firefox's hint whenever a scroll handler moves content, once per page: not the app's problem. */

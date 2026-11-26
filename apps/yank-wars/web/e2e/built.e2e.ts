@@ -1,16 +1,8 @@
 // The production build behind the real server's CSP. Run `bun run build` first.
-import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { afterAll, expect, test } from "bun:test";
 import { join } from "node:path";
 import { handler, upgrade } from "@sammysul/lsel/server";
-import {
-  browsers,
-  LSEL_LOOK,
-  launch,
-  lselLook,
-  serveBuilt,
-  watchPage,
-} from "@sammysul/lsel/testing";
-import type { Browser } from "playwright-core";
+import { eachBrowser, LSEL_LOOK, lselLook, serveBuilt, watchPage } from "@sammysul/lsel/testing";
 import { PUZZLES, picker } from "../../server/src/puzzles.ts";
 import { type Conn, Rooms } from "../../server/src/rooms.ts";
 import { CSP } from "../../server/src/server.ts";
@@ -38,41 +30,31 @@ afterAll(() => {
   withRooms.stop(true);
 });
 
-for (const name of browsers()) {
-  describe(name, () => {
-    let browser: Browser;
-    beforeAll(async () => {
-      browser = await launch(name);
-    });
-    afterAll(async () => {
-      await browser?.close();
-    });
-
-    test("lsel's look, and CodeMirror styled under the server's CSP", async () => {
-      const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
-      const watch = watchPage(page);
-      await page.goto(url(), { waitUntil: "networkidle" });
-      expect(await lselLook(page)).toEqual(LSEL_LOOK);
-      await page.goto(`${url()}#/p/indent-body`, { waitUntil: "networkidle" });
-      await page.locator(".cm-editor").first().waitFor();
-      // CodeMirror's base theme makes the editor `position: relative`, from a <style> it injects
-      expect(
-        await page.evaluate(
-          () => getComputedStyle(document.querySelector(".cm-editor") as Element).position,
-        ),
-      ).toBe("relative");
-      expect(await watch.take()).toEqual([]);
-      await page.close();
-    });
-
-    test("a room's socket connects under the server's CSP", async () => {
-      const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
-      const watch = watchPage(page);
-      await page.goto(`${withRooms.url.href}#/r`, { waitUntil: "networkidle" });
-      await page.locator(".invite .link").waitFor({ timeout: 10_000 });
-      expect(await page.evaluate(() => /^#\/r\/[a-z2-7]{10}$/.test(location.hash))).toBe(true);
-      expect(await watch.take()).toEqual([]);
-      await page.close();
-    });
+eachBrowser((browser) => {
+  test("lsel's look, and CodeMirror styled under the server's CSP", async () => {
+    const page = await browser().newPage({ viewport: { width: 1280, height: 800 } });
+    const watch = watchPage(page);
+    await page.goto(url(), { waitUntil: "networkidle" });
+    expect(await lselLook(page)).toEqual(LSEL_LOOK);
+    await page.goto(`${url()}#/p/indent-body`, { waitUntil: "networkidle" });
+    await page.locator(".cm-editor").first().waitFor();
+    // CodeMirror's base theme makes the editor `position: relative`, from a <style> it injects
+    expect(
+      await page.evaluate(
+        () => getComputedStyle(document.querySelector(".cm-editor") as Element).position,
+      ),
+    ).toBe("relative");
+    expect(await watch.take()).toEqual([]);
+    await page.close();
   });
-}
+
+  test("a room's socket connects under the server's CSP", async () => {
+    const page = await browser().newPage({ viewport: { width: 1280, height: 800 } });
+    const watch = watchPage(page);
+    await page.goto(`${withRooms.url.href}#/r`, { waitUntil: "networkidle" });
+    await page.locator(".invite .link").waitFor({ timeout: 10_000 });
+    expect(await page.evaluate(() => /^#\/r\/[a-z2-7]{10}$/.test(location.hash))).toBe(true);
+    expect(await watch.take()).toEqual([]);
+    await page.close();
+  });
+});
