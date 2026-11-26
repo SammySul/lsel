@@ -3,29 +3,18 @@ import {
   type LogEntry,
   type PlayerView,
   parseKeys,
-  parsePuzzle,
   RESET,
   type RoomView,
   type ServerFrame,
 } from "@yank-wars/engine";
+import { playablePuzzle } from "@yank-wars/engine/oracle/engine";
 import { Prefs } from "./prefs.svelte.ts";
 import { RECONNECT_MS, RoomClient, SEND_MS, type SocketLike } from "./room.svelte.ts";
 
 const ROOM = "abcdefghij";
 const TOKEN = "0123456789abcdef0123456789abcdef";
 
-const puzzle = parsePuzzle({
-  id: "room-flow",
-  title: "Room flow",
-  difficulty: "easy",
-  language: "text",
-  tabSize: 2,
-  indentUnit: "  ",
-  start: "one two three",
-  target: "two three",
-  solution: "dw",
-  source: { kind: "original", author: "yank-wars" },
-});
+const puzzle = playablePuzzle("one two three", "two three", "dw", { id: "room-flow" });
 
 class MemoryStorage {
   data = new Map<string, string>();

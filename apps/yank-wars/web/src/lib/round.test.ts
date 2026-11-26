@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, expect, jest, test } from "bun:test";
-import { type KeyLog, parsePuzzle, RESET } from "@yank-wars/engine";
+import { type KeyLog, RESET } from "@yank-wars/engine";
+import { playablePuzzle } from "@yank-wars/engine/oracle/engine";
 import { Prefs } from "./prefs.svelte.ts";
 import { LOCK_PULSE_MS, RoundController } from "./round.svelte.ts";
 
@@ -7,17 +8,9 @@ const STUDY_MS = 5_000;
 const CAP_MS = 240_000;
 const T0 = 1_000;
 
-const puzzle = parsePuzzle({
+const puzzle = playablePuzzle("one two three", "two three", "dw", {
   id: "round-flow",
-  title: "Round flow",
-  difficulty: "easy",
   language: "javascript",
-  tabSize: 2,
-  indentUnit: "  ",
-  start: "one two three",
-  target: "two three",
-  solution: "dw",
-  source: { kind: "original", author: "yank-wars" },
 });
 
 class MemoryStorage {

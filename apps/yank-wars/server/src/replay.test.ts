@@ -1,19 +1,9 @@
 import { afterAll, expect, test } from "bun:test";
-import { parseKeys, parsePuzzle, RESET } from "@yank-wars/engine";
+import { parseKeys, RESET } from "@yank-wars/engine";
+import { playablePuzzle } from "@yank-wars/engine/oracle/engine";
 import { Replayer } from "./replay.ts";
 
-const puzzle = parsePuzzle({
-  id: "replay-probe",
-  title: "probe",
-  difficulty: "easy",
-  language: "text",
-  tabSize: 4,
-  indentUnit: "    ",
-  start: "one two\nthree",
-  target: "one\nthree",
-  solution: "wDx",
-  source: { kind: "original", author: "yank-wars" },
-});
+const puzzle = playablePuzzle("one two\nthree", "one\nthree", "wDx", { id: "replay-probe" });
 
 const replayer = new Replayer(500);
 afterAll(() => replayer.close());

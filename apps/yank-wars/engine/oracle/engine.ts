@@ -1,8 +1,38 @@
 // Runs an oracle case through the engine, and the test puzzle every engine test builds on.
 
-import { createSession, destroySession, feedKey, type Puzzle, parseKeys } from "../src/index.ts";
+import {
+  createSession,
+  destroySession,
+  feedKey,
+  type Puzzle,
+  type PuzzleJson,
+  parseKeys,
+  parsePuzzle,
+} from "../src/index.ts";
 import { observe } from "./observe.ts";
 import { type Observed, type OracleCase, settingsOf } from "./types.ts";
+
+/** A valid puzzle for tests that play one through: `start` to `target` by `solution`, the rest defaulted. */
+export function playablePuzzle(
+  start: string,
+  target: string,
+  solution: string,
+  over: Partial<PuzzleJson> = {},
+): Puzzle {
+  return parsePuzzle({
+    id: "test",
+    title: "test",
+    difficulty: "easy",
+    language: "text",
+    tabSize: 4,
+    indentUnit: "    ",
+    start,
+    target,
+    solution,
+    source: { kind: "original", author: "test" },
+    ...over,
+  });
+}
 
 /** A puzzle around `start` for tests; its target never equals a buffer unless `over` sets one. */
 export function testPuzzle(start: string, over: Partial<Puzzle> = {}): Puzzle {

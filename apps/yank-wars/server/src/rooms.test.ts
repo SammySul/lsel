@@ -1,21 +1,11 @@
 import { afterAll, describe, expect, test } from "bun:test";
 import { upgrade } from "@sammysul/lsel/server";
-import { parseKeys, parsePuzzle, type ServerFrame } from "@yank-wars/engine";
+import { parseKeys, type ServerFrame } from "@yank-wars/engine";
+import { playablePuzzle } from "@yank-wars/engine/oracle/engine";
 import { Replayer } from "./replay.ts";
 import { type Conn, type Mismatch, Rooms } from "./rooms.ts";
 
-const probe = parsePuzzle({
-  id: "probe",
-  title: "probe",
-  difficulty: "easy",
-  language: "text",
-  tabSize: 4,
-  indentUnit: "    ",
-  start: "one two\nthree",
-  target: "one\nthree",
-  solution: "wDx",
-  source: { kind: "original", author: "yank-wars" },
-});
+const probe = playablePuzzle("one two\nthree", "one\nthree", "wDx", { id: "probe" });
 
 const replayer = new Replayer(1_000);
 const mismatches: Mismatch[] = [];

@@ -1,21 +1,10 @@
 import { expect, test } from "bun:test";
-import { comparePuzzles, type PuzzleJson, parsePuzzle } from "@yank-wars/engine";
+import { comparePuzzles, type PuzzleJson } from "@yank-wars/engine";
+import { playablePuzzle } from "@yank-wars/engine/oracle/engine";
 import { filterPuzzles, NO_FILTER, nextAfter } from "./filter.ts";
 
-const base: PuzzleJson = {
-  id: "x",
-  title: "x",
-  difficulty: "easy",
-  language: "python",
-  tabSize: 4,
-  indentUnit: "    ",
-  start: "a",
-  target: "b",
-  solution: "rbx<Esc>",
-  source: { kind: "original", author: "yank-wars" },
-};
-
-const make = (id: string, over: Partial<PuzzleJson>) => parsePuzzle({ ...base, ...over, id });
+const make = (id: string, over: Partial<PuzzleJson>) =>
+  playablePuzzle("a", "b", "rbx<Esc>", { ...over, id });
 
 const list = [
   make("one-line", { title: "One line", language: "rust", tags: ["join"] }),

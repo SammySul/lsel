@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test";
+import { playablePuzzle } from "../oracle/engine.ts";
 import {
   createSession,
   destroySession,
@@ -6,23 +7,11 @@ import {
   feedKey,
   type HudState,
   parseKeys,
-  parsePuzzle,
   sessionSnapshot,
   type VimMode,
 } from "./index.ts";
 
-const puzzle = parsePuzzle({
-  id: "snapshot-probe",
-  title: "probe",
-  difficulty: "easy",
-  language: "text",
-  tabSize: 4,
-  indentUnit: "    ",
-  start: "one two\nthree",
-  target: "one\nthree",
-  solution: "wDx",
-  source: { kind: "original", author: "yank-wars" },
-});
+const puzzle = playablePuzzle("one two\nthree", "one\nthree", "wDx");
 
 let session: EditorSession | null = null;
 
