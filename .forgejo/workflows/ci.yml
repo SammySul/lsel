@@ -20,6 +20,8 @@ jobs:
       # every yank-wars oracle case in every browser, not the local default's sample of 40
       - run: nix develop -c bun run test:e2e
         env: { YW_SAMPLE: all }
+      - name: yank-wars' built server verifies a claim with its embedded worker and puzzles
+        run: nix develop -c bun apps/yank-wars/server/smoke.ts "$(nix build .#yank-wars --no-link --print-out-paths)"
 
   # An app whose version has no <name>-v tag yet is released; `squares` deploys the newest tag.
   release:

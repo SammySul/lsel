@@ -10,7 +10,7 @@ engine/           pure TS, no I/O: puzzle + protocol types, key notation,
                    headless replay, match rules (lock-in, grace, scoring).
                    Imported by everything else.
 web/               Svelte 5 + Vite SPA, CodeMirror 6 + @replit/codemirror-vim
-server/            serve() from @sammysul/lsel: the built web app; rooms come later
+server/            serve() from @sammysul/lsel: the built web app and the rooms
 puzzles/           handmade puzzles as JSON (data, not code)
 ```
 
