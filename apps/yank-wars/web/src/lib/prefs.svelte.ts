@@ -13,7 +13,7 @@ const BestSchema = v.object({
 export type Best = Readonly<v.InferOutput<typeof BestSchema>>;
 
 /** The list filter's lasting part; the search text stays per visit. */
-export interface StoredFilter {
+interface StoredFilter {
   readonly difficulty: Difficulty | null;
   readonly unsolved: boolean;
 }
@@ -68,7 +68,7 @@ function read(storage: Store | undefined): Stored | undefined {
 }
 
 // Same order as a match: fewer keys wins, then the faster finish.
-export function isBetter(a: Best, b: Best): boolean {
+function isBetter(a: Best, b: Best): boolean {
   return a.keys < b.keys || (a.keys === b.keys && a.ms < b.ms);
 }
 

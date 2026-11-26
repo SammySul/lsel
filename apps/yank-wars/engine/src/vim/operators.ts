@@ -56,7 +56,7 @@ interface RangeOp {
 }
 
 /** do_pending_operator()'s exclusive adjustment and op_delete()'s linewise exception; true makes the range linewise. */
-export function adjustOperatorRange(cm: CM, op: RangeOp): boolean {
+function adjustOperatorRange(cm: CM, op: RangeOp): boolean {
   const { start, end, motionArgs } = op;
   let inclusive = !!motionArgs.inclusive;
   // <BS> wrapping back puts the cursor on the previous line's end so the line break goes (CA_NO_ADJ_OP_END).

@@ -29,7 +29,7 @@ export function resetSearch(): void {
   pendingChain = undefined;
 }
 
-export function parseOffset(text: string): { offset: Offset; rest: string } {
+function parseOffset(text: string): { offset: Offset; rest: string } {
   const m = /^([esb]?)([+-]?)(\d*)/.exec(text) as RegExpExecArray;
   const [all, kind, sign, digits] = [m[0], m[1] ?? "", m[2] ?? "", m[3] ?? ""];
   let n = digits === "" ? (sign === "" ? 0 : 1) : Number(digits);

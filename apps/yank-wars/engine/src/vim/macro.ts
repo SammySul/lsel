@@ -6,7 +6,7 @@ import type { EditorSession } from "../session.ts";
 import type { BoundSession } from "./registry.ts";
 
 // Far below where any browser's stack runs out, so a recursive macro stops at the same key everywhere.
-export const MAX_MACRO_DEPTH = 100;
+const MAX_MACRO_DEPTH = 100;
 
 interface Recording {
   readonly register: string;
@@ -78,7 +78,7 @@ const CONTROL_KEY: Readonly<Record<string, string>> = {
   "\b": "<BS>",
 };
 
-export function charKey(c: string): VimKey | undefined {
+function charKey(c: string): VimKey | undefined {
   let k = LITERAL_KEY[c] ?? CONTROL_KEY[c] ?? c;
   const code = c.charCodeAt(0);
   if (k === c && c.length === 1 && code >= 1 && code <= 26 && c !== "\n") {
@@ -90,7 +90,7 @@ export function charKey(c: string): VimKey | undefined {
 // The core's tokenizer (vim.js:6785), so yanked text runs as it did: <Esc> is a key, newlines are skipped.
 const REGISTER_TOKEN = /<(?:[CSMA]-)*\w+>|./giu;
 
-export function registerKeys(text: string): VimKey[] {
+function registerKeys(text: string): VimKey[] {
   const keys: VimKey[] = [];
   for (const [tok] of text.matchAll(REGISTER_TOKEN)) {
     if (tok.length > 1 && tok.startsWith("<")) {
@@ -118,7 +118,7 @@ function nested(run: () => void): void {
 }
 
 // Runs inside the key that started it, so an ex command is one undo step, as when typed.
-export function runEx(b: BoundSession, input: string): void {
+function runEx(b: BoundSession, input: string): void {
   const s = b.session;
   const outer = s.inExCallback;
   s.inExCallback = true;

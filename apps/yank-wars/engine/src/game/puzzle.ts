@@ -15,7 +15,7 @@ export type LanguageId =
   | "json"
   | "css";
 
-export interface PuzzleSource {
+interface PuzzleSource {
   kind: "original";
   author: string;
 }
@@ -54,7 +54,7 @@ export interface PuzzleJson {
   tags?: string[];
 }
 
-export const PUZZLE_LIMITS = { maxLines: 30, maxLineLength: 120, maxChars: 3000 } as const;
+const PUZZLE_LIMITS = { maxLines: 30, maxLineLength: 120, maxChars: 3000 } as const;
 
 const NOT_PRINTABLE = /[^\t\n\r -~]/;
 
@@ -113,7 +113,7 @@ const NonEmpty = v.pipe(v.string(), v.nonEmpty("must not be empty"));
 
 const Source = v.strictObject({ kind: v.literal("original"), author: NonEmpty });
 
-export const PuzzleJsonSchema: v.GenericSchema<unknown, PuzzleJson> = v.pipe(
+const PuzzleJsonSchema: v.GenericSchema<unknown, PuzzleJson> = v.pipe(
   v.strictObject({
     id: v.pipe(
       v.string(),

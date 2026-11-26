@@ -281,7 +281,7 @@ function findCommand(name: string): Def | undefined {
 }
 
 /** Splits `[range]name[!] args`; undefined when the core should run it. */
-export function parseCommand(cm: CM, input: string): { def: Def | undefined; cmd: ExCommand } {
+function parseCommand(cm: CM, input: string): { def: Def | undefined; cmd: ExCommand } {
   const r = new Reader(input);
   while (r.peek() === ":" || r.peek() === " " || r.peek() === "\t") r.i++;
   const range = parseRange(cm, r);

@@ -36,7 +36,7 @@ export interface EditorSession {
   lastError: string | null;
 }
 
-export interface SessionOptions {
+interface SessionOptions {
   parent: HTMLElement;
   extraExtensions?: readonly Extension[];
 }

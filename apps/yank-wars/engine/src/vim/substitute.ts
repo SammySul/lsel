@@ -58,7 +58,7 @@ const upper = (c: string) => c.toUpperCase();
 const lower = (c: string) => c.toLowerCase();
 
 /** vim_regsub() in magic mode: & and \0-\9, \u \U \l \L \e \E, \r a line break, \n a NUL, \x the character x. */
-export function expandReplacement(rep: string, m: RegExpExecArray): string {
+function expandReplacement(rep: string, m: RegExpExecArray): string {
   let out = "";
   let one: CaseFn;
   let all: CaseFn;

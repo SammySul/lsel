@@ -3,7 +3,7 @@
 import { type CodeMirror as CM, CodeMirror } from "@replit/codemirror-vim";
 import { boundTo } from "./registry.ts";
 
-export interface ShiftUnit {
+interface ShiftUnit {
   width: number;
   tabSize: number;
   useTabs: boolean;

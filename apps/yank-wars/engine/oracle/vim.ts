@@ -10,7 +10,7 @@ import { type Observed, type OracleCase, type OracleMode, settingsOf } from "./t
 const VIM_NAME: Readonly<Record<string, string>> = { Ins: "Insert" };
 
 /** One key as it goes inside a vim double-quoted string (`:help expr-quote`). */
-export function vimStringKey(key: VimKey): string {
+function vimStringKey(key: VimKey): string {
   if (key === "<lt>") return "<";
   if (key === "<Space>") return " ";
   if (key === "\\") return "\\\\";
@@ -89,7 +89,7 @@ export function driveScript(c: OracleCase, outPath: string): string {
   ].join("\n");
 }
 
-export interface VimAnswer extends Observed {
+interface VimAnswer extends Observed {
   version: string;
 }
 

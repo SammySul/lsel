@@ -6,13 +6,13 @@ import type { EditorSession } from "../session.ts";
 import { literalOf } from "./insertKeys.ts";
 import { takeSearchLine } from "./search.ts";
 
-export type PromptHandler = (
+type PromptHandler = (
   e: SyntheticPromptEvent,
   value: string,
   close: (v?: string) => void,
 ) => unknown;
 
-export interface SyntheticPromptEvent extends SyntheticKeyInit {
+interface SyntheticPromptEvent extends SyntheticKeyInit {
   target: { value: string; selectionStart: number; selectionEnd: number };
   preventDefault(): void;
   stopPropagation(): void;

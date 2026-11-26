@@ -11,7 +11,7 @@ import {
 } from "@codemirror/state";
 import { Decoration, type DecorationSet, EditorView } from "@codemirror/view";
 
-export interface DiffState {
+interface DiffState {
   readonly deco: DecorationSet;
   readonly linesOff: number;
 }

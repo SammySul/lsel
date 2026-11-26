@@ -33,7 +33,7 @@ export type OracleMode =
   | "prompt";
 
 /** 1-based line and byte column, as vim's line('.') and col('.'); the corpus is ASCII, so bytes are chars */
-export interface Cursor {
+interface Cursor {
   line: number;
   col: number;
 }
@@ -63,7 +63,7 @@ export function settingsOf(c: Pick<OracleCase, "settings">): OracleSettings {
 const ID = /^[A-Za-z0-9]+(-[A-Za-z0-9]+)*$/;
 const NOT_ASCII = /[^\t\n -~]/;
 
-export function caseProblems(c: OracleCase): string[] {
+function caseProblems(c: OracleCase): string[] {
   const p: string[] = [];
   if (!ID.test(c.id)) p.push("id must be kebab-case (ASCII letters and digits)");
   if (c.start.endsWith("\n")) p.push("start must not end with a newline");

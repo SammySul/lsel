@@ -7,7 +7,7 @@ const P = (line: number, ch: number) => new CodeMirror.Pos(line, ch);
 const before = (a: Pos, b: Pos) => a.line < b.line || (a.line === b.line && a.ch < b.ch);
 
 /** findpar(): { and } stop on the count-th empty line; } at the end puts the cursor on the last character, inclusive. */
-export const moveByParagraph: MotionFn = (cm, head, args) => {
+const moveByParagraph: MotionFn = (cm, head, args) => {
   const dir = args.forward ? 1 : -1;
   const last = cm.lastLine();
   let curr = head.line;
@@ -79,14 +79,14 @@ function findBlock(
   return undefined;
 }
 
-export interface ObjectRange {
+interface ObjectRange {
   start: Pos;
   end: Pos;
   linewise: boolean;
 }
 
 /** current_block(): with i, a ( ending its line and a ) after only blanks leave both lines out, linewise. */
-export function blockObject(
+function blockObject(
   cm: CM,
   head: Pos,
   open: string,
@@ -118,7 +118,7 @@ export function blockObject(
 }
 
 /** current_quote(): pairs counted from the line start, backslash escapes skipped; a" takes white space after, else before. */
-export function quoteObject(
+function quoteObject(
   cm: CM,
   head: Pos,
   q: string,
@@ -204,12 +204,7 @@ function tagPairs(doc: string): TagPair[] {
 }
 
 /** current_tagblock() without a syntax tree: on a start tag it means that tag's block, on an end tag likewise. */
-export function tagObject(
-  cm: CM,
-  head: Pos,
-  inner: boolean,
-  count: number,
-): ObjectRange | undefined {
+function tagObject(cm: CM, head: Pos, inner: boolean, count: number): ObjectRange | undefined {
   const doc = cm.getValue();
   let pos = cm.indexFromPos(head);
   const line = cm.getLine(head.line);

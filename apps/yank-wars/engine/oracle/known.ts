@@ -2,7 +2,7 @@
 // Browser and server run the same engine, so these cost vim fidelity, never parity.
 
 /** Differences kept on purpose. */
-export const ACCEPTED: Readonly<Record<string, readonly string[]>> = {
+const ACCEPTED: Readonly<Record<string, readonly string[]>> = {
   "<C-d> <C-u> <C-f> <C-b> and H M L use a fixed 30-line window, not vim's scrolling": [
     "ci-page-up",
     "ci-s-up",
@@ -27,7 +27,7 @@ export const ACCEPTED: Readonly<Record<string, readonly string[]>> = {
 };
 
 /** Bugs not fixed yet, the ones golfers are likelier to hit first. */
-export const BUGS: Readonly<Record<string, readonly string[]>> = {
+const BUGS: Readonly<Record<string, readonly string[]>> = {
   "visual-block p and P, r repeated by ., gv after a block, and a count on a blockwise P": [
     "irv-b-p-block-reg",
     "irv-b-p-charwise-reg",

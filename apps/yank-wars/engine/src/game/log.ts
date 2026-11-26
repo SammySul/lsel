@@ -3,7 +3,7 @@
 import type { VimKey } from "../input/keys.ts";
 
 export const RESET = "<Reset>" as const;
-export type ResetMarker = typeof RESET;
+type ResetMarker = typeof RESET;
 export type LogEntry = VimKey | ResetMarker;
 export type KeyLog = readonly LogEntry[];
 

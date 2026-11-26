@@ -20,7 +20,7 @@ export function categoryNames(): string[] {
     .sort();
 }
 
-export async function loadCategory(name: string): Promise<Category> {
+async function loadCategory(name: string): Promise<Category> {
   const mod = (await import(join(CASES_DIR, `${name}.ts`))) as { default?: readonly OracleCase[] };
   if (!Array.isArray(mod.default)) {
     throw new Error(`cases/${name}.ts must \`export default defineCases([...])\``);

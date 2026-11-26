@@ -23,7 +23,7 @@ import {
   viewOf,
 } from "./room.ts";
 
-export const ROOMS = {
+const ROOMS = {
   /** a room with nobody connected closes after this long */
   idleMs: 5 * 60_000,
   /** state frames per room at most this often */

@@ -26,7 +26,7 @@ export type RoundEvent =
   | { type: "reset" }
   | { type: "forfeit" };
 
-export type RoundConfig = { readonly [K in keyof typeof ROUND]: number };
+type RoundConfig = { readonly [K in keyof typeof ROUND]: number };
 
 export function createRound(now: number, cfg?: Partial<RoundConfig>): RoundState {
   const { studyMs, capMs } = { ...ROUND, ...cfg };

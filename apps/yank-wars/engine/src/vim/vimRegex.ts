@@ -11,9 +11,9 @@ import {
   SIMPLE_ESCAPES,
 } from "./vimRegexClass.ts";
 
-export class VimRegexError extends Error {}
+class VimRegexError extends Error {}
 
-export interface VimRegex {
+interface VimRegex {
   /** case folding is written into the source (literal a is [aA]), so \u and [:upper:] stay case-sensitive as in vim */
   source: string;
   ignoreCase: boolean;
@@ -21,7 +21,7 @@ export interface VimRegex {
   hasUpper: boolean;
 }
 
-export interface CaseOptions {
+interface CaseOptions {
   ignoreCase?: boolean;
   smartCase?: boolean;
   lastReplacement?: string;
@@ -362,7 +362,7 @@ function withMatchEdges(items: readonly string[]): string {
   );
 }
 
-export function translateVimRegex(pattern: string, opts: CaseOptions = {}): VimRegex {
+function translateVimRegex(pattern: string, opts: CaseOptions = {}): VimRegex {
   const hasUpper = hasUppercase(pattern);
   const ic =
     forcedCase([...pattern]) ??

@@ -14,7 +14,7 @@ export interface UndoClock {
 }
 
 /** Per undo step, where the cursor was before it (vim's uh_cursor), and the step undo or redo last applied. */
-export interface UndoSteps {
+interface UndoSteps {
   cursorBefore: Map<number, number>;
   done: number[];
   undone: number[];

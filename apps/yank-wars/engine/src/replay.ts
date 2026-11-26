@@ -7,7 +7,7 @@ import type { VimKey } from "./input/keys.ts";
 import { createSession, destroySession } from "./session.ts";
 import { type HudState, sessionSnapshot } from "./snapshot.ts";
 
-export interface ReplayResult {
+interface ReplayResult {
   doc: string;
   solved: boolean;
   solvedAt: number | null;

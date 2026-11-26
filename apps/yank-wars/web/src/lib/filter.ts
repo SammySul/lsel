@@ -11,7 +11,7 @@ export interface PuzzleFilter {
 export const NO_FILTER: PuzzleFilter = { difficulty: null, unsolved: false, query: "" };
 
 /** Every word of the query must appear in the title, language, description or a tag. */
-export function matchesFilter(p: Puzzle, f: PuzzleFilter, solved: boolean): boolean {
+function matchesFilter(p: Puzzle, f: PuzzleFilter, solved: boolean): boolean {
   if (f.difficulty !== null && p.difficulty !== f.difficulty) return false;
   if (f.unsolved && solved) return false;
   const haystack = [p.title, p.language, p.description ?? "", ...(p.tags ?? [])]

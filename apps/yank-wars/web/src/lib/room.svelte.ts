@@ -25,7 +25,7 @@ export type Connection =
 
 export type SocketLike = Pick<WebSocket, "onopen" | "onmessage" | "onclose" | "send" | "close">;
 
-export interface RoomDeps {
+interface RoomDeps {
   connect(): SocketLike;
   prefs: Prefs;
   puzzle(id: string): Puzzle | undefined;

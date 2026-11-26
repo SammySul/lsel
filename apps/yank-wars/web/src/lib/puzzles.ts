@@ -4,7 +4,7 @@ import { comparePuzzles, type Puzzle, parsePuzzle } from "@yank-wars/engine";
 import { filterPuzzles, nextAfter } from "./filter.ts";
 import { prefs } from "./prefs.svelte.ts";
 
-export interface PuzzleLoadError {
+interface PuzzleLoadError {
   readonly file: string;
   readonly message: string;
 }
