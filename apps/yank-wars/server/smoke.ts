@@ -2,7 +2,7 @@
 // Proves what only the compiled binary can: the embedded replay worker and puzzles.
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { parseKeys, type ServerFrame } from "@yank-wars/engine";
+import { PROTOCOL, parseKeys, type ServerFrame } from "@yank-wars/engine";
 
 const out = process.argv[2];
 if (out === undefined) throw new Error("usage: bun server/smoke.ts <out path>");
@@ -49,7 +49,15 @@ function client(): Promise<{ ws: WebSocket; next: Next }> {
   });
 }
 
-const send = (ws: WebSocket, f: Record<string, unknown>) => ws.send(JSON.stringify({ v: 1, ...f }));
+const send = (ws: WebSocket, f: Record<string, unknown>) =>
+  ws.send(JSON.stringify({ v: PROTOCOL, ...f }));
+
+// a frame the server refuses gets no answer: fail instead of waiting for CI's own timeout
+const giveUp = setTimeout(() => {
+  console.error("smoke: no verdict within 60 s");
+  proc.kill();
+  process.exit(1);
+}, 60_000);
 
 try {
   await Promise.race([
@@ -82,5 +90,6 @@ try {
   }
   console.log(`smoke: ${id} verified in the built server (${keys.length} keys)`);
 } finally {
+  clearTimeout(giveUp);
   proc.kill();
 }

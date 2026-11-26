@@ -18,6 +18,9 @@ Shared rules, the stack, release and deploy come from lsel's `CLAUDE.md` and
 
 ## Working here
 
+- **CI also plays a room round against the Nix-built binary** (`server/smoke.ts`); run it
+  after touching the protocol or the server: `nix develop -c bun apps/yank-wars/server/smoke.ts
+  "$(nix build .#yank-wars --no-link --print-out-paths)"` from the repo root.
 - **Run its scripts from `apps/yank-wars`**, not a subdirectory: `bun test`
   elsewhere runs without the happy-dom preload.
 - **The CSP allows inline styles**, unlike lsel's: CodeMirror injects `<style>`
