@@ -1,3 +1,5 @@
+// :g and :v (:help :global).
+
 import { type CodeMirror as CM, CodeMirror, Vim } from "@replit/codemirror-vim";
 import { executeEx } from "./ex.ts";
 import {
@@ -14,8 +16,6 @@ import { registers, toLineStart } from "./lines.ts";
 import { boundTo } from "./registry.ts";
 import { trackLines } from "./track.ts";
 import { vimRegExp } from "./vimRegex.ts";
-
-// :g and :v (:help :global).
 
 let globalDepth = 0;
 /** Commands that end with beginline() defer it to the end of :g (global_need_beginline). */

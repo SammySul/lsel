@@ -1,3 +1,5 @@
+// Everything the web app and the server may import from the engine.
+
 export type { Extension, Text } from "@codemirror/state";
 export type { EditorView } from "@codemirror/view";
 export { feedKey, type KeyResult } from "./feedKey.ts";

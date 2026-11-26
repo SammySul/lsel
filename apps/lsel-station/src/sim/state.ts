@@ -1,3 +1,5 @@
+// The game state: everything a save holds.
+
 import type { ActionId } from "../content/actions.ts";
 import { type CrewId, STARTING_CREW } from "../content/crew.ts";
 import type { CropId } from "../content/crops.ts";

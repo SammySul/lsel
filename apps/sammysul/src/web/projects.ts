@@ -1,3 +1,5 @@
+// The projects the home page lists.
+
 export interface Project {
   name: string;
   what: string;

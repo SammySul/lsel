@@ -1,3 +1,4 @@
+<!-- Draws the station or the map scene on a canvas at a fixed pixel scale. -->
 <script lang="ts">
 import { reducedMotion } from "@sammysul/lsel";
 import { OWNER_NAMES } from "../../content/factions.ts";

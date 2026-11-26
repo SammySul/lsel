@@ -1,3 +1,4 @@
+<!-- A keyboard-driven list: j/k to move, Enter to open, and per-row actions. -->
 <script lang="ts" generics="T">
 import type { Snippet } from "svelte";
 import Empty from "./Empty.svelte";

@@ -1,3 +1,5 @@
+// The puzzles compiled into the server, and the random pick for a room's next round.
+
 import { type Puzzle, parsePuzzle } from "@yank-wars/engine";
 import { handmade } from "./handmade.macro.ts" with { type: "macro" };
 import type { Pick } from "./room.ts";

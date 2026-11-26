@@ -1,3 +1,5 @@
+// The departments, what opens each, and what mastery of an item gives in it.
+
 import type { ModuleId } from "./modules.ts";
 import { idsOf } from "./table.ts";
 

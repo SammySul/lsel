@@ -1,6 +1,7 @@
+// Edges of visual-block I, A, c, C, D, X and Y (ops.c op_insert, block_insert, op_change), plus v/V regressions.
+
 import { defineCases, type OracleCase, type OracleSettings } from "../types.ts";
 
-// Edges of visual-block I, A, c, C, D, X and Y (ops.c op_insert, block_insert, op_change), plus v/V regressions.
 type Extra = { settings?: Partial<OracleSettings>; note?: string };
 const k = (id: string, start: string, keys: string, extra: Extra = {}): OracleCase => ({
   id: `block-${id}`,

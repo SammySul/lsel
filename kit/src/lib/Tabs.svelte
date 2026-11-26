@@ -1,3 +1,4 @@
+<!-- Tabs switched with number keys. -->
 <script lang="ts" generics="Id extends string">
 import { keys } from "./keys.svelte.ts";
 

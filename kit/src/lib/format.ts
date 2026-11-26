@@ -1,3 +1,5 @@
+// Numbers, plurals, percentages, durations and times written the lsel way.
+
 const whole = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
 
 export const count = (n: number) => whole.format(n);

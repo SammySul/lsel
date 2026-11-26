@@ -1,3 +1,4 @@
+<!-- The card after a solo round: score against par, best, retry and next. -->
 <script lang="ts">
 import { Action, duration, go, keys } from "@sammysul/lsel";
 import { formatKeys } from "@yank-wars/engine";

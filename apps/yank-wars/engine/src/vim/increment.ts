@@ -1,7 +1,7 @@
+// <C-a> and <C-x> as vim's do_addsub() with 'nrformats' bin,octal,hex (vim -u NONE).
+
 import { type CodeMirror as CM, CodeMirror, Vim } from "@replit/codemirror-vim";
 import { noteFailure } from "./macro.ts";
-
-// <C-a> and <C-x> as vim's do_addsub() with 'nrformats' bin,octal,hex (vim -u NONE).
 
 const TOKEN = /0[xX][0-9a-fA-F]+|0[bB][01]+|\d+/g;
 

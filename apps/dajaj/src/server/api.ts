@@ -1,3 +1,5 @@
+// The JSON API the web app calls: the roster and a report for the chosen players.
+
 import { json, type Routes, respond } from "@sammysul/lsel/server";
 import { report } from "../shared/stats.ts";
 import { type Pubg, PubgError, type PubgFailure } from "./pubg.ts";

@@ -1,3 +1,4 @@
+<!-- The bar above the editors: puzzle, key count against par, clock, grace and the opponent. -->
 <script lang="ts">
 import { duration } from "@sammysul/lsel";
 import type { PlayerStatus, PlayerView } from "@yank-wars/engine";

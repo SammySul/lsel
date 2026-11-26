@@ -1,3 +1,5 @@
+// Turns the player's keyboard events into vim keys and feeds them, blocking the ones that would break parity.
+
 import { EditorState, type Extension, Prec, Transaction } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 import { feedKey, type KeyResult } from "../feedKey.ts";

@@ -1,3 +1,5 @@
+// Plays effects and the ambience at the chosen levels.
+
 import type { GameEvent } from "../../sim/events.ts";
 import { startAmbience } from "./ambience.ts";
 import { type SoundSettings, storedSettings } from "./settings.ts";

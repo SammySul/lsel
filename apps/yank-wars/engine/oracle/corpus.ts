@@ -1,3 +1,5 @@
+// Loads the oracle cases by category and finds each category's vim fixture file.
+
 import { readdirSync } from "node:fs";
 import { join } from "node:path";
 import type { FixtureEntry, FixtureFile, OracleCase } from "./types.ts";

@@ -1,3 +1,5 @@
+// Runs an oracle case through the engine, and the test puzzle every engine test builds on.
+
 import { createSession, destroySession, feedKey, type Puzzle, parseKeys } from "../src/index.ts";
 import { observe } from "./observe.ts";
 import { type Observed, type OracleCase, settingsOf } from "./types.ts";

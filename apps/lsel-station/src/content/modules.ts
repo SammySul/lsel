@@ -1,3 +1,5 @@
+// The station's modules and what each level costs.
+
 import { idsOf } from "./table.ts";
 
 export type Module = {

@@ -1,6 +1,7 @@
+// The foundation's proof corpus, a few cases per area; the area files hold the real coverage.
+
 import { defineCases } from "../types.ts";
 
-// The foundation's proof corpus, a few cases per area; the area files hold the real coverage.
 export default defineCases([
   // motions and counts
   { id: "seed-word-motions", start: "foo bar.baz qux", keys: "wwdw" },

@@ -1,7 +1,7 @@
+// Text objects and { } where the core differs from vim (:help a(, a", ap, {).
+
 import { type CodeMirror as CM, CodeMirror, type MotionFn, type Pos } from "@replit/codemirror-vim";
 import { replaceMotion } from "./lines.ts";
-
-// Text objects and { } where the core differs from vim (:help a(, a", ap, {).
 
 const P = (line: number, ch: number) => new CodeMirror.Pos(line, ch);
 const before = (a: Pos, b: Pos) => a.line < b.line || (a.line === b.line && a.ch < b.ch);

@@ -1,3 +1,4 @@
+<!-- Picks a font installed on this computer, searchable by name. -->
 <script lang="ts">
 import { keys, List } from "@sammysul/lsel";
 import { tick } from "svelte";

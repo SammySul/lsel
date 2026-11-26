@@ -1,3 +1,4 @@
+<!-- Asks for a click when the editor lost focus mid-round. -->
 <script lang="ts">
 import type { RoundController } from "../lib/round.svelte.ts";
 

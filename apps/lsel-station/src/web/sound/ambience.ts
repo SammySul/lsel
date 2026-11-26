@@ -1,3 +1,5 @@
+// The station's background hum as a seamless noise loop.
+
 import { SAMPLE_RATE } from "./zzfx.ts";
 
 const LOOP_S = 4;

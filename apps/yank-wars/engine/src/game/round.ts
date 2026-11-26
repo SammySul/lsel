@@ -1,3 +1,5 @@
+// A solo round's rules as a pure reducer: study, play, lock-in, forfeit and the time cap.
+
 import type { VimKey } from "../input/keys.ts";
 import { type KeyLog, RESET } from "./log.ts";
 

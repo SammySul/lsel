@@ -1,3 +1,6 @@
+// Oracle cases for ex commands, search and vim's regex dialect.
+// lsel-allow: a list of oracle cases, one per entry
+
 import { defineCases, type OracleCase } from "../types.ts";
 
 // [id, start, keys, note?]; keys are our notation, so a literal < is <lt>.

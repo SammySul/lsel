@@ -1,3 +1,5 @@
+// A DEV-only page hook the parity e2e drives the engine through in a real browser.
+
 import { detectPlatform, type VimKey } from "@yank-wars/engine";
 import { puzzleOf } from "@yank-wars/engine/oracle/engine";
 import { observe } from "@yank-wars/engine/oracle/observe";

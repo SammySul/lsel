@@ -1,3 +1,5 @@
+// What the running jobs make the scene show.
+
 import { ACTION_IDS, ACTIONS, type ActionId } from "../../content/actions.ts";
 import { CROPS } from "../../content/crops.ts";
 import { DEPARTMENTS } from "../../content/departments.ts";

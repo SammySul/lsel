@@ -1,3 +1,5 @@
+<!-- The game screen: scene, departments, map, save and help panels. -->
+<!-- lsel-allow: not split yet; split it the next time lsel-station is worked on -->
 <script lang="ts">
 import { clock, count, go, keys, Page, percent, route, when } from "@sammysul/lsel";
 import { onDestroy, untrack } from "svelte";

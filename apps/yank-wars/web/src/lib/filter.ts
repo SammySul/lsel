@@ -1,3 +1,5 @@
+// The puzzle list's filter: difficulty, unsolved and search words.
+
 import type { Difficulty, Puzzle } from "@yank-wars/engine";
 
 export interface PuzzleFilter {

@@ -1,3 +1,4 @@
+<!-- The thin bar at the top while anything waits longer than a moment. -->
 <script lang="ts">
 import { activity, DELAY } from "./activity.svelte.ts";
 

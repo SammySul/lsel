@@ -1,3 +1,5 @@
+// The puzzle schema, its parser and the rules every puzzle file must follow.
+
 import * as v from "valibot";
 import { parseKeys, type VimKey } from "../input/keys.ts";
 

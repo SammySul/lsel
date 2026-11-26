@@ -1,9 +1,9 @@
+// Reading an ex line as vim does (:help cmdline-ranges): patterns, addresses, ranges and the | that ends a command.
+
 import { type CodeMirror as CM, Vim } from "@replit/codemirror-vim";
 import { registers } from "./lines.ts";
 import { lastSubstitute } from "./substitute.ts";
 import { vimRegExp } from "./vimRegex.ts";
-
-// Reading an ex line as vim does (:help cmdline-ranges): patterns, addresses, ranges and the | that ends a command.
 
 export class ExError extends Error {}
 

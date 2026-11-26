@@ -1,3 +1,5 @@
+<!-- One department: its actions, jobs, crew and levels. -->
+<!-- lsel-allow: not split yet; split it the next time lsel-station is worked on -->
 <script lang="ts">
 import { count, keys, List, percent } from "@sammysul/lsel";
 import { ACTION_IDS, ACTIONS, isOnce } from "../../content/actions.ts";

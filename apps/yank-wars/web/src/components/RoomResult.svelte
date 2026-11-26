@@ -1,3 +1,4 @@
+<!-- The card after a room round: who won, the series and rematch. -->
 <script lang="ts">
 import { duration, keys } from "@sammysul/lsel";
 import { formatKeys, type PlayerView, type Seat } from "@yank-wars/engine";

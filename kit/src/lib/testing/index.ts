@@ -1,3 +1,5 @@
+// e2e helpers every app shares: which browsers to run, launching them and the look checks.
+
 import { afterAll, beforeAll } from "bun:test";
 import { existsSync } from "node:fs";
 import { join } from "node:path";

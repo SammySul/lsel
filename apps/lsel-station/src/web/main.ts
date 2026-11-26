@@ -1,3 +1,5 @@
+// Mounts the game, read-only when another tab already runs it.
+
 import { mount } from "svelte";
 import App from "./App.svelte";
 import "@sammysul/lsel/tokens.css";

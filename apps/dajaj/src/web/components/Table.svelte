@@ -1,3 +1,4 @@
+<!-- Every stat per player as a table. -->
 <script lang="ts">
 import { type Report, STATS } from "../../shared/stats.ts";
 import { STAT_UNITS } from "../lib/format.ts";

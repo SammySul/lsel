@@ -1,3 +1,5 @@
+// DEV only: replays a finished round headless and warns when it differs from the live editor.
+
 import { currentRun, formatKeys, type KeyLog, type Puzzle, verifyRun } from "@yank-wars/engine";
 
 function firstDifferingLine(live: string, replayed: string) {

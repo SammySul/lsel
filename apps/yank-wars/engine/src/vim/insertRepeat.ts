@@ -1,10 +1,11 @@
+// . and a count repeat an insert as the keys typed in it (vim's redo buffer), so <C-w>, <BS>, <C-r> and friends repeat as typed.
+
 import { Vim } from "@replit/codemirror-vim";
 import type { VimKey } from "../input/keys.ts";
 import type { EditorSession } from "../session.ts";
 import { blockDotCount } from "./blockInsert.ts";
 import { boundTo } from "./registry.ts";
 
-// . and a count repeat an insert as the keys typed in it (vim's redo buffer), so <C-w>, <BS>, <C-r> and friends repeat as typed.
 const typed = new WeakMap<EditorSession, VimKey[]>();
 
 const EXITS = new Set(["<Esc>", "<C-c>", "<C-[>"]);

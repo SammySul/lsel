@@ -1,3 +1,5 @@
+// One browser KeyboardEvent as a vim key, per platform.
+
 import { isVimKey, type VimKey } from "./keys.ts";
 
 export type Platform = "mac" | "other";

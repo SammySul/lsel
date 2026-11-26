@@ -1,3 +1,4 @@
+<!-- Routes between the puzzle list, a solo round and a room. -->
 <script lang="ts">
 import { go, route } from "@sammysul/lsel";
 import NeedsKeyboard from "./components/NeedsKeyboard.svelte";

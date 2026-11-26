@@ -1,3 +1,5 @@
+// The HUD's view of a session: mode, pending keys, prompt and message.
+
 import type { EditorSession } from "./session.ts";
 import { recordingOf } from "./vim/macro.ts";
 

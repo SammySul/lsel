@@ -1,3 +1,6 @@
+// The pixel-art sprites, drawn as text.
+// lsel-allow: not split yet; split it the next time lsel-station is worked on
+
 import type { Color } from "./palette.ts";
 
 // `w` is a window and `b` the beacon: both are drawn dark here and lit by the scene.

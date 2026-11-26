@@ -1,3 +1,6 @@
+// Oracle cases for macros, registers, undo and marks.
+// lsel-allow: a list of oracle cases, one per entry
+
 import { defineCases, type OracleCase } from "../types.ts";
 
 function c(id: string, start: string, keys: string, note?: string): OracleCase {

@@ -1,3 +1,5 @@
+// The line each event is announced with, if any.
+
 import { ACTIONS } from "../../content/actions.ts";
 import { CREW } from "../../content/crew.ts";
 import { DEPARTMENTS } from "../../content/departments.ts";

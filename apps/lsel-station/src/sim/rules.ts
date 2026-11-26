@@ -1,3 +1,5 @@
+// Everything here is read off a game: none of it is stored, so none of it can go stale.
+
 import { ACTION_IDS, ACTIONS, type Action, type ActionId, isOnce } from "../content/actions.ts";
 import { CREW, type CrewId } from "../content/crew.ts";
 import { BEDS_PER_LEVEL } from "../content/crops.ts";
@@ -11,8 +13,6 @@ import { LEVELS } from "./levels.ts";
 import { HOME, mapOf, type SectorId, sectorOf } from "./map.ts";
 import { MASTERY, masteryChance, POOL_CHECKPOINTS, POOL_FILL } from "./mastery.ts";
 import type { Snapshot } from "./state.ts";
-
-// Everything here is read off a game: none of it is stored, so none of it can go stale.
 
 /** A fed crew member works this much faster. */
 export const FED_BONUS = 0.1;

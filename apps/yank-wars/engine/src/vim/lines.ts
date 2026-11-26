@@ -1,3 +1,5 @@
+// Line helpers the vim layer shares: first non-blank, J's join, tab columns, and wrapping core commands.
+
 import {
   type ActionFn,
   type CodeMirror as CM,

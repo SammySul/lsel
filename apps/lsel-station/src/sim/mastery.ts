@@ -1,3 +1,5 @@
+// Item mastery: its level curve and the bonus it gives.
+
 import { curve } from "./levels.ts";
 
 /** Item mastery: 1 to 99, gentler than department levels. One second of an action is one mastery XP. */

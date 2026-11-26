@@ -1,3 +1,6 @@
+// Every action a department offers: inputs, outputs, time and XP.
+// lsel-allow: not split yet; split it the next time lsel-station is worked on
+
 import type { DepartmentId } from "./departments.ts";
 import type { FactionId } from "./factions.ts";
 import { ITEMS, type ItemId, type Stack } from "./items.ts";

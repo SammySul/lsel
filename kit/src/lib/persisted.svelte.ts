@@ -1,3 +1,5 @@
+// State saved to localStorage and validated on read.
+
 import { onDestroy } from "svelte";
 import * as v from "valibot";
 

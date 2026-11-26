@@ -1,4 +1,5 @@
 #!/usr/bin/env bun
+// lsel-check: what every app must use from the kit and follow from DESIGN.md, file length and file headers.
 // A line marked `lsel-allow: <why>`, or the line under the mark, is exempt.
 import { readdir, readFile } from "node:fs/promises";
 import { join, relative } from "node:path";
@@ -64,6 +65,15 @@ const RULES: readonly Rule[] = [
   },
 ];
 
+// A longer file usually does several jobs; one that shouldn't be split says why under its header.
+const MAX_LINES = 400;
+
+/** Line 1 says what the file is for (line 2 after a #!), in a comment that isn't an lsel-allow mark. */
+function hasHeader(lines: readonly string[]): boolean {
+  const first = lines[0]?.startsWith("#!") ? lines[1] : lines[0];
+  return first !== undefined && /^(\/\/|<!--)/.test(first) && !first.includes("lsel-allow");
+}
+
 const SKIP = new Set(["node_modules", "dist", ".git", ".direnv", "result", "playground-dist"]);
 
 async function* files(dir: string): AsyncGenerator<string> {
@@ -112,6 +122,18 @@ export async function check(root: string): Promise<Finding[]> {
     const rules = RULES.filter((r) => r.in.includes(ext));
     if (rules.length === 0) continue;
     const lines = (await readFile(path, "utf8")).split("\n");
+    const length = lines.at(-1) === "" ? lines.length - 1 : lines.length;
+    if (CODE.includes(ext) && !hasHeader(lines)) {
+      out.push({ file, line: 1, message: "say what the file is for in a comment on line 1" });
+    }
+    const marked = lines.slice(0, 3).some((l) => l.includes("lsel-allow"));
+    if (CODE.includes(ext) && length > MAX_LINES && !marked) {
+      out.push({
+        file,
+        line: 1,
+        message: `${length} lines: split it, or say why under the header`,
+      });
+    }
     lines.forEach((text, i) => {
       if (text.includes("lsel-allow") || lines[i - 1]?.includes("lsel-allow")) return;
       for (const r of rules) {

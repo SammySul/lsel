@@ -1,3 +1,4 @@
+<!-- The new app's only page. -->
 <script lang="ts">
 import { Empty, Page } from "@sammysul/lsel";
 import { name, version } from "../../package.json";

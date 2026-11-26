@@ -1,3 +1,5 @@
+// Vite for the app.
+
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { defineConfig } from "vite";
 

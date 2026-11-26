@@ -1,3 +1,5 @@
+// Keeps the save in the browser, and an unreadable one aside instead of losing it.
+
 import { parseDocument, type SaveDocument } from "../save/document.ts";
 
 const SAVE = "lsel-station.save";

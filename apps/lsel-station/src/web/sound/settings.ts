@@ -1,3 +1,5 @@
+// The sound settings: mute, effects and ambience levels.
+
 import { persisted, type Store } from "@sammysul/lsel";
 import * as v from "valibot";
 

@@ -1,3 +1,5 @@
+// Draws the station: the frame, its modules and the activity of their jobs.
+
 import type { ModuleId } from "../../content/modules.ts";
 import { type Body, drawAsteroid, drawPlanet } from "./bodies.ts";
 import type { Activity } from "./frame.ts";

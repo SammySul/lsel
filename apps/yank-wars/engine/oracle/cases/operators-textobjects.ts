@@ -1,7 +1,8 @@
-import { defineCases, type OracleCase, type OracleSettings } from "../types.ts";
-
 // Operators (change.txt: d c y p P x X s S C D Y r J gJ ~ g~ gu gU g? > <) and text objects (motion.txt 6).
 // Positions use N| and NG so a case starts exactly where the edge case is.
+// lsel-allow: a list of oracle cases, one per entry
+
+import { defineCases, type OracleCase, type OracleSettings } from "../types.ts";
 
 type S = Partial<OracleSettings>;
 

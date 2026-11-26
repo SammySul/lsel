@@ -1,3 +1,5 @@
+// The sync service's HTTP routes: read and write a save by its id.
+
 import { isAbsolute } from "node:path";
 import { json, type Routes, respond } from "@sammysul/lsel/server";
 import * as v from "valibot";

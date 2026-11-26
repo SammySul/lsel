@@ -1,3 +1,5 @@
+// Level curves: how much XP each department level costs.
+
 /** A level curve: the next level costs round(base × growth^(level − 1)), up to level `max`. */
 export function curve(base: number, growth: number, max: number) {
   const forNext = (level: number) => Math.round(base * growth ** (level - 1));

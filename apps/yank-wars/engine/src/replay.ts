@@ -1,3 +1,5 @@
+// Replays a key log headless and reports the buffer and whether it solved the puzzle: what the server checks claims with.
+
 import { feedKey } from "./feedKey.ts";
 import { currentRun, type KeyLog } from "./game/log.ts";
 import type { Puzzle } from "./game/puzzle.ts";

@@ -1,3 +1,4 @@
+<!-- The page frame every app uses: title, version, source link and key hints. -->
 <script lang="ts">
 import type { Snippet } from "svelte";
 import { palette } from "./assets/palette.ts";

@@ -1,9 +1,9 @@
+// :help :sort, following ex_sort(): a stable sort (equal keys keep their order), so every JS engine agrees.
+
 import { type CodeMirror as CM, CodeMirror } from "@replit/codemirror-vim";
 import { type ExCommand, ExError, skipPattern } from "./exParse.ts";
 import { registers, toLineStart } from "./lines.ts";
 import { vimRegExp } from "./vimRegex.ts";
-
-// :help :sort, following ex_sort(): a stable sort (equal keys keep their order), so every JS engine agrees.
 
 interface Key {
   line: string;

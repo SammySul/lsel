@@ -1,3 +1,5 @@
+// Unlocks: things made or researched once and kept, and what each changes.
+
 import type { DepartmentId } from "./departments.ts";
 import { idsOf } from "./table.ts";
 

@@ -1,3 +1,5 @@
+// Vite for the web app, with /api proxied to the server in dev.
+
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { defineConfig } from "vite";
 import { PORT } from "./src/server/config.ts";

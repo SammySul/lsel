@@ -1,3 +1,5 @@
+// The stats PUBG reports per match, and how a report sums and averages them.
+
 /** The stats PUBG reports per player per match, in table order. */
 export const STATS = [
   "kills",

@@ -1,3 +1,4 @@
+<!-- One round on screen, solo or in a room: HUD, editors, study overlay and result. -->
 <script lang="ts">
 import type { Puzzle } from "@yank-wars/engine";
 import { onDestroy, untrack } from "svelte";

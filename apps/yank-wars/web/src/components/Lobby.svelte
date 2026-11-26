@@ -1,3 +1,4 @@
+<!-- A room before a round: invite link, names and ready. -->
 <script lang="ts">
 import { Action, keys, Page } from "@sammysul/lsel";
 import { LIMITS } from "@yank-wars/engine";

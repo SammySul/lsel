@@ -1,3 +1,5 @@
+// Highlights the lines where the player's buffer still differs from the target.
+
 import { Chunk } from "@codemirror/merge";
 import {
   type EditorState,

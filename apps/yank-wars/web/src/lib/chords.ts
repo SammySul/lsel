@@ -1,3 +1,5 @@
+// The round's own keys (reset, give up, line numbers), which never reach vim.
+
 import { isVimKey, type VimKey } from "@yank-wars/engine";
 
 function chord(notation: string): VimKey {

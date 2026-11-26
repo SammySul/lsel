@@ -1,3 +1,5 @@
+// Runs a case through the real vim pinned in the dev shell and reads back buffer, cursor and mode.
+
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";

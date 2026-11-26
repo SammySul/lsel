@@ -1,3 +1,4 @@
+<!-- The two editors side by side: the player's buffer and the target. -->
 <script lang="ts">
 import { untrack } from "svelte";
 import type { RoundController } from "../lib/round.svelte.ts";

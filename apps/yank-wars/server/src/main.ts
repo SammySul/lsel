@@ -1,3 +1,5 @@
+// Starts the server: the built web app and the rooms on /ws.
+
 import { serve } from "@sammysul/lsel/server";
 import { mismatchLog } from "./mismatches.ts";
 import { PUZZLES, picker } from "./puzzles.ts";

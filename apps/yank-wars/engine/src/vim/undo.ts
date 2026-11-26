@@ -1,9 +1,9 @@
+// u and <C-r> put the cursor where vim's u_undoredo() does: back where the change began when that is in the changed lines.
+
 import { type CodeMirror as CM, CodeMirror, type Pos } from "@replit/codemirror-vim";
 import { undoSteps } from "./history.ts";
 import { firstNonBlank, replaceAction } from "./lines.ts";
 import { boundTo } from "./registry.ts";
-
-// u and <C-r> put the cursor where vim's u_undoredo() does: back where the change began when that is in the changed lines.
 
 /** The first line that differs and how many lines after it the change spans in `after`. */
 function changedLines(before: string[], after: string[]): { first: number; size: number } {

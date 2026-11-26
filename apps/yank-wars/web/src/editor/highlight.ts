@@ -1,3 +1,5 @@
+// Syntax colors from lsel's base16 palette.
+
 import { HighlightStyle } from "@codemirror/language";
 import { tags as t } from "@lezer/highlight";
 

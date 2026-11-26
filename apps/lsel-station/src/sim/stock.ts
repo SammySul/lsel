@@ -1,3 +1,5 @@
+// Adding items to the Hold and taking them out, within its limit.
+
 import { CROPS } from "../content/crops.ts";
 import type { ItemId, Stack } from "../content/items.ts";
 import { bedCount, missing, room } from "./rules.ts";

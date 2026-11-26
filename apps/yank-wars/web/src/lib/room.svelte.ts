@@ -1,3 +1,5 @@
+// The browser's side of a room: the socket, reconnects, the seat and the round's link to the server.
+
 import {
   type KeyLog,
   PROTOCOL,

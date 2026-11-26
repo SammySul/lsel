@@ -1,3 +1,4 @@
+<!-- A button with a key that runs an async action and shows busy, done or failed. -->
 <script lang="ts">
 import { onDestroy } from "svelte";
 import { begin } from "./activity.svelte.ts";

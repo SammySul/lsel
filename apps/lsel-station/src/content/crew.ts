@@ -1,3 +1,5 @@
+// The crew members the station can hire, and the one thing each is better at.
+
 import type { DepartmentId } from "./departments.ts";
 import { idsOf } from "./table.ts";
 

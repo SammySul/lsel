@@ -1,3 +1,4 @@
+<!-- The notice for touch-only devices and narrow windows. -->
 <script lang="ts">
 import { Page } from "@sammysul/lsel";
 import { version } from "../../../package.json";

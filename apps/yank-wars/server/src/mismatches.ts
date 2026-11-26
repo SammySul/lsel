@@ -1,3 +1,5 @@
+// Logs claims the server rejected, so parity bugs show up in production.
+
 import { appendFileSync, statSync } from "node:fs";
 import type { Mismatch } from "./rooms.ts";
 

@@ -1,3 +1,5 @@
+// The save file: its format, version, size limit and the migrations from older versions.
+
 import * as v from "valibot";
 import { ACTION_IDS } from "../content/actions.ts";
 import { CREW_IDS } from "../content/crew.ts";

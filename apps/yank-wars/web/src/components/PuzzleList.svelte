@@ -1,3 +1,4 @@
+<!-- The puzzle list with filter, search and each puzzle's best. -->
 <script lang="ts">
 import { duration, go, keys, List, Page } from "@sammysul/lsel";
 import { DIFFICULTIES, type Difficulty } from "@yank-wars/engine";

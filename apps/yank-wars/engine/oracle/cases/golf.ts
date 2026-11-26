@@ -1,6 +1,7 @@
+// Short golf-style edits, first written as engine unit tests; vim now answers them.
+
 import { defineCases, type OracleCase } from "../types.ts";
 
-// Short golf-style edits, first written as engine unit tests; vim now answers them.
 type Row = [start: string, keys: string];
 
 const rows: readonly Row[] = [

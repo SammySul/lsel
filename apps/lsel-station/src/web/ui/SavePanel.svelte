@@ -1,3 +1,4 @@
+<!-- The save panel: export, import, sync link and conflicts. -->
 <script lang="ts">
 import { Action, clock, Field, when } from "@sammysul/lsel";
 import { exportString, importString, playedMs, type SaveDocument } from "../../save/document.ts";

@@ -1,3 +1,5 @@
+// The editors' look in lsel's palette.
+
 import { EditorView } from "@codemirror/view";
 
 export const ywTheme = EditorView.theme(

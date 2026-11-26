@@ -1,7 +1,7 @@
+// Motions where the core differs from vim, and keys it lacks (:help linewise, 'whichwrap', N%, g_, gm, gM, go, :help index).
+
 import { CodeMirror, type Pos, Vim } from "@replit/codemirror-vim";
 import { firstNonBlank, replaceMotion } from "./lines.ts";
-
-// Motions where the core differs from vim, and keys it lacks (:help linewise, 'whichwrap', N%, g_, gm, gM, go, :help index).
 
 // No context: a "normal" entry does not match once an operator is pending (vim.js commandMatches).
 const KEYS: readonly (readonly [string, string, object | undefined])[] = [

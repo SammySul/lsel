@@ -1,3 +1,6 @@
+// / ? n N * # with vim's rules: a match is found by where it starts (or ends, for an e offset), with 'wrapscan',
+// and the search offset (:help search-offset) is remembered for n and N.
+
 import {
   type CodeMirror as CM,
   CodeMirror,
@@ -7,9 +10,6 @@ import {
 } from "@replit/codemirror-vim";
 import { skipPattern } from "./exParse.ts";
 import { registers } from "./lines.ts";
-
-// / ? n N * # with vim's rules: a match is found by where it starts (or ends, for an e offset), with 'wrapscan',
-// and the search offset (:help search-offset) is remembered for n and N.
 
 interface Offset {
   kind: "none" | "line" | "e" | "s";

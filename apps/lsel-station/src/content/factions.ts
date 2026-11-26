@@ -1,3 +1,5 @@
+// The factions that hold sectors on the map, and each one's rival.
+
 import { idsOf } from "./table.ts";
 
 const table = {

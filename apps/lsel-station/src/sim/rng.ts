@@ -1,3 +1,5 @@
+// The game's seeded random numbers, kept in the state so a replay draws the same.
+
 /** The next value from 0 to under 1 of the game's seeded generator (mulberry32), and the state after it. */
 export function nextRandom(rng: number): { value: number; rng: number } {
   const next = (rng + 0x6d2b79f5) | 0;

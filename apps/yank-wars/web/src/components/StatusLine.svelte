@@ -1,3 +1,4 @@
+<!-- The line under the editors: mode, pending keys, prompt and messages, as vim's would show them. -->
 <script lang="ts">
 import type { BlockedReason, VimMode } from "@yank-wars/engine";
 import { CHORD_LABELS } from "../lib/chords.ts";

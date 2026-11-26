@@ -1,7 +1,8 @@
+// vim's Insstart_orig (edit.c): where this insert began, per cursor, so <C-w>/<C-u> can stop there.
+
 import type { ChangeSpec } from "@codemirror/state";
 import type { EditorSession } from "../session.ts";
 
-// vim's Insstart_orig (edit.c): where this insert began, per cursor, so <C-w>/<C-u> can stop there.
 interface InsertStart {
   pending: boolean;
   inInsert: boolean;

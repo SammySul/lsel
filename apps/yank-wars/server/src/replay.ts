@@ -1,3 +1,5 @@
+// Checks claims in a worker, one at a time, so a slow replay never blocks the rooms.
+
 import type { KeyLog, Puzzle } from "@yank-wars/engine";
 
 export interface ReplayRequest {

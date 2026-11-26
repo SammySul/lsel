@@ -1,3 +1,5 @@
+// Counts what is waiting right now, for the loading bar.
+
 /** How long a wait goes unshown, so a fast answer doesn't flash a waiting line or the bar. */
 export const DELAY = 300;
 

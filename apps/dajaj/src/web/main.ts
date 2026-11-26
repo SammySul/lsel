@@ -1,3 +1,5 @@
+// Mounts the app.
+
 import { mount } from "svelte";
 import App from "./App.svelte";
 import "@sammysul/lsel/tokens.css";

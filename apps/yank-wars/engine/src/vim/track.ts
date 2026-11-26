@@ -1,3 +1,5 @@
+// Follows line starts through edits, for :g.
+
 import { type ChangeSet, MapMode } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
 

@@ -1,3 +1,5 @@
+// What the browser remembers: bests, line numbers, the list filter and the player's name.
+
 import type { Store } from "@sammysul/lsel";
 import { DIFFICULTIES, type Difficulty, LIMITS } from "@yank-wars/engine";
 import * as v from "valibot";

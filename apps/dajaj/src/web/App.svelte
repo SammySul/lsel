@@ -1,3 +1,4 @@
+<!-- Pick players, then compare their stats as a table or a chart. -->
 <script lang="ts">
 import { Action, Empty, Page, plural, resource, Status, Tabs, when } from "@sammysul/lsel";
 import { version } from "../../package.json";

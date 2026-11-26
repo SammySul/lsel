@@ -1,3 +1,4 @@
+<!-- What an empty view says: why it is empty and how to fill it. -->
 <script lang="ts">
 import type { Snippet } from "svelte";
 

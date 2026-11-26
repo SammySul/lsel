@@ -1,3 +1,5 @@
+// Installs the whole vim layer into the core once, and blocks the commands Yank Wars disables.
+
 import {
   type ActionFn,
   CodeMirror,

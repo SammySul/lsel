@@ -1,3 +1,5 @@
+// The read-only target editor.
+
 import { syntaxHighlighting } from "@codemirror/language";
 import { EditorState, Text } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";

@@ -1,3 +1,5 @@
+// How each stat is written: counts, distances, durations and percentages.
+
 import { count, duration } from "@sammysul/lsel/format";
 import type { Stat } from "../../shared/stats.ts";
 

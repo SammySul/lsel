@@ -1,3 +1,4 @@
+<!-- Compare fonts, from files or installed ones, on a sample text you type. -->
 <script lang="ts">
 import { Action, Empty, keys, Page } from "@sammysul/lsel";
 import { onMount } from "svelte";

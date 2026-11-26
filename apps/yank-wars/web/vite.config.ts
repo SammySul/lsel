@@ -1,3 +1,5 @@
+// Vite for the web app, with /ws proxied to a local room server in dev.
+
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { defineConfig, searchForWorkspaceRoot } from "vite";
 

@@ -1,3 +1,5 @@
+// The running game in the browser: ticks on a timer, catches up after a gap, and saves.
+
 import { apply, type Command } from "../sim/commands.ts";
 import type { GameEvent } from "../sim/events.ts";
 import type { GameState, Snapshot } from "../sim/state.ts";

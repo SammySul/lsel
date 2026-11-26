@@ -1,3 +1,5 @@
+// Starts the server: the built web app and the API.
+
 import { Database } from "bun:sqlite";
 import { serve } from "@sammysul/lsel/server";
 import { name } from "../../package.json";

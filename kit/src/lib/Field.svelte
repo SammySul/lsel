@@ -1,3 +1,4 @@
+<!-- A labeled form control with its error. -->
 <script lang="ts">
 import type { Snippet } from "svelte";
 

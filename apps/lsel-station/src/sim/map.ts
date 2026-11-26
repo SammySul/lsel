@@ -1,3 +1,5 @@
+// The sector map, generated from the game's seed.
+
 import { type Owner, REGIONS } from "../content/factions.ts";
 import { nextRandom } from "./rng.ts";
 

@@ -1,3 +1,5 @@
+// Undo steps that never depend on wall-clock time, so a replay groups them like the live editor.
+
 import { history } from "@codemirror/commands";
 import {
   type Annotation,

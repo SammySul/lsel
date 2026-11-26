@@ -1,3 +1,5 @@
+// The puzzle files bundled into the web app, parsed once.
+
 import { comparePuzzles, type Puzzle, parsePuzzle } from "@yank-wars/engine";
 import { filterPuzzles, nextAfter } from "./filter.ts";
 import { prefs } from "./prefs.svelte.ts";

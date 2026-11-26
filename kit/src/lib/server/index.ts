@@ -1,3 +1,5 @@
+// serve(): the Bun server every app runs, with lsel's security headers, health check and WebSockets.
+
 import { isAbsolute, resolve, sep } from "node:path";
 import * as v from "valibot";
 

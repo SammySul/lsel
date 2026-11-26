@@ -1,3 +1,5 @@
+// What the browser remembers: the text size and the fonts switched off.
+
 import { persisted } from "@sammysul/lsel";
 import * as v from "valibot";
 

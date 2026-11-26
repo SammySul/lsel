@@ -1,3 +1,5 @@
+// What the browser remembers: the chosen players, stat and view.
+
 import { persisted } from "@sammysul/lsel";
 import * as v from "valibot";
 import { STATS } from "../../shared/stats.ts";

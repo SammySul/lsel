@@ -1,3 +1,4 @@
+<!-- The map panel: the sectors charted so far and the selected one. -->
 <script lang="ts">
 import { List } from "@sammysul/lsel";
 import { OWNER_NAMES, REGIONS } from "../../content/factions.ts";

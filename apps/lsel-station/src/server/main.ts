@@ -1,3 +1,5 @@
+// Starts the server: the built game and the save sync service.
+
 import { serve } from "@sammysul/lsel/server";
 import { name } from "../../package.json";
 import { openSaves } from "./saves.ts";

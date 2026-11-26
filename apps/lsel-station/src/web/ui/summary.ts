@@ -1,3 +1,5 @@
+// The lines of the While you were away panel.
+
 import { CREW } from "../../content/crew.ts";
 import { DEPARTMENTS } from "../../content/departments.ts";
 import { MODULES, numeral } from "../../content/modules.ts";

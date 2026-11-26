@@ -1,3 +1,5 @@
+// Async data that reloads when its inputs change and keeps only the latest answer.
+
 import { untrack } from "svelte";
 import { begin, DELAY } from "./activity.svelte.ts";
 

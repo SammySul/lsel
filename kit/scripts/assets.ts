@@ -1,3 +1,5 @@
+// Copies the Nix-built fonts and palette into src/lib/assets, which the kit exports from source.
+
 import { cp, mkdir, rm } from "node:fs/promises";
 import { join } from "node:path";
 

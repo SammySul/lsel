@@ -1,3 +1,5 @@
+// Finds the editor session behind the core's CodeMirror instance.
+
 import type { CodeMirror } from "@replit/codemirror-vim";
 import type { VimKey } from "../input/keys.ts";
 import type { EditorSession } from "../session.ts";

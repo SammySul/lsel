@@ -1,9 +1,9 @@
+// Visual-block I A c C D X Y as in vim's ops.c: an insert types on the first line and is copied to the rest at <Esc>.
+
 import { type CodeMirror as CM, CodeMirror, type Pos, Vim } from "@replit/codemirror-vim";
 import type { EditorSession } from "../session.ts";
 import { chAtVcol, replaceAction, replaceMotion, replaceOperator, vcolOf } from "./lines.ts";
 import { boundTo } from "./registry.ts";
-
-// Visual-block I A c C D X Y as in vim's ops.c: an insert types on the first line and is copied to the rest at <Esc>.
 
 type Kind = "I" | "A";
 

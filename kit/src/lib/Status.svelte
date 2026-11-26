@@ -1,3 +1,4 @@
+<!-- A resource's state in one line: waiting, failed with retry, or how old the answer is. -->
 <script lang="ts">
 import { clock, when } from "./format.ts";
 import { keys } from "./keys.svelte.ts";

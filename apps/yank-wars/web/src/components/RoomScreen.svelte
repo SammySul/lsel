@@ -1,3 +1,4 @@
+<!-- A room's page: connects to it and shows the lobby, the round or the result. -->
 <script lang="ts">
 import { go, keys, Page, route } from "@sammysul/lsel";
 import { onDestroy, untrack } from "svelte";

@@ -1,3 +1,5 @@
+// One tick of the game: jobs progress, beds grow, prices recover.
+
 import { ACTION_IDS, ACTIONS, type Action, type ActionId, isOnce } from "../content/actions.ts";
 import { type CrewId, HABITAT_RECRUITS } from "../content/crew.ts";
 import { CROPS } from "../content/crops.ts";

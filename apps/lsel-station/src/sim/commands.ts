@@ -1,3 +1,5 @@
+// What the player can do (assign crew, plant, claim a sector, set up an outpost) as changes to the game state.
+
 import { ACTIONS, type ActionId, isOnce } from "../content/actions.ts";
 import type { CrewId } from "../content/crew.ts";
 import { CROPS, type CropId } from "../content/crops.ts";

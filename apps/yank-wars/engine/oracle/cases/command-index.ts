@@ -1,6 +1,7 @@
+// Keys from vim's :help index that no other case typed (found by comparing index.txt with the corpus).
+
 import { defineCases, type OracleCase } from "../types.ts";
 
-// Keys from vim's :help index that no other case typed (found by comparing index.txt with the corpus).
 type Row = [id: string, start: string, keys: string];
 
 const FORTY = Array.from({ length: 40 }, (_, i) => `l${i + 1}`).join("\n");

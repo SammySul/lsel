@@ -1,3 +1,5 @@
+// vim's ex command line (:help cmdline-ranges, ex-cmd-index) for the commands golfers use; the rest go to the core.
+
 import { type CodeMirror as CM, CodeMirror, Vim } from "@replit/codemirror-vim";
 import {
   checkRange,
@@ -17,8 +19,6 @@ import { runNormal } from "./macro.ts";
 import { boundTo } from "./registry.ts";
 import { exSort } from "./sort.ts";
 import { substitute } from "./substitute.ts";
-
-// vim's ex command line (:help cmdline-ranges, ex-cmd-index) for the commands golfers use; the rest go to the core.
 
 interface Def {
   name: string;

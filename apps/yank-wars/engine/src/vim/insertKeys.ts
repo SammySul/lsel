@@ -1,3 +1,5 @@
+// Insert-mode keys the core lacks or gets wrong: arrows, <BS>, <Del> and the ". register.
+
 import { deleteCharBackwardStrict, deleteCharForward } from "@codemirror/commands";
 import {
   EditorSelection,

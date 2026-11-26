@@ -1,3 +1,5 @@
+// The #/ route, so reload and the back button keep the screen.
+
 const read = () =>
   typeof location !== "undefined" && location.hash.startsWith("#/") ? location.hash.slice(1) : "/";
 

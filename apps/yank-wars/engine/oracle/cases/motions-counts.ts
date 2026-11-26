@@ -1,6 +1,8 @@
+// Motions from :help index / motion.txt, with counts, edge positions and d/y/x to observe them.
+// lsel-allow: a list of oracle cases, one per entry
+
 import { defineCases, type OracleCase, type OracleSettings } from "../types.ts";
 
-// Motions from :help index / motion.txt, with counts, edge positions and d/y/x to observe them.
 type Row = [id: string, start: string, keys: string, settings?: Partial<OracleSettings>];
 
 const rows = (prefix: string, rs: readonly Row[]): OracleCase[] =>

@@ -1,3 +1,5 @@
+// Short toasts for what just happened, each clearing itself.
+
 import type { GameEvent } from "../../sim/events.ts";
 import type { GameMap } from "../../sim/map.ts";
 import { noticeFor } from "./notices.ts";

@@ -1,3 +1,5 @@
+// The : and / prompt: typing, history, <C-r>, <C-v> and <C-w>, the same in the browser and in replay.
+
 import { Vim } from "@replit/codemirror-vim";
 import { keyToDomKey, type SyntheticKeyInit, type VimKey } from "../input/keys.ts";
 import type { EditorSession } from "../session.ts";

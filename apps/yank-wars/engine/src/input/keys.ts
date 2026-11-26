@@ -1,3 +1,5 @@
+// Vim key notation (<C-v>, <lt>, <Space>): parsing, formatting and the branded VimKey type.
+
 export type VimKey = string & { readonly __brand: "VimKey" };
 
 export class KeyNotationError extends Error {

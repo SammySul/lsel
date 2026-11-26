@@ -1,3 +1,5 @@
+// Keyboard bindings per screen, so components declare keys instead of listening for them.
+
 import { onDestroy } from "svelte";
 
 export interface Binding {

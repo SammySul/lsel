@@ -1,3 +1,5 @@
+// Syncs the save with the server: pushes, pulls and conflicts.
+
 import { begin } from "@sammysul/lsel";
 import * as v from "valibot";
 import { exportString, importString, playedMs, type SaveDocument } from "../save/document.ts";

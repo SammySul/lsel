@@ -1,3 +1,5 @@
+// Calls the server's API.
+
 import type { Report } from "../../shared/stats.ts";
 
 async function get<T>(path: string, signal: AbortSignal): Promise<T> {

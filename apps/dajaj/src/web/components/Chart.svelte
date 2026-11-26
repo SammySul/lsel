@@ -1,3 +1,4 @@
+<!-- One stat per player as a bar, line or pie chart. -->
 <script lang="ts">
 import { reducedMotion, when } from "@sammysul/lsel";
 import {

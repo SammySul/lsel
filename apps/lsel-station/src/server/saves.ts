@@ -1,3 +1,5 @@
+// The sync service's store: each save's latest text and its recent revisions, in SQLite.
+
 import { Database } from "bun:sqlite";
 import { importString, MAX_SAVE_BYTES, playedMs } from "../save/document.ts";
 

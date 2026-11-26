@@ -1,3 +1,5 @@
+// What changed while the player was away.
+
 import type { CrewId } from "../content/crew.ts";
 import { DEPARTMENT_IDS, type DepartmentId } from "../content/departments.ts";
 import { ITEM_IDS, type ItemId } from "../content/items.ts";

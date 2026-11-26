@@ -20,7 +20,9 @@ describes, fix or delete the note.
 - **Validate before calling it done**: `nix flake check`, then the root's
   `bun run build` and `test:e2e` (each runs in every member), and say plainly
   what is untested, especially anything checked only headless or only on one OS.
-- **Comments: one line or none**, only for a why the code can't show.
+- **Comments: one line or none**, only for a why the code can't show; the
+  exception is line 1 of every source file, which says what the file is for
+  (lsel-check enforces it, and a file over 400 lines).
 - **Commits: subject line only.** No body, no trailers. Signed with the
   personal SSH key, author `Sammy Suleiman <mail@sammysul.com>`. lsel lives on
   Forgejo (`forgejo:SammySul/lsel.git`, git.sammysul.com), mirrored to GitHub by

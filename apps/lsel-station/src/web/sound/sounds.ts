@@ -1,3 +1,5 @@
+// Every effect's synth parameters.
+
 import { ACTIONS, isOnce } from "../../content/actions.ts";
 import type { DepartmentId } from "../../content/departments.ts";
 import type { GameEvent } from "../../sim/events.ts";

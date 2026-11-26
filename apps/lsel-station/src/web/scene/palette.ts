@@ -1,3 +1,5 @@
+// The scene's palette: no other color is drawn.
+
 /** The scene's whole palette (spec 12.2): nothing in the scene is drawn in any other color. */
 export const PALETTE = {
   space: "#0b1020",

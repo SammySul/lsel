@@ -1,10 +1,10 @@
+// :help :substitute, following do_sub() in vim's ex_cmds.c.
+
 import { type CodeMirror as CM, Vim } from "@replit/codemirror-vim";
 import { type ExCommand, ExError, skipPattern } from "./exParse.ts";
 import { deferLineStart, inGlobal } from "./global.ts";
 import { registers, toLineStart } from "./lines.ts";
 import { setLastReplacement, vimRegExp } from "./vimRegex.ts";
-
-// :help :substitute, following do_sub() in vim's ex_cmds.c.
 
 interface SubState {
   pattern: string;

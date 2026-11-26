@@ -1,3 +1,5 @@
+// Whether the user asked for reduced motion.
+
 import { MediaQuery } from "svelte/reactivity";
 
 let query: MediaQuery | undefined;

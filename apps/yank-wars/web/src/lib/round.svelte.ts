@@ -1,3 +1,5 @@
+// One round's state in the browser: keys, clock, claims and the result, solo or in a room.
+
 import {
   type BlockedReason,
   createRound,

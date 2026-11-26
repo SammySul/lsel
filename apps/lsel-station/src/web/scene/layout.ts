@@ -1,3 +1,5 @@
+// world coordinates are art pixels from the Core's center; every module has one fixed place, on the spine or under it
+
 import type { ActionId } from "../../content/actions.ts";
 import type { ModuleId } from "../../content/modules.ts";
 import type { Color } from "./palette.ts";
@@ -16,8 +18,6 @@ import {
   type Sprite,
   WORKSHOP,
 } from "./sprites.ts";
-
-// world coordinates are art pixels from the Core's center; every module has one fixed place, on the spine or under it
 
 export type Point = { readonly x: number; readonly y: number };
 

@@ -1,3 +1,5 @@
+// A DEV-only page hook the e2e reads a round's state through.
+
 import { observe } from "@yank-wars/engine/oracle/observe";
 import type { Observed } from "@yank-wars/engine/oracle/types";
 import type { RoundController } from "../lib/round.svelte.ts";

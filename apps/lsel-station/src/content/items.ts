@@ -1,3 +1,5 @@
+// Every item the station makes, trades or uses, by tier.
+
 import { idsOf } from "./table.ts";
 
 /** `one` is the name of a single one, where it differs from `name`. */

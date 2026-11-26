@@ -1,3 +1,5 @@
+// Builds the CodeMirror editor with the vim layer for one puzzle, and tears it down.
+
 import { forceParsing, indentUnit } from "@codemirror/language";
 import { EditorSelection, EditorState, type Extension } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";

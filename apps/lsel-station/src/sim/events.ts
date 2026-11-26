@@ -1,3 +1,5 @@
+// What a tick or a command made happen, for the UI and sound to show.
+
 import type { ActionId } from "../content/actions.ts";
 import type { CrewId } from "../content/crew.ts";
 import type { CropId } from "../content/crops.ts";

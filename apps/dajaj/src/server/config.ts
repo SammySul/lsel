@@ -1,3 +1,5 @@
+// Reads the server's settings from the environment, naming a missing one without printing it.
+
 import { isAbsolute } from "node:path";
 import * as v from "valibot";
 

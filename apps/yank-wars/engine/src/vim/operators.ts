@@ -1,3 +1,5 @@
+// Operators where the core differs from vim (:help exclusive-linewise, :help d, :help >>, :help J), r<Tab>, gp and gP.
+
 import {
   type CodeMirror as CM,
   CodeMirror,
@@ -15,8 +17,6 @@ import {
   vcolOf,
 } from "./lines.ts";
 import { noteFailure } from "./macro.ts";
-
-// Operators where the core differs from vim (:help exclusive-linewise, :help d, :help >>, :help J), r<Tab>, gp and gP.
 
 const lineLength = (cm: CM, line: number) => cm.getLine(line).length;
 

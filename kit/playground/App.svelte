@@ -1,3 +1,4 @@
+<!-- Every kit component in every state, for a look and for the kit's e2e. -->
 <script lang="ts">
 import { version } from "../package.json";
 import {

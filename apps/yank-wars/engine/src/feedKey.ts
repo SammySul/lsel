@@ -1,3 +1,5 @@
+// Types one key into a session: routes it to the prompt, insert mode or vim, and reports whether the puzzle is solved.
+
 import { forceParsing } from "@codemirror/language";
 import { type CodeMirror as CM, CodeMirror, Vim, type vimState } from "@replit/codemirror-vim";
 import { toCoreKey, type VimKey } from "./input/keys.ts";

@@ -1,3 +1,5 @@
+// A save's key, the only credential it has, and the id the sync service stores instead.
+
 /** A new save key: 24 random bytes as base64url, 32 characters. The key is the only credential a save has. */
 export function newKey(): string {
   const bytes = crypto.getRandomValues(new Uint8Array(24));

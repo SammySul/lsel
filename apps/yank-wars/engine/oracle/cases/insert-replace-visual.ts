@@ -1,3 +1,6 @@
+// Oracle cases for insert, replace and visual mode.
+// lsel-allow: a list of oracle cases, one per entry
+
 import { defineCases, type OracleCase, type OracleSettings } from "../types.ts";
 
 type Extra = { settings?: Partial<OracleSettings>; note?: string };

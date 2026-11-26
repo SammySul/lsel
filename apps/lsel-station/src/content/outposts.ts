@@ -1,3 +1,5 @@
+// What an outpost can be set up to do, and its modules.
+
 import type { ItemId, Stack } from "./items.ts";
 import { idsOf } from "./table.ts";
 

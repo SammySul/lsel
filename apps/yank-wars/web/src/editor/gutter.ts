@@ -1,3 +1,5 @@
+// Relative or absolute line numbers that follow the cursor.
+
 import { GutterMarker, gutter, lineNumbers } from "@codemirror/view";
 
 class NumberMarker extends GutterMarker {

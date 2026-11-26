@@ -1,3 +1,5 @@
+// What a Greenhouse bed can grow, and how long each takes.
+
 import type { ItemId, Stack } from "./items.ts";
 import { idsOf } from "./table.ts";
 

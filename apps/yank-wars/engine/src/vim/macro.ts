@@ -1,3 +1,5 @@
+// q and @: macros recorded and replayed as keys, stopping when a command fails, and :normal.
+
 import { Vim, type vimState } from "@replit/codemirror-vim";
 import { isVimKey, parseKeys, type VimKey } from "../input/keys.ts";
 import type { EditorSession } from "../session.ts";

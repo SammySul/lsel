@@ -1,7 +1,7 @@
+// Indent as vim's shift_line() builds it, from the puzzle's indentUnit and tabSize (> < :> :< r<Tab>).
+
 import { type CodeMirror as CM, CodeMirror } from "@replit/codemirror-vim";
 import { boundTo } from "./registry.ts";
-
-// Indent as vim's shift_line() builds it, from the puzzle's indentUnit and tabSize (> < :> :< r<Tab>).
 
 export interface ShiftUnit {
   width: number;

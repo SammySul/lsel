@@ -1,3 +1,5 @@
+// The shape of an oracle case and of vim's recorded answer to it.
+
 import { parseKeys } from "../src/input/keys.ts";
 
 export interface OracleSettings {

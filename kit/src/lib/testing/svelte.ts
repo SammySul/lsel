@@ -1,3 +1,5 @@
+// Compiles Svelte components and rune modules for bun test as Vite would.
+
 import { plugin } from "bun";
 import { compile, compileModule } from "svelte/compiler";
 

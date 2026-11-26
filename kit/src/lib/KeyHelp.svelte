@@ -1,3 +1,4 @@
+<!-- The ? overlay listing every key the screen answers. -->
 <script lang="ts">
 import { activeBindings, keyHelp, keyName, keysOf } from "./keys.svelte.ts";
 

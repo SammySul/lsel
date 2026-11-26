@@ -1,3 +1,5 @@
+// Reads an editor session's buffer, cursor and mode the way vim reports them.
+
 import { type EditorSession, sessionSnapshot } from "../src/index.ts";
 import type { Observed, OracleMode } from "./types.ts";
 

@@ -1,3 +1,4 @@
+<!-- The home page: the list of projects. -->
 <script lang="ts">
 import { List, Page } from "@sammysul/lsel";
 import { name, version } from "../../package.json";

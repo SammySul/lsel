@@ -1,3 +1,4 @@
+<!-- The study countdown before play starts. -->
 <script lang="ts">
 import { CHORD_LABELS } from "../lib/chords.ts";
 import type { RoundController } from "../lib/round.svelte.ts";

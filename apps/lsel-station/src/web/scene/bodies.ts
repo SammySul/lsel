@@ -1,3 +1,5 @@
+// The scene's round bodies, lit from its one light and dithered.
+
 import { dither, fbm, hash, noise } from "./noise.ts";
 import type { Color, Put } from "./palette.ts";
 

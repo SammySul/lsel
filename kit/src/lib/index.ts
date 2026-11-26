@@ -1,3 +1,5 @@
+// Everything an app imports from @sammysul/lsel.
+
 export { default as Action } from "./Action.svelte";
 export { begin } from "./activity.svelte.ts";
 export { palette } from "./assets/palette.ts";

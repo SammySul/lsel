@@ -1,3 +1,5 @@
+// Draws the sector map: each sector's holder, fog and the selection.
+
 import type { Owner } from "../../content/factions.ts";
 import { mapOf, type Sector, type SectorId } from "../../sim/map.ts";
 import { outpostAt, ownerOf } from "../../sim/rules.ts";

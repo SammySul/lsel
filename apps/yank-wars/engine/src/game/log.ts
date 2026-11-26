@@ -1,3 +1,5 @@
+// The key log: vim keys plus reset markers, and the score as the keys since the last reset.
+
 import type { VimKey } from "../input/keys.ts";
 
 export const RESET = "<Reset>" as const;

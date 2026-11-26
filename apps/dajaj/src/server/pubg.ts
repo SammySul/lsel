@@ -1,3 +1,5 @@
+// The PUBG API client: players, their recent matches and each match's stats, cached in SQLite.
+
 import type { Database } from "bun:sqlite";
 import * as v from "valibot";
 import type { Match, ParticipantStats, Player } from "../shared/stats.ts";

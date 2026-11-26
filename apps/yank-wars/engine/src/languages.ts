@@ -1,3 +1,5 @@
+// Syntax highlighting per puzzle language, without the language packs' text-typing helpers.
+
 import { cssLanguage } from "@codemirror/lang-css";
 import { goLanguage } from "@codemirror/lang-go";
 import {

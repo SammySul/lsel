@@ -1,3 +1,5 @@
+// A fresh game spelled out, and tick helpers, for tests.
+
 import type { ActionId } from "../content/actions.ts";
 import type { CrewId } from "../content/crew.ts";
 import { apply, type Command } from "./commands.ts";

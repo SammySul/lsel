@@ -1,3 +1,5 @@
+// The player's editor: the engine's session plus visuals, wired to the keyboard.
+
 import { syntaxHighlighting } from "@codemirror/language";
 import { Compartment, Text } from "@codemirror/state";
 import { drawSelection, EditorView, highlightActiveLine } from "@codemirror/view";
