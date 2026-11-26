@@ -94,7 +94,7 @@ Found while building the engine; each needs a test in `engine` before it is
   operator from the motion's fifth argument. A keymap entry with
   `context: "normal"` never matches once an operator is pending.
 - History transactions skip transaction filters (`filter: false`), so undo-step
-  bookkeeping lives in the `u`/`<C-r>` actions (operators.ts), not history.ts.
+  bookkeeping lives in the `u`/`<C-r>` actions (undo.ts), not history.ts.
 - The core's macro recording (`q`, `@`, `isRecording`) and `:normal` are replaced
   in `vimSetup.ts`: it dropped ex commands and insert-mode cursor keys. Keys a
   core command replays run inside its vim operation, which defers change events;

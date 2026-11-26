@@ -1,5 +1,5 @@
 import { type CodeMirror as CM, CodeMirror } from "@replit/codemirror-vim";
-import { type ExCommand, ExError, skipPattern } from "./ex.ts";
+import { type ExCommand, ExError, skipPattern } from "./exParse.ts";
 import { registers, toLineStart } from "./lines.ts";
 import { vimRegExp } from "./vimRegex.ts";
 

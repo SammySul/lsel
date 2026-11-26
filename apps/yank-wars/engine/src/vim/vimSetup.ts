@@ -14,9 +14,12 @@ import { repeatInsert } from "./insertRepeat.ts";
 import { deleteBackInInsert } from "./insertStart.ts";
 import { chAtVcol, cursorVcol, replaceMotion } from "./lines.ts";
 import { endMacroRun, macroAborted, noteFailure, playRegister, startRecording } from "./macro.ts";
+import { installMotions } from "./motions.ts";
 import { installOperators } from "./operators.ts";
 import { boundTo } from "./registry.ts";
 import { installSearch } from "./search.ts";
+import { installTextObjects } from "./textObjects.ts";
+import { installUndo } from "./undo.ts";
 import { vimRegExp } from "./vimRegex.ts";
 
 export const VIRTUAL_WINDOW_LINES = 30;
@@ -245,6 +248,9 @@ export function lockEngine(): void {
   (Vim as unknown as { exHook: typeof exHook }).exHook = exHook;
   installSearch(replaceMotion);
   installOperators();
+  installMotions();
+  installTextObjects();
+  installUndo();
   installIncrement();
   installBlockInsert();
   (Vim as unknown as { onFailure: () => void }).onFailure = noteFailure;

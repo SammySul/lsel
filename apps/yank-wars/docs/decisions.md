@@ -182,7 +182,7 @@ The deviations from vim behave the same in the browser and in the replay: they c
 
 **Vim is the oracle.** Expected values come from the dev shell's pinned vim (`bun run oracle` writes `engine/oracle/cases/*.vim.json`), so nobody runs a manual browser checklist.
 
-**Where fixes live, in order of preference:** an engine override (`vimSetup.ts`, `operators.ts`, `textObjects.ts`, `ex.ts`, `substitute.ts`, `search.ts`, `sort.ts`, `vimRegex.ts`, `increment.ts`, `insertRepeat.ts`, `macro.ts`), the same code on both sides; else a `bun patch` of `@replit/codemirror-vim-core` (`patches/@replit%2Fcodemirror-vim-core@0.1.0.patch`). Our own ex layer, `:s`, `:sort`, search and regex dialect replace the core's because the core's parsing (ranges, flags, counts, escapes, cursor rules) was wrong in too many places to patch one by one.
+**Where fixes live, in order of preference:** an engine override in `engine/src/vim/`, the same code on both sides; else a `bun patch` of `@replit/codemirror-vim-core` (`patches/@replit%2Fcodemirror-vim-core@0.1.0.patch`). Our own ex layer, `:s`, `:sort`, search and regex dialect replace the core's because the core's parsing (ranges, flags, counts, escapes, cursor rules) was wrong in too many places to patch one by one.
 
 **The core patch, hunk by hunk, for upstreaming** (each is a bug fix or a small hook; the hooks are what an upstream API would offer):
 

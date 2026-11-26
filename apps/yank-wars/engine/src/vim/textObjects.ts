@@ -1,4 +1,5 @@
 import { type CodeMirror as CM, CodeMirror, type MotionFn, type Pos } from "@replit/codemirror-vim";
+import { replaceMotion } from "./lines.ts";
 
 // Text objects and { } where the core differs from vim (:help a(, a", ap, {).
 
@@ -228,4 +229,44 @@ export function tagObject(
   if (p === undefined) return undefined;
   const [a, b] = inner ? [p.openEnd, p.closeStart] : [p.openStart, p.closeEnd];
   return { start: cm.posFromIndex(a), end: cm.posFromIndex(b), linewise: false };
+}
+
+export function installTextObjects(): void {
+  replaceMotion("moveByParagraph", moveByParagraph);
+
+  // i( a( and friends with counts and vim's line rules, quote objects as current_quote(); visual mode stays the core's.
+  const PAIRS: Readonly<Record<string, readonly [string, string]>> = {
+    "(": ["(", ")"],
+    ")": ["(", ")"],
+    b: ["(", ")"],
+    "{": ["{", "}"],
+    "}": ["{", "}"],
+    B: ["{", "}"],
+    "[": ["[", "]"],
+    "]": ["[", "]"],
+    "<": ["<", ">"],
+    ">": ["<", ">"],
+  };
+  const coreObject = replaceMotion(
+    "textObjectManipulation",
+    function (this: unknown, cm, head, args, vim, is) {
+      const c = (args as { selectedCharacter?: string }).selectedCharacter ?? "";
+      const inner = !!(args as { textObjectInner?: boolean }).textObjectInner;
+      const count = args.repeat ?? 1;
+      if (vim.visualMode) return coreObject.call(this, cm, head, args, vim, is);
+      let r: ObjectRange | undefined;
+      const pair = PAIRS[c];
+      if (pair) r = blockObject(cm, head, pair[0], pair[1], inner, count);
+      else if (c === '"' || c === "'" || c === "`") r = quoteObject(cm, head, c, inner, count);
+      else if (c === "t") r = tagObject(cm, head, inner, count);
+      else return coreObject.call(this, cm, head, args, vim, is);
+      if (r === undefined) return null as unknown as Pos;
+      if (r.linewise) {
+        args.linewise = true;
+        const opArgs = vim.inputState.operatorArgs as { linewise?: boolean } | undefined;
+        if (opArgs) opArgs.linewise = true;
+      }
+      return [r.start, r.end] as unknown as Pos;
+    },
+  );
 }

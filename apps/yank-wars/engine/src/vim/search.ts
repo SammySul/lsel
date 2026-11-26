@@ -5,7 +5,7 @@ import {
   type Pos,
   Vim,
 } from "@replit/codemirror-vim";
-import { skipPattern } from "./ex.ts";
+import { skipPattern } from "./exParse.ts";
 import { registers } from "./lines.ts";
 
 // / ? n N * # with vim's rules: a match is found by where it starts (or ends, for an e offset), with 'wrapscan',

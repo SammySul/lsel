@@ -1,5 +1,6 @@
 import { type CodeMirror as CM, Vim } from "@replit/codemirror-vim";
-import { deferLineStart, type ExCommand, ExError, inGlobal, skipPattern } from "./ex.ts";
+import { type ExCommand, ExError, skipPattern } from "./exParse.ts";
+import { deferLineStart, inGlobal } from "./global.ts";
 import { registers, toLineStart } from "./lines.ts";
 import { setLastReplacement, vimRegExp } from "./vimRegex.ts";
 

@@ -1,5 +1,16 @@
 // vim's regex dialect (:help pattern) translated to a JavaScript source valid under the "u" flag, as CM's RegExpCursor uses.
 
+import {
+  CLASSES,
+  collection,
+  hasCase,
+  KEYWORD,
+  numberEscape,
+  otherCase,
+  renderClass,
+  SIMPLE_ESCAPES,
+} from "./vimRegexClass.ts";
+
 export class VimRegexError extends Error {}
 
 export interface VimRegex {
@@ -29,67 +40,10 @@ function forcedCase(p: readonly string[]): boolean | undefined {
   return out;
 }
 
-const hasCase = (c: string) => c.toLowerCase() !== c.toUpperCase();
-const otherCase = (c: string) => (c === c.toLowerCase() ? c.toUpperCase() : c.toLowerCase());
-
 type Mode = "v" | "m" | "M" | "V";
 
-// vim's default 'iskeyword' and 'isfname'.
-const KEYWORD = "0-9A-Za-z_\\u00C0-\\u00FF";
 const WORD_START = `(?<![${KEYWORD}])(?=[${KEYWORD}])`;
 const WORD_END = `(?<=[${KEYWORD}])(?![${KEYWORD}])`;
-
-// Character class atoms as [members, negated]; none matches a line break unless written \_x.
-const CLASSES: Readonly<Record<string, readonly [string, boolean]>> = {
-  s: [" \\t", false],
-  S: [" \\t", true],
-  d: ["0-9", false],
-  D: ["0-9", true],
-  w: ["0-9A-Za-z_", false],
-  W: ["0-9A-Za-z_", true],
-  a: ["A-Za-z", false],
-  A: ["A-Za-z", true],
-  l: ["a-z", false],
-  L: ["a-z", true],
-  u: ["A-Z", false],
-  U: ["A-Z", true],
-  x: ["0-9A-Fa-f", false],
-  X: ["0-9A-Fa-f", true],
-  o: ["0-7", false],
-  O: ["0-7", true],
-  h: ["A-Za-z_", false],
-  H: ["A-Za-z_", true],
-  k: [KEYWORD, false],
-  K: ["A-Za-z_\\u00C0-\\u00FF", false],
-  i: [KEYWORD, false],
-  I: ["A-Za-z_\\u00C0-\\u00FF", false],
-  f: ["0-9A-Za-z/.\\-_+,#$%~=", false],
-  F: ["A-Za-z/.\\-_+,#$%~=", false],
-  p: ["\\x20-\\x7E\\u00A0-\\uFFFF", false],
-  P: ["\\x20-\\x2F\\x3A-\\x7E\\u00A0-\\uFFFF", false],
-};
-
-const POSIX: Readonly<Record<string, string>> = {
-  alnum: "0-9A-Za-z",
-  alpha: "A-Za-z",
-  blank: " \\t",
-  cntrl: "\\x00-\\x1F\\x7F",
-  digit: "0-9",
-  graph: "\\x21-\\x7E",
-  lower: "a-z",
-  print: "\\x20-\\x7E",
-  punct: "!-\\/:-@\\[-`{-~",
-  space: "\\t\\x0B\\f\\r ",
-  upper: "A-Z",
-  xdigit: "0-9A-Fa-f",
-  return: "\\r",
-  tab: "\\t",
-  escape: "\\x1B",
-  backspace: "\\x08",
-  ident: KEYWORD,
-  keyword: KEYWORD,
-  fname: "0-9A-Za-z/.\\-_+,#$%~=",
-};
 
 // Characters that are special without a backslash in each mode (:help /magic); the rest need one.
 const BARE_SPECIAL: Readonly<Record<Mode, string>> = {
@@ -107,18 +61,6 @@ const ESCAPED_SPECIAL: Readonly<Record<Mode, string>> = {
 
 const JS_SYNTAX = "^$\\.*+?()[]{}|/";
 const lit = (c: string) => (JS_SYNTAX.includes(c) ? `\\${c}` : c);
-const classLit = (c: string) => ("\\]^-[".includes(c) ? `\\${c}` : c);
-const codeLit = (n: number) => {
-  if (n === 10) return "\\n";
-  const c = String.fromCodePoint(n);
-  return n < 0x20 || n === 0x7f ? `\\u{${n.toString(16)}}` : c;
-};
-
-function renderClass(members: string, negated: boolean, withNewline: boolean): string {
-  if (negated) return withNewline ? `[^${members}]` : `[^${members}\\n]`;
-  return withNewline ? `[${members}\\n]` : `[${members}]`;
-}
-
 /** pat_has_uppercase(): escapes (\S, \_X, \%X) do not count; in \v neither do %X and _X. */
 export function hasUppercase(pattern: string): boolean {
   let veryMagic = false;
@@ -146,143 +88,230 @@ interface Level {
   capture: "(" | "(?:" | null;
 }
 
-export function translateVimRegex(pattern: string, opts: CaseOptions = {}): VimRegex {
-  const p = [...pattern];
-  let mode: Mode = "m";
-  const hasUpper = hasUppercase(pattern);
-  const ic =
-    forcedCase(p) ?? ((opts.ignoreCase ?? true) && !((opts.smartCase ?? true) && hasUpper));
-  const lastReplacement = opts.lastReplacement ?? "";
-  const fold = (c: string) =>
-    ic && hasCase(c) && [...otherCase(c)].length === 1 ? `[${c}${otherCase(c)}]` : lit(c);
-  const stack: Level[] = [{ items: [], multi: new Set(), start: 0, capture: null }];
-  const top = () => stack[stack.length - 1] as Level;
-  const atStart = () => top().items.length === top().start;
-  const push = (atom: string) => top().items.push(atom);
-  const quantify = (q: string, raw: string) => {
-    const level = top();
-    const at = level.items.length - 1;
-    const last = level.items[at];
+const level = (capture: Level["capture"]): Level => ({
+  items: [],
+  multi: new Set(),
+  start: 0,
+  capture,
+});
+
+// A marker item for \zs and \ze, resolved once the whole pattern is read.
+const EDGE = "\u0000";
+
+class Translator {
+  readonly p: string[];
+  i = 0;
+  mode: Mode = "m";
+  readonly stack: Level[] = [level(null)];
+
+  constructor(
+    pattern: string,
+    readonly ic: boolean,
+    readonly lastReplacement: string,
+  ) {
+    this.p = [...pattern];
+  }
+
+  get top(): Level {
+    return this.stack[this.stack.length - 1] as Level;
+  }
+
+  atStart(): boolean {
+    return this.top.items.length === this.top.start;
+  }
+
+  push(atom: string): void {
+    this.top.items.push(atom);
+  }
+
+  fold(c: string): string {
+    return this.ic && hasCase(c) && [...otherCase(c)].length === 1
+      ? `[${c}${otherCase(c)}]`
+      : lit(c);
+  }
+
+  translate(): string[] {
+    const p = this.p;
+    while (this.i < p.length) {
+      const c = p[this.i] as string;
+      const n = p[this.i + 1];
+      if (c !== "\\") {
+        this.i++;
+        if (BARE_SPECIAL[this.mode].includes(c)) this.magic(c);
+        else this.push(this.fold(c));
+      } else if (n === undefined) {
+        this.i++;
+        this.push(this.fold("\\"));
+      } else {
+        this.i += 2;
+        if (/[A-Za-z0-9_]/.test(n)) this.escapedLetter(n);
+        else if (ESCAPED_SPECIAL[this.mode].includes(n)) this.magic(n);
+        else this.push(this.fold(n));
+      }
+    }
+    if (this.stack.length > 1) throw new VimRegexError("E54: Unmatched \\(");
+    return this.top.items;
+  }
+
+  /** A multi after the last atom; at the start of a branch it is a literal. */
+  quantify(q: string, raw: string): void {
+    const top = this.top;
+    const at = top.items.length - 1;
+    const last = top.items[at];
     if (
-      atStart() ||
+      this.atStart() ||
       last === undefined ||
       last === "|" ||
       last === "^" ||
-      last.startsWith("\u0000")
+      last.startsWith(EDGE)
     ) {
-      push(lit(raw));
+      this.push(lit(raw));
       return;
     }
     // vim allows a multi after a multi (a**): it repeats the repeated atom.
-    level.items[at] = level.multi.has(at) ? `(?:${last})${q}` : last + q;
-    level.multi.add(at);
-  };
+    top.items[at] = top.multi.has(at) ? `(?:${last})${q}` : last + q;
+    top.multi.add(at);
+  }
 
   // The position right after the pattern or before \| \) \& \n (or | ) & in \v) ends a branch, where $ is an anchor.
-  const endsBranch = (i: number): boolean => {
+  endsBranch(): boolean {
+    const p = this.p;
+    const i = this.i;
     if (i >= p.length) return true;
-    if (mode === "v") return "|)&".includes(p[i] as string) || (p[i] === "\\" && p[i + 1] === "n");
+    if (this.mode === "v")
+      return "|)&".includes(p[i] as string) || (p[i] === "\\" && p[i + 1] === "n");
     return p[i] === "\\" && "|)&n".includes(p[i + 1] ?? "");
-  };
+  }
 
-  const collection = (i: number, withNewline: boolean): [string, number] | undefined => {
-    let j = i;
-    let negated = false;
-    if (p[j] === "^") {
-      negated = true;
-      j++;
+  /** \x with x a letter, digit or _: modes, back-references, classes, \_x and \zs \ze. */
+  escapedLetter(e: string): void {
+    const p = this.p;
+    if (e === "v" || e === "m" || e === "M" || e === "V") this.mode = e;
+    else if (e === "c" || e === "C") return;
+    else if (/[1-9]/.test(e)) this.push(`\\${e}`);
+    else if (SIMPLE_ESCAPES[e] !== undefined) this.push(SIMPLE_ESCAPES[e]);
+    else if (CLASSES[e] !== undefined) {
+      const [members, negated] = CLASSES[e];
+      this.push(renderClass(members, negated, false));
+    } else if (e === "_") {
+      const n = p[this.i++];
+      if (n !== undefined && CLASSES[n] !== undefined) {
+        const [members, negated] = CLASSES[n];
+        this.push(renderClass(members, negated, true));
+      } else if (n === ".") this.push("[\\s\\S]");
+      else if (n === "^" || n === "$") this.push(n);
+      else if (n === "[") {
+        const r = this.collection(true);
+        if (r === undefined) throw new VimRegexError("E769: Missing ] after \\_[");
+        this.push(r);
+      } else throw new VimRegexError(`E63: Invalid use of \\_${n ?? ""}`);
+    } else if (e === "z") {
+      const n = p[this.i++];
+      if (n !== "s" && n !== "e")
+        throw new VimRegexError(`E68: Invalid character after \\z: ${n ?? ""}`);
+      if (this.stack.length > 1) throw new VimRegexError(`\\z${n} inside a group is not supported`);
+      this.push(`${EDGE}z${n}`);
+    } else throw new VimRegexError(`unsupported pattern item \\${e}`);
+  }
+
+  /** A character that is special in this mode, bare or escaped (:help /magic). */
+  magic(m: string): void {
+    const atom = this.atom(m);
+    if (atom !== undefined) this.push(atom);
+  }
+
+  /** What a special character matches, or undefined when it changed the state instead (multis, groups, |, \@). */
+  atom(m: string): string | undefined {
+    switch (m) {
+      case ".":
+        return "[^\\n]";
+      case "*":
+      case "+":
+        this.quantify(m, m);
+        return undefined;
+      case "=":
+      case "?":
+        this.quantify("?", m);
+        return undefined;
+      case "{":
+        this.quantify(this.brace(), "{");
+        return undefined;
+      case "[":
+        return this.collection(false) ?? "\\[";
+      case "~":
+        return [...this.lastReplacement].map((c) => this.fold(c)).join("") || "(?:)";
+      case "^":
+        return this.atStart() ? "^" : "\\^";
+      case "$":
+        return this.endsBranch() ? "$" : "\\$";
+      case "<":
+        return WORD_START;
+      case ">":
+        return WORD_END;
+      case "(":
+        this.stack.push(level("("));
+        return undefined;
+      case ")": {
+        if (this.stack.length === 1) throw new VimRegexError("E54: Unmatched \\)");
+        const done = this.stack.pop() as Level;
+        return `${done.capture}${done.items.join("")})`;
+      }
+      case "|":
+        this.push("|");
+        this.top.start = this.top.items.length;
+        return undefined;
+      case "@":
+        this.lookaround();
+        return undefined;
+      case "%":
+        return this.percent();
+      case "&":
+        throw new VimRegexError("unsupported pattern item \\&");
+      default:
+        return this.fold(m);
     }
-    let out = "";
-    let extra = "";
-    let lastPlain: string | undefined;
-    let rangeFrom: string | undefined;
-    const plain = (c: string) => {
-      out += classLit(c);
-      if (ic && rangeFrom !== undefined) {
-        const [a, b] = [rangeFrom, c];
-        if (/[a-z]/.test(a) && /[a-z]/.test(b)) extra += `${a.toUpperCase()}-${b.toUpperCase()}`;
-        else if (/[A-Z]/.test(a) && /[A-Z]/.test(b))
-          extra += `${a.toLowerCase()}-${b.toLowerCase()}`;
-      } else if (ic && hasCase(c) && [...otherCase(c)].length === 1)
-        extra += classLit(otherCase(c));
-      lastPlain = rangeFrom === undefined ? c : undefined;
-      rangeFrom = undefined;
+  }
+
+  /** \@= \@! \@<= \@<! \@> wrap the atom before them. */
+  lookaround(): void {
+    const m = /^(\d*)(<=|<!|=|!|>)/.exec(this.p.slice(this.i, this.i + 6).join(""));
+    if (!m) throw new VimRegexError("E64: invalid character after \\@");
+    this.i += m[0].length;
+    const items = this.top.items;
+    const last = items[items.length - 1];
+    if (last === undefined || last === "|") throw new VimRegexError("E64: \\@ follows nothing");
+    const open: Record<string, string> = {
+      "=": "(?=",
+      "!": "(?!",
+      "<=": "(?<=",
+      "<!": "(?<!",
+      ">": "(?:",
     };
-    if (p[j] === "]") {
-      plain("]");
-      j++;
-    }
-    while (j < p.length && p[j] !== "]") {
-      const c = p[j] as string;
-      if (c === "[" && p[j + 1] === ":") {
-        const end = p.indexOf(":", j + 2);
-        const name = end === -1 ? "" : p.slice(j + 2, end).join("");
-        const set = POSIX[name];
-        if (set !== undefined && p[end + 1] === "]") {
-          out += set;
-          j = end + 2;
-          continue;
-        }
-      }
-      if (
-        c === "[" &&
-        (p[j + 1] === "=" || p[j + 1] === ".") &&
-        p[j + 3] === p[j + 1] &&
-        p[j + 4] === "]"
-      ) {
-        out += classLit(p[j + 2] as string);
-        j += 5;
-        continue;
-      }
-      if (c === "\\" && j + 1 < p.length) {
-        const n = p[j + 1] as string;
-        const simple: Record<string, string> = {
-          e: "\\x1B",
-          t: "\\t",
-          r: "\\r",
-          b: "\\x08",
-          n: "\\n",
-        };
-        if (simple[n] !== undefined) {
-          out += simple[n];
-          j += 2;
-          continue;
-        }
-        if ("\\]^-".includes(n)) {
-          plain(n);
-          j += 2;
-          continue;
-        }
-        const num =
-          /^(?:d(\d+)|o([0-7]+)|x([0-9a-fA-F]{1,2})|u([0-9a-fA-F]{1,4})|U([0-9a-fA-F]{1,8}))/.exec(
-            p.slice(j + 1, j + 11).join(""),
-          );
-        if (num) {
-          const v = num[1] ?? num[2] ?? num[3] ?? num[4] ?? num[5] ?? "0";
-          const radix = num[1] ? 10 : num[2] ? 8 : 16;
-          out += codeLit(Number.parseInt(v, radix));
-          j += 1 + num[0].length;
-          continue;
-        }
-        out += "\\\\";
-        j++;
-        continue;
-      }
-      if (c === "-" && out !== "" && p[j + 1] !== "]" && j + 1 < p.length) {
-        out += "-";
-        rangeFrom = lastPlain;
-        j++;
-        continue;
-      }
-      plain(c);
-      j++;
-    }
-    if (j >= p.length) return undefined;
-    return [renderClass(out + extra, negated, withNewline), j + 1];
-  };
+    items[items.length - 1] = `${open[m[2] as string]}${last})`;
+  }
 
-  const brace = (i: number): [string, number] => {
-    let j = i;
+  /** \%( \%^ \%$ and the numeric character escapes. */
+  percent(): string | undefined {
+    const n = this.p[this.i];
+    if (n === "(") {
+      this.i++;
+      this.stack.push(level("(?:"));
+      return undefined;
+    }
+    if (n === "^" || n === "$") {
+      this.i++;
+      return n === "^" ? "(?<![\\s\\S])" : "(?![\\s\\S])";
+    }
+    const num = numberEscape(this.p.slice(this.i, this.i + 10).join(""));
+    if (num === undefined) throw new VimRegexError(`unsupported pattern item \\%${n ?? ""}`);
+    this.i += num[1];
+    return num[0];
+  }
+
+  /** \{n,m}: the JavaScript quantifier; a - makes it lazy. */
+  brace(): string {
+    const p = this.p;
+    let j = this.i;
     let body = "";
     while (j < p.length && p[j] !== "}") {
       if (p[j] === "\\" && p[j + 1] === "}") break;
@@ -290,7 +319,7 @@ export function translateVimRegex(pattern: string, opts: CaseOptions = {}): VimR
       j++;
     }
     if (j >= p.length) throw new VimRegexError("E60: Missing } after \\{");
-    j += p[j] === "\\" ? 2 : 1;
+    this.i = j + (p[j] === "\\" ? 2 : 1);
     const m = /^(-?)(\d*)(,?)(\d*)$/.exec(body);
     if (!m) throw new VimRegexError(`E870: Invalid character after \\{: ${body}`);
     const lazy = m[1] === "-" ? "?" : "";
@@ -299,232 +328,47 @@ export function translateVimRegex(pattern: string, opts: CaseOptions = {}): VimR
     if (!comma) q = lo === "" ? "*" : `{${lo}}`;
     else if (lo === "" && hi === "") q = "*";
     else q = `{${lo || "0"},${hi}}`;
-    return [q + (q.startsWith("{") && !comma ? "" : lazy), j];
-  };
-
-  for (let i = 0; i < p.length; ) {
-    const c = p[i] as string;
-    let magic: string | undefined;
-    let escapedLetter: string | undefined;
-    let literal: string | undefined;
-    if (c === "\\") {
-      const n = p[i + 1];
-      if (n === undefined) {
-        literal = "\\";
-        i++;
-      } else if (/[A-Za-z0-9_]/.test(n)) {
-        escapedLetter = n;
-        i += 2;
-      } else if (ESCAPED_SPECIAL[mode].includes(n)) {
-        magic = n;
-        i += 2;
-      } else {
-        literal = n;
-        i += 2;
-      }
-    } else if (BARE_SPECIAL[mode].includes(c)) {
-      magic = c;
-      i++;
-    } else {
-      literal = c;
-      i++;
-    }
-
-    if (literal !== undefined) {
-      push(fold(literal));
-      continue;
-    }
-
-    if (escapedLetter !== undefined) {
-      const e = escapedLetter;
-      if (e === "v" || e === "m" || e === "M" || e === "V") {
-        mode = e;
-        continue;
-      }
-      if (e === "c" || e === "C") continue;
-      if (/[1-9]/.test(e)) {
-        push(`\\${e}`);
-        continue;
-      }
-      const simple: Record<string, string> = {
-        n: "\\n",
-        t: "\\t",
-        e: "\\x1B",
-        r: "\\r",
-        b: "\\x08",
-      };
-      if (simple[e] !== undefined) {
-        push(simple[e] as string);
-        continue;
-      }
-      const cls = CLASSES[e];
-      if (cls !== undefined) {
-        push(renderClass(cls[0], cls[1], false));
-        continue;
-      }
-      if (e === "_") {
-        const n = p[i];
-        i++;
-        if (n !== undefined && CLASSES[n] !== undefined) {
-          const [members, negated] = CLASSES[n] as readonly [string, boolean];
-          push(renderClass(members, negated, true));
-        } else if (n === ".") push("[\\s\\S]");
-        else if (n === "^") push("^");
-        else if (n === "$") push("$");
-        else if (n === "[") {
-          const r = collection(i, true);
-          if (r === undefined) throw new VimRegexError("E769: Missing ] after \\_[");
-          push(r[0]);
-          i = r[1];
-        } else throw new VimRegexError(`E63: Invalid use of \\_${n ?? ""}`);
-        continue;
-      }
-      if (e === "z") {
-        const n = p[i];
-        i++;
-        if (n === "s" || n === "e") {
-          if (stack.length > 1) throw new VimRegexError(`\\z${n} inside a group is not supported`);
-          push(`\u0000z${n}`);
-          continue;
-        }
-        throw new VimRegexError(`E68: Invalid character after \\z: ${n ?? ""}`);
-      }
-      throw new VimRegexError(`unsupported pattern item \\${e}`);
-    }
-
-    switch (magic) {
-      case ".":
-        push("[^\\n]");
-        break;
-      case "*":
-        quantify("*", "*");
-        break;
-      case "+":
-        quantify("+", "+");
-        break;
-      case "=":
-      case "?":
-        quantify("?", magic);
-        break;
-      case "{": {
-        const [q, next] = brace(i);
-        i = next;
-        quantify(q, "{");
-        break;
-      }
-      case "[": {
-        const r = collection(i, false);
-        if (r === undefined) push("\\[");
-        else {
-          push(r[0]);
-          i = r[1];
-        }
-        break;
-      }
-      case "~":
-        push([...lastReplacement].map(fold).join("") || "(?:)");
-        break;
-      case "^":
-        push(atStart() ? "^" : "\\^");
-        break;
-      case "$":
-        push(endsBranch(i) ? "$" : "\\$");
-        break;
-      case "<":
-        push(WORD_START);
-        break;
-      case ">":
-        push(WORD_END);
-        break;
-      case "(":
-        stack.push({ items: [], multi: new Set(), start: 0, capture: "(" });
-        break;
-      case ")": {
-        if (stack.length === 1) throw new VimRegexError("E54: Unmatched \\)");
-        const done = stack.pop() as Level;
-        push(`${done.capture}${done.items.join("")})`);
-        break;
-      }
-      case "|":
-        push("|");
-        top().start = top().items.length;
-        break;
-      case "@": {
-        const rest = p.slice(i, i + 6).join("");
-        const m = /^(\d*)(<=|<!|=|!|>)/.exec(rest);
-        if (!m) throw new VimRegexError("E64: invalid character after \\@");
-        i += m[0].length;
-        const items = top().items;
-        const last = items[items.length - 1];
-        if (last === undefined || last === "|") throw new VimRegexError("E64: \\@ follows nothing");
-        const wrap: Record<string, string> = {
-          "=": "(?=",
-          "!": "(?!",
-          "<=": "(?<=",
-          "<!": "(?<!",
-          ">": "(?:",
-        };
-        items[items.length - 1] = `${wrap[m[2] as string]}${last})`;
-        break;
-      }
-      case "%": {
-        const n = p[i];
-        if (n === "(") {
-          i++;
-          stack.push({ items: [], multi: new Set(), start: 0, capture: "(?:" });
-          break;
-        }
-        if (n === "^") {
-          i++;
-          push("(?<![\\s\\S])");
-          break;
-        }
-        if (n === "$") {
-          i++;
-          push("(?![\\s\\S])");
-          break;
-        }
-        const num =
-          /^(?:d(\d+)|o([0-7]+)|x([0-9a-fA-F]{1,2})|u([0-9a-fA-F]{1,4})|U([0-9a-fA-F]{1,8}))/.exec(
-            p.slice(i, i + 10).join(""),
-          );
-        if (num) {
-          const v = num[1] ?? num[2] ?? num[3] ?? num[4] ?? num[5] ?? "0";
-          const radix = num[1] ? 10 : num[2] ? 8 : 16;
-          push(codeLit(Number.parseInt(v, radix)));
-          i += num[0].length;
-          break;
-        }
-        throw new VimRegexError(`unsupported pattern item \\%${n ?? ""}`);
-      }
-      case "&":
-        throw new VimRegexError("unsupported pattern item \\&");
-      default:
-        push(fold(magic as string));
-    }
+    return q + (q.startsWith("{") && !comma ? "" : lazy);
   }
-  if (stack.length > 1) throw new VimRegexError("E54: Unmatched \\(");
-  let items = top().items;
-  // \zs and \ze move the match edges: what precedes \zs must match before it, what follows \ze after it.
-  const zs = items.lastIndexOf("\u0000zs");
-  const ze = items.indexOf("\u0000ze");
-  let source: string;
-  if (zs === -1 && ze === -1) source = items.join("");
-  else {
-    if (items.includes("|")) throw new VimRegexError("\\zs/\\ze with \\| is not supported");
-    const before = zs === -1 ? [] : items.slice(0, zs).filter((x) => !x.startsWith("\u0000"));
-    const mid0 = zs === -1 ? 0 : zs + 1;
-    const mid1 = ze === -1 || ze < mid0 ? items.length : ze;
-    const middle = items.slice(mid0, mid1).filter((x) => !x.startsWith("\u0000"));
-    const after =
-      ze === -1 || ze < mid0 ? [] : items.slice(ze + 1).filter((x) => !x.startsWith("\u0000"));
-    items = middle;
-    source =
-      (before.length > 0 ? `(?<=${before.join("")})` : "") +
-      middle.join("") +
-      (after.length > 0 ? `(?=${after.join("")})` : "");
+
+  /** [...], moving past it; undefined (a literal [) when there is no ]. */
+  collection(withNewline: boolean): string | undefined {
+    const r = collection(this.p, this.i, this.ic, withNewline);
+    if (r === undefined) return undefined;
+    this.i = r[1];
+    return r[0];
   }
-  return { source, ignoreCase: ic, hasUpper };
+}
+
+/** \zs and \ze move the match edges: what precedes \zs must match before it, what follows \ze after it. */
+function withMatchEdges(items: readonly string[]): string {
+  const zs = items.lastIndexOf(`${EDGE}zs`);
+  const ze = items.indexOf(`${EDGE}ze`);
+  if (zs === -1 && ze === -1) return items.join("");
+  if (items.includes("|")) throw new VimRegexError("\\zs/\\ze with \\| is not supported");
+  const atoms = (from: number, to: number) =>
+    items
+      .slice(from, to)
+      .filter((x) => !x.startsWith(EDGE))
+      .join("");
+  const mid0 = zs === -1 ? 0 : zs + 1;
+  const noEnd = ze === -1 || ze < mid0;
+  const before = zs === -1 ? "" : atoms(0, zs);
+  const after = noEnd ? "" : atoms(ze + 1, items.length);
+  return (
+    (before === "" ? "" : `(?<=${before})`) +
+    atoms(mid0, noEnd ? items.length : ze) +
+    (after === "" ? "" : `(?=${after})`)
+  );
+}
+
+export function translateVimRegex(pattern: string, opts: CaseOptions = {}): VimRegex {
+  const hasUpper = hasUppercase(pattern);
+  const ic =
+    forcedCase([...pattern]) ??
+    ((opts.ignoreCase ?? true) && !((opts.smartCase ?? true) && hasUpper));
+  const items = new Translator(pattern, ic, opts.lastReplacement ?? "").translate();
+  return { source: withMatchEdges(items), ignoreCase: ic, hasUpper };
 }
 
 let lastReplacement = "";
