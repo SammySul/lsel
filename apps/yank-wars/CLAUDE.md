@@ -80,7 +80,7 @@ Found while building the engine; each needs a test in `engine` before it is
 - `EditorState.allowMultipleSelections` must be on, or the core's block
   operators (`d`, `r`, `~`, `p`) only edit the first line.
 - Needs DOM globals (happy-dom) even headless; `Window` among them.
-  `test/dom.ts` installs them with `??=`, so Bun's own `Event` and `navigator`
+  `server/src/dom.ts` installs them with `??=`, so Bun's own `Event` and `navigator`
   win: build test events with `window.Event`.
 - In key notation vim regex `\<` is `\<lt>`: `/\<foo\>` fails to parse because
   `<foo\>` reads as a key name.

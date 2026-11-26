@@ -1,9 +1,9 @@
-import { beforeAll, describe, expect, test } from "bun:test";
+import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import * as v from "valibot";
-import { handler, json, parseEnv, type Routes } from "./index.ts";
+import { handler, json, parseEnv, type Routes, type Socket, upgrade } from "./index.ts";
 
 let web: string;
 beforeAll(() => {
@@ -152,5 +152,63 @@ describe("environment", () => {
     ).toThrow(
       "bad environment:\n  MY_APP_DB: an absolute path to the database\n  MY_APP_PORT: Invalid value: Expected <=65535 but received 70000\n  MY_APP_STATIC: an absolute path to the built web app",
     );
+  });
+});
+
+describe("sockets", () => {
+  // Echoes each message with the name the upgrade gave the socket.
+  const socket: Socket<{ name: string }> = {
+    path: "/ws",
+    data: (req) => {
+      const name = new URL(req.url).searchParams.get("name");
+      return name === null ? new Response("who are you", { status: 400 }) : { name };
+    },
+    handler: {
+      message: (ws, m) => {
+        ws.send(`${ws.data.name}: ${m}`);
+      },
+    },
+  };
+  const server = Bun.serve<{ name: string }>({
+    port: 0,
+    fetch: (req, srv) => upgrade(socket, req, srv),
+    websocket: socket.handler,
+  });
+  afterAll(() => server.stop(true));
+  const base = `ws://${server.hostname}:${server.port}/ws`;
+
+  function first(ws: WebSocket): Promise<string> {
+    return new Promise((resolve, reject) => {
+      ws.onmessage = (e) => resolve(String(e.data));
+      ws.onerror = () => reject(new Error("socket error"));
+      ws.onclose = (e) => reject(new Error(`closed ${e.code}`));
+    });
+  }
+
+  test("an upgrade carries its data to the handler", async () => {
+    const ws = new WebSocket(`${base}?name=ada`);
+    ws.onopen = () => ws.send("hi");
+    expect(await first(ws)).toBe("ada: hi");
+    ws.close();
+  });
+
+  test("a same-origin page gets past the origin check, another site's does not", async () => {
+    const at = `http://${server.hostname}:${server.port}`;
+    // A plain fetch has no WebSocket key, so a request past the check ends at the 426.
+    const ask = (origin: string) =>
+      fetch(`${at}/ws?name=ada`, {
+        headers: { Origin: origin, Upgrade: "websocket", Connection: "Upgrade" },
+      }).then(async (r) => [r.status, await r.text()]);
+    expect(await ask(at)).toEqual([426, "expected a WebSocket upgrade"]);
+    expect(await ask("https://evil.example")).toEqual([403, "cross-origin socket refused"]);
+  });
+
+  test("data refusing the socket answers with its response; a plain request is told to upgrade", async () => {
+    const refused = await fetch(`http://${server.hostname}:${server.port}/ws`, {
+      headers: { Upgrade: "websocket", Connection: "Upgrade" },
+    });
+    expect([refused.status, await refused.text()]).toEqual([400, "who are you"]);
+    const plain = await fetch(`http://${server.hostname}:${server.port}/ws?name=ada`);
+    expect([plain.status, await plain.text()]).toEqual([426, "expected a WebSocket upgrade"]);
   });
 });

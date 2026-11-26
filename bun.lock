@@ -80,7 +80,6 @@
       "devDependencies": {
         "@sammysul/lsel": "workspace:*",
         "@types/bun": "catalog:",
-        "happy-dom": "21.0.4",
         "playwright-core": "catalog:",
         "typescript": "catalog:",
       },
@@ -109,6 +108,8 @@
       "version": "0.0.0",
       "dependencies": {
         "@sammysul/lsel": "workspace:*",
+        "@yank-wars/engine": "workspace:*",
+        "happy-dom": "21.0.4",
       },
     },
     "apps/yank-wars/web": {

@@ -137,8 +137,39 @@ export function parseEnv<E extends v.ObjectEntries>(
   };
 }
 
+/** A WebSocket endpoint: `data` is the new socket's `ws.data`, or a Response refusing it. */
+export interface Socket<T> {
+  path: string;
+  data: (req: Request) => T | Response;
+  handler: Bun.WebSocketHandler<T>;
+}
+
+/** A browser always sends Origin; another site's page must not open sockets as its visitor. */
+function sameOrigin(req: Request): boolean {
+  const origin = req.headers.get("Origin");
+  if (origin === null) return true;
+  try {
+    return new URL(origin).host === req.headers.get("Host");
+  } catch {
+    return false;
+  }
+}
+
+export function upgrade<T>(
+  socket: Socket<T>,
+  req: Request,
+  server: Bun.Server<T>,
+): Response | undefined {
+  if (!sameOrigin(req)) return text("cross-origin socket refused", 403);
+  const data = socket.data(req);
+  if (data instanceof Response) return data;
+  // Bun types `upgrade` by whether T is undefined, which a generic T can't satisfy.
+  const upgraded = (server as Bun.Server<unknown>).upgrade(req, { data });
+  return upgraded ? undefined : text("expected a WebSocket upgrade", 426);
+}
+
 /** The app's server; a bad environment exits 2 with every problem named. */
-export function serve<E extends v.ObjectEntries>(opts: {
+export function serve<E extends v.ObjectEntries, T = undefined>(opts: {
   name: string;
   /** The env prefix, when it isn't the name's (`YW` for yank-wars). */
   prefix?: string;
@@ -146,6 +177,7 @@ export function serve<E extends v.ObjectEntries>(opts: {
   port?: number;
   csp?: string;
   routes?: (config: Config<E>) => Routes;
+  socket?: (config: Config<E>) => Socket<T>;
 }) {
   let config: Config<E>;
   try {
@@ -154,11 +186,18 @@ export function serve<E extends v.ObjectEntries>(opts: {
     console.error(e instanceof Error ? e.message : e);
     process.exit(2);
   }
-  const server = Bun.serve({
-    hostname: config.host,
-    port: config.port,
-    fetch: handler(config.staticDir, opts.routes?.(config), { csp: opts.csp }),
-  });
+  const http = handler(config.staticDir, opts.routes?.(config), { csp: opts.csp });
+  const socket = opts.socket?.(config);
+  const at = { hostname: config.host, port: config.port };
+  const server =
+    socket === undefined
+      ? Bun.serve({ ...at, fetch: http })
+      : Bun.serve<T>({
+          ...at,
+          fetch: (req, srv) =>
+            new URL(req.url).pathname === socket.path ? upgrade(socket, req, srv) : http(req),
+          websocket: socket.handler,
+        });
   console.log(`${opts.name} listening on ${server.url}`);
   return { server, config };
 }

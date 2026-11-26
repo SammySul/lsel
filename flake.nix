@@ -41,6 +41,7 @@
           dir = "apps/yank-wars";
           prefix = "YW";
           server = "server/src/main.ts";
+          workers = [ "server/src/replay.worker.ts" ];
           web = "web/dist";
           # its tests check the answer files were made with this vim
           checkInputs = [ pkgs.vim ];

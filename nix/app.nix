@@ -13,6 +13,8 @@
   prefix ? lib.toUpper (lib.replaceStrings [ "-" ] [ "_" ] name),
   # relative to dir
   server ? "src/server/main.ts",
+  # more entrypoints compiled into the binary, such as a Worker's script; relative to dir
+  workers ? [ ],
   web ? "dist",
   checkInputs ? [ ],
 }:
@@ -34,7 +36,9 @@ member files {
     runHook preBuild
     cd ${dir}
     bun run build
-    bun build --compile --minify --sourcemap ${server} --outfile ${name}
+    bun build --compile --minify --sourcemap ${
+      lib.escapeShellArgs ([ server ] ++ workers)
+    } --outfile ${name}
     runHook postBuild
   '';
 

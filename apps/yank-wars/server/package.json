@@ -5,6 +5,8 @@
   "type": "module",
   "module": "src/main.ts",
   "dependencies": {
-    "@sammysul/lsel": "workspace:*"
+    "@sammysul/lsel": "workspace:*",
+    "@yank-wars/engine": "workspace:*",
+    "happy-dom": "21.0.4"
   }
 }

@@ -121,7 +121,7 @@ describe("key capture", () => {
   });
 });
 
-// Bun's global Event is not happy-dom's; test/dom.ts installs only KeyboardEvent.
+// Bun's global Event is not happy-dom's; server/src/dom.ts installs only KeyboardEvent.
 describe("blocked DOM events", () => {
   test("paste is prevented and does not enter insert mode", () => {
     const r = rig("hello");
