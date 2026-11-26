@@ -30,6 +30,8 @@ const puzzles: Puzzle[] = readdirSync(PUZZLES_DIR)
   .map((f) => parsePuzzle(JSON.parse(readFileSync(join(PUZZLES_DIR, f), "utf8")), f.slice(0, -5)));
 // The list's order (comparePuzzles); "next" walks it and wraps.
 const listOrder = [...puzzles].sort(comparePuzzles);
+// typing every solution takes longer as the set grows
+const EVERY_PUZZLE_MS = listOrder.length * 2_000;
 const ofDifficulty = (d: Puzzle["difficulty"]) => listOrder.filter((p) => p.difficulty === d);
 const P = (id: string): Puzzle => {
   const p = puzzles.find((x) => x.id === id);
@@ -316,48 +318,51 @@ for (const name of browsers()) {
       await done(ctx, problems);
     });
 
-    test("every puzzle locks in on its reference solution with the self-check ok; Enter walks the list", async () => {
-      const { ctx, page, problems } = await fresh();
-      const first = listOrder[0] as Puzzle;
-      await openRound(page, first.id);
-      const rows: string[] = [];
-      for (const [i, p] of listOrder.entries()) {
-        await waitRound(page, p.id);
-        await page.keyboard.press("Space");
-        await typeKeys(page, p.solution);
-        await cardShown(page);
-        const c = await card(page);
-        const s = await probe(page);
-        const badge = await selfCheckDone(page);
-        rows.push(
-          JSON.stringify([
-            p.id,
-            c.headline,
-            c.keys,
-            c.notation,
-            badge,
-            s.doc === p.target,
-            s.log.length,
-          ]),
-        );
-        expect(rows.at(-1)).toBe(
-          JSON.stringify([
-            p.id,
-            "Locked in",
-            String(p.solution.length),
-            formatKeys(p.solution),
-            "DEV self-check: ok",
-            true,
-            p.solution.length,
-          ]),
-        );
-        await page.keyboard.press("Enter");
-        const next = listOrder[(i + 1) % listOrder.length] as Puzzle;
-        await page.waitForFunction((h) => location.hash === h, `#/p/${next.id}`);
-      }
-      await done(ctx, problems);
-      // typing every solution grows with the set
-    }, listOrder.length * 2_000);
+    test(
+      "every puzzle locks in on its reference solution with the self-check ok; Enter walks the list",
+      async () => {
+        const { ctx, page, problems } = await fresh();
+        const first = listOrder[0] as Puzzle;
+        await openRound(page, first.id);
+        const rows: string[] = [];
+        for (const [i, p] of listOrder.entries()) {
+          await waitRound(page, p.id);
+          await page.keyboard.press("Space");
+          await typeKeys(page, p.solution);
+          await cardShown(page);
+          const c = await card(page);
+          const s = await probe(page);
+          const badge = await selfCheckDone(page);
+          rows.push(
+            JSON.stringify([
+              p.id,
+              c.headline,
+              c.keys,
+              c.notation,
+              badge,
+              s.doc === p.target,
+              s.log.length,
+            ]),
+          );
+          expect(rows.at(-1)).toBe(
+            JSON.stringify([
+              p.id,
+              "Locked in",
+              String(p.solution.length),
+              formatKeys(p.solution),
+              "DEV self-check: ok",
+              true,
+              p.solution.length,
+            ]),
+          );
+          await page.keyboard.press("Enter");
+          const next = listOrder[(i + 1) % listOrder.length] as Puzzle;
+          await page.waitForFunction((h) => location.hash === h, `#/p/${next.id}`);
+        }
+        await done(ctx, problems);
+      },
+      EVERY_PUZZLE_MS,
+    );
 
     test("result card: r retries, Esc goes back to the list with the best filled in", async () => {
       const { ctx, page, problems } = await fresh();
