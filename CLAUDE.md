@@ -2,8 +2,7 @@
 
 The home base and the one repo for the kit and every app (`apps/<name>/`), so
 Claude Code reads this file in all of them; each app's own `CLAUDE.md` adds only
-its traps. `projects/` (ignored) holds the repos that stay separate: moloch and
-the archived ones. Look and feel: `DESIGN.md`. Stack and deploy:
+its traps. Look and feel: `DESIGN.md`. Stack and deploy:
 `STACK.md`. Deviating from either needs Sammy's yes.
 
 ## What a CLAUDE.md is for
