@@ -19,12 +19,16 @@ const say = (text: string) => {
   said = text;
 };
 
-type View = "list" | "states" | "form";
+type View = "list" | "states" | "form" | "pages";
 const VIEWS = [
   { id: "list", label: "List" },
   { id: "states", label: "States" },
   { id: "form", label: "Form" },
+  { id: "pages", label: "Pages" },
 ] as const;
+
+// more rows than a page, the last page short
+const ITEMS = Array.from({ length: 23 }, (_, i) => `Item ${i + 1}`);
 let view: View = $state("list");
 
 interface Feed {
@@ -109,6 +113,13 @@ let nameError: string | null = $state(null);
         {/snippet}
         {#snippet head()}Feed{/snippet}
         {#snippet empty()}No feeds match. <kbd>Esc</kbd> clears the search.{/snippet}
+      </List>
+    </section>
+  {:else if view === "pages"}
+    <section aria-label="Pages">
+      <List items={ITEMS} id={(item) => item} label="Items" pageSize={10} hint>
+        {#snippet row(item)}{item}{/snippet}
+        {#snippet empty()}No items.{/snippet}
       </List>
     </section>
   {:else if view === "states"}

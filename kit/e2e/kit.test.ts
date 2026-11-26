@@ -98,6 +98,29 @@ for (const name of browsers()) {
       expect(await problems()).toEqual([]);
     });
 
+    test("a paged list moves a page with l and h, crosses pages with j and k, and keeps its height", async () => {
+      const { page, problems } = await open();
+      await page.keyboard.press("4");
+      const list = page.getByRole("list", { name: "Items" });
+      const state = async () => [
+        await list.locator('li[aria-current="true"]').textContent(),
+        await page.locator(".pager span").textContent(),
+        await list.locator("li").count(),
+        Math.round((await list.boundingBox())?.height ?? 0),
+      ];
+      const height = Math.round((await list.boundingBox())?.height ?? 0);
+      expect(await state()).toEqual(["Item 1", "Page 1 of 3", 10, height]);
+      await page.keyboard.press("l");
+      expect(await state()).toEqual(["Item 11", "Page 2 of 3", 10, height]);
+      await page.keyboard.press("k");
+      expect(await state()).toEqual(["Item 10", "Page 1 of 3", 10, height]);
+      await page.keyboard.press("G");
+      expect(await state()).toEqual(["Item 23", "Page 3 of 3", 10, height]);
+      await page.keyboard.press("h");
+      expect(await state()).toEqual(["Item 13", "Page 2 of 3", 10, height]);
+      expect(await problems()).toEqual([]);
+    });
+
     test("in a search box keys type, arrows still move, and Esc clears then leaves", async () => {
       const { page, problems } = await open();
       await page.keyboard.press("G");
@@ -156,6 +179,7 @@ for (const name of browsers()) {
         "Show list",
         "Show states",
         "Show form",
+        "Show pages",
         "Next",
         "Previous",
         "First",

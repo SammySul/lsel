@@ -27,6 +27,8 @@ interface Props {
   head?: Snippet;
   /** Shows its keys in the page footer. */
   hint?: boolean;
+  /** Rows per page; the list always holds a full page, so its height never changes with the items. */
+  pageSize?: number;
 }
 
 let {
@@ -40,6 +42,7 @@ let {
   actions = [],
   head,
   hint = false,
+  pageSize,
 }: Props = $props();
 
 // where the selection was, so a row that goes away hands it to its neighbor, not the first row
@@ -56,10 +59,17 @@ $effect(() => {
   last = index;
   if (id(current) !== selected) selected = id(current);
 });
+const size = $derived(pageSize ?? Math.max(1, items.length));
+const pages = $derived(Math.max(1, Math.ceil(items.length / size)));
+const page = $derived(Math.floor(index / size));
+const start = $derived(page * size);
+const visible = $derived(items.slice(start, start + size));
+const fillers = $derived(pageSize === undefined ? 0 : size - visible.length);
+
 const rows: HTMLElement[] = $state([]);
 
 $effect(() => {
-  rows[index]?.scrollIntoView({ block: "nearest" });
+  rows[index - start]?.scrollIntoView({ block: "nearest" });
 });
 
 function select(i: number): void {
@@ -101,6 +111,12 @@ keys(() =>
         },
         { key: "g", label: "First", run: () => select(0) },
         { key: "G", label: "Last", run: () => select(items.length - 1) },
+        ...(pages > 1
+          ? [
+              { key: ["l", "PageDown"], label: "Next page", hint, run: () => select(index + size) },
+              { key: ["h", "PageUp"], label: "Previous page", run: () => select(index - size) },
+            ]
+          : []),
         ...(onopen
           ? [
               {
@@ -126,14 +142,28 @@ keys(() =>
 {:else}
   {#if head}<div class="head" aria-hidden="true">{@render head()}</div>{/if}
   <ul class="lsel-list" aria-label={label}>
-    {#each items as item, i (id(item))}
+    {#each visible as item, i (id(item))}
       <!-- the keys above are the keyboard way in; a click is the pointer's -->
       <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
-      <li bind:this={rows[i]} aria-current={i === index} onclick={(e) => click(e, i)}>
-        {@render row(item, i === index)}
+      <li bind:this={rows[i]} aria-current={start + i === index} onclick={(e) => click(e, start + i)}>
+        {@render row(item, start + i === index)}
       </li>
     {/each}
+    {#each { length: fillers }, i (i)}
+      <li class="filler" aria-hidden="true">&nbsp;</li>
+    {/each}
   </ul>
+  {#if pageSize !== undefined}
+    <div class="pager">
+      <button type="button" disabled={page === 0} onclick={() => select(index - size)}
+        >‹ <kbd>h</kbd></button
+      >
+      <span>Page {page + 1} of {pages}</span>
+      <button type="button" disabled={page === pages - 1} onclick={() => select(index + size)}
+        ><kbd>l</kbd> ›</button
+      >
+    </div>
+  {/if}
 {/if}
 
 <style>
@@ -158,5 +188,19 @@ keys(() =>
   }
   li[aria-current="true"] {
     border-left-color: var(--accent);
+  }
+  .filler {
+    border-bottom-color: transparent;
+    cursor: auto;
+  }
+  .pager {
+    display: flex;
+    gap: var(--space-3);
+    align-items: center;
+    justify-content: flex-end;
+    padding-top: var(--space-2);
+    color: var(--subtle);
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
   }
 </style>
