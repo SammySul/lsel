@@ -1,0 +1,16 @@
+{
+  "id": "name-the-color",
+  "title": "Name the color",
+  "difficulty": "easy",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".error {\n  color: #ff0000;\n}",
+  "target": ".error {\n  color: red;\n}",
+  "solution": "jf#Cred;",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change"]
+}

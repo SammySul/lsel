@@ -1,0 +1,17 @@
+{
+  "id": "matching-tag",
+  "title": "Matching tag",
+  "difficulty": "easy",
+  "description": "Close the tag you opened.",
+  "language": "jsx",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const greeting = <p>Hello</div>;",
+  "target": "const greeting = <p>Hello</p>;",
+  "solution": "fdcwp",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change"]
+}

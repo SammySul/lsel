@@ -1,0 +1,17 @@
+{
+  "id": "wrong-way",
+  "title": "Wrong way round",
+  "difficulty": "easy",
+  "description": "Keep the best score.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "if (score < best) {\n  best = score;\n}",
+  "target": "if (score > best) {\n  best = score;\n}",
+  "solution": "f<lt>r>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace"]
+}

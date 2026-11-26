@@ -1,0 +1,17 @@
+{
+  "id": "quiet-logs",
+  "title": "Quiet logs",
+  "difficulty": "medium",
+  "description": "Log nothing.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "log(user, 'login')\nlog(user, 'logout')\nlog(err)",
+  "target": "log()\nlog()\nlog()",
+  "solution": "f(di(j.j.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object", "repeat"]
+}

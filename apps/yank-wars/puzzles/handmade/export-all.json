@@ -1,0 +1,16 @@
+{
+  "id": "export-all",
+  "title": "Export them all",
+  "difficulty": "medium",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const A = 1;\nconst B = 2;\nconst C = 3;",
+  "target": "export const A = 1;\nexport const B = 2;\nexport const C = 3;",
+  "solution": "<C-v>2jIexport<Space><Esc>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block"]
+}

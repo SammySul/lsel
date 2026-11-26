@@ -1,0 +1,17 @@
+{
+  "id": "trailing-comma",
+  "title": "Trailing comma",
+  "difficulty": "easy",
+  "description": "JSON allows no comma after the last entry.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\n  \"host\": \"localhost\",\n  \"port\": 8080,\n  \"debug\": false,\n}",
+  "target": "{\n  \"host\": \"localhost\",\n  \"port\": 8080,\n  \"debug\": false\n}",
+  "solution": "3j$x",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

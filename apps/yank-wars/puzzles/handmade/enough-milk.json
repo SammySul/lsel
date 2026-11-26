@@ -1,0 +1,17 @@
+{
+  "id": "enough-milk",
+  "title": "Enough milk",
+  "difficulty": "easy",
+  "description": "One carton will do.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "milk\nmilk\nmilk\nmilk\neggs\nbread",
+  "target": "milk\neggs\nbread",
+  "solution": "j3dd",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "count"]
+}

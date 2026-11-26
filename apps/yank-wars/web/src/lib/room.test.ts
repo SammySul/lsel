@@ -80,7 +80,6 @@ const view = (over: Partial<RoomView> = {}): RoomView => ({
   phase: "lobby",
   round: 0,
   puzzleId: null,
-  difficulty: "easy",
   players: [player("ada"), player("bob")],
   tally: [0, 0],
   phaseLeft: null,
@@ -193,10 +192,10 @@ test("a new room: hello with the remembered name, then the id goes to the addres
     { kind: "open" },
   ]);
   c.lobby({ ready: true, name: "ada l" });
-  c.lobby({ difficulty: "hard" });
+  c.lobby({ name: "ada" });
   expect(ws().take()).toEqual([
     { t: "lobby", ready: true, name: "ada l" },
-    { t: "lobby", ready: false, difficulty: "hard" },
+    { t: "lobby", ready: false, name: "ada" },
   ]);
 });
 

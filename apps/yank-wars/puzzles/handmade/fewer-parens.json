@@ -1,0 +1,17 @@
+{
+  "id": "fewer-parens",
+  "title": "Fewer parens",
+  "difficulty": "easy",
+  "description": "Python needs none here.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "if ((user.is_admin)):\n    grant()",
+  "target": "if user.is_admin:\n    grant()",
+  "solution": "f(2x$2X",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

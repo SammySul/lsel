@@ -1,0 +1,17 @@
+{
+  "id": "strip-numbers",
+  "title": "Strip the numbers",
+  "difficulty": "medium",
+  "description": "Pasted with line numbers.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "1 import os\n2 print(os.getcwd())\n3 print(os.sep)",
+  "target": "import os\nprint(os.getcwd())\nprint(os.sep)",
+  "solution": "<C-v>Gld",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block"]
+}

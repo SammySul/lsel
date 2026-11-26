@@ -1,0 +1,16 @@
+{
+  "id": "no-front-matter",
+  "title": "No front matter",
+  "difficulty": "easy",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "---\ntitle: Post\ndraft: true\n---\n# Hello",
+  "target": "# Hello",
+  "solution": "4dd",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "count"]
+}

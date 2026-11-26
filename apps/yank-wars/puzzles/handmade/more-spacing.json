@@ -1,0 +1,17 @@
+{
+  "id": "more-spacing",
+  "title": "More spacing",
+  "difficulty": "medium",
+  "description": "Ten more pixels each.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".grid {\n  margin: 10px;\n  padding: 10px;\n  gap: 10px;\n}",
+  "target": ".grid {\n  margin: 20px;\n  padding: 20px;\n  gap: 20px;\n}",
+  "solution": "jVjj10<C-a>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual", "increment"]
+}

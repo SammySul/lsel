@@ -1,0 +1,16 @@
+{
+  "id": "pair-up",
+  "title": "Pair them up",
+  "difficulty": "hard",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "name\nada\nage\n36\nrole\nadmin\nteam\ncore",
+  "target": "name: ada\nage: 36\nrole: admin\nteam: core",
+  "solution": "qqA:<Esc>Jjq3@q",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["macro", "join"]
+}

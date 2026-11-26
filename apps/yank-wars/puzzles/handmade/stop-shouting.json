@@ -1,0 +1,16 @@
+{
+  "id": "stop-shouting",
+  "title": "Stop shouting",
+  "difficulty": "easy",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "PLEASE STOP SHOUTING.",
+  "target": "Please stop shouting.",
+  "solution": "lgu$",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["case"]
+}

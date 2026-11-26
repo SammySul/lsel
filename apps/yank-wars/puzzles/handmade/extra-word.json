@@ -1,0 +1,17 @@
+{
+  "id": "extra-word",
+  "title": "Said it twice",
+  "difficulty": "easy",
+  "description": "One word too many.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "We need to to ship it by Friday.",
+  "target": "We need to ship it by Friday.",
+  "solution": "3wdw",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["word"]
+}

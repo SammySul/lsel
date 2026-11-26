@@ -1,0 +1,17 @@
+{
+  "id": "pretty-json",
+  "title": "Pretty JSON",
+  "difficulty": "hard",
+  "description": "One key per line.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\"a\": 1, \"b\": 2, \"c\": 3}",
+  "target": "{\n  \"a\": 1,\n  \"b\": 2,\n  \"c\": 3\n}",
+  "solution": "a<CR><Space><Space><Esc>:s/, /,\\r  /g<CR>$i<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

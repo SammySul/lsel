@@ -1,0 +1,17 @@
+{
+  "id": "ship-it",
+  "title": "Ship it",
+  "difficulty": "easy",
+  "description": "Debug mode off.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "DEBUG = True\nPORT = 8000",
+  "target": "DEBUG = False\nPORT = 8000",
+  "solution": "2wRFalse",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace-mode"]
+}

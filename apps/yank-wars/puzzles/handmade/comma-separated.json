@@ -1,0 +1,16 @@
+{
+  "id": "comma-separated",
+  "title": "Comma separated",
+  "difficulty": "medium",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "red\ngreen\nblue",
+  "target": "red, green, blue",
+  "solution": "A,<Esc>j.k3J",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat", "join"]
+}

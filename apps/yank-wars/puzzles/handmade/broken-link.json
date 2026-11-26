@@ -1,0 +1,17 @@
+{
+  "id": "broken-link",
+  "title": "Broken link",
+  "difficulty": "easy",
+  "description": "One URL, one line.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "https://example.com/\ndocs/\nvim",
+  "target": "https://example.com/docs/vim",
+  "solution": "3gJ",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["join"]
+}

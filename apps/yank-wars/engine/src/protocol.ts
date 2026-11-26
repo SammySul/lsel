@@ -2,9 +2,8 @@
 import * as v from "valibot";
 import { isVimKey } from "./keys.ts";
 import { type LogEntry, RESET } from "./log.ts";
-import { DIFFICULTIES, type Difficulty } from "./puzzle.ts";
 
-export const PROTOCOL = 1;
+export const PROTOCOL = 2;
 
 export const LIMITS = {
   frameBytes: 16_384,
@@ -35,7 +34,6 @@ const ClientFrame = v.variant("t", [
   }),
   frame("lobby", {
     ready: v.boolean(),
-    difficulty: v.optional(v.nullable(v.picklist(DIFFICULTIES))),
     name: v.optional(Name),
   }),
   frame("ready", {}),
@@ -103,7 +101,6 @@ export interface RoomView {
   phase: RoomPhase;
   round: number;
   puzzleId: string | null;
-  difficulty: Difficulty | null;
   players: [PlayerView | null, PlayerView | null];
   tally: [number, number];
   /** ms left in the study window or the round (the cap, or grace once it runs) */

@@ -63,7 +63,7 @@ class Client {
   }
 
   send(frame: Record<string, unknown>): void {
-    this.ws.send(JSON.stringify({ v: 1, ...frame }));
+    this.ws.send(JSON.stringify({ v: 2, ...frame }));
   }
 
   async next<T extends ServerFrame>(match: (f: ServerFrame) => f is T): Promise<T>;

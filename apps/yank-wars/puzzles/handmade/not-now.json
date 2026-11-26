@@ -1,0 +1,17 @@
+{
+  "id": "not-now",
+  "title": "Not now",
+  "difficulty": "easy",
+  "description": "Comment out the first two calls.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "track(event);\nnotify(user);\nsave(data);",
+  "target": "// track(event);\n// notify(user);\nsave(data);",
+  "solution": "I//<Space><Esc>j.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat"]
+}

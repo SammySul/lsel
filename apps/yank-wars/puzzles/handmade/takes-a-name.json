@@ -1,0 +1,16 @@
+{
+  "id": "takes-a-name",
+  "title": "Takes a name",
+  "difficulty": "easy",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "function greet() {\n  return \"Hello, \" + name;\n}",
+  "target": "function greet(name) {\n  return \"Hello, \" + name;\n}",
+  "solution": "f)iname",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

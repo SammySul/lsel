@@ -1,0 +1,16 @@
+{
+  "id": "close-items",
+  "title": "Close the items",
+  "difficulty": "medium",
+  "language": "jsx",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "<li>one\n<li>two\n<li>three",
+  "target": "<li>one</li>\n<li>two</li>\n<li>three</li>",
+  "solution": "<C-v>2j$A<lt>/li><Esc>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block"]
+}

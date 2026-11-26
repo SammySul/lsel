@@ -1,0 +1,16 @@
+{
+  "id": "no-green",
+  "title": "No green",
+  "difficulty": "easy",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\n  \"colors\": [\"red\", \"green\", \"blue\"]\n}",
+  "target": "{\n  \"colors\": [\"red\", \"blue\"]\n}",
+  "solution": "jf,dt,",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

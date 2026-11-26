@@ -1,0 +1,17 @@
+{
+  "id": "liftoff",
+  "title": "Liftoff",
+  "difficulty": "medium",
+  "description": "Count down, then lift off.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "Liftoff!\n1\n2\n3",
+  "target": "3\n2\n1\nLiftoff!",
+  "solution": ":g/^/m0<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "dedupe",
+  "title": "Once each",
+  "difficulty": "medium",
+  "description": "Sorted, no duplicates.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "apple\nbanana\napple\ncherry\nbanana",
+  "target": "apple\nbanana\ncherry",
+  "solution": ":sor u<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["sort"]
+}

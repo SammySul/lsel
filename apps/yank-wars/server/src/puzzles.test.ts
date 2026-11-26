@@ -11,11 +11,11 @@ test("the server carries every handmade puzzle", () => {
   expect([...PUZZLES.keys()].sort()).toEqual(files);
 });
 
-test("a pick fits the difficulty, skips what was played, and repeats only once all were", () => {
-  const hard = [...PUZZLES.values()].filter((p) => p.difficulty === "hard").map((p) => p.id);
+test("a pick skips what was played, and repeats only once all were", () => {
+  const ids = [...PUZZLES.keys()];
   const first = picker(PUZZLES, () => 0);
-  expect(hard).toContain(first("hard", []));
-  expect(first("hard", hard.slice(0, -1))).toBe(hard.at(-1) as string);
-  expect(hard).toContain(first("hard", hard));
-  expect(PUZZLES.get(picker(PUZZLES, () => 0.999)(null, []))).toBeDefined();
+  expect(first([])).toBe(ids[0] as string);
+  expect(first(ids.slice(0, -1))).toBe(ids.at(-1) as string);
+  expect(first(ids)).toBe(ids[0] as string);
+  expect(picker(PUZZLES, () => 0.999)([])).toBe(ids.at(-1) as string);
 });

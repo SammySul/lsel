@@ -1,0 +1,16 @@
+{
+  "id": "one-more-server",
+  "title": "One more server",
+  "difficulty": "easy",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "upstream:\nweb1.internal\nweb2.internal\nweb3.internal",
+  "target": "upstream:\nweb1.internal\nweb2.internal\nweb3.internal\nweb4.internal",
+  "solution": "Gyyp<C-a>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["increment"]
+}

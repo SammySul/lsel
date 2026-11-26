@@ -1,0 +1,17 @@
+{
+  "id": "class-name",
+  "title": "className",
+  "difficulty": "easy",
+  "description": "React says className.",
+  "language": "jsx",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "return <div class=\"card\">{children}</div>;",
+  "target": "return <div className=\"card\">{children}</div>;",
+  "solution": "f=iName",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "leaderboard",
+  "title": "Leaderboard",
+  "difficulty": "medium",
+  "description": "Highest score first.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "120 ada\n95 bob\n300 cy\n180 dee",
+  "target": "300 cy\n180 dee\n120 ada\n95 bob",
+  "solution": ":sor! n<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["sort"]
+}

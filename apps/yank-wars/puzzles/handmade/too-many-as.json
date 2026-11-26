@@ -1,0 +1,16 @@
+{
+  "id": "too-many-as",
+  "title": "Waaait",
+  "difficulty": "easy",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "Waaaaait for it",
+  "target": "Wait for it",
+  "solution": "l4x",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "count"]
+}

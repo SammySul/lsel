@@ -1,0 +1,17 @@
+{
+  "id": "hide-number",
+  "title": "Hide the number",
+  "difficulty": "easy",
+  "description": "Keep the last four digits.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "Phone: 555-123-4567",
+  "target": "Phone: ***-***-4567",
+  "solution": "W3r*2l.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace", "repeat"]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "go-semicolons",
+  "title": "Go has no semicolons",
+  "difficulty": "medium",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "func main() {\n\tx := 1;\n\ty := 2;\n\tfmt.Println(x + y);\n}",
+  "target": "func main() {\n\tx := 1\n\ty := 2\n\tfmt.Println(x + y)\n}",
+  "solution": ":%s/;<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

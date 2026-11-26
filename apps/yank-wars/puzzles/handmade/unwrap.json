@@ -1,0 +1,17 @@
+{
+  "id": "unwrap",
+  "title": "Unwrap",
+  "difficulty": "easy",
+  "description": "It's a string already.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "name = str(value)",
+  "target": "name = value",
+  "solution": "fsdf($x",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

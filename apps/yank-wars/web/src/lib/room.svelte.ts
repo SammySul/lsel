@@ -1,5 +1,4 @@
 import {
-  type Difficulty,
   type KeyLog,
   PROTOCOL,
   type Puzzle,
@@ -85,7 +84,7 @@ export class RoomClient {
     return g === null ? null : Math.max(0, g - (now - this.viewAt));
   }
 
-  lobby(change: { ready?: boolean; difficulty?: Difficulty | null; name?: string }): void {
+  lobby(change: { ready?: boolean; name?: string }): void {
     const me = this.me;
     if (me === null || this.view?.phase !== "lobby") return;
     this.#send({ t: "lobby", ready: change.ready ?? me.lobbyReady, ...change });

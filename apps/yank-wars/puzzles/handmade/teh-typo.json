@@ -1,0 +1,17 @@
+{
+  "id": "teh-typo",
+  "title": "Teh typo",
+  "difficulty": "medium",
+  "description": "Fix it everywhere.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "teh cat and teh dog and teh bird",
+  "target": "the cat and the dog and the bird",
+  "solution": "*cgnthe<Esc>..",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["search", "repeat"]
+}

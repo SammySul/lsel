@@ -1,0 +1,17 @@
+{
+  "id": "caps-lock",
+  "title": "Caps lock",
+  "difficulty": "easy",
+  "description": "Someone left it on.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "hELLO, cAPS lOCK IS ON.",
+  "target": "Hello, Caps Lock is on.",
+  "solution": "g~~",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["case"]
+}

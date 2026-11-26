@@ -1,0 +1,17 @@
+{
+  "id": "tldr",
+  "title": "TL;DR",
+  "difficulty": "easy",
+  "description": "Keep the last line.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "Hi all,\n\nsorry for the long mail. We met, we talked,\nwe argued about tabs.\n\nTL;DR: ship it",
+  "target": "TL;DR: ship it",
+  "solution": "Gkdgg",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

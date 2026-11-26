@@ -1,0 +1,16 @@
+{
+  "id": "dict-access",
+  "title": "Dict, not object",
+  "difficulty": "medium",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "print(user.name)\nprint(user.email)",
+  "target": "print(user[\"name\"])\nprint(user[\"email\"])",
+  "solution": "qqf.r[a\"<Esc>ea\"]<Esc>+q@q",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["macro"]
+}

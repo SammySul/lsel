@@ -14,7 +14,8 @@ const replayer = new Replayer();
 const mismatches: Mismatch[] = [];
 const rooms = new Rooms({
   puzzles: PUZZLES,
-  pick: picker(PUZZLES),
+  // easy only, so the reload halfway through a solution stays quick
+  pick: picker(new Map([...PUZZLES].filter(([, p]) => p.difficulty === "easy"))),
   verify: (p, log) => replayer.verify(p, log),
   mismatch: (m) => mismatches.push(m),
 });

@@ -1,0 +1,16 @@
+{
+  "id": "funtion",
+  "title": "Funtion",
+  "difficulty": "easy",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "export default funtion App() {}",
+  "target": "export default function App() {}",
+  "solution": "fnac",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

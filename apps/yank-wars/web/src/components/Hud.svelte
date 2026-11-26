@@ -36,6 +36,7 @@ function keepFocus(e: MouseEvent) {
     <a class="back" href="#/">← puzzles</a>
     <h1>{ctl.puzzle.title}</h1>
     <span class="chip">{ctl.puzzle.language}</span>
+    <span class="chip {ctl.puzzle.difficulty}">{ctl.puzzle.difficulty}</span>
   </div>
 
   <div class="score" class:over={ctl.delta > 0}>
@@ -132,6 +133,15 @@ function keepFocus(e: MouseEvent) {
     color: var(--subtle);
     border: 1px solid var(--overlay);
     padding: 1px 8px;
+  }
+  .chip.easy {
+    color: var(--success);
+  }
+  .chip.medium {
+    color: var(--warning);
+  }
+  .chip.hard {
+    color: var(--error);
   }
   .score {
     display: flex;

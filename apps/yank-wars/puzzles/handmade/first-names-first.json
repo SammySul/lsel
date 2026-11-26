@@ -1,0 +1,16 @@
+{
+  "id": "first-names-first",
+  "title": "First names first",
+  "difficulty": "hard",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "Lovelace, Ada\nHopper, Grace\nTuring, Alan",
+  "target": "Ada Lovelace\nGrace Hopper\nAlan Turing",
+  "solution": "qqdWA<Space><C-r>\"<BS><BS><Esc>+q2@q",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["macro"]
+}

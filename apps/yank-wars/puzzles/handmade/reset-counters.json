@@ -1,0 +1,16 @@
+{
+  "id": "reset-counters",
+  "title": "Reset the counters",
+  "difficulty": "medium",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\n  \"wins\": 3,\n  \"losses\": 7,\n  \"draws\": 12\n}",
+  "target": "{\n  \"wins\": 0,\n  \"losses\": 0,\n  \"draws\": 0\n}",
+  "solution": ":%s/\\d\\+/0<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

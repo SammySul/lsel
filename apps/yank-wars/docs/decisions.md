@@ -209,9 +209,10 @@ Visual-block `I`, `A`, `c`, `s`, `C`, `D`, `X` and `Y` follow vim since 2026-11-
 
 ## Rooms (2026-11-26)
 
-**Two players, an invite link.** A third gets "room full". The lobby sets the
-difficulty (`1`/`2`/`3`, `0` any; easy by default) and the round's puzzle is
-random at it, one the room hasn't played first. Names are typed, remembered in
+**Two players, an invite link.** A third gets "room full". The round's puzzle is
+random from the whole pool, one the room hasn't played first, so the pool's mix
+(mostly easy and medium) sets the odds: two players each picking a difficulty
+in the lobby was chaotic. Names are typed, remembered in
 prefs, and editable in the lobby; accounts come with part 3.
 
 **The cap wins over grace.** A lock-in at 3:55 leaves 5 s, not 10: the

@@ -1,0 +1,17 @@
+{
+  "id": "hover-state",
+  "title": "Hover state",
+  "difficulty": "medium",
+  "description": "Darker on hover.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".btn {\n  color: blue;\n}",
+  "target": ".btn {\n  color: blue;\n}\n\n.btn:hover {\n  color: navy;\n}",
+  "solution": "yGGo<Esc>pea:hover<Esc>jcwnavy",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["yank"]
+}

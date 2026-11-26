@@ -1,0 +1,17 @@
+{
+  "id": "shout-env",
+  "title": "Shout the names",
+  "difficulty": "easy",
+  "description": "Environment variables are upper case.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "db_host=localhost\ndb_port=5432\ndb_user=admin",
+  "target": "DB_HOST=localhost\nDB_PORT=5432\nDB_USER=admin",
+  "solution": "<C-v>jjeU",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block", "case"]
+}

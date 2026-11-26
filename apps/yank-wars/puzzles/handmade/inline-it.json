@@ -1,0 +1,17 @@
+{
+  "id": "inline-it",
+  "title": "Inline it",
+  "difficulty": "medium",
+  "description": "The variable adds nothing.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "function add(a, b) {\n  const sum = a + b;\n  return sum;\n}",
+  "target": "function add(a, b) {\n  return a + b;\n}",
+  "solution": "jf=wy$ddwc$<C-r>0",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["registers"]
+}

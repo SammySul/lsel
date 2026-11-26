@@ -1,0 +1,16 @@
+{
+  "id": "start-empty",
+  "title": "Start empty",
+  "difficulty": "easy",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "items = [1, 2, 3, 4, 5]\nprint(len(items))",
+  "target": "items = []\nprint(len(items))",
+  "solution": "$di[",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object"]
+}

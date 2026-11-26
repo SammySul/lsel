@@ -1,0 +1,16 @@
+{
+  "id": "py3-prints",
+  "title": "Python 3 prints",
+  "difficulty": "medium",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "print \"start\"\nprint total\nprint \"done\"",
+  "target": "print(\"start\")\nprint(total)\nprint(\"done\")",
+  "solution": ":%norm<Space>f<Space>r(A)<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["normal"]
+}

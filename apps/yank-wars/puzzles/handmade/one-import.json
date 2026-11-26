@@ -1,0 +1,16 @@
+{
+  "id": "one-import",
+  "title": "One import",
+  "difficulty": "medium",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "import os\nimport sys\nimport re",
+  "target": "import os, sys, re",
+  "solution": "Jdawi,<Esc>Jdawi,",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["join", "repeat"]
+}

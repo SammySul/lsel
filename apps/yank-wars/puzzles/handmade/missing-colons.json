@@ -1,0 +1,16 @@
+{
+  "id": "missing-colons",
+  "title": "Missing colons",
+  "difficulty": "easy",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "for x in xs\n    if x\n        print(x)",
+  "target": "for x in xs:\n    if x:\n        print(x)",
+  "solution": "A:<Esc>j.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat"]
+}

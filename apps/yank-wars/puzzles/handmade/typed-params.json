@@ -1,0 +1,17 @@
+{
+  "id": "typed-params",
+  "title": "Typed params",
+  "difficulty": "medium",
+  "description": "Every parameter is a number.",
+  "language": "typescript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "function volume(width, height, depth) {\n  return width * height * depth;\n}",
+  "target": "function volume(width: number, height: number, depth: number) {\n  return width * height * depth;\n}",
+  "solution": "f,i:<Space>number<Esc>2;.f).",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat"]
+}

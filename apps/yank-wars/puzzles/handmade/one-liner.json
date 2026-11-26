@@ -1,0 +1,16 @@
+{
+  "id": "one-liner",
+  "title": "One-liner",
+  "difficulty": "easy",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "if (ok) {\n  return;\n}",
+  "target": "if (ok) return;",
+  "solution": "$hDJjdd",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["join"]
+}

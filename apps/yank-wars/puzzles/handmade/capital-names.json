@@ -1,0 +1,17 @@
+{
+  "id": "capital-names",
+  "title": "Capital names",
+  "difficulty": "easy",
+  "description": "Names start with a capital.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "met ada and grace in london",
+  "target": "met Ada and Grace in London",
+  "solution": "w~2w~2w~",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["case"]
+}

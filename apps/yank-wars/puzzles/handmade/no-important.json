@@ -1,0 +1,16 @@
+{
+  "id": "no-important",
+  "title": "No !important",
+  "difficulty": "easy",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".btn {\n  color: red !important;\n}",
+  "target": ".btn {\n  color: red;\n}",
+  "solution": "jf!hdt;",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

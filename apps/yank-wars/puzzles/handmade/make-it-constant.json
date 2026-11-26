@@ -1,0 +1,16 @@
+{
+  "id": "make-it-constant",
+  "title": "Make it a constant",
+  "difficulty": "medium",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "max_size = 10\nif len(x) > max_size:\n    raise ValueError(max_size)",
+  "target": "MAX_SIZE = 10\nif len(x) > MAX_SIZE:\n    raise ValueError(MAX_SIZE)",
+  "solution": "*gUiwn.n.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["search", "repeat"]
+}

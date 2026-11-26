@@ -1,0 +1,16 @@
+{
+  "id": "echo-echo",
+  "title": "Echo",
+  "difficulty": "easy",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "Is there an echo in here here?",
+  "target": "Is there an echo in here?",
+  "solution": "$bdaw",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object"]
+}

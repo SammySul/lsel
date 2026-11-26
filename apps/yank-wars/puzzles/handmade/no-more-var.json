@@ -1,0 +1,16 @@
+{
+  "id": "no-more-var",
+  "title": "No more var",
+  "difficulty": "medium",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "var a = 1;\nvar b = 2;\nvar c = 3;",
+  "target": "const a = 1;\nconst b = 2;\nconst c = 3;",
+  "solution": "<C-v>2jecconst<Esc>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block"]
+}

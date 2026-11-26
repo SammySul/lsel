@@ -1,0 +1,16 @@
+{
+  "id": "every-other",
+  "title": "Every other",
+  "difficulty": "easy",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "keep 1\ndrop\nkeep 2\ndrop\nkeep 3\ndrop",
+  "target": "keep 1\nkeep 2\nkeep 3",
+  "solution": "jddj.j.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat"]
+}

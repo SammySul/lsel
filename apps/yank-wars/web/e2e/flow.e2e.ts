@@ -356,7 +356,8 @@ for (const name of browsers()) {
         await page.waitForFunction((h) => location.hash === h, `#/p/${next.id}`);
       }
       await done(ctx, problems);
-    }, 60_000);
+      // typing every solution grows with the set
+    }, listOrder.length * 2_000);
 
     test("result card: r retries, Esc goes back to the list with the best filled in", async () => {
       const { ctx, page, problems } = await fresh();

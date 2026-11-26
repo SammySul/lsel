@@ -1,0 +1,17 @@
+{
+  "id": "string-enum",
+  "title": "String enum",
+  "difficulty": "hard",
+  "description": "Each value is its name in lower case.",
+  "language": "typescript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "enum Color {\n  Red,\n  Green,\n  Blue,\n}",
+  "target": "enum Color {\n  Red = \"red\",\n  Green = \"green\",\n  Blue = \"blue\",\n}",
+  "solution": ":%s/\\(\\w\\+\\),/\\1 = \"\\l\\1\",<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

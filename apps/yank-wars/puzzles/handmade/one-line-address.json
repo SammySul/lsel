@@ -1,0 +1,16 @@
+{
+  "id": "one-line-address",
+  "title": "One line address",
+  "difficulty": "easy",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "221B\nBaker Street\nLondon",
+  "target": "221B Baker Street, London",
+  "solution": "3Ji,",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["join"]
+}

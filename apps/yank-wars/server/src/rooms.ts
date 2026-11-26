@@ -308,7 +308,7 @@ export class Rooms {
 function eventOf(f: Exclude<ClientFrame, { t: "hello" }>, seat: Seat): RoomEvent {
   switch (f.t) {
     case "lobby":
-      return { type: "lobby", seat, ready: f.ready, difficulty: f.difficulty, name: f.name };
+      return { type: "lobby", seat, ready: f.ready, name: f.name };
     case "ready":
       return { type: "ready", seat };
     case "keys":

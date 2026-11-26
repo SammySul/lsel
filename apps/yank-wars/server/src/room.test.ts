@@ -12,7 +12,7 @@ import {
 } from "./room.ts";
 
 const S = 1_000;
-const pick: Pick = (difficulty, played) => `${difficulty ?? "any"}-${played.length + 1}`;
+const pick: Pick = (played) => `p-${played.length + 1}`;
 
 /** A room driven by events at given times; `effects` collects what the shell would do. */
 class Harness {
@@ -62,10 +62,10 @@ class Harness {
 const statuses = (h: Harness) => h.room.players.map((p) => p?.status);
 
 describe("lobby and study", () => {
-  test("the round starts once both are in and ready, on a puzzle at the room's difficulty", () => {
+  test("the round starts once both are in and ready, on a puzzle the room picks", () => {
     const h = new Harness()
       .at(0, { type: "join", seat: 0, name: "ada" })
-      .at(0, { type: "lobby", seat: 0, ready: true, difficulty: "medium" })
+      .at(0, { type: "lobby", seat: 0, ready: true })
       .at(S, { type: "join", seat: 1, name: "bob" })
       .at(S, { type: "lobby", seat: 1, ready: false, name: "" });
     expect([h.room.phase, h.room.players[1]?.name]).toEqual(["lobby", "anonymous"]);
@@ -73,7 +73,7 @@ describe("lobby and study", () => {
     expect([h.room.phase, h.room.round, h.room.puzzleId, h.room.studyEndsAt]).toEqual([
       "study",
       1,
-      "medium-1",
+      "p-1",
       7 * S,
     ]);
   });
@@ -122,7 +122,7 @@ describe("keys and claims", () => {
         type: "verify",
         seat: 0,
         round: 1,
-        puzzleId: "easy-1",
+        puzzleId: "p-1",
         log: [...parseKeys("dd"), RESET, ...parseKeys("x")],
       },
     ]);
@@ -166,7 +166,7 @@ describe("grace and the end of a round", () => {
     expect(h.room.players[1]?.log).toEqual(parseKeys("a"));
     expect([h.room.phase, h.room.last, h.room.tally]).toEqual([
       "results",
-      { round: 1, puzzleId: "easy-1", winner: 0 },
+      { round: 1, puzzleId: "p-1", winner: 0 },
       [1, 0],
     ]);
   });
@@ -229,8 +229,8 @@ describe("drops, rematch and the view", () => {
     expect([h.room.phase, h.room.round, h.room.puzzleId, h.room.played]).toEqual([
       "study",
       2,
-      "easy-2",
-      ["easy-1"],
+      "p-2",
+      ["p-1"],
     ]);
     expect(h.room.players.map((p) => p?.log.length)).toEqual([0, 0]);
   });

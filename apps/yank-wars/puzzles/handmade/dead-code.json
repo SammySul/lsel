@@ -1,0 +1,17 @@
+{
+  "id": "dead-code",
+  "title": "Dead code",
+  "difficulty": "easy",
+  "description": "Nobody calls it.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "func main() {\n\trun()\n}\n\nfunc unused() {\n\tpanic(\"no\")\n}\n\nfunc run() {\n\tprintln(\"hi\")\n}",
+  "target": "func main() {\n\trun()\n}\n\nfunc run() {\n\tprintln(\"hi\")\n}",
+  "solution": "}dap",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object"]
+}

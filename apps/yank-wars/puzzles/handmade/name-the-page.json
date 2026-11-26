@@ -1,0 +1,16 @@
+{
+  "id": "name-the-page",
+  "title": "Name the page",
+  "difficulty": "easy",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "document.title = \"Untitled\";",
+  "target": "document.title = \"Home\";",
+  "solution": "ci\"Home",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object"]
+}

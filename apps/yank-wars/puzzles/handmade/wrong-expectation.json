@@ -1,0 +1,17 @@
+{
+  "id": "wrong-expectation",
+  "title": "Two and two",
+  "difficulty": "easy",
+  "description": "The test is wrong, not the code.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "expect(add(2, 2)).toBe(5);",
+  "target": "expect(add(2, 2)).toBe(4);",
+  "solution": "f5r4",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace"]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "close-paren",
+  "title": "Close the paren",
+  "difficulty": "easy",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "console.log(\"ready\";",
+  "target": "console.log(\"ready\");",
+  "solution": "$i)",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

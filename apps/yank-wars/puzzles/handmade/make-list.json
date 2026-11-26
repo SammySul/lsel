@@ -1,0 +1,16 @@
+{
+  "id": "make-list",
+  "title": "Make it a list",
+  "difficulty": "medium",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "eggs\nmilk\nbread\nbutter",
+  "target": "- eggs\n- milk\n- bread\n- butter",
+  "solution": "<C-v>3jI-<Space><Esc>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block"]
+}

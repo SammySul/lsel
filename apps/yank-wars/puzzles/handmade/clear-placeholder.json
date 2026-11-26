@@ -1,0 +1,16 @@
+{
+  "id": "clear-placeholder",
+  "title": "Clear the placeholder",
+  "difficulty": "easy",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "name = 'TODO'\nprint(name)",
+  "target": "name = ''\nprint(name)",
+  "solution": "di'",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object"]
+}

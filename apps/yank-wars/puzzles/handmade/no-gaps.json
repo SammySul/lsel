@@ -1,0 +1,16 @@
+{
+  "id": "no-gaps",
+  "title": "No gaps",
+  "difficulty": "medium",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "one\n\ntwo\n\nthree\n\nfour",
+  "target": "one\ntwo\nthree\nfour",
+  "solution": ":g/^$/d<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global"]
+}

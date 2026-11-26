@@ -1,0 +1,16 @@
+{
+  "id": "arrow-function",
+  "title": "Arrow function",
+  "difficulty": "medium",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const double = function (x) {\n  return x * 2;\n};",
+  "target": "const double = (x) => x * 2;",
+  "solution": "ffdwf{C=><Esc>Jwdwjdd",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["join"]
+}

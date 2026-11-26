@@ -1,0 +1,16 @@
+{
+  "id": "shorter-label",
+  "title": "Shorter label",
+  "difficulty": "easy",
+  "language": "jsx",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "return <button onClick={save}>Submit</button>;",
+  "target": "return <button onClick={save}>Save</button>;",
+  "solution": "fScwSave",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change"]
+}

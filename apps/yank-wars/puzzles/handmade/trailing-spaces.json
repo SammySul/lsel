@@ -1,0 +1,16 @@
+{
+  "id": "trailing-spaces",
+  "title": "Trailing spaces",
+  "difficulty": "medium",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "first   \nsecond \nthird    ",
+  "target": "first\nsecond\nthird",
+  "solution": ":%s/<Space>*$<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "very-important",
+  "title": "Very important",
+  "difficulty": "easy",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "This is very very very important.",
+  "target": "This is important.",
+  "solution": "2w3dw",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "count"]
+}

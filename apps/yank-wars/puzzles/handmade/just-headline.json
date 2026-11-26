@@ -1,0 +1,17 @@
+{
+  "id": "just-headline",
+  "title": "Just the headline",
+  "difficulty": "easy",
+  "description": "Drop the stack trace.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "error: disk full\n  at write (fs.js:12)\n  at save (db.js:40)\n  at main (app.js:3)",
+  "target": "error: disk full",
+  "solution": "jdG",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

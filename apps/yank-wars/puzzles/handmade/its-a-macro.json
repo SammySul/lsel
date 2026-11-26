@@ -1,0 +1,16 @@
+{
+  "id": "its-a-macro",
+  "title": "It's a macro",
+  "difficulty": "easy",
+  "language": "rust",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "fn main() {\n    println(\"hi\");\n}",
+  "target": "fn main() {\n    println!(\"hi\");\n}",
+  "solution": "jf(i!",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "markdown-headings",
+  "title": "Headings",
+  "difficulty": "easy",
+  "description": "A title and a section.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "Yank Wars\n\nInstall\n\nRun bun install.",
+  "target": "# Yank Wars\n\n## Install\n\nRun bun install.",
+  "solution": "I#<Space><Esc>2j.i#",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat"]
+}

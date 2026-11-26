@@ -1,0 +1,17 @@
+{
+  "id": "python-three",
+  "title": "Python 3",
+  "difficulty": "easy",
+  "description": "print is a function now.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "print \"hello, world\"",
+  "target": "print(\"hello, world\")",
+  "solution": "f<Space>r(A)",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace"]
+}

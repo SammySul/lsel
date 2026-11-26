@@ -1,0 +1,16 @@
+{
+  "id": "done-and-done",
+  "title": "Done and done",
+  "difficulty": "easy",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "TODO: write tests\nTODO: fix ci\nTODO: release",
+  "target": "DONE: write tests\nDONE: fix ci\nTODO: release",
+  "solution": "cwDONE<Esc>+.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat"]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "plural",
+  "title": "Plural",
+  "difficulty": "easy",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "for item in item:\n    print(item)",
+  "target": "for item in items:\n    print(item)",
+  "solution": "$is",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

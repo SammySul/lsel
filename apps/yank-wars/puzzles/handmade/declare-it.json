@@ -1,0 +1,16 @@
+{
+  "id": "declare-it",
+  "title": "Declare it",
+  "difficulty": "easy",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "func main() {\n\tcount = 0\n\tcount++\n}",
+  "target": "func main() {\n\tcount := 0\n\tcount++\n}",
+  "solution": "jf=i:",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

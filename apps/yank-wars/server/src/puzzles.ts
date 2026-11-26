@@ -1,4 +1,4 @@
-import { type Difficulty, type Puzzle, parsePuzzle } from "@yank-wars/engine";
+import { type Puzzle, parsePuzzle } from "@yank-wars/engine";
 import { handmade } from "./handmade.macro.ts" with { type: "macro" };
 import type { Pick } from "./room.ts";
 
@@ -9,19 +9,17 @@ export const PUZZLES: ReadonlyMap<string, Puzzle> = new Map(
   }),
 );
 
-/** A random puzzle at `difficulty` the room hasn't played; once none is left, any at that difficulty. */
+/** A random puzzle the room hasn't played, so the pool's mix of difficulties is the odds; once all were played, any. */
 export function picker(
   pool: ReadonlyMap<string, Puzzle>,
   random: () => number = Math.random,
 ): Pick {
-  return (difficulty: Difficulty | null, played: readonly string[]) => {
-    const fits = [...pool.values()].filter(
-      (p) => difficulty === null || p.difficulty === difficulty,
-    );
-    const fresh = fits.filter((p) => !played.includes(p.id));
-    const from = fresh.length > 0 ? fresh : fits;
-    const p = from[Math.floor(random() * from.length)];
-    if (p === undefined) throw new Error(`no ${difficulty ?? ""} puzzles`);
-    return p.id;
+  return (played: readonly string[]) => {
+    const all = [...pool.keys()];
+    const fresh = all.filter((id) => !played.includes(id));
+    const from = fresh.length > 0 ? fresh : all;
+    const id = from[Math.floor(random() * from.length)];
+    if (id === undefined) throw new Error("no puzzles");
+    return id;
   };
 }

@@ -1,0 +1,16 @@
+{
+  "id": "template-literal",
+  "title": "Template literal",
+  "difficulty": "hard",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const msg = \"Hello, \" + name + \"!\";",
+  "target": "const msg = `Hello, ${name}!`;",
+  "solution": "f\"r`f\"ctn${<Esc>f<Space>ct!}<Esc>f\"r`",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change"]
+}

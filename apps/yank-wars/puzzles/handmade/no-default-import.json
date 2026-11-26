@@ -1,0 +1,17 @@
+{
+  "id": "no-default-import",
+  "title": "No default import",
+  "difficulty": "easy",
+  "description": "The new JSX transform doesn't need React in scope.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "import React, { useState } from \"react\";",
+  "target": "import { useState } from \"react\";",
+  "solution": "wdW",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

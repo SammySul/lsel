@@ -1,0 +1,16 @@
+{
+  "id": "from-csv",
+  "title": "From CSV",
+  "difficulty": "hard",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const people = [\n  ada,36\n  bob,41\n  cy,29\n];",
+  "target": "const people = [\n  { name: \"ada\", age: 36 },\n  { name: \"bob\", age: 41 },\n  { name: \"cy\", age: 29 },\n];",
+  "solution": ":%s/\\(\\w\\+\\),\\(\\d\\+\\)/{ name: \"\\1\", age: \\2 },<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

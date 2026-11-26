@@ -1,0 +1,17 @@
+{
+  "id": "return-err",
+  "title": "Return the error",
+  "difficulty": "easy",
+  "description": "Don't swallow it.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "func load() error {\n\terr := read()\n\tif err != nil {\n\t\treturn nil\n\t}\n\treturn nil\n}",
+  "target": "func load() error {\n\terr := read()\n\tif err != nil {\n\t\treturn err\n\t}\n\treturn nil\n}",
+  "solution": "3+wcwerr",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change"]
+}

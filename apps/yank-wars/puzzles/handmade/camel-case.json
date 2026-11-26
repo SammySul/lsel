@@ -1,0 +1,17 @@
+{
+  "id": "camel-case",
+  "title": "Camel case",
+  "difficulty": "hard",
+  "description": "JavaScript names are camelCase.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const user_name = get_user_name(user_id);",
+  "target": "const userName = getUserName(userId);",
+  "solution": ":s/_\\(\\w\\)/\\u\\1/g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

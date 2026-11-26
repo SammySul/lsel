@@ -1,0 +1,17 @@
+{
+  "id": "backticks",
+  "title": "Backticks",
+  "difficulty": "medium",
+  "description": "Mark the commands as code.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "Run bun install, then bun test.",
+  "target": "Run `bun install`, then `bun test`.",
+  "solution": ":s/bun \\w\\+/`&`/g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

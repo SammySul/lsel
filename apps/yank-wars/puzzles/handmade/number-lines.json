@@ -1,0 +1,16 @@
+{
+  "id": "number-lines",
+  "title": "Number the lines",
+  "difficulty": "hard",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "apple\nbanana\ncherry\ndate\nelder",
+  "target": "1. apple\n2. banana\n3. cherry\n4. date\n5. elder",
+  "solution": "<C-v>4jI0.<Space><Esc><C-v>4jg<C-a>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block", "increment"]
+}

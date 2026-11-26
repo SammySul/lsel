@@ -1,0 +1,17 @@
+{
+  "id": "shouty-hex",
+  "title": "Shouty hex",
+  "difficulty": "medium",
+  "description": "Upper-case hex colors.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".a {\n  color: #ff00aa;\n  background: #00ffcc;\n}",
+  "target": ".a {\n  color: #FF00AA;\n  background: #00FFCC;\n}",
+  "solution": "/#<CR>gUEn.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["search", "repeat"]
+}

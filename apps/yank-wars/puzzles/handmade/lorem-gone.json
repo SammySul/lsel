@@ -1,0 +1,17 @@
+{
+  "id": "lorem-gone",
+  "title": "Lorem be gone",
+  "difficulty": "easy",
+  "description": "Empty the paragraph.",
+  "language": "jsx",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const p = <p>Lorem ipsum dolor sit amet</p>;",
+  "target": "const p = <p></p>;",
+  "solution": "f>dit",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object"]
+}

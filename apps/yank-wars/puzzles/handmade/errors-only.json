@@ -1,0 +1,17 @@
+{
+  "id": "errors-only",
+  "title": "Errors only",
+  "difficulty": "medium",
+  "description": "Drop the noise.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "INFO start\nERROR disk full\nINFO tick\nERROR network down\nINFO stop",
+  "target": "ERROR disk full\nERROR network down",
+  "solution": ":g/I/d<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global"]
+}

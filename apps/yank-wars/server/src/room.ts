@@ -1,6 +1,5 @@
 // A room's rules as a pure reducer: the shell (rooms.ts) owns sockets, timers and the replay worker.
 import {
-  type Difficulty,
   LIMITS,
   type LogEntry,
   type PlayerStatus,
@@ -41,7 +40,6 @@ export interface Player {
 export interface Room {
   id: string;
   phase: RoomPhase;
-  difficulty: Difficulty | null;
   round: number;
   puzzleId: string | null;
   played: readonly string[];
@@ -62,7 +60,6 @@ export type RoomEvent =
       type: "lobby";
       seat: Seat;
       ready: boolean;
-      difficulty?: Difficulty | null | undefined;
       name?: string | undefined;
     }
   | { type: "ready"; seat: Seat }
@@ -78,14 +75,13 @@ export type Effect =
   | { type: "verify"; seat: Seat; round: number; puzzleId: string; log: LogEntry[] }
   | { type: "refuse"; seat: Seat; round: number; reason: "out of sync" };
 
-/** The next puzzle for a round: one not in `played` at `difficulty` (null: any), or any if none is left. */
-export type Pick = (difficulty: Difficulty | null, played: readonly string[]) => string;
+/** The next puzzle for a round: one not in `played`, or any once none is left. */
+export type Pick = (played: readonly string[]) => string;
 
 export function createRoom(id: string): Room {
   return {
     id,
     phase: "lobby",
-    difficulty: "easy",
     round: 0,
     puzzleId: null,
     played: [],
@@ -140,7 +136,7 @@ export function deadline(room: Room): number | null {
 }
 
 function startRound(room: Room, now: number, pick: Pick): Room {
-  const puzzleId = pick(room.difficulty, room.played);
+  const puzzleId = pick(room.played);
   const fresh = (p: Player | null): Player | null =>
     p === null
       ? null
@@ -251,12 +247,11 @@ function apply(room: Room, e: RoomEvent, now: number, pick: Pick, effects: Effec
       return update(room, e.seat, (p) => ({ ...p, connected: false, droppedAt: now }));
     case "lobby": {
       if (room.phase !== "lobby") return room;
-      let r = update(room, e.seat, (p) => ({
+      const r = update(room, e.seat, (p) => ({
         ...p,
         lobbyReady: e.ready,
         name: e.name === undefined ? p.name : nameOf(e.name),
       }));
-      if (e.difficulty !== undefined) r = { ...r, difficulty: e.difficulty };
       return both(r, (p) => p.connected && p.lobbyReady) ? startRound(r, now, pick) : r;
     }
     case "ready": {
@@ -369,7 +364,6 @@ export function viewOf(room: Room, now: number): RoomView {
     phase: room.phase,
     round: room.round,
     puzzleId: room.puzzleId,
-    difficulty: room.difficulty,
     players: [
       room.players[0] === null ? null : playerView(room.players[0], room),
       room.players[1] === null ? null : playerView(room.players[1], room),

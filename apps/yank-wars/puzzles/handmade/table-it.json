@@ -1,0 +1,17 @@
+{
+  "id": "table-it",
+  "title": "Table it",
+  "difficulty": "hard",
+  "description": "A Markdown table.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "name age\nada 36\nbob 41",
+  "target": "| name | age |\n| ada | 36 |\n| bob | 41 |",
+  "solution": ":%s/\\S\\+/| &/g<CR><C-v>gg$A<Space>|<Esc>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "visual-block"]
+}

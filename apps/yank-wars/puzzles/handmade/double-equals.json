@@ -1,0 +1,16 @@
+{
+  "id": "double-equals",
+  "title": "Compare, don't assign",
+  "difficulty": "easy",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "def is_empty(items):\n    if len(items) = 0:\n        return True\n    return False",
+  "target": "def is_empty(items):\n    if len(items) == 0:\n        return True\n    return False",
+  "solution": "jf=i=",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

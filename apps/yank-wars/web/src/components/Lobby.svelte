@@ -1,6 +1,6 @@
 <script lang="ts">
 import { Action, keys, Page } from "@sammysul/lsel";
-import { DIFFICULTIES, type Difficulty, LIMITS } from "@yank-wars/engine";
+import { LIMITS } from "@yank-wars/engine";
 import { version } from "../../../package.json";
 import { prefs } from "../lib/prefs.svelte.ts";
 import type { RoomClient } from "../lib/room.svelte.ts";
@@ -12,10 +12,6 @@ const me = $derived(room.me);
 const them = $derived(room.them);
 const invite = $derived(`${location.origin}/#/r/${view?.room ?? ""}`);
 let name = $state(prefs.name);
-
-function setDifficulty(d: Difficulty | null) {
-  room.lobby({ difficulty: d });
-}
 
 function rename() {
   const typed = name.trim();
@@ -33,13 +29,6 @@ keys(() => [
       if (!e.repeat) room.lobby({ ready: !me?.lobbyReady });
     },
   },
-  {
-    key: ["1", "2", "3"],
-    label: "Difficulty",
-    hint: true,
-    run: (e) => setDifficulty(DIFFICULTIES[Number(e.key) - 1] ?? null),
-  },
-  { key: "0", label: "Any difficulty", hint: true, run: () => setDifficulty(null) },
   { key: "Escape", label: "Leave the room", run: onLeave },
 ]);
 </script>
@@ -103,17 +92,6 @@ keys(() => [
     {/each}
   </ul>
 
-  <div class="chips" role="group" aria-label="Difficulty">
-    <button class="chip" aria-pressed={view?.difficulty === null} onclick={() => setDifficulty(null)}
-      >Any <kbd>0</kbd></button
-    >
-    {#each DIFFICULTIES as d, i (d)}
-      <button class="chip {d}" aria-pressed={view?.difficulty === d} onclick={() => setDifficulty(d)}
-        >{d} <kbd>{i + 1}</kbd></button
-      >
-    {/each}
-  </div>
-
   {#if view !== null && view.tally[0] + view.tally[1] > 0 && room.seat !== null}
     <p class="tally">
       Series {view.tally[room.seat]}–{view.tally[1 - room.seat]}
@@ -126,7 +104,9 @@ keys(() => [
     >
     <button onclick={onLeave}>Leave <kbd>Esc</kbd></button>
   </div>
-  <p class="hint">The round starts when both players are ready.</p>
+  <p class="hint">
+    The round starts when both players are ready, on a random puzzle: mostly easy and medium.
+  </p>
 </Page>
 
 <style>
@@ -177,22 +157,6 @@ keys(() => [
   }
   .away {
     color: var(--warning);
-  }
-  .chips {
-    display: flex;
-    gap: 6px;
-  }
-  .chip {
-    text-transform: capitalize;
-  }
-  .chip.easy[aria-pressed="true"] {
-    color: var(--success);
-  }
-  .chip.medium[aria-pressed="true"] {
-    color: var(--warning);
-  }
-  .chip.hard[aria-pressed="true"] {
-    color: var(--error);
   }
   .tally {
     margin: 0;

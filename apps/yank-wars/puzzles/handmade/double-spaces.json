@@ -1,0 +1,16 @@
+{
+  "id": "double-spaces",
+  "title": "Double spaces",
+  "difficulty": "easy",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "Old  habits  die  hard.",
+  "target": "Old habits die hard.",
+  "solution": "f<Space>x;.;.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat"]
+}

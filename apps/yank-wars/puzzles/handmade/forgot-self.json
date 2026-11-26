@@ -1,0 +1,16 @@
+{
+  "id": "forgot-self",
+  "title": "Forgot self",
+  "difficulty": "easy",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "class Bot:\n    def greet(name):\n        return name",
+  "target": "class Bot:\n    def greet(self, name):\n        return name",
+  "solution": "jf(aself,<Space>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

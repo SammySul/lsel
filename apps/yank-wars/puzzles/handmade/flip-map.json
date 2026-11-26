@@ -1,0 +1,17 @@
+{
+  "id": "flip-map",
+  "title": "Flip the map",
+  "difficulty": "hard",
+  "description": "Values become keys.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\n  \"en\": \"hello\",\n  \"fr\": \"bonjour\",\n  \"de\": \"hallo\"\n}",
+  "target": "{\n  \"hello\": \"en\",\n  \"bonjour\": \"fr\",\n  \"hallo\": \"de\"\n}",
+  "solution": ":%s/\\(\"\\w\\+\"\\): \\(\"\\w\\+\"\\)/\\2: \\1<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "off-by-one",
+  "title": "Off by one",
+  "difficulty": "easy",
+  "description": "Arrays start at zero.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "for (let i = 1; i <= items.length; i++) {\n  total += items[i];\n}",
+  "target": "for (let i = 0; i < items.length; i++) {\n  total += items[i];\n}",
+  "solution": "<C-x>f=x",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["increment"]
+}

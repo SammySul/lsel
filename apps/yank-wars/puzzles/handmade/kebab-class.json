@@ -1,0 +1,17 @@
+{
+  "id": "kebab-class",
+  "title": "Kebab case",
+  "difficulty": "easy",
+  "description": "CSS classes use dashes.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".site_main_header {\n  color: red;\n}",
+  "target": ".site-main-header {\n  color: red;\n}",
+  "solution": "f_r-;.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat"]
+}

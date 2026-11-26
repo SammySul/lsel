@@ -1,0 +1,17 @@
+{
+  "id": "bump-minor",
+  "title": "Minor release",
+  "difficulty": "easy",
+  "description": "Bump the minor version.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\n  \"name\": \"yank-wars\",\n  \"version\": \"1.4.0\",\n  \"private\": true\n}",
+  "target": "{\n  \"name\": \"yank-wars\",\n  \"version\": \"1.5.0\",\n  \"private\": true\n}",
+  "solution": "/4<CR><C-a>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["increment", "search"]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "mut-count",
+  "title": "It changes now",
+  "difficulty": "easy",
+  "language": "rust",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "fn main() {\n    let count = 0;\n    count += 1;\n}",
+  "target": "fn main() {\n    let mut count = 0;\n    count += 1;\n}",
+  "solution": "+wimut<Space>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

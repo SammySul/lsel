@@ -1,0 +1,16 @@
+{
+  "id": "strip-tags",
+  "title": "Strip the tags",
+  "difficulty": "medium",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "<b>bold</b> and <i>italic</i>",
+  "target": "bold and italic",
+  "solution": ":s/<lt>[^>]*>//g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

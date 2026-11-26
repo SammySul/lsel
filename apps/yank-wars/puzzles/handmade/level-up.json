@@ -1,0 +1,16 @@
+{
+  "id": "level-up",
+  "title": "Level up",
+  "difficulty": "medium",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "level 1\nlevel 1\nlevel 1\nlevel 1",
+  "target": "level 1\nlevel 2\nlevel 3\nlevel 4",
+  "solution": "jVGg<C-a>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual", "increment"]
+}

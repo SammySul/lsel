@@ -1,0 +1,17 @@
+{
+  "id": "secure-url",
+  "title": "Secure it",
+  "difficulty": "easy",
+  "description": "Use https.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const API = \"http://api.example.com\";",
+  "target": "const API = \"https://api.example.com\";",
+  "solution": "fpas",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}
