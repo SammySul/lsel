@@ -19,10 +19,8 @@ Shared rules, the stack, release and deploy come from lsel's `CLAUDE.md` and
 
 ## Working here
 
-- **Run its scripts from `apps/yank-wars`:** `bun run check` (tsc,
-  svelte-check, lsel-check), `bun run test`, `bun run build`, then `bun run
-  test:e2e`. `bunfig.toml` (happy-dom and Svelte preloads) is read from the cwd
-  only, so `bun test` in a subdirectory runs without DOM globals.
+- **Run its scripts from `apps/yank-wars`**, not a subdirectory: `bun test`
+  elsewhere runs without the happy-dom preload.
 - **The CSP allows inline styles**, unlike lsel's: CodeMirror injects `<style>`
   elements. `CSP` in `server/src/server.ts` goes to `serve()`;
   `e2e/built.e2e.ts` fails if CodeMirror goes unstyled.
@@ -33,8 +31,6 @@ Shared rules, the stack, release and deploy come from lsel's `CLAUDE.md` and
 
 - Root scripts can't call member bins: the isolated linker puts `vite` and
   `svelte-check` only in their workspace's `.bin`. Use `bun run --filter`.
-- Pin every `@codemirror/*` in lsel's root `catalog` and write `"catalog:"`: a
-  second copy of `state` or `view` throws "Unrecognized extension value".
 - `web` deliberately lacks `@replit/codemirror-vim`, `@codemirror/commands`
   and `@codemirror/lang-*`; an import failing there is the "visuals only" guard.
 - `typescript` stays 5.x or 6.x: svelte-check 4.7.7 refuses TS 7.
@@ -62,12 +58,10 @@ Shared rules, the stack, release and deploy come from lsel's `CLAUDE.md` and
 
 ## Oracle traps
 
-- `*.vim.json` fixtures are written only by `bun run oracle`, and
-  `oracle/deviations.json` only by `oracle/pin.ts` after deciding a difference
-  stays; never edit them by hand. CI never runs vim: after adding or changing
-  cases, or a nixpkgs bump that moves vim, run `bun run oracle` yourself.
-- `bun run oracle` and `bun run test:browser` need the dev shell's vim and
-  browsers: `nix develop -c …` (the system vim answers differently).
+- `*.vim.json` fixtures are written only by `bun run oracle`; never edit them
+  by hand. CI never runs vim: after adding or changing cases, or a nixpkgs bump
+  that moves vim, run `nix develop -c bun run oracle` yourself (the system vim
+  answers differently).
 
 ## Engine traps (codemirror-vim, headless)
 
@@ -106,9 +100,7 @@ Found while building the engine; each needs a test in `engine` before it is
   in `vimSetup.ts`: it dropped ex commands and insert-mode cursor keys. Keys a
   core command replays run inside its vim operation, which defers change events;
   `createSession`'s `dispatch` detaches `cm.curOp`, or `.` and `3ix<Esc>` break.
-- **Differs from vim, parity-safe:** every known case is pinned in
-  `oracle/deviations.json` by group (`oracle/deviations.ts`); replace-mode
-  `<BS>` moves left without restoring the character. Solutions must not rely on
-  vim there (`puzzles/README.md`).
+- **Differs from vim, parity-safe:** every known case is listed by reason in
+  `oracle/known.ts`. Solutions must not rely on vim there (`puzzles/README.md`).
 - `Transaction.time` in the engine is a logical undo-group id, not a clock
   (`history.ts`): never read it as time; `undo.test.ts` guards `u` parity.

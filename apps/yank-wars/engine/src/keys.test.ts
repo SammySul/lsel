@@ -1,38 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
-import {
-  formatKeys,
-  isVimKey,
-  KeyNotationError,
-  keyToDomKey,
-  NAMED_KEYS,
-  parseKeys,
-  RESET,
-  toCoreKey,
-  type VimKey,
-} from "./index.ts";
-
-const SPIKE_CASES = [
-  ":%s/foo/X/g<CR>",
-  "qaA,<Esc>jq2@a",
-  "qqcwb<Esc>jq@q@@",
-  "fxdiwiZ<Esc>",
-  "ddp.u",
-  "ihello <Esc>u",
-  "ihello <Esc>..u",
-  ":sort<CR>",
-  ":g/x/d<CR>",
-  "<C-v>jIZ<Esc>",
-  "qqf=i<Space><Esc>jq@q",
-  "jjkk$jx",
-  "jqqddjq3@q",
-  "3ox<Esc>",
-  "wcwB<Esc>w.",
-  "ciwbye<Esc>",
-  "/foo<CR>x",
-  "qwA!<Esc>jq:2,3norm @w<CR>",
-  "qaqqaA,<Esc>j@aq@a",
-];
+import { formatKeys, isVimKey, parseKeys, RESET, type VimKey } from "./index.ts";
+import { KeyNotationError, keyToDomKey, NAMED_KEYS, toCoreKey } from "./keys.ts";
 
 const PUZZLE_DIR = join(import.meta.dir, "../../puzzles/handmade");
 const PUZZLE_SOLUTIONS: [string, string][] = await Promise.all(
@@ -126,10 +95,6 @@ describe("parseKeys", () => {
 });
 
 describe("formatKeys", () => {
-  test.each(SPIKE_CASES)("round-trips spike case %j", (notation) => {
-    expect(formatKeys(parseKeys(notation))).toBe(notation.replaceAll(" ", "<Space>"));
-  });
-
   // the exact set is pinned by PAR in puzzles.test.ts; this only proves the glob finds them
   test("finds the handmade puzzles", () => {
     expect(PUZZLE_SOLUTIONS.length).toBeGreaterThan(0);

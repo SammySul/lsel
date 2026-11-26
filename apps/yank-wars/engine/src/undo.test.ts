@@ -1,30 +1,8 @@
 import { describe, expect, setSystemTime, test } from "bun:test";
 import { Compartment } from "@codemirror/state";
 import { EditorView } from "@codemirror/view";
-import {
-  createSession,
-  destroySession,
-  type EditorSession,
-  feedKey,
-  type Puzzle,
-  parseKeys,
-} from "./index.ts";
-
-function puzzle(start: string): Puzzle {
-  return {
-    id: "test",
-    title: "test",
-    difficulty: "easy",
-    language: "javascript",
-    tabSize: 4,
-    indentUnit: "  ",
-    start,
-    target: "\u0000unreachable",
-    solution: [],
-    par: 0,
-    source: { kind: "original", author: "test" },
-  };
-}
+import { testPuzzle } from "../oracle/engine.ts";
+import { createSession, destroySession, type EditorSession, feedKey, parseKeys } from "./index.ts";
 
 type Clock = "real" | "advancing" | "frozen";
 const CLOCKS: readonly Clock[] = ["real", "advancing", "frozen"];
@@ -40,7 +18,7 @@ interface Harness {
 
 function withSession<T>(start: string, clock: Clock, body: (h: Harness) => T): T {
   const numbers = new Compartment();
-  const s = createSession(puzzle(start), {
+  const s = createSession(testPuzzle(start, { language: "javascript" }), {
     parent: document.body,
     extraExtensions: [numbers.of([])],
   });

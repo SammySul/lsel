@@ -1,14 +1,6 @@
 import { expect, test } from "bun:test";
-import {
-  currentRun,
-  isReset,
-  isVimKey,
-  type LogEntry,
-  RESET,
-  runs,
-  scoreOf,
-  type VimKey,
-} from "./index.ts";
+import { currentRun, isVimKey, type LogEntry, RESET, scoreOf, type VimKey } from "./index.ts";
+import { isReset } from "./log.ts";
 
 const k = (s: string) => s as VimKey;
 const a = k("a");
@@ -19,12 +11,6 @@ test("scoreOf counts the keys after the last reset", () => {
   expect(scoreOf([a, b])).toBe(2);
   expect(scoreOf([a, RESET, b])).toBe(1);
   expect(scoreOf([a, RESET])).toBe(0);
-});
-
-test("runs splits on every reset, keeping empty runs", () => {
-  expect(runs([a, RESET, RESET, b])).toEqual<string[][]>([["a"], [], ["b"]]);
-  expect(runs([])).toEqual<string[][]>([[]]);
-  expect(runs([a, RESET])).toEqual<string[][]>([["a"], []]);
 });
 
 test("currentRun is the tail after the last reset", () => {

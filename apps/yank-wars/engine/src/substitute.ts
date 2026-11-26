@@ -1,6 +1,5 @@
 import { type CodeMirror as CM, Vim } from "@replit/codemirror-vim";
 import { deferLineStart, type ExCommand, ExError, inGlobal, skipPattern } from "./ex.ts";
-import { evalExpr } from "./expr.ts";
 import { registers, toLineStart } from "./lines.ts";
 import { setLastReplacement, vimRegExp } from "./vimRegex.ts";
 
@@ -138,18 +137,11 @@ function parseSubstitute(arg: string): Parsed {
   return { pattern, replacement, ...parseFlagsAndCount(arg.slice(i + 1)) };
 }
 
-/** \= is an expression (:help sub-replace-expression); its line breaks stay line breaks. */
-function replace(rep: string, m: RegExpExecArray, line: number, col: number): string {
-  if (!rep.startsWith("\\=")) return expandReplacement(rep, m);
-  try {
-    return evalExpr(rep.slice(2), {
-      submatch: (n) => m[n] ?? "",
-      line: (which) => (which === "." ? line + 1 : 0),
-      col: (which) => (which === "." ? col + 1 : 0),
-    }).replaceAll("\r", "\n");
-  } catch (e) {
-    throw new ExError((e as Error).message);
-  }
+// Expressions (:help sub-replace-expression) are not supported; failing beats a silently wrong replacement.
+function replace(rep: string, m: RegExpExecArray): string {
+  if (rep.startsWith("\\="))
+    throw new ExError("E15: \\= expressions are not supported in Yank Wars");
+  return expandReplacement(rep, m);
 }
 
 interface Match {
@@ -191,7 +183,7 @@ function findMatches(
         if (col >= eol && !multiline) break;
         continue;
       }
-      out.push({ from: m.index, to: end, text: replace(rep, m, l, m.index - spanStart) });
+      out.push({ from: m.index, to: end, text: replace(rep, m) });
       consumed = Math.max(consumed, end);
       prevEnd = end;
       if (!global || (end >= eol && !multiline)) break;

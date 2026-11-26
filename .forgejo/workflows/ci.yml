@@ -17,9 +17,9 @@ jobs:
       - uses: actions/checkout@v7
       - run: nix develop -c bun install --frozen-lockfile
       - run: nix develop -c bun run build
+      # every yank-wars oracle case in every browser, not the local default's sample of 40
       - run: nix develop -c bun run test:e2e
-      - run: nix develop -c bun run test:browser
-        working-directory: apps/yank-wars
+        env: { YW_SAMPLE: all }
 
   # An app whose version has no <name>-v tag yet is released; `squares` deploys the newest tag.
   release:

@@ -47,9 +47,7 @@ describe("sessionSnapshot", () => {
       prompt: null,
       message: null,
       recording: null,
-      solved: false,
       error: null,
-      keysFed: 0,
     });
   });
 
@@ -87,13 +85,6 @@ describe("sessionSnapshot", () => {
     const hud = after("i<C-o>");
     expect(hud.insertModeReturn).toBe(true);
     expect(hud.mode).toBe("normal");
-  });
-
-  test("keysFed counts every key and solved follows lock-in", () => {
-    expect(after("wD").solved).toBe(false);
-    const hud = after("wDx");
-    expect(hud.keysFed).toBe(3);
-    expect(hud.solved).toBe(true);
   });
 
   test("a blocked ex command leaves a message", () => {

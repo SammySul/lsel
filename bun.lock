@@ -109,7 +109,6 @@
       "version": "0.0.0",
       "dependencies": {
         "@sammysul/lsel": "workspace:*",
-        "valibot": "catalog:",
       },
     },
     "apps/yank-wars/web": {

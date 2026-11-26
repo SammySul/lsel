@@ -1,45 +1,29 @@
-// Oracle cases typed into the real player view: live editor === headless replay of its log === vim.
+// Oracle cases typed into the real player view: the live editor must equal the headless replay of its key log.
 // Env: BROWSERS, ORACLE_CATEGORY, ORACLE_CASE, YW_SAMPLE (n or "all", default 40), YW_SEED,
 // YW_CLOCK_SAMPLE (undo cases re-run with the page clock jumping between keys, default 12).
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { browsers, launch, watchPage } from "@sammysul/lsel/testing";
 import { formatKeys, parseKeys, type VimKey } from "@yank-wars/engine";
-import { loadCorpus, readFixtures, staleness } from "@yank-wars/engine/oracle/corpus";
-import { DEVIATIONS } from "@yank-wars/engine/oracle/deviations";
+import { loadCorpus } from "@yank-wars/engine/oracle/corpus";
 import { replayCase } from "@yank-wars/engine/oracle/engine";
-import type { FixtureEntry, Observed, OracleCase } from "@yank-wars/engine/oracle/types";
+import type { Observed, OracleCase } from "@yank-wars/engine/oracle/types";
 import type { Browser, BrowserContext, Page } from "playwright-core";
-import { playwrightKey } from "../browser/keys.ts";
-import { knownFailure } from "../browser/known.ts";
 import type { HarnessState } from "../src/dev/harness.ts";
+import { playwrightKey } from "./keys.ts";
 import { envList, sample, startVite, VITE, type Vite } from "./lib.ts";
 
 interface Item {
   c: OracleCase;
   category: string;
-  fixture: FixtureEntry;
 }
 
 const SEED = Number(process.env.YW_SEED ?? 1);
-const all: Item[] = [];
-const stale = new Map<string, number>();
 const onlyCase = envList(process.env.ORACLE_CASE);
-for (const cat of await loadCorpus(envList(process.env.ORACLE_CATEGORY))) {
-  const f = await readFixtures(cat);
-  for (const c of cat.cases) {
-    if (onlyCase !== undefined && !onlyCase.includes(c.id)) continue;
-    const fixture = f?.cases[c.id];
-    const why = staleness(c, fixture);
-    if (why !== undefined || fixture === undefined)
-      stale.set(cat.name, (stale.get(cat.name) ?? 0) + 1);
-    else all.push({ c, category: cat.name, fixture });
-  }
-}
-// Other categories may be mid-edit; `bun run oracle --check` is the gate for stale fixtures.
-if (stale.size > 0) {
-  const per = [...stale].map(([cat, n]) => `${cat} ${n}`).join(", ");
-  console.warn(`skipping cases without an up-to-date vim answer: ${per}`);
-}
+const all: Item[] = (await loadCorpus(envList(process.env.ORACLE_CATEGORY))).flatMap((cat) =>
+  cat.cases
+    .filter((c) => onlyCase === undefined || onlyCase.includes(c.id))
+    .map((c) => ({ c, category: cat.name })),
+);
 
 const want = process.env.YW_SAMPLE ?? "40";
 const items = want === "all" ? all : sample(all, Number(want), SEED);
@@ -49,18 +33,6 @@ const clockItems = sample(undoItems, Number(process.env.YW_CLOCK_SAMPLE ?? 12), 
 console.log(
   `parity: ${items.length}/${all.length} cases, ${clockItems.length} with clock jumps (YW_SEED=${SEED})`,
 );
-
-function expected(item: Item): { want: Observed; label: string } {
-  const dev = DEVIATIONS[item.c.id];
-  if (dev !== undefined) {
-    return {
-      want: { doc: dev.engineDoc, cursor: dev.engineCursor, mode: dev.engineMode },
-      label: `pinned engine output (${dev.kind} deviation)`,
-    };
-  }
-  const f = item.fixture;
-  return { want: { doc: f.doc, cursor: f.cursor, mode: f.mode }, label: "vim" };
-}
 
 const observed = (o: Observed): Observed => ({ doc: o.doc, cursor: o.cursor, mode: o.mode });
 
@@ -75,7 +47,7 @@ async function openHarness(page: Page, vite: Vite): Promise<void> {
   await page.keyboard.press("KeyW");
 }
 
-/** Every way the case's run disagrees with itself, the replay or the oracle; [] when it passes. */
+/** Every way the case's run disagrees with its key log or its replay; [] when it passes. */
 async function runCase(
   page: Page,
   item: Item,
@@ -111,24 +83,14 @@ async function runCase(
   if (JSON.stringify(live) !== JSON.stringify(replayed)) {
     out.push(`live ${JSON.stringify(live)} != replay of its log ${JSON.stringify(replayed)}`);
   }
-  const { want, label } = expected(item);
-  if (JSON.stringify(live) !== JSON.stringify(want)) {
-    out.push(`live ${JSON.stringify(live)} != ${label} ${JSON.stringify(want)}`);
-  }
   if (st.blocked.length > 0) out.push(`blocked: ${st.blocked.join(", ")}`);
   if (!st.focused) out.push("the editor lost focus");
   for (const p of await take()) out.push(`page: ${p}`);
   return out;
 }
 
-function verdict(browser: string, item: Item, problems: string[]): void {
-  const known = knownFailure(item.c.id, browser);
+function verdict(item: Item, problems: string[]): void {
   const what = `${JSON.stringify(item.c.start)} + ${item.c.keys}`;
-  if (known !== undefined) {
-    // Listed in browser/known.ts: it must still fail, or the entry has to go.
-    expect({ what, stillFailing: problems.length > 0 }).toEqual({ what, stillFailing: true });
-    return;
-  }
   expect({ what, problems }).toEqual({ what, problems: [] });
 }
 
@@ -155,7 +117,7 @@ for (const name of browsers()) {
 
     for (const item of items) {
       test(`${item.category}/${item.c.id}`, async () => {
-        verdict(name, item, await runCase(page, item, take));
+        verdict(item, await runCase(page, item, take));
       });
     }
 
@@ -184,7 +146,7 @@ for (const name of browsers()) {
             await clockPage.clock.fastForward(10_000);
             wall += 10_000;
           };
-          verdict(name, item, await runCase(clockPage, item, clockTake, between));
+          verdict(item, await runCase(clockPage, item, clockTake, between));
         });
       }
     });

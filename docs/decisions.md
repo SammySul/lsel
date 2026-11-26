@@ -65,3 +65,12 @@ fsociety (Mr. Robot's Kali: a black terminal, a cold grade, one red accent) is
 the only palette, for the sites, the terminal and the desktop alike. With one
 mode there is nothing to switch, no media query to keep in step and nothing to
 test twice. Cantarell and DejaVu Sans Mono, Kali's GNOME pair, go with it.
+
+## Deploys follow the tags
+
+Each app's updater on `twelve` builds the newest `<name>-v*` tag and restarts
+only that service (`STACK.md`). _Rejected:_ comin (every push to `squares`
+would redeploy all of `twelve`, and a broken network config could cut off the
+fix), deploy-rs or colmena (CI would need ssh into `twelve`),
+`system.autoUpgrade` with an updated input (an uncommitted lock that the next
+`deploy twelve` rolls back).

@@ -10,7 +10,6 @@
     "test": "bun --conditions=browser test",
     "test:e2e": "bun test ./web/e2e/flow.e2e.ts ./web/e2e/parity.e2e.ts ./web/e2e/built.e2e.ts",
     "oracle": "bun engine/oracle/run.ts",
-    "test:browser": "bun web/browser/run.ts",
     "brand": "bun web/brand/render.ts"
   },
   "devDependencies": {

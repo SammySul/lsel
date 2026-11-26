@@ -5,7 +5,6 @@
   "type": "module",
   "module": "src/main.ts",
   "dependencies": {
-    "@sammysul/lsel": "workspace:*",
-    "valibot": "catalog:"
+    "@sammysul/lsel": "workspace:*"
   }
 }

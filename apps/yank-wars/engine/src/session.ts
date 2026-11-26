@@ -9,6 +9,7 @@ import { insertKeymap, syncDotRegister } from "./insertKeys.ts";
 import { insertStarted } from "./insertRepeat.ts";
 import { noteModeChange } from "./insertStart.ts";
 import { languageExtension } from "./languages.ts";
+import { firstNonBlank } from "./lines.ts";
 import { resetMacros } from "./macro.ts";
 import { installPrompt, type PromptState } from "./prompt.ts";
 import type { Puzzle } from "./puzzle.ts";
@@ -29,7 +30,6 @@ export interface EditorSession {
   message: { text: string; long: boolean } | null;
   inExCallback: boolean;
   feeding: boolean;
-  keysFed: number;
   solved: boolean;
   lastError: string | null;
 }
@@ -58,12 +58,6 @@ export function engineExtensions(puzzle: Puzzle, clock: UndoClock): Extension[] 
 }
 
 // On a blank line vim stops on its last character, never past it.
-function startColumn(doc: string): number {
-  const first = doc.split("\n", 1)[0] ?? "";
-  const i = first.search(/[^ \t]/);
-  return i === -1 ? Math.max(0, first.length - 1) : i;
-}
-
 export function createSession(puzzle: Puzzle, opts: SessionOptions): EditorSession {
   lockEngine();
   Vim.resetVimGlobalState_();
@@ -78,7 +72,7 @@ export function createSession(puzzle: Puzzle, opts: SessionOptions): EditorSessi
     state: EditorState.create({
       doc: puzzle.start,
       // vim (and VimGolf) opens a file on line 1's first non-blank.
-      selection: EditorSelection.cursor(startColumn(puzzle.start)),
+      selection: EditorSelection.cursor(firstNonBlank(puzzle.start.split("\n", 1)[0] ?? "")),
       extensions: [...engineExtensions(puzzle, clock), ...(opts.extraExtensions ?? [])],
     }),
     parent: opts.parent,
@@ -110,7 +104,6 @@ export function createSession(puzzle: Puzzle, opts: SessionOptions): EditorSessi
     message: null,
     inExCallback: false,
     feeding: false,
-    keysFed: 0,
     solved: false,
     lastError: null,
   };

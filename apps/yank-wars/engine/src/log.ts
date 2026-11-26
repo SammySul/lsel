@@ -9,20 +9,6 @@ export function isReset(e: LogEntry): e is ResetMarker {
   return e === RESET;
 }
 
-export function runs(log: KeyLog): VimKey[][] {
-  let run: VimKey[] = [];
-  const out = [run];
-  for (const e of log) {
-    if (isReset(e)) {
-      run = [];
-      out.push(run);
-    } else {
-      run.push(e);
-    }
-  }
-  return out;
-}
-
 export function currentRun(log: KeyLog): VimKey[] {
   return log.slice(log.lastIndexOf(RESET) + 1).filter((e): e is VimKey => !isReset(e));
 }

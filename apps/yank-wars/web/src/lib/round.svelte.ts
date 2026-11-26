@@ -38,9 +38,7 @@ const initialHud: HudState = {
   prompt: null,
   message: null,
   recording: null,
-  solved: false,
   error: null,
-  keysFed: 0,
 };
 
 export function isOver(phase: RoundPhase): boolean {

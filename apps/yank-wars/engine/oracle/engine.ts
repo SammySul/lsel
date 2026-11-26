@@ -2,25 +2,28 @@ import { createSession, destroySession, feedKey, type Puzzle, parseKeys } from "
 import { observe } from "./observe.ts";
 import { type Observed, type OracleCase, settingsOf } from "./types.ts";
 
-// Never equals a buffer, so feedKey never stops at "solved".
-const UNREACHABLE = "\u0000unreachable";
+/** A puzzle around `start` for tests; its target never equals a buffer unless `over` sets one. */
+export function testPuzzle(start: string, over: Partial<Puzzle> = {}): Puzzle {
+  return {
+    id: "test",
+    title: "test",
+    difficulty: "easy",
+    language: "text",
+    tabSize: 4,
+    indentUnit: "  ",
+    start,
+    target: "\u0000unreachable",
+    solution: [],
+    par: 0,
+    source: { kind: "original", author: "test" },
+    ...over,
+  };
+}
 
 /** A puzzle around a case; it may break puzzle limits (start === target is fine here). */
 export function puzzleOf(c: Pick<OracleCase, "id" | "start" | "settings">): Puzzle {
-  const s = settingsOf(c);
-  return {
-    id: `oracle-${c.id}`,
-    title: c.id,
-    difficulty: "easy",
-    language: "text",
-    tabSize: s.tabSize,
-    indentUnit: s.indentUnit,
-    start: c.start,
-    target: UNREACHABLE,
-    solution: [],
-    par: 0,
-    source: { kind: "original", author: "oracle" },
-  };
+  const { tabSize, indentUnit } = settingsOf(c);
+  return testPuzzle(c.start, { id: `oracle-${c.id}`, title: c.id, tabSize, indentUnit });
 }
 
 export interface EngineRun extends Observed {

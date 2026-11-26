@@ -1,7 +1,7 @@
 import { join } from "node:path";
 import { parseKeys, type VimKey } from "@yank-wars/engine";
 import type { Page } from "playwright-core";
-import { playwrightKey } from "../browser/keys.ts";
+import { playwrightKey } from "./keys.ts";
 
 const WEB = join(import.meta.dir, "..");
 

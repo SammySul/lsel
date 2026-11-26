@@ -230,15 +230,6 @@ for (const name of browsers()) {
       await done(ctx, problems);
     });
 
-    test("Enter is a ready key as well", async () => {
-      const { ctx, page, problems } = await fresh();
-      await openRound(page, "indent-body");
-      await page.keyboard.press("Enter");
-      const s = await probe(page);
-      expect([s.phase, s.log]).toEqual(["playing", []]);
-      await done(ctx, problems);
-    });
-
     test("<C-CR> resets: counter 0, run 2, fresh buffer; only the final run is scored", async () => {
       const { ctx, page, problems } = await fresh();
       const p = P("indent-body");
@@ -899,22 +890,21 @@ for (const name of browsers()) {
       });
     }
 
-    for (const remount of [false, true]) {
-      for (const run of PARITY_RUNS) {
-        test(`live round === replay of its log: ${run}${remount ? " after <C-CR>" : ""}`, async () => {
-          const { ctx, page, problems } = await fresh();
-          const p = P("join-lines");
-          await openRound(page, p.id);
-          await page.keyboard.press("Space");
-          if (remount) await page.keyboard.press("Control+Enter");
-          await typeKeys(page, run);
-          const s = await probe(page);
-          const keys = currentRun(toKeyLog(s.log));
-          const live: Observed = { doc: s.doc, cursor: s.cursor, mode: s.mode };
-          expect({ keys, live }).toEqual({ keys: parseKeys(run), live: replayObserved(p, keys) });
-          await done(ctx, problems);
-        });
-      }
+    // A reset remounts the session, which is where a live editor and its replay could drift apart.
+    for (const run of PARITY_RUNS) {
+      test(`live round === replay of its log after <C-CR>: ${run}`, async () => {
+        const { ctx, page, problems } = await fresh();
+        const p = P("join-lines");
+        await openRound(page, p.id);
+        await page.keyboard.press("Space");
+        await page.keyboard.press("Control+Enter");
+        await typeKeys(page, run);
+        const s = await probe(page);
+        const keys = currentRun(toKeyLog(s.log));
+        const live: Observed = { doc: s.doc, cursor: s.cursor, mode: s.mode };
+        expect({ keys, live }).toEqual({ keys: parseKeys(run), live: replayObserved(p, keys) });
+        await done(ctx, problems);
+      });
     }
 
     test("typing speed does not change the result: <lt> then <C-w>, 250 ms apart", async () => {

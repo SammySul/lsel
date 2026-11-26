@@ -373,7 +373,7 @@ const COMMANDS: readonly Def[] = [
       if (dest >= line1 && dest < line2)
         throw new ExError("E134: Cannot move a range of lines into itself");
       if (dest === line2 || dest === line1 - 1) {
-        toLineStart(cm, dest === line2 ? line2 : line2);
+        toLineStart(cm, line2);
         return;
       }
       const lines = getLines(cm, line1, line2);

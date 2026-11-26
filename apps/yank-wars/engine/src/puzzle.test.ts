@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { comparePuzzles, PuzzleError, type PuzzleJson, parsePuzzle } from "./index.ts";
+import { comparePuzzles, type PuzzleJson, parsePuzzle } from "./index.ts";
+import { PuzzleError } from "./puzzle.ts";
 
 const example: PuzzleJson = {
   id: "quote-style",
@@ -71,19 +72,6 @@ describe("parsePuzzle accepts", () => {
       solution: "j>>",
     });
     expect(p.par).toBe(3);
-  });
-
-  test("an excerpt with a permalink", () => {
-    const commit = "0123456789abcdef0123456789abcdef01234567";
-    const source = {
-      kind: "excerpt",
-      repo: "example/repo",
-      url: `https://github.com/example/repo/blob/${commit}/src/a.js#L1-L3`,
-      license: "MIT",
-      path: "src/a.js",
-      commit,
-    } as const;
-    expect(parsePuzzle({ ...example, source }).source).toEqual(source);
   });
 
   test("a space in the solution is <Space>", () => {
@@ -172,37 +160,6 @@ describe("parsePuzzle rejects, naming the field", () => {
     expect(issuesOf({ ...example, solution: "a<b" })).toEqual([
       'solution: bare "<" at 1: write <lt>',
     ]);
-  });
-
-  test("an excerpt without a commit", () => {
-    const issues = issuesOf({
-      ...example,
-      source: {
-        kind: "excerpt",
-        repo: "example/repo",
-        url: "https://github.com/example/repo/blob/main/a.js",
-        license: "MIT",
-        path: "a.js",
-      },
-    });
-    expect(issues.length).toBe(1);
-    expect(issues[0]).toStartWith("source.commit: ");
-  });
-
-  test("an excerpt url that is not a permalink to the commit", () => {
-    expect(
-      issuesOf({
-        ...example,
-        source: {
-          kind: "excerpt",
-          repo: "example/repo",
-          url: "https://github.com/example/repo/blob/main/a.js",
-          license: "MIT",
-          path: "a.js",
-          commit: "0123456789abcdef0123456789abcdef01234567",
-        },
-      }),
-    ).toEqual(["source.url: must be a permalink containing the commit"]);
   });
 
   test("a stored par (unknown keys are typos or derived data)", () => {

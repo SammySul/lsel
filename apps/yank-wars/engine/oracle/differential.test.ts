@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, setSystemTime, test } from "bun:test";
 import { parseKeys, replay } from "../src/index.ts";
 import { loadCorpus, readFixtures, staleness } from "./corpus.ts";
-import { DEVIATIONS, type Deviation } from "./deviations.ts";
 import { type EngineRun, puzzleOf, replayCase } from "./engine.ts";
+import { KNOWN } from "./known.ts";
 import type { FixtureEntry, Observed, OracleCase } from "./types.ts";
 import { vimVersion } from "./vim.ts";
 
@@ -37,26 +37,13 @@ function same(a: Observed, b: Observed): boolean {
   return JSON.stringify(observed(a)) === JSON.stringify(observed(b));
 }
 
-function pinned(d: Deviation): Observed {
-  return { doc: d.engineDoc, cursor: d.engineCursor, mode: d.engineMode };
-}
-
 function report(c: OracleCase, vim: Observed, got: EngineRun): string {
-  const entry = {
-    kind: "bug",
-    reason: "TODO",
-    link: "TODO",
-    engineDoc: got.doc,
-    engineCursor: got.cursor,
-    engineMode: got.mode,
-  };
   return [
     `engine differs from vim on ${c.id}: ${JSON.stringify(c.start)} + ${c.keys}`,
     `  vim:    ${JSON.stringify(vim)}`,
     `  engine: ${JSON.stringify(observed(got))}`,
     ...(got.errors.length > 0 ? [`  engine errors: ${JSON.stringify(got.errors)}`] : []),
-    "Fix the engine, or if it is a known deviation add to oracle/deviations.ts:",
-    `  ${JSON.stringify(c.id)}: ${JSON.stringify(entry)},`,
+    "Fix the engine, or list the case under its reason in oracle/known.ts.",
   ].join("\n");
 }
 
@@ -67,15 +54,11 @@ describe("engine vs vim", () => {
         test(c.id, () => {
           const vim = vimOf(c);
           const got = replayCase(c);
-          const dev = DEVIATIONS[c.id];
-          if (dev === undefined) {
+          const why = KNOWN.get(c.id);
+          if (why === undefined) {
             if (!same(got, vim)) throw new Error(report(c, vim, got));
-          } else {
-            if (same(got, vim)) {
-              throw new Error(`${c.id} now matches vim: remove it from oracle/deviations.ts`);
-            }
-            expect(observed(got)).toEqual(pinned(dev));
-            // A pinned difference never changes silently: re-pin with oracle/pin.ts after deciding it stays.
+          } else if (same(got, vim)) {
+            throw new Error(`${c.id} now matches vim: remove it from oracle/known.ts (${why})`);
           }
         });
       }
@@ -146,9 +129,9 @@ describe("corpus-wide", () => {
     expect(made.filter((m) => m.vim !== vim)).toEqual([]);
   });
 
-  test("every allow-list entry names a case in the corpus", () => {
+  test("every case in known.ts is in the corpus", () => {
     if (only !== undefined) return;
     const ids = new Set(allCases.map((c) => c.id));
-    expect(Object.keys(DEVIATIONS).filter((id) => !ids.has(id))).toEqual([]);
+    expect([...KNOWN.keys()].filter((id) => !ids.has(id))).toEqual([]);
   });
 });

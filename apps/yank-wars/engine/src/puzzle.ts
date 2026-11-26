@@ -13,16 +13,10 @@ export type LanguageId =
   | "json"
   | "css";
 
-export type PuzzleSource =
-  | { kind: "original"; author: string }
-  | {
-      kind: "excerpt";
-      repo: string;
-      url: string;
-      license: "MIT" | "Apache-2.0" | "BSD-2-Clause" | "BSD-3-Clause" | "ISC";
-      path: string;
-      commit: string;
-    };
+export interface PuzzleSource {
+  kind: "original";
+  author: string;
+}
 
 export const DIFFICULTIES = ["easy", "medium", "hard"] as const;
 export type Difficulty = (typeof DIFFICULTIES)[number];
@@ -115,27 +109,7 @@ const Notation = v.pipe(
 
 const NonEmpty = v.pipe(v.string(), v.nonEmpty("must not be empty"));
 
-const Source = v.variant("kind", [
-  v.strictObject({ kind: v.literal("original"), author: NonEmpty }),
-  v.pipe(
-    v.strictObject({
-      kind: v.literal("excerpt"),
-      repo: NonEmpty,
-      url: v.pipe(v.string(), v.url("must be a URL")),
-      license: v.picklist(["MIT", "Apache-2.0", "BSD-2-Clause", "BSD-3-Clause", "ISC"]),
-      path: NonEmpty,
-      commit: v.pipe(v.string(), v.regex(/^[0-9a-f]{40}$/, "must be a full 40-char commit SHA")),
-    }),
-    v.forward(
-      v.partialCheck(
-        [["url"], ["commit"]],
-        (s) => s.url.includes(s.commit),
-        "must be a permalink containing the commit",
-      ),
-      ["url"],
-    ),
-  ),
-]);
+const Source = v.strictObject({ kind: v.literal("original"), author: NonEmpty });
 
 export const PuzzleJsonSchema: v.GenericSchema<unknown, PuzzleJson> = v.pipe(
   v.strictObject({

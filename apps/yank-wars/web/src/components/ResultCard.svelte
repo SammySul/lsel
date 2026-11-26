@@ -23,7 +23,6 @@ const headline = $derived(locked ? "Locked in" : ctl.phase === "expired" ? "Time
 const deltaText = $derived(
   ctl.delta > 0 ? `+${ctl.delta} over par` : ctl.delta < 0 ? `${-ctl.delta} under par` : "on par",
 );
-const source = $derived(puzzle.source);
 
 // The editor swallows every key, so the card takes focus for its own.
 onMount(() => card?.focus());
@@ -104,19 +103,7 @@ keys(() => [
       <pre>{formatKeys(puzzle.solution)}</pre>
     </details>
 
-    <p class="source">
-      {#if source.kind === "original"}
-        Original puzzle by {source.author}
-      {:else}
-        From
-        {#if source.url.startsWith("https://")}
-          <a href={source.url} target="_blank" rel="noreferrer">{source.repo}</a>
-        {:else}
-          {source.repo}
-        {/if}
-        <code>{source.path}</code> at <code>{source.commit.slice(0, 7)}</code>, {source.license}
-      {/if}
-    </p>
+    <p class="source">Original puzzle by {puzzle.source.author}</p>
 
     {#if import.meta.env.DEV && ctl.selfCheck !== "off"}
       <p class="selfcheck {ctl.selfCheck}">DEV self-check: {ctl.selfCheck}</p>

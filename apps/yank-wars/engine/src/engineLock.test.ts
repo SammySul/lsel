@@ -1,34 +1,17 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { CodeMirror, Vim } from "@replit/codemirror-vim";
+import { testPuzzle as puzzle } from "../oracle/engine.ts";
 import {
-  applyEngineOptions,
   createSession,
   destroySession,
   type EditorSession,
   feedKey,
-  lockEngine,
   type Puzzle,
   parseKeys,
   replay,
   sessionSnapshot,
 } from "./index.ts";
-
-function puzzle(start: string, over: Partial<Puzzle> = {}): Puzzle {
-  return {
-    id: "test",
-    title: "test",
-    difficulty: "easy",
-    language: "text",
-    tabSize: 4,
-    indentUnit: "  ",
-    start,
-    target: "\u0000unreachable",
-    solution: [],
-    par: 0,
-    source: { kind: "original", author: "test" },
-    ...over,
-  };
-}
+import { applyEngineOptions, lockEngine } from "./vimSetup.ts";
 
 const run = (start: string, notation: string) => replay(puzzle(start), parseKeys(notation));
 

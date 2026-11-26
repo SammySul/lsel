@@ -1,0 +1,1139 @@
+{
+  "vim": "9.2.1252",
+  "cases": {
+    "golf-q6xxi6": {
+      "start": "foo bar\nfoo baz\nqux foo",
+      "keys": ":%s/foo/X/g<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "X bar\nX baz\nqux X",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-cnd20p": {
+      "start": "a\nb\nc",
+      "keys": "qaA,<Esc>jq2@a",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a,\nb,\nc,",
+      "cursor": {
+        "line": 3,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "golf-1kglb8": {
+      "start": "a1\na2\na3",
+      "keys": "qqcwb<Esc>jq@q@@",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "b\nb\nb",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-16qfm0": {
+      "start": "f(x, y)",
+      "keys": "fxdiwiZ<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "f(Z, y)",
+      "cursor": {
+        "line": 1,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "golf-3l9yms": {
+      "start": "one\ntwo\nthree",
+      "keys": "ddp.u",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "two\none\nthree",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-655lm9": {
+      "start": "one",
+      "keys": "ihello <Esc>u",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "one",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-2jyu7v": {
+      "start": "one",
+      "keys": "ihello <Esc>..u",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "hellohello  one",
+      "cursor": {
+        "line": 1,
+        "col": 11
+      },
+      "mode": "normal"
+    },
+    "golf-2f1nir": {
+      "start": "let a = 1\nlet bb = 2",
+      "keys": "qqf=i<Space><Esc>jq@q",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "let a  = 1\nlet bb  = 2",
+      "cursor": {
+        "line": 2,
+        "col": 8
+      },
+      "mode": "normal"
+    },
+    "golf-287gof": {
+      "start": "  a\n    bb\nc",
+      "keys": "jjkk$jx",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "  a\n    b\nc",
+      "cursor": {
+        "line": 2,
+        "col": 5
+      },
+      "mode": "normal"
+    },
+    "golf-15396h": {
+      "start": "a b c",
+      "keys": "wcwB<Esc>w.",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a B B",
+      "cursor": {
+        "line": 1,
+        "col": 5
+      },
+      "mode": "normal"
+    },
+    "golf-85ligi": {
+      "start": "hello",
+      "keys": "ciwbye<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "bye",
+      "cursor": {
+        "line": 1,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "golf-jc0kv5": {
+      "start": "a foo b\nfoo",
+      "keys": "/foo<CR>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a oo b\nfoo",
+      "cursor": {
+        "line": 1,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "golf-26jy00": {
+      "start": "x\nx\nx",
+      "keys": "qwA!<Esc>jq:2,3norm @w<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "x!\nx!\nx!",
+      "cursor": {
+        "line": 3,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "golf-2fqlkh": {
+      "start": "1\n2\n3\n4\n5",
+      "keys": "jqqddjq3@q",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "1\n3\n5",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-36dk9h": {
+      "start": "a\nb\nc",
+      "keys": "qaqqaA,<Esc>j@aq@a",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a,\nb,\nc,",
+      "cursor": {
+        "line": 3,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "golf-3qpzyo": {
+      "start": "a\nb\nc",
+      "keys": "qaqqaA,<Esc>j@aq@aggx",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": ",\nb,\nc,",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-30ks6l": {
+      "start": "a\nb",
+      "keys": "ihelo<BS>lo<Esc>j.",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "helloa\nhellob",
+      "cursor": {
+        "line": 2,
+        "col": 5
+      },
+      "mode": "normal"
+    },
+    "golf-nflu9l": {
+      "start": "a\nb",
+      "keys": "qqihelo<BS>lo<Esc>jq@q",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "helloa\nhellob",
+      "cursor": {
+        "line": 2,
+        "col": 5
+      },
+      "mode": "normal"
+    },
+    "golf-3rygy3": {
+      "start": "xy",
+      "keys": "iab<Del>c<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abcy",
+      "cursor": {
+        "line": 1,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "golf-379jmc": {
+      "start": "abcd",
+      "keys": "Rxy<BS>z<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "xzcd",
+      "cursor": {
+        "line": 1,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "golf-1munpi": {
+      "start": "ab",
+      "keys": "R<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "\nab",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "replace"
+    },
+    "golf-22ixq4": {
+      "start": "ab",
+      "keys": "R<CR>x<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "\nxb",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-2czwat": {
+      "start": "abcd\nabcd",
+      "keys": "Rxy<Esc>j0.",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "xycd\nxycd",
+      "cursor": {
+        "line": 2,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "golf-ut3vs8": {
+      "start": "abcd\nabcd",
+      "keys": "qqRxy<Esc>jq0@q",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "xycd\nxycd",
+      "cursor": {
+        "line": 2,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "golf-2quyk3": {
+      "start": "abcd\nabcd",
+      "keys": "Rxy<Esc>j02.",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "xycd\nxyxy",
+      "cursor": {
+        "line": 2,
+        "col": 4
+      },
+      "mode": "normal"
+    },
+    "golf-1n4hie": {
+      "start": "abcd\nabcd",
+      "keys": "Rxyz<Esc>u",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abcd\nabcd",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-3nbcej": {
+      "start": "xyz",
+      "keys": "Rab<Left>c<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "acz",
+      "cursor": {
+        "line": 1,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "golf-3ra27p": {
+      "start": "xyzw",
+      "keys": "Ra<Right>c<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "aycw",
+      "cursor": {
+        "line": 1,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "golf-289ged": {
+      "start": "foo",
+      "keys": "\"ayiwo<C-r>a<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "foo\nfoo",
+      "cursor": {
+        "line": 2,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "golf-2vt3c2": {
+      "start": "abc",
+      "keys": "i<Ins>xy<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "xyc",
+      "cursor": {
+        "line": 1,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "golf-18sui2": {
+      "start": "ab\ncd",
+      "keys": "<C-v>jAZ<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "aZb\ncZd",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-1l8is3": {
+      "start": "a\nb",
+      "keys": "jdd",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-xoghve": {
+      "start": "a\nb\nc",
+      "keys": "gjgjx",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a\nb\n",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-1457kh": {
+      "start": "abc",
+      "keys": "jx",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "bc",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-3jucy8": {
+      "start": "abc",
+      "keys": "$kx",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "ab",
+      "cursor": {
+        "line": 1,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "golf-1mtcqc": {
+      "start": "abc\nd",
+      "keys": "jd+",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abc\nd",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-22qa5f": {
+      "start": "abc\nd",
+      "keys": "$<C-p>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "ab\nd",
+      "cursor": {
+        "line": 1,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "golf-3p6qj8": {
+      "start": "a\nb\nc",
+      "keys": "3jx",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a\nb\n",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-3d7725": {
+      "start": "abc",
+      "keys": "5rx",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abc",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-14d58v": {
+      "start": "ab",
+      "keys": "l3rx",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "ab",
+      "cursor": {
+        "line": 1,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "golf-ax760w": {
+      "start": "abc",
+      "keys": "3rx",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "xxx",
+      "cursor": {
+        "line": 1,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "golf-2lu9yq": {
+      "start": "abc",
+      "keys": "2rx.",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "xxx",
+      "cursor": {
+        "line": 1,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "golf-vxt9an": {
+      "start": "    abc",
+      "keys": "$g0x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "   abc",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-10hi8o": {
+      "start": "    abc",
+      "keys": "$dg0",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "c",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-xkwdz8": {
+      "start": "    abc",
+      "keys": "wg^x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "    bc",
+      "cursor": {
+        "line": 1,
+        "col": 5
+      },
+      "mode": "normal"
+    },
+    "golf-3evs66": {
+      "start": "a\na\na",
+      "keys": "qq:s/a/b/<CR>jq@qx",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "b\nb\n",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-2cc0ai": {
+      "start": "a\na",
+      "keys": "qq:norm Ax<CR>jq@q",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "ax\nax",
+      "cursor": {
+        "line": 2,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "golf-er96xm": {
+      "start": "x1\nx2\ny",
+      "keys": "qqA;<Esc>q:g/x/norm @q<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "x1;;\nx2;\ny",
+      "cursor": {
+        "line": 2,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "golf-21zcjl": {
+      "start": "a\nb",
+      "keys": "qqiab<Left>c<Esc>jq@q",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "acba\nacbb",
+      "cursor": {
+        "line": 2,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "golf-1wi50e": {
+      "start": "ab\nab",
+      "keys": "qqiX<C-o>lY<Esc>j0q@q",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "XaYb\nXaYb",
+      "cursor": {
+        "line": 2,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "golf-1hgooq": {
+      "start": "a\nb",
+      "keys": "qq3ix<Esc>jq@q",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "xxxa\nxxxb",
+      "cursor": {
+        "line": 2,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "golf-2y7men": {
+      "start": "a.b.c",
+      "keys": "qq/\\.<CR>r-q@q",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a-b-c",
+      "cursor": {
+        "line": 1,
+        "col": 4
+      },
+      "mode": "normal"
+    },
+    "golf-10vm58": {
+      "start": "one\none",
+      "keys": "qqA!<Esc>q:2<CR>.",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "one!\none!",
+      "cursor": {
+        "line": 2,
+        "col": 4
+      },
+      "mode": "normal"
+    },
+    "golf-3agwhy": {
+      "start": "x",
+      "keys": "qqAa<Esc>qqQAb<Esc>q@q",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "xabab",
+      "cursor": {
+        "line": 1,
+        "col": 5
+      },
+      "mode": "normal"
+    },
+    "golf-3knhtj": {
+      "start": "x",
+      "keys": "qqAa<Esc>3qx@q",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "xa",
+      "cursor": {
+        "line": 1,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "golf-2qb8jz": {
+      "start": "a\nb",
+      "keys": ":%norm A<lt>CR><CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a<CR>\nb<CR>",
+      "cursor": {
+        "line": 2,
+        "col": 5
+      },
+      "mode": "normal"
+    },
+    "golf-ae76vg": {
+      "start": "a",
+      "keys": ":norm Ax<lt>Esc>y<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "ax<Esc>y",
+      "cursor": {
+        "line": 1,
+        "col": 8
+      },
+      "mode": "normal"
+    },
+    "golf-8wzbff": {
+      "start": "ab",
+      "keys": ":norm d<CR>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "b",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-1w5m7j": {
+      "start": "ab",
+      "keys": ":norm Ax<CR>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "ab",
+      "cursor": {
+        "line": 1,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "golf-1vbytt": {
+      "start": "ab",
+      "keys": ":norm :s/a/b/<CR>x",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "b",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-39wpth": {
+      "start": "a\nb",
+      "keys": ":%norm 2Ax<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "axx\nbxx",
+      "cursor": {
+        "line": 2,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "golf-nau302": {
+      "start": "ab\nab",
+      "keys": "xj:norm .<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "b\nb",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-edueo8": {
+      "start": "  a",
+      "keys": "ccb<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "b",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-1eeije": {
+      "start": "  a\nb",
+      "keys": "jkSx<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "x\nb",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-abinds": {
+      "start": "  a\n  b",
+      "keys": "3ccx<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "x",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-3q8sz4": {
+      "start": "  a\nb",
+      "keys": "ccx<Esc>j.",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "x\nx",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-1q5o0x": {
+      "start": "    ",
+      "keys": "ccx<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "x",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-jjfnru": {
+      "start": "  a\n  b",
+      "keys": "yyjcc<Esc>p",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "  a\n\n  b",
+      "cursor": {
+        "line": 3,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "golf-1zgzdl": {
+      "start": "abc",
+      "keys": "Adef<C-u>X<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abcX",
+      "cursor": {
+        "line": 1,
+        "col": 4
+      },
+      "mode": "normal"
+    },
+    "golf-hlmmhw": {
+      "start": "abc",
+      "keys": "Adef<C-u><C-u>X<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "X",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-4aq9nh": {
+      "start": "ab cd",
+      "keys": "Aef<C-w>Y<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "ab cdY",
+      "cursor": {
+        "line": 1,
+        "col": 6
+      },
+      "mode": "normal"
+    },
+    "golf-1ublv8": {
+      "start": "ab cd",
+      "keys": "A ef<C-w><C-w>Y<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "ab cdY",
+      "cursor": {
+        "line": 1,
+        "col": 6
+      },
+      "mode": "normal"
+    },
+    "golf-c2mggw": {
+      "start": "ab cd",
+      "keys": "Aef<C-w><C-w><C-w>Y<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "Y",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "golf-1dd5s0": {
+      "start": "ab..cd",
+      "keys": "A<C-w><C-w>Y<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abY",
+      "cursor": {
+        "line": 1,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "golf-1k2w93": {
+      "start": "ab",
+      "keys": "A<CR>cd<C-w><C-w>Y<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abY",
+      "cursor": {
+        "line": 1,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "golf-3j0ih0": {
+      "start": "ab\ncd",
+      "keys": "jI<C-u>Y<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abYcd",
+      "cursor": {
+        "line": 1,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "golf-7wopcz": {
+      "start": "abc",
+      "keys": "Ade<Left><Left>X<C-u>Y<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abcYde",
+      "cursor": {
+        "line": 1,
+        "col": 4
+      },
+      "mode": "normal"
+    },
+    "golf-2uu9eg": {
+      "start": "abc",
+      "keys": "Ade<Left><Right>f<C-u>Y<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abcY",
+      "cursor": {
+        "line": 1,
+        "col": 4
+      },
+      "mode": "normal"
+    },
+    "golf-8tnl9u": {
+      "start": "abc",
+      "keys": "i<Right>f<C-u>Y<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "aYbc",
+      "cursor": {
+        "line": 1,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "golf-2trafr": {
+      "start": "abc\nxyz",
+      "keys": "Ade<Down>f<C-u>Y<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "abcde\nxyzY",
+      "cursor": {
+        "line": 2,
+        "col": 4
+      },
+      "mode": "normal"
+    },
+    "golf-24j1r8": {
+      "start": "",
+      "keys": "ihello<C-w>x<Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "x",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    }
+  }
+}

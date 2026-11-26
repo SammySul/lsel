@@ -63,23 +63,10 @@ client-only.
 A JS reimplementation of vim, actively maintained (6.4.0, July 2026), with an
 API to intercept and replay keys (`Vim.handleKey`, `Vim.defineEx`).
 
-Spike result (2026-10-30, spike since removed; its 19 cases live on in `replay.test.ts`, 17/19 passed): motions, text objects,
-`.`, undo, `:s`, `:g`, `:sort`, `:norm`, search, visual block and non-recursive
-macros all replay correctly headless under Bun + happy-dom. Failures: macros
-don't abort on a failed motion, and recursive macros overflow the stack. Both
-are fixed in `macro.ts` (see "Engine fidelity" below; pulled into step 1).
-
-**Undo is vim-style and time-independent:** one step per normal-mode command
-or insert session, never a wall-clock window, or `u` diverges between a client
-typing with pauses and a replay running instantly. Proven by a parity test
-before `u` is trusted; forced in the shared editor config if the engine
-doesn't already behave that way (the spike suggests it does).
-
-**Parity safeguards from day one:** the server stores every rejected lock-in
-with its full key log so it can be reproduced in a test; in dev, the client
-replays its own log in a hidden editor after lock-in and warns on divergence.
-Playwright parity tests (type a log in a real browser, compare with replay)
-once the editor config is stable. _Rejected:_ trusting the client on mismatch.
+**Parity safeguards:** the server stores every rejected lock-in with its full
+key log so it can be reproduced in a test; in dev, the client replays its own
+log after lock-in and warns on divergence; `web/e2e/parity.e2e.ts` types every
+oracle case in three browsers. _Rejected:_ trusting the client on mismatch.
 
 _Rejected:_ real Vim/Neovim on the server (a process per player, latency on
 every key, shell lockdown); vim.wasm / nvim-wasm in the browser (experimental,
@@ -105,22 +92,17 @@ results.
 
 ## Stack
 
-| Concern                         | Choice                                                                                                                                     | Why                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
-| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Dev environment                 | **Nix flake devShell** via direnv                                                                                                          | How every project here works; nothing global, same toolchain on every machine and in CI                                                                                                                                                                                                                                                                                                                                                                                                   |
-| Runtime, package manager, tests | **Bun** (workspaces, `bun test`)                                                                                                           | One tool for install, run, test and `bun patch` (needed for the engine fixes); native TS and WebSockets in `Bun.serve`                                                                                                                                                                                                                                                                                                                                                                    |
-| Frontend                        | **Svelte 5 + Vite**, SPA                                                                                                                   | Familiar from Maw; a handful of routes doesn't need SvelteKit. _Revisit_ if routes or SSR needs grow                                                                                                                                                                                                                                                                                                                                                                                      |
-| Editor                          | CodeMirror 6 + `@replit/codemirror-vim`                                                                                                    | See Engine                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
-| Diff highlight                  | `@codemirror/merge` (its `diff`/`Chunk` only)                                                                                              | Same ecosystem; we render our own line decorations, since `MergeView` would own the editor                                                                                                                                                                                                                                                                                                                                                                                                |
-| Server                          | `Bun.serve` (routes + websocket), no framework                                                                                             | A few HTTP routes and one socket; a framework would add more than it saves                                                                                                                                                                                                                                                                                                                                                                                                                |
-| Message validation              | **Valibot**, at external boundaries only (puzzle JSON now, socket messages in step 2)                                                      | Small bundle on the web side; inside the boundary, trust the types                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| Lint/format                     | **Biome** + `svelte-check`                                                                                                                 | One fast tool; svelte-check covers what Biome doesn't in `.svelte`                                                                                                                                                                                                                                                                                                                                                                                                                        |
-| E2E                             | **Playwright** (later)                                                                                                                     | Browser-vs-headless parity tests: type a key log in a real browser, compare with replay                                                                                                                                                                                                                                                                                                                                                                                                   |
-| Auth                            | **Better Auth** (1.7.x) with the anonymous plugin; GitHub provider later                                                                   | Framework-agnostic `Request → Response` handler mounts on `Bun.serve`; guests get real user rows that link to a GitHub login without losing history; `bun:sqlite` supported natively                                                                                                                                                                                                                                                                                                      |
-| Database                        | **`bun:sqlite`** from step 2, one file in the service's state dir                                                                          | Better Auth needs it anyway; puzzles stay files. Drizzle only if hand-written SQL for match history gets unwieldy                                                                                                                                                                                                                                                                                                                                                                         |
-| Domain                          | **yankwars.app** (owned)                                                                                                                   | `.app` is HSTS-preloaded: browsers refuse plain HTTP, so it's only ever served through the tunnel's TLS. Its DNS must live on Cloudflare for the tunnel to take the hostname                                                                                                                                                                                                                                                                                                              |
-| Deploy                          | lsel's flake builds it (`nix/app.nix`); `squares` runs it on `twelve`, loopback behind the existing `cloudflared` tunnel as `yankwars.app` | Same box and tunnel as `typ`, but Nix-built instead of a Docker Hub image, so the flake is the single source for dev, CI and prod. Single region is fine because latency barely matters. Bun deps are packaged with **bun2nix**: `fetchBunDeps` turns `bun.nix` into a Bun cache, `mkDerivation` compiles one binary. Proven on the replay spike (2026-10-30), `bun patch` patches included. bun2nix 2.1.2 carries our `nix/bun2nix-lockfile-v2.patch` until upstream PR #110 is released |
-| CI                              | lsel's CI on `twelve`'s Forgejo runner: `nix flake check`, the browser tests and `test:browser`                                            | Same shell as local, so no drift                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| Concern            | Choice                                                                                | Why                                                                                                                                                                                  |
+| ------------------ | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Frontend           | **Svelte 5 + Vite**, SPA                                                              | Familiar from Maw; a handful of routes doesn't need SvelteKit. _Revisit_ if routes or SSR needs grow                                                                                 |
+| Editor             | CodeMirror 6 + `@replit/codemirror-vim`                                               | See Engine                                                                                                                                                                           |
+| Diff highlight     | `@codemirror/merge` (its `diff`/`Chunk` only)                                         | Same ecosystem; we render our own line decorations, since `MergeView` would own the editor                                                                                           |
+| Server             | `Bun.serve` (routes + websocket), no framework                                        | A few HTTP routes and one socket; a framework would add more than it saves                                                                                                           |
+| Message validation | **Valibot**, at external boundaries only (puzzle JSON now, socket messages in step 2) | Small bundle on the web side; inside the boundary, trust the types                                                                                                                   |
+| Lint/format        | **Biome** + `svelte-check`                                                            | One fast tool; svelte-check covers what Biome doesn't in `.svelte`                                                                                                                   |
+| Auth               | **Better Auth** (1.7.x) with the anonymous plugin; GitHub provider later              | Framework-agnostic `Request → Response` handler mounts on `Bun.serve`; guests get real user rows that link to a GitHub login without losing history; `bun:sqlite` supported natively |
+| Database           | **`bun:sqlite`** from step 2, one file in the service's state dir                     | Better Auth needs it anyway; puzzles stay files. Drizzle only if hand-written SQL for match history gets unwieldy                                                                    |
+| Domain             | **yankwars.app** (owned)                                                              | `.app` is HSTS-preloaded: browsers refuse plain HTTP, so it's only ever served through the tunnel's TLS. Its DNS must live on Cloudflare for the tunnel to take the hostname         |
 
 ## Puzzles
 
@@ -144,9 +126,7 @@ come later on the same data.
 
 ## Step 1 design (2026-10-31)
 
-From the design workflow (3 researchers, 3 proposals, 3 judges, 1 synthesis);
-the spec, `docs/step1-spec.md`, was removed once built (2026-11-17; it is in git history). "Parity by construction" won on every
-judge's card over observing codemirror-vim natively.
+"Parity by construction" won over observing codemirror-vim natively.
 
 **Key capture: the browser is one more replayer.** A `Prec.highest` keydown handler owned by the engine prevents every keydown and calls the same `feedKey()` the headless replay uses; codemirror-vim's own keydown handler, native insert-mode typing and its `<input>` command line never run. _Rejected:_ observing the adapter and emulating native behavior in the replayer (insert text would be labelled differently, prompt keys are DOM events on a panel input, Cmd+A moves the selection unlogged). _Revisit_ only if an upstream API makes the adapter itself drivable without DOM.
 
@@ -170,15 +150,11 @@ judge's card over observing codemirror-vim natively.
 
 **Reset = fresh session.** `createSession` always runs `Vim.resetVimGlobalState_()` + `applyEngineOptions()`, so a client reset and the server's tail replay start from the same pristine engine. _Rejected:_ `view.setState` (re-instantiates the vim plugin in place with stale patched references).
 
-**Diff highlight uses `@codemirror/merge`'s `Chunk.build` only**, rendered as our own `Decoration.line`s. `MergeView`/`unifiedMergeView` own the views' dispatch and add widgets/accept-reject controls that edit text, violating 'every editor extension comes from engine'. Stack-table wording 'built-in line highlighting' is refined accordingly.
+**Diff highlight uses `@codemirror/merge`'s `Chunk.build` only**, rendered as our own `Decoration.line`s. `MergeView`/`unifiedMergeView` own the views' dispatch and add widgets/accept-reject controls that edit text, violating 'every editor extension comes from engine'.
 
 **Valibot validates puzzle JSON inside the engine** (`parsePuzzle` at the file boundary), amending 'at the socket boundary only': puzzle files are external data and step 2 reuses the same library for socket messages.
 
 **Puzzle text has no trailing newline.** CM has no final line terminator and lock-in is `doc.toString() === target`; a trailing `\n` would be an extra empty line to create. Vim's implicit eol is not modelled.
-
-**TypeScript 5.9.3 via the root catalog.** svelte-check 4.7.7 hard-rejects TS 7 (`ts-version-check.js`) and peers `^5 || ^6`; 6.0.3 is a verified drop-in. TS 7 later only as `@typescript/native` alias with `--tsgo`.
-
-**Tooling layout:** Bun isolated linker (default) with a root catalog pinning every `@codemirror/*` (one copy, enforces web-cannot-edit), `bunfig.toml` at the root only (`[run] bun = true`, happy-dom test preload), Biome 2.5.15 legacy Svelte mode with the documented override and a CI grep for `preset: recommended`. happy-dom is a root devDependency for tests; step 2 adds it to the server.
 
 ### Step 1 deviations and deferrals
 
@@ -186,7 +162,7 @@ The deviations from vim behave the same in the browser and in the replay: they c
 
 **The command line has a cursor** (superseded 2026-11-11): `<Left>/<Right>/<Home>/<End>/<Del>/<BS>/<C-w>` edit at the cursor, `<C-r>{reg}`, `<C-r><C-w>` and `<C-v>{key}` insert, `<Tab>` is a literal tab in a `:` line (nothing to complete) and nothing in `/`, as in vim 9.2. `<BS>` on an empty prompt cancels, `<Up>/<Down>` recall history, `<C-u>` clears.
 
-**Shift on a named key is the base key; unbound keys still count.** Shift+Space/Enter/Backspace/Tab/Delete/Escape/Insert log as `<Space>`, `<CR>`, … (terminal vim behavior); `<S-Left>` and friends survive. F-keys, Meta combos and Dead/Process keys are dropped and not counted. `<C-v>`, `<PageUp>`, `<S-Left>` and other keys the core doesn't bind in insert mode count as a key and do nothing (the spike typed `<C-v>` as six characters).
+**Shift on a named key is the base key; unbound keys still count.** Shift+Space/Enter/Backspace/Tab/Delete/Escape/Insert log as `<Space>`, `<CR>`, … (terminal vim behavior); `<S-Left>` and friends survive. F-keys, Meta combos and Dead/Process keys are dropped and not counted. `<C-v>`, `<PageUp>`, `<S-Left>` and other keys the core doesn't bind in insert mode count as a key and do nothing.
 
 **`/` and `:s` are always ignorecase+smartcase** (`:set` is blocked; the oracle runs vim with the same options). `&` in a `:s` replacement is the match, as in vim (superseded 2026-11-11: it was literal under the core's nopcre).
 
@@ -202,15 +178,11 @@ The deviations from vim behave the same in the browser and in the replay: they c
 
 **The 4-minute cap applies to solo rounds too,** with retry on one key (`r`) from the result card.
 
-**The engine supersedes the spike's replayer.** `feedKey` takes the adapter's own path (`multiSelectHandleKey` with `vim.status` appended first, not `handleKey`), prompt keys go through the core's handlers (the spike's `<Esc>` skipped `clearInputState` and left `d:` pending), `<BS>` is `deleteCharBackwardStrict` plus explicit `InsertModeKey` recording, replace mode overwrites, and `forceParsing` runs after every key. The spike's shortcuts passed its 19 cases but would have diverged from the browser; the engine's parity suite is now the reference.
-
-**Deferred to step 2** beyond the build order below: the upstream PRs for the core patch. A recursive macro stops at its first failing command or at 100 levels, but a large count (`999@q`) still runs synchronously; the server must bound it.
-
 ## Engine fidelity: oracle, patches, browser parity (2026-11-11)
 
-**Pulled into step 1 at Sammy's request (2026-11-11):** the Playwright parity suite (`bun run test:browser`, `web/e2e/`) and the engine patches planned for step 2, so nobody has to run the manual browser checklist. Expected values come from vim 9.2.1164 pinned in the dev shell (`bun run oracle` writes `engine/oracle/cases/*.vim.json`); fixtures are never edited by hand.
+**Vim is the oracle.** Expected values come from the dev shell's pinned vim (`bun run oracle` writes `engine/oracle/cases/*.vim.json`), so nobody runs a manual browser checklist.
 
-**Where fixes live, in order of preference:** an engine override (`vimSetup.ts`, `operators.ts`, `textObjects.ts`, `ex.ts`, `substitute.ts`, `search.ts`, `sort.ts`, `vimRegex.ts`, `expr.ts`, `increment.ts`, `insertRepeat.ts`, `macro.ts`), the same code on both sides; else a `bun patch` of `@replit/codemirror-vim-core` (`patches/@replit%2Fcodemirror-vim-core@0.1.0.patch`). Our own ex layer, `:s`, `:sort`, search and regex dialect replace the core's because the core's parsing (ranges, flags, counts, escapes, cursor rules) was wrong in too many places to patch one by one.
+**Where fixes live, in order of preference:** an engine override (`vimSetup.ts`, `operators.ts`, `textObjects.ts`, `ex.ts`, `substitute.ts`, `search.ts`, `sort.ts`, `vimRegex.ts`, `increment.ts`, `insertRepeat.ts`, `macro.ts`), the same code on both sides; else a `bun patch` of `@replit/codemirror-vim-core` (`patches/@replit%2Fcodemirror-vim-core@0.1.0.patch`). Our own ex layer, `:s`, `:sort`, search and regex dialect replace the core's because the core's parsing (ranges, flags, counts, escapes, cursor rules) was wrong in too many places to patch one by one.
 
 **The core patch, hunk by hunk, for upstreaming** (each is a bug fix or a small hook; the hooks are what an upstream API would offer):
 
@@ -229,65 +201,24 @@ The deviations from vim behave the same in the browser and in the replay: they c
 
 ### Engine deviations from vim
 
-Every case of the oracle corpus that still differs from vim is pinned in `engine/oracle/deviations.json` (written only by `oracle/pin.ts`, after deciding the difference stays) under a group of `oracle/deviations.ts`; the suite fails if a pinned case changes or starts matching vim. 758 pinned (212 corpus, 546 fuzz) at the end of step 1, down from 2570 failing cases when the oracle first ran; 769 (223 corpus, 546 fuzz) after the verification pass added the `command-index` and `puzzles` categories (keys from `:help index` no case typed, and each handmade puzzle's reference solution); 686 (183 corpus, 503 fuzz) after the visual-block fix added the `visual-block` category. 183 (all corpus) after the fuzz corpus was removed on 2026-11-17: its 503 remaining pins were never reduced to a cause, and the hand-written corpus covers what golfers type.
+Every oracle case that still differs from vim is listed by reason in `engine/oracle/known.ts`; the suite fails if a listed case starts matching vim. _Rejected:_ pinning each difference's exact engine output (until 2026-11-26): browser parity is checked against the live engine, so the snapshots only added upkeep; a 3k-case fuzz corpus (removed 2026-11-17), whose differences were never reduced to a cause.
 
-_Accepted:_ `virtual-window` (fixed 30-line window for `<C-d>`/`<C-f>`/`H`/`L`), `replace-bs` (replace-mode `<BS>` does not restore), `insert-keys` (completion `<C-n>/<C-p>/<C-x>`, digraphs `<C-k>`, literal `<C-v>`), `expression` (`\=` knows only `expr.ts`'s subset: numbers, strings, arithmetic, `.`, comparisons, `?:`, `submatch line col printf toupper tolower repeat len str2nr`).
+_Accepted:_ the fixed 30-line window for `<C-d>`/`<C-f>`/`H`/`L`, replace-mode `<BS>` not restoring, insert completion and digraphs, and `\=` expressions in `:s` being an error (an expression evaluator for a feature golfers rarely use was dropped on 2026-11-26). Everything else in `known.ts` is a bug, ordered by how likely golfers hit it.
 
-_Bugs, not fixed in step 1_ (most likely for golfers first): `visual-block` (block `p`/`P`, `r` repeated by `.`, `gv` after a block, a count on a blockwise `P`), `curswant` (`$` then `v`/`<C-v>` loses the end-of-line column), `visual` (`.` after a multi-line visual op, `A` in `v`/`V`, `p`/`P` over a selection, `3V`), `text-objects` (word/paragraph objects on blank lines and counts past the end, brackets inside quotes), `sentence`, `registers` (`"1` shifting for `d%`/`d/`/`"xdd`, `"1p.`, `"A` appends, a count before `"x`, `".`), `marks` (vim marks keep their column and die with their line; `` `[ `] `^ `. `` `` `( `) `{ `} ``, jump list), `dot-repeat`, `macro` (`@` of a linewise register runs its line break in vim; `<Esc>` on a command line replayed by `@` runs it in vim, the engine cancels it), `insert-ctrl` (`<C-a> <C-@> <C-r><C-r>`, `^<C-d>`, `<C-d>`/`<C-t>` rounding, insert `<Up>/<Down>` curswant), `replace-mode`, `gi-gv`, `forced-motion` (`dvj`, `dVl`), `line-undo` (`U`), `undo-tree` (`g-`/`g+`), `percent` (quotes, `/* */`, `#if`), `cursor` (buffer right, cursor elsewhere), `other` (`gN` from inside a match: `/foo<CR>$gNd`; `cw` on an empty line joins; `2D.`).
-
-Visual-block `I`, `A`, `c`, `s`, `C`, `D`, `X` and `Y` follow vim since 2026-11-12 (`engine/src/blockInsert.ts`, cases in `oracle/cases/visual-block.ts`): an insert types on the first line only and is copied to the other lines at `<Esc>` or `<C-o>`, skipping lines too short for `I`/`c` and padding them for `A`. The `comment-block` puzzle's solution therefore gained its `<Esc>`, and its par went from 9 to 10.
+Visual-block `I`, `A`, `c`, `s`, `C`, `D`, `X` and `Y` follow vim since 2026-11-12 (`engine/src/blockInsert.ts`, cases in `oracle/cases/visual-block.ts`): an insert types on the first line only and is copied to the other lines at `<Esc>` or `<C-o>`, skipping lines too short for `I`/`c` and padding them for `A`.
 
 ## Project
 
-**Into lsel (2026-11-21).** yank-wars lives in lsel's monorepo under
-`apps/yank-wars`, with the kit and the other apps: one workspace and flake, CI
-and releases in lsel (`yank-wars-v<version>` tags), and the old repository
-archived. The entries below are how it got there.
-
-Public repo on Sammy's personal GitHub account, **MIT**. Matches the other
-projects, keeps the upstream engine PR and puzzle-source credits simple:
-`github.com/SammySul/yank-wars`, public from v1.
-
-**Releases (2026-11-17).** The root `package.json` `version` is the only
-version: the Nix package and the page footer read it. A push to `main` that
-changes it runs the full checks (`nix build` included), then CI tags `vX.Y.Z`
-and publishes a GitHub release listing the commit subjects since the last tag;
-a push without a bump releases nothing.
-
-**Forgejo (2026-11-17).** The repository moved to
-`git.sammysul.com/SammySul/yank-wars`: CI runs there on `twelve`'s own runner
-(`.forgejo/workflows/`), releases are Forgejo releases, the updater below
-follows Forgejo's tags, and GitHub is a push mirror with no workflows.
-
-**Deploy follows the tags (2026-11-17).** A timer on `twelve` (defined in
-`squares`, `hosts/twelve/apps.nix`, once for every app; it began here as
-`nix/module.nix`) asks Forgejo for the newest `v*` tag every 5 minutes,
-`nix build`s it into `/var/lib/yank-wars-updater/current` (the link moves only
-on success) and restarts yank-wars alone; a failed health check puts the
-previous build back. Nothing else on `twelve` changes, and `squares` only pins
-the fallback the service starts from before the first update. _Rejected:_
-comin (every push to `squares` would redeploy all of `twelve`, and a broken
-network config could cut off the fix), deploy-rs/colmena (CI would need ssh
-into `twelve`), `system.autoUpgrade` with an updated input (an uncommitted lock
-that the next `deploy twelve` rolls back).
+Lives in lsel under `apps/yank-wars` (since 2026-11-21), MIT; release and
+deploy are lsel's (`STACK.md`).
 
 ## Build order
 
-0. Done (2026-10-30): a throwaway spike, packaged with bun2nix, proved the
-   Bun-in-Nix route and that `bun patch` patches survive it (spike removed 2026-11-17)
-1. Done (2026-11-11): solo, client-only: editor, split view, live diff, key
-   counter, reset key, lock-in, study window; ~10 handmade puzzles
-2. Done (2026-11-17): `yankwars.app` live from `twelve` (step 2 part 1:
-   static server, Nix package, NixOS module)
-3. Done (2026-11-17, `v1.0.0`): **v1, the solo release** (moved ahead of rooms): puzzle
-   difficulty and a list filter, ~50 handmade puzzles (about 30 easy, 15
-   medium, 5 hard), favicon and share card, a needs-a-keyboard screen on touch
-   devices, how-it-works on the front page, progress marks, a share line on the
-   result card, footer with source and version, public GitHub repo, release
-   automation, `v1.0.0`. The daily puzzle page comes after v1
+0–3. Done (2026-11-17, `v1.0.0`): the solo game live at `yankwars.app`, ~50
+handmade puzzles. The daily puzzle page comes after v1
 4. Rooms (step 2 parts 2 and 3): invite links, grace timer, round cap,
-   reconnect, headless replay with mismatch logging, Better Auth anonymous
-   sessions on `bun:sqlite`, upstream PRs for the core patch
+reconnect, headless replay with mismatch logging, Better Auth anonymous
+sessions on `bun:sqlite`, upstream PRs for the core patch
 5. Matchmaking queue with daily/solo fallback
 6. Only if people rematch: GitHub login + linking, ratings (Glicko-2 /
-   OpenSkill), ghosts
+OpenSkill), ghosts

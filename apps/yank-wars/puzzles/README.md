@@ -20,8 +20,7 @@ load them with `Bun.Glob`.
   start: string;
   target: string;
   solution: string;      // vim key notation; par = its key count, never stored
-  source: { kind: "original"; author: string }
-        | { kind: "excerpt"; repo: string; url: string; license: "MIT" | "Apache-2.0" | "BSD-2-Clause" | "BSD-3-Clause" | "ISC"; path: string; commit: string };
+  source: { kind: "original"; author: string };
   tags?: string[];
 }
 ```
@@ -48,10 +47,8 @@ Unknown keys are rejected, so a stored `par` or a misspelt field fails loudly.
    even in insert mode, so a solution that finishes while typing must not end
    with `<Esc>`. The test rejects trailing keys like that, which keeps par
    honest.
-4. **`source`** is required. An `excerpt` needs the repo, a permalink `url`
-   that contains the full 40-char `commit`, an allowed `license` and the `path`.
-   Prefer original snippets. Use VimGolf challenges only with the maintainer's
-   permission.
+4. **`source`** is required, and every puzzle is original. Use VimGolf
+   challenges only with the maintainer's permission.
 5. **`difficulty`** orders the list (easy first, then par, then title), so it
    is how hard the puzzle feels, not its par. _easy_: one vim idea, par at most
    10 (_test_); _medium_: two ideas or an ex command; _hard_: macros, regex
@@ -71,7 +68,7 @@ and in replay.
 - `/` **and `:s`** use vim regex syntax (`\(` `\)` `\+` `\<` `\>` `\{n\}`), and
   both always use ignorecase+smartcase: `:s/data/x/` also matches `Data`.
 - `:map`, `:set`, `:w` and `:colorscheme` are blocked. `:e`, `:r` and `:!`
-  don't exist.
+  don't exist, and a `\=` expression in `:s` is an error.
 - `"+` and `"*` act as the unnamed register.
 - `H`, `M`, `L`, `<C-d>`, `<C-u>`, `<C-f>` and `<C-b>` work on a virtual
   30-line window anchored at line 1. `zz`, `zt` and `zb` do nothing.
@@ -79,8 +76,8 @@ and in replay.
   character, and a later `.` or `@q` repeats only what was typed after the last
   `<BS>`. `R` without `<BS>` repeats like vim.
 - Everything else known to differ from vim (block pastes, sentence objects,
-  marks, numbered registers, ...) is listed by group in `docs/decisions.md`
-  ("Engine deviations from vim"); a solution must not rely on vim there.
+  marks, numbered registers, ...) is listed by reason in `engine/oracle/known.ts`; a solution must not rely on
+  vim there.
 
 ## Proving a puzzle
 

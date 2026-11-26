@@ -10,9 +10,7 @@ export interface HudState {
   prompt: { prefix: string; value: string } | null;
   message: string | null;
   recording: string | null;
-  solved: boolean;
   error: string | null;
-  keysFed: number;
 }
 
 const MODES: ReadonlySet<string> = new Set<VimMode>([
@@ -40,8 +38,6 @@ export function sessionSnapshot(s: EditorSession): HudState {
     prompt: s.prompt === null ? null : { prefix: s.prompt.prefix, value: s.prompt.value },
     message: s.message?.text ?? null,
     recording: recordingOf(s)?.register ?? null,
-    solved: s.solved,
     error: s.lastError,
-    keysFed: s.keysFed,
   };
 }

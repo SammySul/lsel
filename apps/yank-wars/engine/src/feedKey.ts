@@ -252,7 +252,6 @@ function clampToLine(s: EditorSession): void {
 
 export function feedKey(s: EditorSession, key: VimKey): KeyResult {
   if (s.solved) return { solved: true, docChanged: false, error: null };
-  s.keysFed++;
   s.lastError = null;
   s.feeding = true;
   const before = s.view.state.doc;

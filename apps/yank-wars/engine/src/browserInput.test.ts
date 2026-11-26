@@ -1,5 +1,6 @@
 // Headless KeyboardEvents only: native text insertion, IME and the inputHandler/beforeinput blocking are untested.
 import { afterEach, describe, expect, spyOn, test } from "bun:test";
+import { testPuzzle as puzzle } from "../oracle/engine.ts";
 import {
   type BlockedReason,
   type BrowserInputOptions,
@@ -7,28 +8,11 @@ import {
   createSession,
   destroySession,
   type EditorSession,
-  type Puzzle,
   parseKeys,
   replay,
   sessionSnapshot,
   type VimKey,
 } from "./index.ts";
-
-function puzzle(start: string): Puzzle {
-  return {
-    id: "test",
-    title: "test",
-    difficulty: "easy",
-    language: "text",
-    tabSize: 4,
-    indentUnit: "  ",
-    start,
-    target: "\u0000unreachable",
-    solution: [],
-    par: 0,
-    source: { kind: "original", author: "test" },
-  };
-}
 
 interface Rig {
   session: EditorSession;

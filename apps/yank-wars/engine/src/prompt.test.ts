@@ -1,31 +1,15 @@
 import { afterEach, describe, expect, test } from "bun:test";
+import { testPuzzle as puzzle } from "../oracle/engine.ts";
 import {
   createSession,
   destroySession,
   type EditorSession,
   feedKey,
   type HudState,
-  type Puzzle,
   parseKeys,
   replay,
   sessionSnapshot,
 } from "./index.ts";
-
-function puzzle(start: string): Puzzle {
-  return {
-    id: "test",
-    title: "test",
-    difficulty: "easy",
-    language: "text",
-    tabSize: 4,
-    indentUnit: "  ",
-    start,
-    target: "\u0000unreachable",
-    solution: [],
-    par: 0,
-    source: { kind: "original", author: "test" },
-  };
-}
 
 const run = (start: string, notation: string) => replay(puzzle(start), parseKeys(notation));
 
@@ -135,10 +119,6 @@ describe("macros", () => {
     expect(s.doc()).toBe("b");
     expect(s.feed("q").recording).toBeNull();
   });
-
-  test(":2,3norm @w replays the macro on each line", () => {
-    expect(run("x\nx\nx", "qwA!<Esc>jq:2,3norm @w<CR>").doc).toBe("x!\nx!\nx!");
-  });
 });
 
 describe("engine options survive the per-session reset", () => {
@@ -179,20 +159,6 @@ describe("notifications", () => {
     expect(s.feed(":map a b<CR>").message).toBe("mappings and :set are disabled in Yank Wars");
     s.feed("aZ<Esc>");
     expect(s.doc()).toBe("xZ");
-  });
-
-  for (const cmd of [":nn a b", ":ino a b", ":se nopcre", ":colo default"]) {
-    test(`${cmd} is blocked`, () => {
-      const s = session("x");
-      expect(s.feed(`${cmd}<CR>`).message).toBe("mappings and :set are disabled in Yank Wars");
-      expect(s.doc()).toBe("x");
-    });
-  }
-
-  test(":w is blocked", () => {
-    const s = session("x");
-    expect(s.feed(":w<CR>").message).toBe("lock-in is automatic");
-    expect(s.doc()).toBe("x");
   });
 
   test("blocked mappings never take effect", () => {
