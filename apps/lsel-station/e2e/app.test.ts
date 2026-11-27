@@ -12,8 +12,10 @@ import {
   watchPage,
 } from "@sammysul/lsel/testing";
 import type { Page } from "playwright-core";
+import { toDocument } from "../src/save/document.ts";
 import { openSaves } from "../src/server/saves.ts";
 import { syncRoutes } from "../src/server/sync.ts";
+import { newGame } from "../src/sim/state.ts";
 import { PALETTE } from "../src/web/scene/palette.ts";
 
 const TIMEOUT = 30_000;
@@ -100,6 +102,22 @@ async function texts(page: Page, ...selectors: string[]): Promise<string[]> {
 
 const seconds = (page: Page, s: number) => page.clock.fastForward(s * 1000);
 
+/** A saved game, at the stopped clock's start, with these credits and what Construction needs to build Hold I. */
+function holdReady(credits: number): string {
+  const state = newGame(7);
+  state.items = { credits, "iron-plate": 15, water: 10 };
+  state.xp = { construction: 60 };
+  return JSON.stringify(toDocument(state, 0));
+}
+
+/** Where each top bar button and count sits. */
+const topBar = (page: Page) =>
+  page
+    .locator("main header button, .stock li")
+    .evaluateAll((all) =>
+      all.map((e) => [e.getBoundingClientRect().x, e.getBoundingClientRect().y]),
+    );
+
 eachBrowser((browser) => {
   test(
     "the page is in lsel's look under the strict CSP, with a quiet console",
@@ -151,27 +169,61 @@ eachBrowser((browser) => {
     async () => {
       const page = await browser().newPage({ viewport: { width: 390, height: 844 } });
       const problems = await open(page);
-      const boxes = () =>
-        page
-          .locator(".lsel-page > .top > header button, .stock li")
-          .evaluateAll((all) =>
-            all.map((e) => [e.getBoundingClientRect().x, e.getBoundingClientRect().y]),
-          );
       await page.keyboard.press("Enter");
       await seconds(page, 3);
       expect(await texts(page, ".stock li")).toEqual(["Iron ore 1"]);
-      const first = await boxes();
+      const first = await topBar(page);
       expect(first.length).toBe(5);
 
       await seconds(page, 33);
       expect(await texts(page, ".stock li")).toEqual(["Iron ore 12"]);
-      expect(await boxes()).toEqual(first);
+      expect(await topBar(page)).toEqual(first);
       // a gap this long is caught up on behind a progress bar, with no timer to wait on
       await seconds(page, 2 * 60 * 60);
-      await page.locator(".stock .note").waitFor();
+      await page.locator(".stock li", { hasText: "full" }).waitFor();
       expect(await texts(page, ".stock li")).toEqual(["Iron ore 500 full"]);
-      expect(await boxes()).toEqual(first);
+      expect(await topBar(page)).toEqual(first);
       expect(await problems()).toEqual([]);
+    },
+    TIMEOUT,
+  );
+
+  test(
+    "the top bar holds still on a phone as Hold I is built, and sits the same with 999,999 credits",
+    async () => {
+      const opened = async (credits: number) => {
+        const page = await browser().newPage({ viewport: { width: 390, height: 844 } });
+        await page.addInitScript(
+          (save) => localStorage.setItem("lsel-station.save", save),
+          holdReady(credits),
+        );
+        const problems = await open(page, "#/construction");
+        return { page, problems };
+      };
+      const { page, problems } = await opened(5);
+      const hold = page.locator("section li", {
+        has: page.locator(".line >> nth=0", { hasText: /^Hold I(?!I)/ }),
+      });
+      expect(await texts(page, ".stock li")).toEqual(["Credits 5", "Iron plate 15", "Water 10"]);
+      const first = await topBar(page);
+      expect(first.length).toBe(7);
+
+      await hold.getByRole("button", { name: /Assign/ }).click();
+      await seconds(page, 10 * 60);
+      await page.getByRole("progressbar").waitFor({ state: "detached" });
+      expect([await hold.count(), await texts(page, ".stock li", ".crew")]).toEqual([
+        0,
+        ["Credits 5", "Iron plate 0", "Water 0", "Ana Petrov everything +3% › idle"],
+      ]);
+      expect(await topBar(page)).toEqual(first);
+
+      const { page: rich, problems: richProblems } = await opened(999_999);
+      expect(await texts(rich, ".stock li")).toEqual([
+        "Credits 999,999",
+        "Iron plate 15",
+        "Water 10",
+      ]);
+      expect([await topBar(rich), await problems(), await richProblems()]).toEqual([first, [], []]);
     },
     TIMEOUT,
   );

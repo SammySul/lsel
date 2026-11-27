@@ -9,16 +9,10 @@ import { CREW } from "../content/crew.ts";
 import { CROP_IDS, CROPS } from "../content/crops.ts";
 import { DEPARTMENT_IDS, DEPARTMENTS, type DepartmentId } from "../content/departments.ts";
 import { ITEM_IDS, ITEMS, type ItemId } from "../content/items.ts";
+import { HOLD_SIZES } from "../content/modules.ts";
 import { type SaveDocument, toDocument } from "../save/document.ts";
 import { HOME, mapOf } from "../sim/map.ts";
-import {
-  departmentLevel,
-  departmentOpen,
-  holdSize,
-  ownedSectors,
-  room,
-  working,
-} from "../sim/rules.ts";
+import { departmentLevel, departmentOpen, ownedSectors, room, working } from "../sim/rules.ts";
 import { newGame } from "../sim/state.ts";
 import { startGame } from "./game.svelte.ts";
 import { createSound } from "./sound/sound.svelte.ts";
@@ -146,6 +140,11 @@ const touched = $derived.by(() => {
   }
   return items;
 });
+// counts keep the largest Hold's width, which an upgrade (a timer job) reaches by itself; credits have no cap, so theirs is set
+const WIDEST_COUNT = [count(HOLD_SIZES.at(-1) ?? 0)];
+const WIDEST_CREDITS = [count(999_999)];
+const FULL = ["full"];
+
 // the top bar has credits once there are any, then follows the view: what this department works with
 const stock = $derived(
   ITEM_IDS.filter(
@@ -185,15 +184,15 @@ keys(() => [
         {@const n = game.snapshot.items[id] ?? 0}
         <li>
           <span class="dim">{ITEMS[id].name}</span>
-          <span class="slot" data-widest={count(Math.max(holdSize(game.snapshot), n))}><span>{count(n)}</span></span>
+          <Swap text={count(n)} options={id === "credits" ? WIDEST_CREDITS : WIDEST_COUNT} align="end" />
           {#if id !== "credits"}
-            <span class="slot full" data-widest="full">{#if room(game.snapshot, id) === 0}<span class="note">full</span>{/if}</span>
+            <span class="note"><Swap text={room(game.snapshot, id) === 0 ? "full" : ""} options={FULL} align="start" /></span>
           {/if}
         </li>
       {/each}
     </ul>
     <span class="saved dim" aria-live="polite">
-      <Swap text={savedLabel} options={SAVED_LABELS} />
+      <Swap text={savedLabel} options={SAVED_LABELS} align="start" />
     </span>
     <button type="button" aria-pressed={savesOpen} onclick={() => (savesOpen = !savesOpen)}>
       Saves <kbd>o</kbd>
@@ -385,26 +384,6 @@ keys(() => [
   .stock,
   .saved {
     font-variant-numeric: tabular-nums;
-  }
-  /* a count is as wide as the most the Hold takes, its "full" there from the start: timers grow them (DESIGN.md, Layout) */
-  .slot {
-    display: inline-grid;
-    justify-items: end;
-  }
-  .slot.full {
-    justify-items: start;
-  }
-  .slot > span,
-  .slot::after {
-    grid-area: 1 / 1;
-  }
-  .slot::after {
-    content: attr(data-widest);
-    visibility: hidden;
-  }
-  /* centered, a label that changes by itself would move sideways */
-  .saved :global(.lsel-swap) {
-    justify-items: start;
   }
   .dim {
     color: var(--subtle);

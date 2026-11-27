@@ -1,15 +1,12 @@
 // Mounts the game, read-only when another tab already runs it.
 
-import { start } from "@sammysul/lsel";
-import type { Component } from "svelte";
-import App from "./App.svelte";
 import "@sammysul/lsel/tokens.css";
+import { start } from "@sammysul/lsel";
+import App from "./App.svelte";
 
 const LOCK = "lsel-station.game";
 
-// start() mounts without props, so the tab's role is bound in here
-const run = (readOnly: boolean) =>
-  start(((internals, props) => App(internals, { ...props, readOnly })) satisfies Component);
+const run = (readOnly: boolean) => start(App, { props: { readOnly } });
 
 // leaving lets go of the lock at once, so a waiting tab takes over; a page back from the bfcache starts over
 const leaving = new AbortController();
