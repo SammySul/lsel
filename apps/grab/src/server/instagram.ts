@@ -1,4 +1,4 @@
-// Instagram's public pages and CDN as a logged-out browser sees them, cached: a profile for 10 minutes, a post for an hour.
+// Instagram's public pages and CDN as a logged-out browser sees them, cached: a profile for 6 hours, a post for an hour.
 
 import type { Profile } from "../shared/types.ts";
 import {
@@ -16,7 +16,8 @@ type Sleep = (ms: number) => Promise<void>;
 
 const BASE = "https://www.instagram.com";
 const MINUTE = 60_000;
-const PROFILE_TTL = 10 * MINUTE;
+// a profile changes slowly and each load spends the shared budget; R on the page asks again sooner
+const PROFILE_TTL = 6 * 60 * MINUTE;
 const POST_TTL = 60 * MINUTE;
 // Instagram's rate limit refuses some requests (a login redirect marked is_from_rle), more of them the faster
 // they come, and a refused page usually loads a few seconds later; a burst of dozens blocks every page for minutes
@@ -187,9 +188,9 @@ export class Instagram {
     return { now: load.list.then((listing) => assemble(listing, load)), whole: load.finished };
   }
 
-  /** Drops a cut-short profile, so the next snapshot loads it again; its posts come from their own cache. */
-  forgetLimited(username: string): void {
-    if (this.#profiles.get(username)?.limited) this.#profiles.delete(username);
+  /** Drops a cached profile, so the next snapshot asks Instagram again; its posts come from their own cache. */
+  forget(username: string): void {
+    this.#profiles.delete(username);
   }
 
   /** A file on Instagram's CDN, from `range` on when given; a refusal is an InstagramError. */

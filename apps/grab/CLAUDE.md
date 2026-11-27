@@ -22,7 +22,10 @@ traps. The why behind the design: `docs/decisions.md`.
   refused, and a zip naming a post not yet in waits for the whole profile.
 - **A cut-short profile is cached like a whole one**: the page's polls land
   after its load ends, and finding nothing they would each start a new load,
-  charged to the visitor. `?retry` (the page's `r`) is what drops it.
+  charged to the visitor. `?reload` (the page's `R`) is what drops it.
+- **The page polls on the server's last answer (`profile.value`), not on what
+  it shows** (`shownFor`): a kept whole copy has `pending` 0 and would stop the
+  polls of a profile the server is loading again.
 - **`/api/zip` never starts a load** (`peek`, not `snapshot`): it would skip
   `allow()`, so a zip for a profile not cached or loading is a 409.
 - **A profile embed without `contextJSON` reads as "no public profile"**: a

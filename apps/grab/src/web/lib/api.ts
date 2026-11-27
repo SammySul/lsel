@@ -2,15 +2,15 @@
 
 import type { Profile } from "../../shared/types.ts";
 
-/** With `retry`, a profile Instagram's rate limit cut short is loaded again rather than served from the cache. */
+/** With `reload`, Instagram is asked again rather than the server's cache; it counts as a new profile. */
 export async function fetchProfile(
   username: string,
   signal: AbortSignal,
-  retry = false,
+  reload = false,
 ): Promise<Profile> {
   let res: Response;
   try {
-    const query = retry ? "?retry" : "";
+    const query = reload ? "?reload" : "";
     res = await fetch(`/api/profile/${encodeURIComponent(username)}${query}`, { signal });
   } catch (e) {
     if (signal.aborted) throw e;

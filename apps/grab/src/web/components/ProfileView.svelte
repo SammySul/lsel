@@ -5,25 +5,26 @@ import { untrack } from "svelte";
 import { SvelteSet } from "svelte/reactivity";
 import { download, fetchProfile, mediaUrl, zipUrl } from "../lib/api.ts";
 import { badge, describe, type Entry, entries } from "../lib/entries.ts";
+import { keep, shownFor } from "../lib/kept.ts";
 import Preview from "./Preview.svelte";
 
 let { username, onfound }: { username: string; onfound: (username: string) => void } = $props();
 
 // made once per username: App keys this component on it, so no answer outlives its profile
-let retry = false;
+let hard = false;
 const profile = resource((signal) => {
-  // r's request alone: a poll that retried would drop the profile r just loaded
-  const again = retry;
-  retry = false;
-  return fetchProfile(username, signal, again);
+  // R's request alone: a poll that reloaded would ask Instagram again each time
+  const reload = hard;
+  hard = false;
+  return fetchProfile(username, signal, reload).then((answer) => {
+    keep(username, answer);
+    return answer;
+  });
 });
 export const reload = () => profile.reload();
-const loadRest = () => {
-  retry = true;
-  void profile.reload();
-};
 
-const shown = $derived(profile.value);
+// the copy kept from earlier this visit shows at once, until the server's answer is whole
+const shown = $derived(shownFor(username));
 const found = $derived(shown?.username);
 $effect(() => {
   const name = found;
@@ -37,11 +38,28 @@ const listed = $derived(
 
 // the server answers with the posts in so far; ask again until none are pending
 const POLL = 2000;
+let settle: (() => void) | undefined;
 $effect(() => {
-  if (shown === undefined || shown.pending === 0 || profile.error !== null) return;
+  const latest = profile.value;
+  if (profile.pending) return;
+  if (profile.error !== null || latest?.pending === 0) {
+    settle?.();
+    settle = undefined;
+    return;
+  }
+  if (latest === undefined) return;
   const timer = setTimeout(() => void profile.reload(), POLL);
   return () => clearTimeout(timer);
 });
+
+/** Asks Instagram again, past the server's copy; busy until the answer is whole. */
+async function hardReload(): Promise<void> {
+  const whole = new Promise<void>((resolve) => (settle = resolve));
+  hard = true;
+  void profile.reload();
+  await whole;
+  if (profile.error !== null) throw new Error(profile.error);
+}
 
 let current = $state<string | undefined>();
 // a phone shows the preview in the grid's place; side by side on a wider window, this changes nothing
@@ -65,10 +83,6 @@ keys(() => [
         { key: "n", label: "Tick none", run: () => selected.clear() },
       ]),
   ...(viewing ? [{ key: "Escape", label: "Back to the files", run: () => (viewing = false) }] : []),
-  // after an error the status line's own r retries
-  ...(shown?.limited && profile.error === null
-    ? [{ key: "r", label: "Load the rest", hint: true, run: loadRest }]
-    : []),
 ]);
 </script>
 
@@ -104,6 +118,14 @@ keys(() => [
           done="Downloading"
           run={() => download(zipUrl(shown.username, items.map((e) => e.media.id)))}
         />
+        <Action
+          label="Reload"
+          key="R"
+          busy="Reloading…"
+          done="Reloaded"
+          failed="Not reloaded"
+          run={hardReload}
+        />
         <span class="count">{count(selected.size)} of {plural(items.length, "file", "files")} ticked</span>
       </div>
     </div>
@@ -137,7 +159,7 @@ keys(() => [
           {#snippet empty()}No files.{/snippet}
           {#snippet foot()}
             {#if shown.limited}
-              <span class="warning">Instagram is limiting this server: {plural(shown.missing, "post", "posts")} didn't load. <kbd>r</kbd> loads the rest.</span>
+              <span class="warning">Instagram is limiting this server: {plural(shown.missing, "post", "posts")} didn't load. <kbd>R</kbd> loads the rest.</span>
             {:else if shown.pending > 0}
               <!-- a post a second keeps under Instagram's rate limit, so a first look takes a while -->
               <span role="status">Loaded {count(shown.posts.length)} of the newest {plural(listed, "post", "posts")}, about one a second</span>

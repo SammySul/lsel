@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { fakeInstagram, WORLD } from "./fakeInstagram.ts";
+import { type FakeProfile, fakeInstagram, WORLD } from "./fakeInstagram.ts";
 import { cdnUrl, Instagram } from "./instagram.ts";
 
 function setup() {
@@ -39,15 +39,38 @@ test("a profile: the page's twelve in grid order, each post's files, dates from 
   expect(fake.state.calls.length).toBe(10);
 });
 
-test("within 10 minutes the profile is cached; after, only the profile is asked again, not the posts", async () => {
+test("a profile is kept 6 hours, its posts an hour: after, the profile and its posts are asked again", async () => {
   const { fake, ig, later } = setup();
   await Promise.all([ig.profile("nat.geo"), ig.profile("nat.geo")]);
   expect(fake.state.calls.length).toBe(10);
-  later(9);
+  later(359);
   await ig.profile("nat.geo");
   expect(fake.state.calls.length).toBe(10);
   later(2);
   await ig.profile("nat.geo");
+  expect(fake.state.calls.slice(10)).toEqual([
+    "/nat.geo/embed/",
+    "/nat.geo/",
+    ...["Pin_ned-1", "Car-ousel2", "Reel_3", "Photo4", "Photo5", "Photo6", "Photo7", "Photo8"].map(
+      (c) => `/p/${c}/embed/captioned/`,
+    ),
+  ]);
+});
+
+test("a forgotten profile is asked again within the hour, its posts still from the cache", async () => {
+  const world = structuredClone(WORLD);
+  const fake = fakeInstagram(world);
+  let clock = 1_800_000_000_000;
+  const ig = new Instagram({ fetch: fake.fetch, now: () => clock, gap: 0, retryWait: 0 });
+  await ig.profile("nat.geo");
+  (world["nat.geo"] as FakeProfile).followers = 300_000_000;
+  clock += 30 * 60_000;
+  expect((await ig.profile("nat.geo")).followers).toBe(267_196_027);
+  ig.forget("nat.geo");
+  expect([ig.known("nat.geo"), (await ig.profile("nat.geo")).followers]).toEqual([
+    false,
+    300_000_000,
+  ]);
   expect(fake.state.calls.slice(10)).toEqual(["/nat.geo/embed/", "/nat.geo/"]);
 });
 
@@ -82,7 +105,7 @@ test("Instagram's refusals each say what happened", async () => {
   expect(await failure("nat.geo")).toBe("unavailable: Instagram answered 503");
 });
 
-test("a rate limit stops the loading: what came is shown, flagged and kept until a retry, which asks only for the rest", async () => {
+test("a rate limit stops the loading: what came is shown, flagged and kept until forgotten, then only the rest is asked for", async () => {
   const { fake, ig } = setup();
   fake.state.limitAfter = 3;
   const cut = await ig.profile("nat.geo");
@@ -101,7 +124,7 @@ test("a rate limit stops the loading: what came is shown, flagged and kept until
   fake.state.calls.length = 0;
   expect((await ig.profile("nat.geo")).limited).toBe(true);
   expect(fake.state.calls).toEqual([]);
-  ig.forgetLimited("nat.geo");
+  ig.forget("nat.geo");
   const whole = await ig.profile("nat.geo");
   expect([whole.posts.length, whole.missing, whole.limited]).toEqual([8, 0, false]);
   expect(fake.state.calls).toEqual([

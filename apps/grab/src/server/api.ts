@@ -17,7 +17,7 @@ const STATUS: Record<InstagramFailure, number> = {
 };
 
 export interface Deps {
-  instagram: Pick<Instagram, "known" | "snapshot" | "peek" | "forgetLimited" | "file">;
+  instagram: Pick<Instagram, "known" | "snapshot" | "peek" | "forget" | "file">;
   /** Whether this visitor may start another profile now; polling and cached profiles never count. */
   allow?: (visitor: string, now: number) => boolean;
 }
@@ -78,8 +78,9 @@ export function api({ instagram, allow = rateLimiter(NEW_PROFILES_A_MINUTE) }: D
   async function profile(req: Request, part: string, url: URL): Promise<Response> {
     const name = username(part);
     if (name instanceof Response) return name;
-    // r on the page loads a cut-short profile again, as a new one; refused, the cut-short one stays
-    const fresh = !instagram.known(name) || url.searchParams.has("retry");
+    // R on the page asks Instagram again, as a new profile; refused, the cached one stays
+    const reload = url.searchParams.has("reload");
+    const fresh = !instagram.known(name) || reload;
     if (fresh && !allow(visitor(req), Date.now())) {
       return json(
         {
@@ -88,7 +89,7 @@ export function api({ instagram, allow = rateLimiter(NEW_PROFILES_A_MINUTE) }: D
         429,
       );
     }
-    if (url.searchParams.has("retry")) instagram.forgetLimited(name);
+    if (reload) instagram.forget(name);
     try {
       return json(await instagram.snapshot(name));
     } catch (e) {

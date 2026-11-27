@@ -32,6 +32,7 @@ function server({ gap = 0 } = {}) {
 const { url } = server();
 const { fake: moody, url: moodyUrl } = server();
 const { fake: throttled, url: throttledUrl } = server();
+const { fake: reloading, url: reloadingUrl } = server();
 // slow enough that the first answer comes before the posts are all in
 const { url: slowUrl } = server({ gap: 300 });
 
@@ -239,20 +240,98 @@ eachBrowser((browser) => {
     await ctx.close();
   });
 
-  test("cut short by Instagram's rate limit: what came, a line saying so, and r loads the rest", async () => {
+  test("cut short by Instagram's rate limit: what came, a line saying so, and R loads the rest", async () => {
     throttled.state.limitAfter = 3;
     const { ctx, page, problems } = await open("#/nat.geo", { at: throttledUrl });
     const line = page.locator(".pager .warning");
     await line.waitFor();
     expect(await foot(page)).toBe(
-      "Instagram is limiting this server: 5 posts didn't load. r loads the rest.",
+      "Instagram is limiting this server: 5 posts didn't load. R loads the rest.",
     );
     // the picture, the pinned photo, the carousel's three and the reel
     expect([await tiles(page).count(), await pager(page)]).toEqual([6, "Page 1 of 1"]);
     throttled.state.limitAfter = undefined;
-    await page.keyboard.press("r");
+    await page.keyboard.press("Shift+R");
     await line.waitFor({ state: "detached" });
     expect([await tiles(page).count(), await pager(page)]).toEqual([8, "Page 1 of 2"]);
+    expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
+    expect(await problems()).toEqual([]);
+    await ctx.close();
+  });
+
+  test("a profile opened earlier comes back at once, before the server answers, and its answer moves nothing", async () => {
+    const { ctx, page, problems } = await open("#/nat.geo");
+    await tiles(page).first().waitFor();
+    await page.getByLabel("Username").fill("patchy");
+    await page.keyboard.press("Enter");
+    await page.locator(".who h2").getByText("Patchy").waitFor();
+    let release = () => {};
+    const held = new Promise<void>((resolve) => (release = resolve));
+    await page.route("**/api/profile/**", async (route) => {
+      await held;
+      await route.continue();
+    });
+    const asked = page.waitForRequest((r) => r.url().endsWith("/api/profile/nat.geo"));
+    await page.keyboard.press("2");
+    await asked;
+    const seen = async () => [
+      await page.locator(".who h2").textContent(),
+      await tiles(page).count(),
+      await pager(page),
+      await foot(page),
+    ];
+    const whole = [
+      "National Geo",
+      8,
+      "Page 1 of 2",
+      "The newest 8: all Instagram shows without a login",
+    ];
+    expect(await seen()).toEqual(whole);
+    expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
+    // past the 500 ms after a key press in which a layout shift counts as the user's
+    await Bun.sleep(600);
+    const answered = page.waitForResponse((r) => r.url().endsWith("/api/profile/nat.geo"));
+    release();
+    expect((await answered).status()).toBe(200);
+    expect(await seen()).toEqual(whole);
+    expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
+    expect(await problems()).toEqual([]);
+    await ctx.close();
+  });
+
+  test("R asks Instagram for the profile again, its posts from the server's cache, keeping it on screen until then", async () => {
+    const { ctx, page, problems } = await open("#/nat.geo", { at: reloadingUrl });
+    await tiles(page).first().waitFor();
+    // the thumbnails come through the same fake, so only its pages count
+    const pages = () => reloading.state.calls.filter((c) => !c.startsWith("cdn/"));
+    const calls = pages().length;
+    const button = page
+      .locator(".bar .lsel-action")
+      .filter({ has: page.locator("kbd", { hasText: /^R$/ }) });
+    let release = () => {};
+    const held = new Promise<void>((resolve) => (release = resolve));
+    await page.route(
+      (u) => u.pathname === "/api/profile/nat.geo" && u.search === "?reload",
+      async (route) => {
+        await held;
+        await route.continue();
+      },
+    );
+    const asked = page.waitForRequest((r) => r.url().endsWith("/api/profile/nat.geo?reload"));
+    await page.keyboard.press("Shift+R");
+    await asked;
+    expect([
+      await button.textContent(),
+      await button.getAttribute("aria-busy"),
+      await tiles(page).count(),
+    ]).toEqual(["Reloading… R", "true", 8]);
+    release();
+    await button.getByText("Reloaded").waitFor();
+    expect(pages().slice(calls)).toEqual(["/nat.geo/embed/", "/nat.geo/"]);
+    expect([await tiles(page).count(), await foot(page)]).toEqual([
+      8,
+      "The newest 8: all Instagram shows without a login",
+    ]);
     expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
     expect(await problems()).toEqual([]);
     await ctx.close();

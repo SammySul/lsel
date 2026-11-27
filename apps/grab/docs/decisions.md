@@ -38,9 +38,26 @@
   didn't, and `r` loads the rest. Only a profile refused from its first post
   is an error. A refused profile page leaves the embed's six, cut short the
   same way; a page that lists no posts leaves them as they are.
-- **Caching**: a profile for 10 minutes, a post for an hour (its CDN addresses
-  expire after days). A cut-short profile is kept too: dropping it when its load
-  ended let a page poll arriving after start a fresh, charged load against an
-  Instagram that was refusing. `r` asks with `?retry`, which drops it and
-  counts as a new profile; its posts are still cached, so only the missing ones
-  are asked for. Identical requests in flight are merged.
+- **Caching**: a post for an hour (its CDN addresses expire after days). A
+  cut-short profile is kept too: dropping it when its load ended let a page
+  poll arriving after start a fresh, charged load against an Instagram that was
+  refusing. Identical requests in flight are merged.
+
+## Kept longer, reloaded on demand (2026-11-27)
+
+- **A profile stays 6 hours on the server** (it was 10 minutes). Every load
+  spends the one Instagram budget all visitors share, a profile's newest twelve
+  change over days, and the CDN links in it last days; R is there for anyone
+  who wants it newer.
+- **R asks Instagram again, past both caches**: `?reload` drops the server's
+  copy and counts as a new profile, as `?retry` did; it replaces `?retry`, so
+  a cut-short profile's line points at R too and there is one mechanism. The
+  posts come from their own hour's cache, so only the embed and the profile page
+  are asked for. Refused by the visitor's limit, it changes nothing.
+- **The page keeps every profile it loaded this visit**, in memory
+  (`lib/kept.ts`): switching back shows it before the server answers, then asks
+  again. A whole copy is never swapped for a partial answer, so a profile the
+  server has to load again stays as it was until the new one is whole: nothing
+  moves, and the page's polls never show fewer posts than it had. Not
+  `localStorage`: CDN links and counts would outlive the visit they were good
+  for.

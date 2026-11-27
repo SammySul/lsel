@@ -4,11 +4,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { rateLimiter } from "@sammysul/lsel/server";
 import { api } from "./api.ts";
-import { cdn, fakeInstagram, fileBytes, WORLD } from "./fakeInstagram.ts";
+import { cdn, type FakeProfile, fakeInstagram, fileBytes, WORLD } from "./fakeInstagram.ts";
 import { Instagram } from "./instagram.ts";
 
-function setup(allow?: (visitor: string, now: number) => boolean) {
-  const fake = fakeInstagram(WORLD);
+function setup(allow?: (visitor: string, now: number) => boolean, world = WORLD) {
+  const fake = fakeInstagram(world);
   const routes = api({
     instagram: new Instagram({ fetch: fake.fetch, gap: 0, retryWait: 0 }),
     ...(allow === undefined ? {} : { allow }),
@@ -47,7 +47,7 @@ test("a profile by any spelling people paste; a bad one says why", async () => {
   ]);
 });
 
-test("a cut-short profile stays for the page's polls; ?retry loads the rest, counted as a new profile", async () => {
+test("a cut-short profile stays for the page's polls; ?reload loads the rest, counted as a new profile", async () => {
   let asked = 0;
   const { fake, get } = setup(() => {
     asked++;
@@ -65,7 +65,7 @@ test("a cut-short profile stays for the page's polls; ?retry loads the rest, cou
     0,
   ]);
   fake.state.limitAfter = undefined;
-  const whole = await (await get("/api/profile/nat.geo?retry")).json();
+  const whole = await (await get("/api/profile/nat.geo?reload")).json();
   expect([whole.posts.length, whole.missing, whole.limited, asked]).toEqual([8, 0, false, 2]);
   expect(fake.state.calls.slice(calls)).toEqual([
     "/nat.geo/embed/",
@@ -174,12 +174,47 @@ test("a visitor may start only so many new profiles a minute; a cached one and a
   ]).toEqual([200, 200, 429, 200, 200]);
 });
 
-test("a retry the visitor's limit refuses keeps the cut-short profile for the next poll", async () => {
+test("?reload asks Instagram again for a cached profile, posts aside, and counts as a new profile", async () => {
+  let asked = 0;
+  const world = structuredClone(WORLD);
+  const { fake, get } = setup(() => {
+    asked++;
+    return true;
+  }, world);
+  await get("/api/profile/nat.geo");
+  (world["nat.geo"] as FakeProfile).followers = 300_000_000;
+  const cached = await (await get("/api/profile/nat.geo")).json();
+  expect([cached.followers, asked, fake.state.calls.length]).toEqual([267_196_027, 1, 10]);
+  const reloaded = await (await get("/api/profile/nat.geo?reload")).json();
+  expect([reloaded.followers, reloaded.posts.length, reloaded.pending, asked]).toEqual([
+    300_000_000, 8, 0, 2,
+  ]);
+  expect(fake.state.calls.slice(10)).toEqual(["/nat.geo/embed/", "/nat.geo/"]);
+  const after = await (await get("/api/profile/nat.geo")).json();
+  expect([after.followers, asked, fake.state.calls.length]).toEqual([300_000_000, 2, 12]);
+});
+
+test("a reload the visitor's limit refuses keeps the cached profile and asks Instagram nothing", async () => {
+  let left = 1;
+  const { fake, get } = setup(() => left-- > 0);
+  await get("/api/profile/nat.geo");
+  expect(await body(await get("/api/profile/nat.geo?reload"))).toEqual([
+    429,
+    {
+      error:
+        "That's 5 new profiles this minute, all Instagram allows this server for one visitor; try again in a minute",
+    },
+  ]);
+  const kept = await (await get("/api/profile/nat.geo")).json();
+  expect([kept.posts.length, kept.pending, fake.state.calls.length]).toEqual([8, 0, 10]);
+});
+
+test("a reload the visitor's limit refuses keeps the cut-short profile for the next poll", async () => {
   let left = 1;
   const { fake, get } = setup(() => left-- > 0);
   fake.state.limitAfter = 3;
   await get("/api/profile/nat.geo");
-  const refused = await get("/api/profile/nat.geo?retry");
+  const refused = await get("/api/profile/nat.geo?reload");
   const kept = await (await get("/api/profile/nat.geo")).json();
   expect([refused.status, kept.posts.length, kept.limited]).toEqual([429, 3, true]);
 });
