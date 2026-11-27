@@ -35,7 +35,5 @@ traps. The why behind the design: `docs/decisions.md`.
   `allow()`, so a zip for a profile not cached or loading is a 409.
 - **A profile embed without `contextJSON` reads as "no public profile"**: a
   markup change at Instagram would show up as that, not as an error.
-- `src/server/fakeInstagram.ts` is for tests only: nothing `main.ts` imports may
-  import it, or it ships in the binary.
 - `/api/media` proxies only https on `*.cdninstagram.com` and `*.fbcdn.net`
   (`cdnUrl`): widening it makes an open proxy.

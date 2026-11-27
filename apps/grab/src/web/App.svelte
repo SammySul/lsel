@@ -1,10 +1,10 @@
 <!-- Look up a public Instagram profile, preview its picture and recent posts, and download them one by one or as a zip. -->
 <script lang="ts">
-import { Empty, Field, go, keys, Page, persisted, route } from "@sammysul/lsel";
-import * as v from "valibot";
+import { Empty, Field, go, keys, Page, route } from "@sammysul/lsel";
 import { version } from "../../package.json";
-import { safeDecode, toUsername, USERNAME } from "../shared/types.ts";
+import { safeDecode, toUsername } from "../shared/types.ts";
 import ProfileView from "./components/ProfileView.svelte";
+import { recent, remember } from "./lib/prefs.ts";
 
 const username = $derived(toUsername(safeDecode(route.path.slice(1)) ?? ""));
 
@@ -12,13 +12,6 @@ let input = $state("");
 let invalid = $state<string | null>(null);
 let field: HTMLInputElement | undefined = $state();
 let view: ProfileView | undefined = $state();
-
-// the last few profiles that loaded, newest first, one key each
-const RECENT = 5;
-const recent = persisted("grab:recent", v.array(v.pipe(v.string(), v.regex(USERNAME))), []);
-const remember = (name: string) => {
-  recent.value = [name, ...recent.value.filter((n) => n !== name)].slice(0, RECENT);
-};
 
 // the field follows the address: a reload, the back button
 $effect(() => {
@@ -82,13 +75,13 @@ keys(() => [
           >{name} <kbd>{i + 1}</kbd></button
         >
       {:else}
-        <span class="none">Profiles you open come back here, on 1 to {RECENT}.</span>
+        <span class="none">Profiles you open come back here.</span>
       {/each}
     </nav>
   </form>
 
   {#if username === null}
-    <Empty>Type a public profile's username, or paste its address, and press Enter. <kbd>/</kbd> goes to the field.</Empty>
+    <Empty>Type a public profile's username, or paste its address, and press Enter. <span class="keyed"><kbd>/</kbd> goes to the field.</span></Empty>
   {:else}
     {#key username}
       <ProfileView {username} bind:this={view} onfound={remember} />
@@ -130,6 +123,20 @@ keys(() => [
   @media (min-width: 801px) {
     .recent {
       flex-basis: 0;
+    }
+  }
+  /* Look up stays beside the field, which takes what is left */
+  @media (max-width: 800px) {
+    .name {
+      flex: 1 1 0;
+      min-width: 0;
+      max-width: none;
+    }
+  }
+  /* a touch screen has no / to press */
+  @media (pointer: coarse) {
+    .keyed {
+      display: none;
     }
   }
 </style>

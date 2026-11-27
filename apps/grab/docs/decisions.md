@@ -35,8 +35,8 @@
   would get around the limit per visitor.
 - **A rate limit cuts a profile short instead of failing it**: when a post is
   refused three times, what loaded is shown with a line saying how many
-  didn't, and `r` loads the rest. Only a profile refused from its first post
-  is an error. A refused profile page leaves the embed's six, cut short the
+  didn't, and Reload (`R`) loads the rest. Only a profile refused from its
+  first post is an error. A refused profile page leaves the embed's six, cut short the
   same way; a page that lists no posts leaves them as they are.
 - **Caching**: a post for an hour (its CDN addresses expire after days). A
   cut-short profile is kept too: dropping it when its load ended let a page

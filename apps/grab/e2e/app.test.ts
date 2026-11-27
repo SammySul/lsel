@@ -111,7 +111,7 @@ eachBrowser((browser) => {
     expect(new URL(page.url()).hash).toBe("#/nat.geo");
     expect(await page.locator(".who h2").textContent()).toBe("National Geo");
     expect(await page.locator(".who .line").textContent()).toBe(
-      "nat.geo · verified · 267,196,027 followers · 800 posts",
+      "nat.geo · verified · 267M followers · 800 posts",
     );
     expect(await foot(page)).toBe("The newest 8: all Instagram shows without a login");
     await page.getByLabel("Username").fill("no spaces");
@@ -212,7 +212,7 @@ eachBrowser((browser) => {
   test("ticked files download as one zip; d downloads the current one under its name", async () => {
     const { ctx, page, problems } = await open("#/nat.geo");
     await tiles(page).first().waitFor();
-    const zip = page.getByRole("button", { name: /Download ticked as zip/ });
+    const zip = page.getByRole("button", { name: /Zip ticked/ });
     expect([await ticked(page), await zip.isDisabled()]).toEqual(["0 of 11 files ticked", true]);
     await page.keyboard.press("x");
     await page.keyboard.press("l");
@@ -267,7 +267,7 @@ eachBrowser((browser) => {
     await ctx.close();
   });
 
-  test("a rate limit is a message with r to retry, and r brings the profile", async () => {
+  test("a rate limit is a message with r to retry, r brings the profile, and a refused R keeps it under a line saying so", async () => {
     moody.state.fail = 429;
     const { ctx, page } = await open("#/nat.geo", { at: moodyUrl });
     const alert = page.getByRole("alert");
@@ -279,17 +279,24 @@ eachBrowser((browser) => {
     await page.keyboard.press("r");
     await page.locator(".who h2").waitFor();
     expect([await alert.count(), await tiles(page).count()]).toEqual([0, 8]);
+    moody.state.fail = 429;
+    await page.keyboard.press("Shift+R");
+    await page.locator(".pager .foot").getByRole("alert").waitFor();
+    expect([await foot(page), await tiles(page).count()]).toEqual([
+      expect.stringMatching(
+        /^Instagram is rate limiting; try again in a few minutes\. Showing results from \d+:\d\d [AP]M\. r retries\.$/,
+      ),
+      8,
+    ]);
     await ctx.close();
   });
 
-  test("cut short by Instagram's rate limit: what came, a line saying so, and R loads the rest", async () => {
+  test("cut short by Instagram's rate limit: what came, a line saying so, and Reload loads the rest", async () => {
     throttled.state.limitAfter = 3;
     const { ctx, page, problems } = await open("#/nat.geo", { at: throttledUrl });
     const line = page.locator(".pager .warning");
     await line.waitFor();
-    expect(await foot(page)).toBe(
-      "Instagram is limiting this server: 5 posts didn't load. R loads the rest.",
-    );
+    expect(await foot(page)).toBe("Reload for the 5 posts Instagram's rate limit held back");
     // the picture, the pinned photo, the carousel's three and the reel
     expect([await tiles(page).count(), await pager(page)]).toEqual([6, "Page 1 of 1"]);
     throttled.state.limitAfter = undefined;
@@ -396,23 +403,31 @@ eachBrowser((browser) => {
     await ctx.close();
   }, 20_000);
 
-  test("on a phone a tap opens the file in the grid's place, and Esc goes back", async () => {
+  test("on a phone the actions take one row, a tap opens the file in place of them and the grid, and Esc goes back", async () => {
     const { ctx, page, problems } = await open("#/nat.geo", { phone: true });
     await tiles(page).first().waitFor();
     const shown = () =>
       Promise.all([
         page.getByRole("list", { name: "Files" }).isVisible(),
         page.getByRole("region", { name: "Preview" }).isVisible(),
+        page.locator(".bar").isVisible(),
       ]);
-    expect(await shown()).toEqual([true, false]);
+    expect(await shown()).toEqual([true, false, true]);
+    const tops = await page
+      .locator(".bar .lsel-action")
+      .evaluateAll((bs: HTMLElement[]) =>
+        bs.filter((b) => b.offsetParent !== null).map((b) => [b.textContent, b.offsetTop]),
+      );
+    expect(tops.map(([label]) => label)).toEqual(["Zip ticked z", "Zip all Z", "Reload R"]);
+    expect(new Set(tops.map(([, top]) => top)).size).toBe(1);
     await tiles(page).nth(1).tap();
     expect([await shown(), await facts(page)]).toEqual([
-      [false, true],
+      [false, true, false],
       "Photo · 1080 × 1350 · Oct 17, 3:00 PM",
     ]);
     expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
     await page.keyboard.press("Escape");
-    expect(await shown()).toEqual([true, false]);
+    expect(await shown()).toEqual([true, false, true]);
     expect(await problems()).toEqual([]);
     await ctx.close();
   });

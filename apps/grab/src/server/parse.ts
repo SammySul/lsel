@@ -105,12 +105,11 @@ function parse<S extends v.GenericSchema>(schema: S, value: unknown, what: strin
   );
 }
 
-/** The smallest version at least 480 px wide, enough for a grid tile on a sharp screen. */
-function thumbOf(item: v.InferOutput<v.ObjectSchema<typeof Item, undefined>>): string {
-  const fits = item.display_resources
-    .filter((r) => r.config_width >= 480)
-    .toSorted((a, b) => a.config_width - b.config_width);
-  return fits[0]?.src ?? item.display_url;
+const THUMB_WIDTH = 480;
+
+/** The smallest size at least 480 px wide, enough for a grid tile on a sharp screen. */
+export function thumbOf<T extends { width: number }>(sizes: readonly T[]): T | undefined {
+  return sizes.filter((s) => s.width >= THUMB_WIDTH).toSorted((a, b) => a.width - b.width)[0];
 }
 
 function mediaOf(
@@ -118,7 +117,8 @@ function mediaOf(
   n: number,
   item: v.InferOutput<v.ObjectSchema<typeof Item, undefined>>,
 ): Media {
-  const thumb = thumbOf(item);
+  const sizes = item.display_resources.map((r) => ({ src: r.src, width: r.config_width }));
+  const thumb = thumbOf(sizes)?.src ?? item.display_url;
   const base = { id: `${code}.${n}`, ...item.dimensions, thumb };
   // a video the embed won't play (copyright) is left with its cover
   return item.is_video && item.video_url !== undefined
@@ -137,10 +137,7 @@ function decode(text: string): string {
   });
 }
 
-/**
- * A single photo's embed is plain HTML (its contextJSON is null): the image's srcset, uncropped
- * sizes first, then square crops whose offsets give the height; no crop means a square photo.
- */
+/** A single photo's embed, from its srcset: the uncropped sizes, the height from a square crop's offsets (none: square). */
 function parsePhotoEmbed(html: string, code: string): EmbeddedPost | null {
   const img = /<img class="EmbeddedMediaImage"[^>]*\ssrcset="([^"]*)"/.exec(html);
   if (img === null) return null;
@@ -152,7 +149,7 @@ function parsePhotoEmbed(html: string, code: string): EmbeddedPost | null {
   const whole = sizes.filter((s) => s.crop === null).toSorted((a, b) => b.width - a.width);
   const full = whole[0];
   if (full === undefined) return null;
-  const thumb = whole.filter((s) => s.width >= 480).at(-1) ?? full;
+  const thumb = thumbOf(whole) ?? full;
   const crop = sizes.find((s) => s.crop !== null)?.crop;
   const [x, y, w, h] = [1, 2, 3, 4].map((i) => Number(crop?.[i] ?? (i > 2 ? 1 : 0))) as [
     number,

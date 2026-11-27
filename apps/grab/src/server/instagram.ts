@@ -12,7 +12,7 @@ import {
 } from "./parse.ts";
 import type { Threads } from "./threads.ts";
 
-type Fetch = (url: string, init: RequestInit) => Promise<Response>;
+export type Fetch = (url: string, init: RequestInit) => Promise<Response>;
 type Sleep = (ms: number) => Promise<void>;
 
 const BASE = "https://www.instagram.com";
@@ -20,8 +20,7 @@ const MINUTE = 60_000;
 // a profile changes slowly and each load spends the shared budget; R on the page asks again sooner
 const PROFILE_TTL = 6 * 60 * MINUTE;
 const POST_TTL = 60 * MINUTE;
-// Instagram's rate limit refuses some requests (a login redirect marked is_from_rle), more of them the faster
-// they come, and a refused page usually loads a few seconds later; a burst of dozens blocks every page for minutes
+// the rate limit refuses more the faster requests come, and a burst of dozens blocks every page for minutes
 const GAP = 1000;
 const RETRY_WAIT = 5000;
 const ATTEMPTS = 3;
@@ -36,7 +35,7 @@ const BROWSER = {
 };
 
 // without the Sec-Fetch-* of a typed-in address, the profile page redirects to the login
-const NAVIGATION = {
+export const NAVIGATION = {
   ...BROWSER,
   Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
   "Sec-Fetch-Dest": "document",
@@ -168,10 +167,7 @@ export class Instagram {
     return hit !== undefined ? Promise.resolve(hit) : this.#load(username).finished;
   }
 
-  /**
-   * The profile as far as it has loaded, waiting up to `wait` ms for the rest: `pending` counts the
-   * posts still to come, so the page can show the first ones while Instagram is asked for the others.
-   */
+  /** The profile as far as it has loaded, waiting up to `wait` ms for the rest; `pending` counts the posts to come. */
   async snapshot(username: string, wait = SNAPSHOT_WAIT): Promise<Profile> {
     const hit = this.#profiles.get(username);
     if (hit !== undefined) return hit;

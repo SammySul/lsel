@@ -36,7 +36,6 @@ const listed = $derived(
   shown === undefined ? 0 : shown.posts.length + shown.missing + shown.pending,
 );
 
-// the server answers with the posts in so far; ask again until none are pending
 const POLL = 2000;
 let settle: (() => void) | undefined;
 $effect(() => {
@@ -75,47 +74,49 @@ const toggle = (id: string) => {
   else selected.add(id);
 };
 
-keys(() => [
-  ...(items.length === 0
-    ? []
-    : [
-        { key: "a", label: "Tick all", run: selectAll },
-        { key: "n", label: "Tick none", run: () => selected.clear() },
-      ]),
-  ...(viewing ? [{ key: "Escape", label: "Back to the files", run: () => (viewing = false) }] : []),
-]);
+keys(() =>
+  viewing ? [{ key: "Escape", label: "Back to the files", run: () => (viewing = false) }] : [],
+);
+
+// "267M followers", as Instagram writes them: the whole count would cut the line short
+const compact = new Intl.NumberFormat("en-US", {
+  notation: "compact",
+  maximumSignificantDigits: 3,
+});
 </script>
 
-<Status of={profile} waiting="Asking Instagram for {username}…" />
-
-{#if shown !== undefined && entry !== undefined}
-  <div class="lsel-appear profile">
+{#if shown === undefined || entry === undefined}
+  <Status of={profile} waiting="Asking Instagram for {username}…" />
+{:else}
+  <div class="lsel-appear profile" class:viewing>
     <div class="top">
       <header class="who">
         <img src={mediaUrl(shown.picture.thumb)} alt="" width="40" height="40" />
         <div class="names">
           <h2>{shown.fullName || shown.username}</h2>
           <p class="line">
-            {shown.username}{#if shown.verified}{" "}· verified{/if} · {plural(shown.followers, "follower", "followers")} · {plural(shown.postCount, "post", "posts")}
+            {shown.username}{#if shown.verified}{" "}· verified{/if} · {compact.format(shown.followers)} {shown.followers === 1 ? "follower" : "followers"} · {plural(shown.postCount, "post", "posts")}
           </p>
         </div>
       </header>
 
       <div class="bar">
-        <button type="button" onclick={selectAll}>Tick all <kbd>a</kbd></button>
-        <button type="button" disabled={selected.size === 0} onclick={() => selected.clear()}>Tick none <kbd>n</kbd></button>
+        <span class="ticking">
+          <Action label="Tick all" key="a" run={selectAll} />
+          <Action label="Tick none" key="n" disabled={selected.size === 0} run={() => selected.clear()} />
+        </span>
         <Action
-          label="Download ticked as zip"
+          label="Zip ticked"
           key="z"
           hint
-          done="Downloading"
+          done="Zipping"
           disabled={selected.size === 0}
           run={() => download(zipUrl(shown.username, items.filter((e) => selected.has(e.media.id)).map((e) => e.media.id)))}
         />
         <Action
-          label="Download all"
+          label="Zip all"
           key="Z"
-          done="Downloading"
+          done="Zipping"
           run={() => download(zipUrl(shown.username, items.map((e) => e.media.id)))}
         />
         <Action
@@ -158,8 +159,10 @@ keys(() => [
           {/snippet}
           {#snippet empty()}No files.{/snippet}
           {#snippet foot()}
-            {#if shown.limited}
-              <span class="warning">Instagram is limiting this server: {plural(shown.missing, "post", "posts")} didn't load. <kbd>R</kbd> loads the rest.</span>
+            {#if profile.error !== null}
+              <Status of={profile} waiting="" />
+            {:else if shown.limited}
+              <span class="warning">Reload for the {plural(shown.missing, "post", "posts")} Instagram's rate limit held back</span>
             {:else if shown.pending > 0}
               <!-- a post a second keeps under Instagram's rate limit, so a first look takes a while -->
               <span role="status">Loaded {count(shown.posts.length)} of the newest {plural(listed, "post", "posts")}, about one a second</span>
@@ -224,7 +227,12 @@ keys(() => [
     gap: var(--space-2) var(--space-3);
     align-items: center;
   }
+  .ticking {
+    display: contents;
+  }
+  /* as wide as "12 of 13 files ticked" from the start, so the bar holds still while files come in */
   .count {
+    min-width: 14ch;
     color: var(--subtle);
     font-variant-numeric: tabular-nums;
   }
@@ -272,7 +280,13 @@ keys(() => [
       grid-template-columns: minmax(0, 1fr);
     }
     .split:not(.viewing) :global(.preview),
-    .split.viewing .files {
+    .split.viewing .files,
+    .viewing .bar {
+      display: none;
+    }
+    /* one row of actions: ticking every file or none is left to the keys, the ticks show on the tiles */
+    .ticking,
+    .count {
       display: none;
     }
   }
