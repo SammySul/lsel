@@ -1,18 +1,6 @@
-// The factions that hold sectors on the map, and each one's rival.
+// The factions that hold sectors on the map, and the names of every sector holder.
 
-import { idsOf } from "./table.ts";
-
-const table = {
-  "co-op": { name: "The Co-op", rival: "company" },
-  company: { name: "The Company", rival: "co-op" },
-  navy: { name: "The Navy", rival: "archive" },
-  archive: { name: "The Archive", rival: "navy" },
-} as const satisfies Record<string, { name: string; rival: string }>;
-
-export type FactionId = keyof typeof table;
-export type Faction = { readonly name: string; readonly rival: FactionId };
-export const FACTIONS: Readonly<Record<FactionId, Faction>> = table;
-export const FACTION_IDS = idsOf(table);
+export type FactionId = "co-op" | "company" | "navy" | "archive";
 
 /** Who holds a sector: you, nobody, the always-hostile pirates and strays, or a faction. */
 export type Owner = "you" | "none" | "pirates" | "strays" | FactionId;
@@ -22,10 +10,10 @@ export const OWNER_NAMES: Readonly<Record<Owner, string>> = {
   none: "Unclaimed",
   pirates: "Pirates",
   strays: "Strays",
-  "co-op": table["co-op"].name,
-  company: table.company.name,
-  navy: table.navy.name,
-  archive: table.archive.name,
+  "co-op": "The Co-op",
+  company: "The Company",
+  navy: "The Navy",
+  archive: "The Archive",
 };
 
 /** The six regions, tier 1 to 6: who holds their sectors at the start, and what the sectors are called. */
