@@ -1,4 +1,4 @@
-# lsel-favicon <letter> [fill]: an SVG favicon, the letter in DejaVu Sans Mono Bold as a path (no font needed) on the base color.
+# lsel-favicon <letter> [fill]: an SVG favicon, the letter in the display face (MrRobot) as a path (no font needed) on the base color.
 import sys
 
 from fontTools.pens.boundsPen import BoundsPen
@@ -21,7 +21,7 @@ font = TTFont(FONT)
 glyphs = font.getGlyphSet()
 name = font.getBestCmap().get(ord(letter))
 if name is None:
-    sys.exit(f"DejaVu Sans Mono has no glyph for {letter!r}")
+    sys.exit(f"MrRobot has no glyph for {letter!r}")
 
 bounds = BoundsPen(glyphs)
 glyphs[name].draw(bounds)

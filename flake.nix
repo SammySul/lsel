@@ -124,7 +124,7 @@
             text = builtins.readFile ./nix/release.sh;
           };
 
-          # `nix run lsel#favicon -- d > favicon.svg`: a letter as a path, so no font is needed to show it
+          # `nix run lsel#favicon -- d > favicon.svg`: a letter in the display face as a path, so no font is needed to show it
           favicon =
             pkgs.writers.writePython3Bin "lsel-favicon"
               {
@@ -135,7 +135,7 @@
                 builtins.replaceStrings
                   [ "@font@" "@base@" "@accent@" ]
                   [
-                    "${dejavu}/ttf/DejaVuSansMono-Bold.ttf"
+                    "${./theme/fonts/MrRobot.ttf}"
                     palette.base
                     palette.accent
                   ]
@@ -163,8 +163,10 @@
             subset cantarell-bold.otf cantarell-bold
             subset ${dejavu}/ttf/DejaVuSansMono.ttf dejavu-sans-mono-regular
             subset ${dejavu}/ttf/DejaVuSansMono-Bold.ttf dejavu-sans-mono-bold
+            subset ${./theme/fonts/MrRobot.ttf} mrrobot
             cp ${cantarell.src}/COPYING $out/OFL.md
             cp ${dejavu}/LICENSE $out/DEJAVU-LICENSE
+            cp ${./theme/fonts/MRROBOT-LICENSE} $out/MRROBOT-LICENSE
           '';
         }
         // removeAttrs (workspace pkgs).apps [ "template-web" ]

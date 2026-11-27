@@ -4,7 +4,7 @@
 
   term = [
     "#0b0d0d"
-    "#e8383c"
+    "#f8000d"
     "#5fb98a"
     "#d9b44a"
     "#6f9bc4"
@@ -25,12 +25,12 @@
   raise = "#141717";
   surface = "#1e2222";
   overlay = "#2e3434";
-  highlight = "#4a1619";
+  highlight = "#4a0307";
   muted = "#4f5959";
   subtle = "#8a9696";
   text = "#d4dbdb";
 
-  accent = "#e8383c";
+  accent = "#f8000d";
   error = "#ff6b57";
   warning = "#d9b44a";
   success = "#5fb98a";

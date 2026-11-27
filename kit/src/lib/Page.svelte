@@ -154,6 +154,12 @@ const hints = $derived(
   .hints.shown p {
     padding-top: var(--space-3);
   }
+  /* the app's name is its logo: the show's title face, in the accent */
+  h1 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    color: var(--accent);
+  }
   .sub {
     margin: var(--space-1) 0 0;
     color: var(--subtle);

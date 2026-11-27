@@ -39,8 +39,10 @@ the interface around it still uses these variables.
   self-hosted and subset to the Latin, punctuation and symbol blocks
   (`tokens.css` loads the `.woff2` files beside it; their licenses ship with
   them). Mono covers
-  `pre`, `code`, `kbd` and an app's code-editing surface. No other family,
-  except a pixel display face for a game's title.
+  `pre`, `code`, `kbd` and an app's code-editing surface.
+- **MrRobot for the app's name only** (`--font-display`, the show's title
+  face, capitals only, Regular): the `Page` header's name and the favicon, in
+  `--accent`. No other family, except a pixel display face for a game's title.
 - Sizes: `--text-xs` 12, `--text-sm` 14 (body), `--text-md` 16, `--text-lg`
   20, `--text-xl` 28; `--text-display` 40 for the one number a screen is about
   (a score, a timer). Line height 1.5.
@@ -113,8 +115,8 @@ the user is `role="alert"`.
 
 ## Icon
 
-An app's favicon is its first letter, lowercase, in DejaVu Sans Mono Bold,
-in `--accent` on `--base`, square: `nix run lsel#favicon -- <letter> >
+An app's favicon is its first letter in MrRobot (`--font-display`), in
+`--accent` on `--base`, square: `nix run lsel#favicon -- <letter> >
 favicon.svg` (the letter is a path, so no font is needed to show it).
 
 ## Words

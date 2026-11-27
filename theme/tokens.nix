@@ -40,6 +40,7 @@ in
   ${face "Cantarell" "cantarell-bold" 700}
   ${face "DejaVu Sans Mono" "dejavu-sans-mono-regular" 400}
   ${face "DejaVu Sans Mono" "dejavu-sans-mono-bold" 700}
+  ${face "MrRobot" "mrrobot" 400}
 
   :root {
     color-scheme: dark;
@@ -49,6 +50,7 @@ in
   :root {
     --font: "Cantarell", system-ui, sans-serif;
     --font-mono: "DejaVu Sans Mono", ui-monospace, monospace;
+    --font-display: "MrRobot", var(--font);
     --text-xs: 12px;
     --text-sm: 14px;
     --text-md: 16px;

@@ -66,6 +66,15 @@ the only palette, for the sites, the terminal and the desktop alike. With one
 mode there is nothing to switch, no media query to keep in step and nothing to
 test twice. Cantarell and DejaVu Sans Mono, Kali's GNOME pair, go with it.
 
+## The show's red and title face
+
+The palette's accent is the title card's red (sampled `#C0000F`) raised to
+`#f8000d`, the darkest red of that hue that still passes AA as link text on
+`--base`. The app's name and favicon are set in MrRobot, KendroType's freeware
+recreation of the title face, committed with its license note in
+`theme/fonts/`. _Rejected:_ the exact `#C0000F` (3:1, so links couldn't be
+red).
+
 ## Deploys follow the tags
 
 Each app's updater on `twelve` builds the newest `<name>-v*` tag and restarts
