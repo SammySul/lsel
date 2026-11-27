@@ -17,10 +17,11 @@ let { of, waiting, retry = true }: Props = $props();
 const since = (at: number) =>
   new Date(at).toDateString() === new Date().toDateString() ? clock(at) : when(at);
 
+// null is no answer to show, like undefined
 const failure = $derived(
   of.error === null
     ? ""
-    : `${of.error.replace(/\.$/, "")}.${of.at !== null && of.value !== undefined ? ` Showing results from ${since(of.at)}.` : ""}${retry ? " r retries." : ""}`,
+    : `${of.error.replace(/\.$/, "")}.${of.at !== null && of.value != null ? ` Showing results from ${since(of.at)}.` : ""}`,
 );
 
 keys(() =>
@@ -31,13 +32,13 @@ keys(() =>
 </script>
 
 <!-- sibling live regions: a status that holds an alert is read twice or not at all -->
-<div class="lsel-status" title={of.error !== null ? failure : of.loading ? waiting : undefined}>
+<div
+  class="lsel-status"
+  title={of.error !== null ? `${failure}${retry ? " r retries." : ""}` : of.loading ? waiting : undefined}
+>
   <p role="status">{#if of.error === null && of.loading}<span class="lsel-appear">{waiting}</span>{/if}</p>
   {#if of.error !== null}
-    <p class="error lsel-appear" role="alert">
-      {of.error.replace(/\.$/, "")}.{#if of.at !== null && of.value !== undefined}{" "}Showing results from {since(of.at)}.{/if}
-      {#if retry}<kbd>r</kbd> retries.{/if}
-    </p>
+    <p class="error lsel-appear" role="alert">{failure}{#if retry}{" "}<kbd>r</kbd> retries.{/if}</p>
   {/if}
 </div>
 

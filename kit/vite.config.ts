@@ -2,9 +2,10 @@
 
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import { defineConfig } from "vite";
+import { lselFonts } from "./src/lib/vite.ts";
 
 export default defineConfig({
   root: "playground",
-  plugins: [svelte()],
+  plugins: [svelte(), lselFonts()],
   build: { outDir: "../playground-dist", emptyOutDir: true },
 });

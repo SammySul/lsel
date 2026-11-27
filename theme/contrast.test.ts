@@ -23,6 +23,8 @@ const ALLOWED: Record<string, string[]> = {
   subtle: ["base", "raise"],
   success: ["base", "raise", "surface"],
 };
+// the page background's scanlines lie under whatever is readable on base
+for (const bgs of Object.values(ALLOWED)) if (bgs.includes("base")) bgs.push("scanline");
 
 const contrast = (fg: string, bg: string): number => {
   const [hi, lo] = [luminance(palette[fg] as string), luminance(palette[bg] as string)].sort(

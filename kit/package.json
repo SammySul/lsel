@@ -17,9 +17,9 @@
       "default": "./src/lib/index.ts"
     },
     "./server": "./src/lib/server/index.ts",
+    "./vite": "./src/lib/vite.ts",
     "./testing": "./src/lib/testing/index.ts",
     "./testing/preload": "./src/lib/testing/preload.ts",
-    "./format": "./src/lib/format.ts",
     "./tokens.css": "./src/lib/assets/tokens.css",
     "./assets/*": "./src/lib/assets/*",
     "./tsconfig.json": "./config/tsconfig.json"

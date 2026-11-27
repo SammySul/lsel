@@ -17,7 +17,7 @@ CI builds and tests like the apps. A new app is a copy of it in `apps/<name>/`
 | Data                     | Content as files, state in `bun:sqlite`                                       | One file in the service's state directory, backed up by `squares`                                                                                                                                              |
 | Server                   | `serve()` from `@sammysul/lsel/server` (Bun.serve, no framework)              | Static files, `/healthz`, strict CSP, loopback only; the app adds its routes                                                                                                                                   |
 | Unit tests               | `bun --conditions=browser test`, the kit's preload                            | Call code as its users do, assert literal values; the condition and preload let Svelte compile in tests                                                                                                        |
-| Browser tests            | Playwright with the dev shell's browsers                                      | Real-browser checks in Chromium; Firefox and WebKit too once an app has code specific to one of them                                                                                                           |
+| Browser tests            | Playwright with the dev shell's browsers                                      | Chromium only (`BROWSERS=chromium` in `test:e2e`) until an app has code for a Firefox or WebKit quirk; then all three, or that code goes untested                                                              |
 | Interface pieces         | `@sammysul/lsel` (`kit/`)                                                     | The frame, keys, states, formats and preferences, once; `lsel-check` fails an app that rolls its own                                                                                                           |
 | Styling                  | `tokens.css` from `@sammysul/lsel`                                            | `DESIGN.md`                                                                                                                                                                                                    |
 
@@ -47,8 +47,8 @@ starts with it: `config.ts`, `api.ts`, `main.ts`, `src/shared/` and a
 `resource()` view with its `Status`.
 
 - **Server files**: `main.ts` starts `serve()` and only wires;
-  `config.ts` holds the port, and the environment's Valibot schema when the
-  app reads more than host and port; `api.ts`
+  `config.ts`, when the app has settings of its own, holds them (its default
+  port, the Valibot schema of an environment beyond host and port); `api.ts`
   is the routes, taking its upstream as a dependency; one client per upstream
   (`pubg.ts`, `instagram.ts`). dajaj's `src/server/`.
 - **An upstream's failures** are one error class with a `kind`, mapped to an
@@ -57,10 +57,11 @@ starts with it: `config.ts`, `api.ts`, `main.ts`, `src/shared/` and a
 - **A fake upstream for tests**, in the upstream's real shape, served or
   injected as `fetch` (`fakePubg.ts`, `fakeInstagram.ts`): unit and browser
   tests run against it, never the real one. Nothing `main.ts` imports may
-  import it.
+  import it, or it ships in the binary.
 - **The web app**: `main.ts` calls the kit's `start(App)` (with `{ props }`
   for what only `main.ts` knows, lsel-station's `readOnly`); data comes through
-  `resource()` with a `Status` per view; a view that shows one thing (a
+  `resource()` with a `Status` per view, from the app's own API through
+  `getJson()`, which turns each failure into a sentence for the `Status`; a view that shows one thing (a
   profile, a puzzle) is keyed on it, so the last answer never stands in for
   another's (grab's `ProfileView`). Saved choices live in one `prefs.ts`
   with `persisted()` (dajaj's).

@@ -101,7 +101,7 @@ Layout) and checked: `lselLayout()` in every app's browser tests fails on a
 page that scrolls at 1280×800 or 390×844, or on anything that moves by itself.
 What it found everywhere was the kit's: fonts swapping in after the first
 paint (now `font-display: optional` and `start()`, which mounts once they
-are in, capped at 500 ms), `Status` and an empty `List` taking no height
+are in, capped at 1.5 s, with `lselFonts()` preloading them from the page's head: over the tunnel each takes about a second, and a font that misses the wait is not used for that page view), `Status` and an empty `List` taking no height
 until they had something to say, and `List` drawn at ten rows before it
 fitted. A move the user caused (a key, a click) is allowed; Chromium marks
 those. _Rejected:_ checking only for scrolling (the jumps were the complaint),
@@ -112,6 +112,22 @@ and `font-display: block` (a slow font still moves the text, only later).
 One aggressive ease-out curve made every change lurch, and the loading bar
 looped off the right edge and snapped back. Changes now ease in and out,
 appearing content settles in, and the bar glides edge to edge and back.
+
+## The terminal's glitch and scanlines
+
+The apps should look like the terminal they came from: Sammy's Ghostty shader
+(`squares`' `crt.glsl`) draws faint scanlines always and tears the screen in
+red and cyan for a moment when the window gains focus or tmux switches. The
+kit carries both, bent to the page's rules. The scanlines sit on the page
+background only, darker than `--base`, so no text loses contrast (the contrast
+test checks every pair readable on `--base` against them too); Ghostty's also
+cross the text, which on a page would cost legibility. The glitch is `Page`'s
+alone, fires on the same moments (an app opening, a screen change, the tab
+coming back), touches only the title and the frame, and moves nothing in the
+layout; it is the one decoration in motion, so it stays at 200 ms, skips
+typing and stops under reduced motion. _Rejected:_ glitching the whole
+content (it would cover what the user came to read) and a vignette (a
+gradient over the content).
 
 ## Deploys follow the tags
 

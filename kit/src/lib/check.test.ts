@@ -110,3 +110,18 @@ test("an app mounts through start(), and browser tests that check the look check
   );
   expect(await check(root)).toEqual([]);
 });
+
+test("an app's vite.config preloads the kit's fonts", async () => {
+  const root = project({
+    ...CONFIGS,
+    "vite.config.ts":
+      '// Vite.\nimport { svelte } from "@sveltejs/vite-plugin-svelte";\nexport default { plugins: [svelte()] };\n',
+  });
+  expect(await check(root)).toEqual([
+    {
+      file: "vite.config.ts",
+      line: 1,
+      message: "lselFonts() preloads the fonts, or a first visit shows the fallback faces",
+    },
+  ]);
+});

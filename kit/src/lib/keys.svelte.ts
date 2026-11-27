@@ -9,8 +9,8 @@ export interface Binding {
   label?: string;
   /** Also shown under the page's title. */
   hint?: boolean;
-  /** Also fires in fields: all, a search box for keys that type nothing, or those inside an element. */
-  inField?: boolean | "search" | Element | undefined;
+  /** Also fires in a search box, for a key that types nothing (an arrow, Enter). */
+  inField?: "search" | undefined;
   run(event: KeyboardEvent): void;
 }
 
@@ -102,10 +102,7 @@ function onkeydown(event: KeyboardEvent): void {
   const field = isField(target);
   const search = target instanceof HTMLInputElement && target.type === "search";
   const reaches = (b: Binding) =>
-    !field ||
-    b.inField === true ||
-    (b.inField === "search" && search && event.key.length > 1) ||
-    (b.inField instanceof Element && target instanceof Node && b.inField.contains(target));
+    !field || (b.inField === "search" && search && event.key.length > 1);
   for (const scope of registry.toReversed()) {
     const b = scope.bindings.find((b) => keysOf(b).includes(event.key));
     if (b === undefined || !reaches(b)) continue;

@@ -21,9 +21,9 @@ interface Props {
   onopen?: (item: T) => void;
   /** Any tile clicked opens at once: one tap on a phone, where a preview takes the grid's place. */
   openOnClick?: boolean;
-  /** Keys for the selected tile; a function when they depend on it. */
-  actions?: readonly Action<T>[] | ((item: T) => readonly Action<T>[]);
-  /** Beside the pager, on its line: a count, the selected tile's detail. */
+  /** Keys for the selected tile. */
+  actions?: readonly Action<T>[];
+  /** Beside the pager, or on a line of its own when the pager is narrow: a count, the selected tile's detail. */
   foot?: Snippet;
   /** Shows its keys under the page's title. */
   hint?: boolean;
@@ -49,19 +49,22 @@ let {
   ratio = 1.25,
 }: Props = $props();
 
-const s = selection(
-  () => ({ items, id, selected, actions }),
-  (next) => (selected = next),
-);
-
 // until measured nothing is drawn, so the first tiles never resize in place
 let shape = $state<{ cols: number; rows: number; height: number } | null>(null);
-const size = $derived(shape === null ? 1 : shape.cols * shape.rows);
-const pages = $derived(Math.max(1, Math.ceil(items.length / size)));
-const page = $derived(Math.floor(s.index / size));
-const start = $derived(page * size);
-const visible = $derived(items.slice(start, start + size));
 const cols = $derived(shape?.cols ?? 1);
+
+const s = selection(
+  () => ({
+    items,
+    id,
+    selected,
+    actions,
+    size: shape === null ? 1 : shape.cols * shape.rows,
+    open: onopen,
+    openOnClick,
+  }),
+  (next) => (selected = next),
+);
 
 let area: HTMLDivElement | undefined = $state();
 
@@ -94,28 +97,17 @@ $effect(() => {
 });
 
 keys(() =>
-  items.length === 0
-    ? []
-    : [
-        { key: ["l", "ArrowRight"], label: "Next", run: () => s.select(s.index + 1) },
-        { key: ["h", "ArrowLeft"], label: "Previous", run: () => s.select(s.index - 1) },
-        {
-          key: ["j", "ArrowDown"],
-          label: "Down a row",
-          hint,
-          run: () => s.select(s.index + cols),
-        },
-        { key: ["k", "ArrowUp"], label: "Up a row", run: () => s.select(s.index - cols) },
-        { key: "g", label: "First", run: () => s.select(0) },
-        { key: "G", label: "Last", run: () => s.select(items.length - 1) },
-        ...(pages > 1
-          ? [
-              { key: "PageDown", label: "Next page", hint, run: () => s.select(s.index + size) },
-              { key: "PageUp", label: "Previous page", run: () => s.select(s.index - size) },
-            ]
-          : []),
-        ...s.keys(onopen, { hint }),
-      ],
+  s.keys({
+    hint,
+    move: [
+      { key: ["l", "ArrowRight"], label: "Next", run: () => s.select(s.index + 1) },
+      { key: ["h", "ArrowLeft"], label: "Previous", run: () => s.select(s.index - 1) },
+      { key: ["j", "ArrowDown"], label: "Down a row", hint, run: () => s.select(s.index + cols) },
+      { key: ["k", "ArrowUp"], label: "Up a row", run: () => s.select(s.index - cols) },
+    ],
+    next: ["PageDown"],
+    previous: ["PageUp"],
+  }),
 );
 </script>
 
@@ -129,11 +121,11 @@ keys(() =>
         style:grid-template-columns="repeat({shape.cols}, minmax(0, 1fr))"
         style:grid-auto-rows="{shape.height}px"
       >
-        {#each visible as item, i (id(item))}
+        {#each s.visible as item, i (id(item))}
           <!-- the keys above are the keyboard way in; a click is the pointer's -->
           <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
-          <li aria-current={start + i === s.index} onclick={(e) => s.click(e, start + i, onopen, openOnClick)}>
-            {@render tile(item, start + i === s.index)}
+          <li aria-current={s.start + i === s.index} onclick={(e) => s.click(e, i)}>
+            {@render tile(item, s.start + i === s.index)}
           </li>
         {/each}
       </ul>
@@ -141,12 +133,12 @@ keys(() =>
   </div>
   <!-- always there, so the grid's height never depends on how many pages it has -->
   <Pager
-    {page}
-    {pages}
+    page={s.page}
+    pages={s.pages}
     previous="PageUp"
     next="PageDown"
-    onprevious={() => s.select(s.index - size)}
-    onnext={() => s.select(s.index + size)}
+    onprevious={() => s.turn(-1)}
+    onnext={() => s.turn(1)}
     {foot}
   />
 </div>

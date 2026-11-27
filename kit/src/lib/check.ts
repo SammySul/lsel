@@ -136,6 +136,13 @@ export async function check(root: string): Promise<Finding[]> {
     if (rules.length === 0) continue;
     const lines = (await readFile(path, "utf8")).split("\n");
     const length = lines.at(-1) === "" ? lines.length - 1 : lines.length;
+    if (file.endsWith("vite.config.ts") && !lines.some((l) => l.includes("lselFonts("))) {
+      out.push({
+        file,
+        line: 1,
+        message: "lselFonts() preloads the fonts, or a first visit shows the fallback faces",
+      });
+    }
     if (CODE.includes(ext) && !hasHeader(lines)) {
       out.push({ file, line: 1, message: "say what the file is for in a comment on line 1" });
     }

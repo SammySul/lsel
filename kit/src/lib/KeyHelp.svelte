@@ -42,7 +42,7 @@ $effect(() => {
     border: var(--border);
   }
   .lsel-keys[open] {
-    animation: lsel-appear var(--motion) var(--ease) both;
+    animation: lsel-appear var(--motion) var(--ease-out) both;
   }
   .lsel-keys::backdrop {
     background: none;

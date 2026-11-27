@@ -30,6 +30,7 @@ let
         "warning"
         "success"
         "select"
+        "scanline"
       ]
       ++ builtins.genList (i: "${indent}--term-${toString i}: ${builtins.elemAt p.term i};") 16
       ++ map (slot: "${indent}--${slot}: ${base16.${slot}};") (builtins.attrNames base16)
@@ -77,6 +78,13 @@ in
     --motion-fast: 150ms;
     --motion: 180ms;
     --motion-slow: 300ms;
+    /* main's distance from the window, which a page that fills the window subtracts */
+    --frame-gap: var(--space-5);
+  }
+  @media (max-width: 600px) {
+    :root {
+      --frame-gap: var(--space-2);
+    }
   }
 
   *,
@@ -89,24 +97,19 @@ in
   html,
   body {
     margin: 0;
-    background: var(--base);
+    /* scanlines wherever the page shows through, under all content; html's and body's line up at any even frame gap */
+    background: var(--base) repeating-linear-gradient(var(--scanline) 0 1px, var(--base) 1px 2px);
     color: var(--text);
     font-family: var(--font);
     font-size: var(--text-sm);
     line-height: var(--leading);
   }
 
-  /* A page's content sits in main, in a thin frame; the app sets max-width and padding, never margin. */
+  /* A page's content sits in main, in a thin frame; Page sets its max-width and padding. */
   main {
-    width: calc(100% - 2 * var(--space-5));
-    margin: var(--space-5) auto;
+    width: calc(100% - 2 * var(--frame-gap));
+    margin: var(--frame-gap) auto;
     border: var(--border);
-  }
-  @media (max-width: 600px) {
-    main {
-      width: calc(100% - 2 * var(--space-2));
-      margin: var(--space-2) auto;
-    }
   }
 
   /* The common elements, styled once so every app looks the same; components may extend, not restyle. */
@@ -149,9 +152,12 @@ in
   select {
     cursor: pointer;
   }
-  button:hover:not(:disabled, [aria-disabled="true"]),
-  select:hover:not(:disabled) {
-    border-color: var(--subtle);
+  /* only a real pointer hovers: a tapped button would stay grey; a pressed toggle keeps its accent */
+  @media (hover: hover) {
+    button:hover:not(:disabled, [aria-disabled="true"], [aria-pressed="true"]),
+    select:hover:not(:disabled) {
+      border-color: var(--subtle);
+    }
   }
   button[aria-pressed="true"] {
     border-color: var(--accent);
@@ -188,6 +194,13 @@ in
     border: var(--border);
     border-bottom-width: 2px;
     padding: 0 var(--space-1);
+  }
+  /* a touch screen has no keys to press */
+  @media (pointer: coarse) {
+    button kbd,
+    a kbd {
+      display: none;
+    }
   }
 
   pre,
@@ -233,8 +246,7 @@ in
     transition:
       color var(--motion-fast) var(--ease),
       background-color var(--motion-fast) var(--ease),
-      border-color var(--motion-fast) var(--ease),
-      outline-color var(--motion-fast) var(--ease);
+      border-color var(--motion-fast) var(--ease);
   }
 
   @keyframes lsel-appear {

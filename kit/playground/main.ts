@@ -9,7 +9,4 @@ Object.assign(window, {
   lselFaces: [...document.fonts].map((f) => `${f.weight} ${f.family.replaceAll('"', "")}`),
 });
 
-await start(App, {
-  target: document.body,
-  props: { sub: "Every shared component, in every state." },
-});
+await start(App, { props: { sub: "Every shared component, in every state." } });

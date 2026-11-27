@@ -17,18 +17,23 @@ interface Props {
 let { page, pages, previous, next, onprevious, onnext, foot }: Props = $props();
 </script>
 
-<div class="pager" class:detail={foot !== undefined}>
-  <div class="foot">{#if foot}{@render foot()}{/if}</div>
-  <button type="button" disabled={page === 0} onclick={onprevious}
-    >‹ <kbd>{keyName(previous)}</kbd></button
-  >
-  <span>Page {page + 1} of {pages}</span>
-  <button type="button" disabled={page >= pages - 1} onclick={onnext}
-    ><kbd>{keyName(next)}</kbd> ›</button
-  >
+<div class="lsel-pager">
+  <div class="pager" class:detail={foot !== undefined}>
+    <div class="foot">{#if foot}{@render foot()}{/if}</div>
+    <button type="button" disabled={page === 0} onclick={onprevious}
+      >‹ <kbd>{keyName(previous)}</kbd></button
+    >
+    <span>Page {page + 1} of {pages}</span>
+    <button type="button" disabled={page >= pages - 1} onclick={onnext}
+      ><kbd>{keyName(next)}</kbd> ›</button
+    >
+  </div>
 </div>
 
 <style>
+  .lsel-pager {
+    container-type: inline-size;
+  }
   .pager {
     display: flex;
     gap: var(--space-3);
@@ -50,8 +55,8 @@ let { page, pages, previous, next, onprevious, onnext, foot }: Props = $props();
     min-width: 11ch;
     text-align: center;
   }
-  /* on a phone the detail gets its own line, always there, so the pager keeps one height */
-  @media (max-width: 600px) {
+  /* a narrow pager (a phone, a sidebar) gives the detail its own line, always there, so it keeps one height per width */
+  @container (max-width: 480px) {
     .detail {
       flex-wrap: wrap;
       justify-content: flex-end;

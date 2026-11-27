@@ -3,10 +3,10 @@
 One look for everything, taken from the terminal: dark, square, quiet.
 The values live in `theme/` and reach every app as `tokens.css` in
 `@sammysul/lsel`; use the variables, never the hex values. The package's
-components (`Page`, `Tabs`, `List`, `Grid`, `Status`, `Empty`, `Action`,
-`Field`) are these rules in code: use them rather than rebuilding them. A
-piece the layout rules need (a fitted grid, a stable label) goes into the kit at
-once, so no app hand-rolls layout; any other piece waits for a second app.
+components (`Page`, `Tabs`, `Toggles`, `List`, `Grid`, `Status`, `Empty`,
+`Action`, `Field`, `Swap`) are these rules in code: use them rather than rebuilding them.
+A piece the layout rules need (a fitted grid, a stable label) goes into the kit
+at once, so no app hand-rolls layout; any other piece waits for a second app.
 
 ## Palette
 
@@ -26,8 +26,10 @@ changes nothing.
 | `--muted`                           | disabled and decorative text only: it fails AA for reading                                                                                                  |
 | `--accent`                          | focus, links, the primary action, the selected row's left bar, a pressed toggle's border; as text it sits on `--base` only (it fails AA on anything raised) |
 | `--error`, `--warning`, `--success` | states; text in a state color sits on `--base`, so a selected row or a pressed toggle gets a border, not a fill                                             |
+| `--scanline`                        | the page background's scanlines; darker than `--base`, so whatever reads on `--base` reads on them                                                          |
 | `--select`                          | the text cursor                                                                                                                                             |
-| `--term-0` … `--term-15`            | the terminal's 16 colors, for syntax and charts                                                                                                             |
+| `--term-0` … `--term-15`            | the terminal's 16 colors, for charts                                                                                                                        |
+| `--base00` … `--base0F`             | the palette in base16's slots, for syntax highlighting, as nvim colors code (yank-wars' editors)                                                            |
 
 Readable pairs are pinned by `theme/contrast.test.ts` (WCAG AA, 4.5:1). Text on a filled `--accent` button is `--base`.
 
@@ -54,9 +56,13 @@ the interface around it still uses these variables.
 
 - **No rounding**: `border-radius: 0` on everything (`tokens.css` sets it).
 - 1px borders in `--overlay`; no shadows, gradients, blur or transparency
-  effects.
+  effects. The one texture is the terminal's: faint scanlines on the page
+  background (`tokens.css`: a 1px `--scanline` line every 2px), under all
+  content and never over it. Panels, rows, inputs and buttons paint their own
+  background, so the lines show only where the page does.
 - A page's content sits in `main`, which `tokens.css` frames with a border and
-  a gap to the window; the app sets only its `max-width` and padding.
+  a gap to the window (`--frame-gap`, smaller on a phone); `Page` draws it and
+  sets its `max-width` (`width`) and padding.
 - Spacing on a 4px grid: `--space-1` … `--space-7` (4, 8, 12, 16, 24, 32, 48).
 
 ## Layout
@@ -65,23 +71,28 @@ An app screen fits the window and holds still. `lselLayout()` checks both in
 every app's browser tests, at 1280×800 and 390×844 (`LAYOUT_SIZES`).
 
 - **The page never scrolls.** What can grow (rows, tiles) goes in a fitted
-  `List` (`pageSize="fit"`) or a `Grid`: it takes the height left and pages
-  instead of growing, a `List` with `h`/`l`, a `Grid` with `PgUp`/`PgDn` (its
+  `List` (`fit`) or a `Grid`: it takes the height left and pages instead of
+  growing, a `List` with `h`/`l`, a `Grid` with `PgUp`/`PgDn` (its
   `h`/`l` move between tiles). A screen with one working area (a game, an
   editor) is a `Page fill`, its children taking the height left with the
-  page's gap between them.
+  page's gap between them; a fitted `List` in it takes the rows that room
+  leaves.
 - **Nothing moves by itself.** What arrives later (loading, polling, a timer)
   takes space kept for it from the start; only the user's own key or click may
   move things (folding the key hints, an error under a submitted field).
   - A line that may appear (waiting, a count, a warning) has its place from the
     start, empty until then.
   - Controls that load later (players, filters) keep their row
-    (`--control-height`); a label that changes keeps its widest width (`Swap`,
-    `Action`).
+    (`--control-height`): a row of toggles is a `Toggles`, a line high (two on
+    a phone) from the start, which pages with `[`/`]` rather than cutting off
+    what doesn't fit. A label that changes keeps
+    its widest width (`Swap`, `Action`).
   - A list or grid keeps its height through loading, filtering and paging,
     fillers included; an empty one says so in its place.
   - Inside a fitted frame, text stays on one line, cut with an ellipsis: a wrap
-    would change the row count. Secondary detail goes in the pager row (`foot`).
+    would change the row count. Secondary detail goes in the pager row
+    (`foot`), on a line of its own when the pager is narrow (under 480px: a
+    phone, a sidebar), there even when empty.
 - **The list or grid gets the height.** Related controls group with
   `--space-3`, sections with the page's gap; prose that would wrap on a phone
   is cut short instead.
@@ -100,13 +111,17 @@ button).
 ## Interaction
 
 - **Keyboard first**: every action has a key, and the key is shown next to it
-  (`<kbd>`). `j`/`k` move, `Enter` opens, `Esc` backs out, `/` searches, `?`
-  lists the keys. A page's main keys sit under its title (`Page` draws them);
+  (`<kbd>`). `j`/`k` move (`h`/`l` too in a `Grid`), `Enter` opens, `Esc`
+  backs out, `/` searches, `?` lists the keys. A page's main keys sit under its title (`Page` draws them);
   `K` or the Keys button folds them away, remembered per app. A touch screen
-  (`pointer: coarse`) has no keys to show, so it hides the hints and the Keys
-  button.
-- Focus is always visible: `--focus`, a 2px accent outline.
-- Nothing only works on hover or with a mouse.
+  (`pointer: coarse`) has no keys to show: `Page` hides the hints and the Keys
+  button, and `tokens.css` the `<kbd>` in buttons and links. Prose that names a
+  key ("`R` loads the rest") is the app's to word or hide there.
+- Focus is always visible: `--focus`, a 2px accent outline, there at once (its
+  color is never eased).
+- Nothing only works on hover or with a mouse. Hover marks a control only where
+  the pointer can hover (`hover: hover`): on a touch screen a tapped button
+  would stay marked.
 - **Motion is subtle and on by default**, and even: `--ease` (ease-in-out)
   for what changes, `--ease-out` (settling in) for what appears, never a lurch.
   Controls ease their color and border changes (`--motion-fast`, 150 ms, set
@@ -114,9 +129,15 @@ button).
   `--motion`, 180 ms); charts animate to new values (`--motion-slow`, 300 ms).
   The loading bar glides edge to edge and back, 1.6 s each way.
   Nothing moves for decoration, except inside a game's scene (lsel-station's
-  stars). `prefers-reduced-motion` stops all of it: the CSS through
-  `tokens.css`, anything driven from JavaScript (Chart.js, the Web Animations
-  API, a canvas) by checking the media query itself.
+  stars) and the terminal's glitch: when the app opens, the screen changes
+  (`route.path`) or the tab comes back, `Page` tears the title and the frame
+  for 200 ms, in bands shifted sideways with a red/cyan split (`--accent`,
+  `--term-14`), by transforms and clip-paths only, so nothing in the page
+  moves. Never within a second of a keystroke into a field, and only `Page`
+  glitches: an app adds none of its own. `prefers-reduced-motion` stops all
+  of it: the CSS through `tokens.css`, anything driven from JavaScript
+  (Chart.js, the Web Animations API, a canvas, the glitch) by checking the
+  media query itself.
 
 ## States
 

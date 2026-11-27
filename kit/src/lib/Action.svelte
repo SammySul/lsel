@@ -7,8 +7,7 @@ import Swap from "./Swap.svelte";
 
 interface Props {
   label: string;
-  /** The first key is the one shown. */
-  key?: string | readonly string[];
+  key?: string;
   busy?: string;
   /** For 2 s after it worked: "Copied". */
   done?: string;
@@ -48,8 +47,6 @@ async function start(): Promise<void> {
   }
 }
 
-const shown = $derived(typeof key === "string" ? key : key?.[0]);
-
 const text = $derived(
   state.kind === "busy"
     ? (busy ?? label)
@@ -76,7 +73,7 @@ keys(() => (key === undefined || disabled ? [] : [{ key, label, hint, run: () =>
   aria-busy={state.kind === "busy"}
   onclick={start}
 >
-  <Swap {text} {options} />{#if shown !== undefined}{" "}<kbd>{keyName(shown)}</kbd>{/if}
+  <Swap {text} {options} />{#if key !== undefined}{" "}<kbd>{keyName(key)}</kbd>{/if}
 </button>
 
 <style>

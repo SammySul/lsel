@@ -28,8 +28,10 @@ $effect(() => {
     opacity: 0;
     transition: opacity var(--motion) var(--ease);
   }
+  /* appearing, it settles in (DESIGN.md, Interaction) */
   .shown {
     opacity: 1;
+    transition-timing-function: var(--ease-out);
   }
   /* a short segment gliding edge to edge and back: it never jumps, and it reads as waiting, not progress */
   .segment {

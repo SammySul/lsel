@@ -21,8 +21,8 @@ describes, fix or delete the note.
   `bun run build` and `test:e2e` (each runs in every member), and say plainly
   what is untested, especially anything checked only headless or only on one OS.
 - **Comments: one line or none**, only for a why the code can't show; the
-  exception is line 1 of every source file, which says what the file is for
-  (lsel-check enforces it, and a file over 400 lines).
+  exception is line 1 of every non-test source file, which says what the file
+  is for (lsel-check enforces it, and a file over 400 lines).
 - **Commits: subject line only.** No body, no trailers. Signed with the
   personal SSH key, author `Sammy Suleiman <mail@sammysul.com>`. lsel lives on
   Forgejo (`forgejo:SammySul/lsel.git`, git.sammysul.com), mirrored to GitHub by
@@ -62,12 +62,7 @@ describes, fix or delete the note.
 - **Playwright with Nix's browsers:** `playwright-core` in the root catalog must
   equal the dev shell's `PLAYWRIGHT_DRIVER_VERSION`. The rest of the shell's
   environment must come along to any other shell or runner, or the host check
-  fails and, on Linux, WebKit dies opening a page. An app with no code for a
-  Firefox or WebKit quirk sets `BROWSERS=chromium` in its `test:e2e`; one that
-  has some leaves it out, or that code goes untested.
-- Firefox logs "scroll-linked positioning effect" once per page whenever a
-  scroll handler moves content: a test that fails on console warnings must
-  ignore exactly that one.
+  fails and, on Linux, WebKit dies opening a page.
 - **Build with lsel's bun2nix, never nixpkgs' or upstream's**: 2.1.2
   rejects bun ≥ 1.3's lockfile (patched until a release has PR #110).
 - **Run `bun install` after changing a dependency or the palette**, in the dev
