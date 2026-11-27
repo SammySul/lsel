@@ -64,9 +64,27 @@ for (const name of browsers()) {
         );
       expect(themeColors).toEqual([[null, palette.base]]);
       expect(await page.locator("footer .meta").textContent()).toContain(`lsel kit v${version}`);
+      // `?` first: the line is cut from the end on a narrow window
       expect(await page.locator(".top .hints").textContent()).toBe(
-        "/ search · j next · Enter open · ? list the keys",
+        "? list the keys · / search · j next · Enter open",
       );
+      expect(await page.locator(".sub").textContent()).toBe(
+        "Every shared component, in every state.",
+      );
+      expect(await problems()).toEqual([]);
+    });
+
+    test("start() finds tokens.css's faces in the document before it mounts", async () => {
+      const { page, problems } = await open();
+      expect(
+        await page.evaluate(() => (window as unknown as { lselFaces: string[] }).lselFaces),
+      ).toEqual([
+        "400 Cantarell",
+        "700 Cantarell",
+        "400 DejaVu Sans Mono",
+        "700 DejaVu Sans Mono",
+        "400 MrRobot",
+      ]);
       expect(await problems()).toEqual([]);
     });
 
@@ -106,6 +124,32 @@ for (const name of browsers()) {
       expect(await some.take()).toEqual(['error: broke {"at":3}']);
     });
 
+    test("lselLayout names what moved by itself, past Chromium's buffer of 150 shifts", async () => {
+      const { page, problems } = await open();
+      expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
+      // 160 small moves a frame apart, then one of its own: only Chromium reports layout shifts
+      await page.evaluate(async () => {
+        const mover = document.createElement("div");
+        mover.className = "mover";
+        mover.textContent = "x";
+        Object.assign(mover.style, { position: "absolute", top: "0px", left: "0px" });
+        document.body.append(mover);
+        const frame = () => new Promise((done) => requestAnimationFrame(done));
+        await frame();
+        for (let i = 1; i <= 160; i++) {
+          mover.style.left = `${i * 4}px`;
+          await frame();
+        }
+        mover.style.top = "40px";
+        await frame();
+        await frame();
+      });
+      expect((await lselLayout(page)).shifted).toEqual(
+        name === "chromium" ? ['div.mover "x" right 4px', 'div.mover "x" down 40px'] : [],
+      );
+      expect(await problems()).toEqual([]);
+    });
+
     test("a list moves with j and k, acts on the selected row, and opens with Enter", async () => {
       const { page, problems } = await open();
       expect(await current(page)).toBe("Alpha weekly");
@@ -129,8 +173,8 @@ for (const name of browsers()) {
       await page.keyboard.press("4");
       const list = page.getByRole("list", { name: "Items" });
       const state = async () => [
-        await list.locator('li[aria-current="true"]').textContent(),
-        await page.locator(".pager span").textContent(),
+        await list.locator('li[aria-current="true"] .item').textContent(),
+        await page.locator(".pager > span").textContent(),
         await list.locator("li").count(),
         Math.round((await list.boundingBox())?.height ?? 0),
       ];
@@ -144,6 +188,40 @@ for (const name of browsers()) {
       expect(await state()).toEqual(["Item 23", "Page 3 of 3", 10, height]);
       await page.keyboard.press("h");
       expect(await state()).toEqual(["Item 13", "Page 2 of 3", 10, height]);
+      expect(await problems()).toEqual([]);
+    });
+
+    test("an empty paged list says why on one line, so its rows stay one line high", async () => {
+      const { page, problems } = await open();
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.keyboard.press("4");
+      await page.keyboard.press("e");
+      const list = page.getByRole("list", { name: "Items" });
+      const rows = await list
+        .locator("li")
+        .evaluateAll((all) => all.map((li) => Math.round(li.getBoundingClientRect().height)));
+      // a line, its padding and its border: 21 + 16 + 1
+      expect(rows).toEqual(Array(10).fill(38));
+      expect(await list.locator("li").first().getAttribute("title")).toBe(
+        "No items. m adds a hundred, and the list keeps its height while it is empty.",
+      );
+      expect(await problems()).toEqual([]);
+    });
+
+    test("a paged list's buttons hold still as its page count grows", async () => {
+      const { page, problems } = await open();
+      await page.keyboard.press("4");
+      const pager = page.locator(".pager");
+      const edges = async () => ({
+        count: await pager.locator("> span").textContent(),
+        buttons: await pager
+          .locator("button")
+          .evaluateAll((all) => all.map((b) => Math.round(b.getBoundingClientRect().x))),
+      });
+      const before = await edges();
+      expect(before.count).toBe("Page 1 of 3");
+      await page.keyboard.press("m");
+      expect(await edges()).toEqual({ count: "Page 1 of 13", buttons: before.buttons });
       expect(await problems()).toEqual([]);
     });
 
@@ -201,34 +279,21 @@ for (const name of browsers()) {
           height: Math.round((await page.locator(".lsel-grid").boundingBox())?.height ?? 0),
         };
       };
+      // a 360px box (40vh) at 1000×900, 918px wide: 7 columns of 120px or more, and 2 rows come closest to 4:5
       const first = await state();
-      const perPage = first.tiles;
-      const pages = Math.ceil(23 / perPage);
-      expect(perPage % first.cols).toBe(0);
-      expect(perPage).toBeLessThan(23);
-      expect([first.current, first.pager, first.height]).toEqual([
-        "Item 1",
-        `Page 1 of ${pages}`,
-        first.height,
-      ]);
+      const page1 = { cols: 7, tiles: 14, pager: "Page 1 of 2", height: first.height };
+      const page2 = { cols: 7, tiles: 9, pager: "Page 2 of 2", height: first.height };
+      expect(first).toEqual({ ...page1, current: "Item 1" });
       await page.keyboard.press("l");
-      expect((await state()).current).toBe("Item 2");
+      expect(await state()).toEqual({ ...page1, current: "Item 2" });
       await page.keyboard.press("j");
-      expect((await state()).current).toBe(`Item ${2 + first.cols}`);
+      expect(await state()).toEqual({ ...page1, current: "Item 9" });
       await page.keyboard.press("PageDown");
-      const second = await state();
-      expect([second.current, second.pager, second.height]).toEqual([
-        `Item ${2 + first.cols + perPage}`,
-        `Page 2 of ${pages}`,
-        first.height,
-      ]);
+      expect(await state()).toEqual({ ...page2, current: "Item 23" });
+      await page.keyboard.press("PageUp");
+      expect(await state()).toEqual({ ...page1, current: "Item 9" });
       await page.keyboard.press("G");
-      const last = await state();
-      expect([last.current, last.tiles, last.height]).toEqual([
-        "Item 23",
-        23 - perPage * (pages - 1),
-        first.height,
-      ]);
+      expect(await state()).toEqual({ ...page2, current: "Item 23" });
       expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
       expect(await problems()).toEqual([]);
     });
@@ -328,6 +393,10 @@ for (const name of browsers()) {
       expect(await alert.textContent()).toMatch(
         /^The playground's upstream is down \(try 3\)\. Showing results from \d{1,2}:\d\d [AP]M\.\s*r retries\.$/,
       );
+      // one line that never wraps, its whole text in the title when it is cut short
+      expect(
+        await alert.evaluate((el) => [getComputedStyle(el).whiteSpace, el.parentElement?.title]),
+      ).toEqual(["nowrap", (await alert.textContent())?.replace(/\s+/g, " ").trim()]);
       await answer("answer 2");
       await page.keyboard.press("r");
       await alert.filter({ hasText: "try 4" }).waitFor();
@@ -385,6 +454,41 @@ for (const name of browsers()) {
         full: el.getBoundingClientRect().width === window.innerWidth,
       }));
       expect(segment).toEqual({ animation: "none", full: true });
+    });
+
+    test("a Swap is as wide as its widest option, which is in neither its text nor its name", async () => {
+      const { page, problems } = await open();
+      await page.keyboard.press("3");
+      expect(await page.getByRole("button", { name: "Copy c", exact: true }).textContent()).toBe(
+        "Copy c",
+      );
+      const swap = page.locator(".saved .lsel-swap");
+      const read = () =>
+        swap.evaluate((el) => {
+          const box = el.getBoundingClientRect();
+          const text = el.firstElementChild?.getBoundingClientRect();
+          return {
+            text: el.textContent,
+            width: Math.round(box.width),
+            start: Math.round((text?.x ?? -1) - box.x),
+          };
+        });
+      const before = await read();
+      expect([before.text, before.start]).toEqual(["Not saved", 0]);
+      await page.getByRole("button", { name: "Save", exact: true }).click();
+      expect(await read()).toEqual({ text: "Saved at 12:00 PM", width: before.width, start: 0 });
+      // an empty text keeps the line's baseline: the row neither grows nor moves when it fills
+      const hold = page.locator(".hold");
+      const line = () =>
+        hold.evaluate((el) => {
+          const box = el.getBoundingClientRect();
+          return { text: el.textContent, top: Math.round(box.y), height: Math.round(box.height) };
+        });
+      const empty = await line();
+      expect([empty.text, empty.height]).toEqual(["Hold ", 21]);
+      await page.getByRole("button", { name: "Fill", exact: true }).click();
+      expect(await line()).toEqual({ text: "Hold full", top: empty.top, height: 21 });
+      expect(await problems()).toEqual([]);
     });
 
     test("an action says it worked, then rests; a failed one says so in red; a bad field is marked", async () => {

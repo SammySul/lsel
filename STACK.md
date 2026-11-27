@@ -47,7 +47,8 @@ starts with it: `config.ts`, `api.ts`, `main.ts`, `src/shared/` and a
 `resource()` view with its `Status`.
 
 - **Server files**: `main.ts` starts `serve()` and only wires;
-  `config.ts` holds the port and the environment's Valibot schema; `api.ts`
+  `config.ts` holds the port, and the environment's Valibot schema when the
+  app reads more than host and port; `api.ts`
   is the routes, taking its upstream as a dependency; one client per upstream
   (`pubg.ts`, `instagram.ts`). dajaj's `src/server/`.
 - **An upstream's failures** are one error class with a `kind`, mapped to an
@@ -57,7 +58,8 @@ starts with it: `config.ts`, `api.ts`, `main.ts`, `src/shared/` and a
   injected as `fetch` (`fakePubg.ts`, `fakeInstagram.ts`): unit and browser
   tests run against it, never the real one. Nothing `main.ts` imports may
   import it.
-- **The web app**: `main.ts` calls the kit's `start(App)`; data comes through
+- **The web app**: `main.ts` calls the kit's `start(App)` (with `{ props }`
+  for what only `main.ts` knows, lsel-station's `readOnly`); data comes through
   `resource()` with a `Status` per view; a view that shows one thing (a
   profile, a puzzle) is keyed on it, so the last answer never stands in for
   another's (grab's `ProfileView`). Saved choices live in one `prefs.ts`

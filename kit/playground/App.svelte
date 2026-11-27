@@ -11,8 +11,12 @@ import {
   Page,
   resource,
   Status,
+  Swap,
   Tabs,
 } from "../src/lib/index.ts";
+
+// from main.ts, through start(): the props reach the app
+let { sub }: { sub: string } = $props();
 
 // what the last action did, so the e2e test can see it
 let said = $state("");
@@ -32,6 +36,8 @@ const VIEWS = [
 
 // more rows than a page, the last page short
 const ITEMS = Array.from({ length: 23 }, (_, i) => `Item ${i + 1}`);
+// the paged list's rows, which m adds to
+let paged = $state(ITEMS);
 // more than any window holds
 const MANY = Array.from({ length: 200 }, (_, i) => `Item ${i + 1}`);
 let view: View = $state("list");
@@ -72,6 +78,24 @@ keys(() =>
     : [],
 );
 
+keys(() =>
+  view === "pages"
+    ? [
+        {
+          key: "m",
+          label: "More items",
+          run: () => {
+            paged = Array.from({ length: paged.length + 100 }, (_, i) => `Item ${i + 1}`);
+          },
+        },
+        { key: "e", label: "Empty the list", run: () => (paged = []) },
+      ]
+    : [],
+);
+
+let saved = $state(false);
+let full = $state(false);
+
 let form: HTMLElement | undefined = $state();
 keys(() =>
   view === "form"
@@ -83,7 +107,7 @@ let name = $state("");
 let nameError: string | null = $state(null);
 </script>
 
-<Page name="lsel kit" sub="Every shared component, in every state." {version}>
+<Page name="lsel kit" {sub} {version}>
   {#snippet actions()}
     <Tabs items={VIEWS} bind:value={view} label="Views" />
   {/snippet}
@@ -122,9 +146,10 @@ let nameError: string | null = $state(null);
     </section>
   {:else if view === "pages"}
     <section aria-label="Pages">
-      <List items={ITEMS} id={(item) => item} label="Items" pageSize={10} hint>
-        {#snippet row(item)}{item}{/snippet}
-        {#snippet empty()}No items.{/snippet}
+      <!-- a row with a control is taller than a line of text: the fillers must match it -->
+      <List items={paged} id={(item) => item} label="Items" pageSize={10} hint>
+        {#snippet row(item)}<span class="item">{item}</span> <button type="button" onclick={() => say(`Pinned ${item}`)}>Pin</button>{/snippet}
+        {#snippet empty()}No items. <kbd>m</kbd> adds a hundred, and the list keeps its height while it is empty.{/snippet}
       </List>
     </section>
   {:else if view === "fit"}
@@ -169,6 +194,12 @@ let nameError: string | null = $state(null);
       <div class="buttons">
         <Action label="Copy" key="c" busy="Copying…" done="Copied" run={() => new Promise((r) => setTimeout(r, 50))} />
         <Action label="Send" key="s" busy="Sending…" failed="Send failed" run={() => Promise.reject(new Error("offline"))} />
+        <button type="button" aria-pressed={saved} onclick={() => (saved = !saved)}>Save</button>
+        <span class="saved"><Swap text={saved ? "Saved at 12:00 PM" : "Not saved"} options={["Not saved", "Saved at 12:00 PM"]} align="start" /></span>
+      </div>
+      <div class="buttons">
+        <button type="button" aria-pressed={full} onclick={() => (full = !full)}>Fill</button>
+        <span class="hold">Hold <Swap text={full ? "full" : ""} options={["full"]} /></span>
       </div>
     </section>
   {/if}
@@ -193,6 +224,7 @@ let nameError: string | null = $state(null);
   .buttons {
     display: flex;
     gap: var(--space-2);
+    align-items: center;
   }
   .current {
     color: var(--text);

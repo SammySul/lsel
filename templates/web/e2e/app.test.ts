@@ -20,16 +20,18 @@ const url = serveBuilt(
 
 eachBrowser((browser) => {
   test("the page renders in lsel's look under the strict CSP, with a quiet console", async () => {
-    const page = await browser().newPage();
+    const ctx = await browser().newContext({ timezoneId: "UTC" });
+    const page = await ctx.newPage();
     const watch = watchPage(page);
     await page.goto(url(), { waitUntil: "networkidle" });
     expect(await page.getByRole("heading", { level: 1 }).textContent()).toBe(project);
     await page.getByText("Hello from the server").waitFor();
-    expect(await page.locator(".answer").textContent()).toMatch(
-      /^Hello from the server, Nov 27, \d{1,2}:05 [AP]M\.$/,
+    expect(await page.locator(".answer").textContent()).toBe(
+      "Hello from the server, Nov 27, 2:05 PM.",
     );
     expect(await lselLook(page)).toEqual(LSEL_LOOK);
     expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
     expect(await watch.take()).toEqual([]);
+    await ctx.close();
   });
 });

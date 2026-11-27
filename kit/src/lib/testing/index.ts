@@ -64,8 +64,53 @@ export function eachBrowser(body: (browser: () => Browser, name: string) => void
 const isBrowserNoise = (m: ConsoleMessage) =>
   m.type() === "warning" && m.text().includes("scroll-linked positioning effect");
 
-/** Console warnings, errors and uncaught exceptions, but `ignore`; `take()` returns and clears them. */
+type Rect = { x: number; y: number; width: number; height: number };
+/** A layout shift as the page recorded it, its nodes already named: one may be gone by the time it is read. */
+type Shift = { hadRecentInput: boolean; sources: { node: string; from: Rect; to: Rect }[] };
+type ShiftLog = { shifts: Shift[]; flush(): void };
+
+/** Runs in the page before its own scripts: every layout shift into `lselShifts`, past Chromium's buffer of 150. */
+function recordShifts(): void {
+  const w = window as unknown as { lselShifts?: ShiftLog };
+  if (w.lselShifts !== undefined) return;
+  const log: ShiftLog = { shifts: [], flush: () => undefined };
+  w.lselShifts = log;
+  if (!PerformanceObserver.supportedEntryTypes.includes("layout-shift")) return;
+  const name = (n: Node | null | undefined): string => {
+    if (!(n instanceof Element))
+      return n?.parentElement ? `text in ${name(n.parentElement)}` : "text";
+    const label = n.getAttribute("aria-label");
+    const cls = typeof n.className === "string" ? n.className.trim().split(/\s+/)[0] : "";
+    const text = n.textContent?.trim() ?? "";
+    const said = text !== "" && text.length <= 24 ? ` "${text}"` : "";
+    return `${n.localName}${cls ? `.${cls}` : ""}${label ? `[${label}]` : ""}${said}`;
+  };
+  const rect = (r: DOMRectReadOnly): Rect => ({ x: r.x, y: r.y, width: r.width, height: r.height });
+  type Entry = PerformanceEntry & {
+    hadRecentInput: boolean;
+    sources?: { node?: Node | null; previousRect: DOMRectReadOnly; currentRect: DOMRectReadOnly }[];
+  };
+  const record = (entries: PerformanceEntryList) => {
+    for (const e of entries as Entry[]) {
+      log.shifts.push({
+        hadRecentInput: e.hadRecentInput,
+        sources: (e.sources ?? []).map((s) => ({
+          node: name(s.node),
+          from: rect(s.previousRect),
+          to: rect(s.currentRect),
+        })),
+      });
+    }
+  };
+  const observer = new PerformanceObserver((list) => record(list.getEntries()));
+  observer.observe({ type: "layout-shift", buffered: true });
+  // entries not yet handed to the callback, taken at once: no timer (page.clock may have stopped them)
+  log.flush = () => record(observer.takeRecords());
+}
+
+/** Console warnings, errors and uncaught exceptions, but `ignore`; `take()` returns and clears them. Call before `goto`: it also records layout shifts for lselLayout(). */
 export function watchPage(page: Page, { ignore }: { ignore?: RegExp } = {}) {
+  void page.addInitScript(recordShifts);
   const lines: Promise<string>[] = [];
   page.on("console", (m) => {
     if ((m.type() !== "warning" && m.type() !== "error") || isBrowserNoise(m)) return;
@@ -113,10 +158,7 @@ export const LAYOUT_SIZES = [
 /** What `lselLayout()` reads on a screen that keeps DESIGN.md's layout rules. */
 export const LSEL_LAYOUT: { scrolls: string[]; shifted: string[] } = { scrolls: [], shifted: [] };
 
-/**
- * Two frames: a fitted List or Grid settles one frame after the window changes. Waited for from
- * here, with a cap: a test that stopped the page's clock (page.clock) stops its frames too.
- */
+// Two frames, as a fitted List or Grid settles a frame after the window changes; capped, as page.clock stops frames.
 const settle = (page: Page) =>
   Promise.race([
     page.evaluate(
@@ -125,61 +167,44 @@ const settle = (page: Page) =>
     Bun.sleep(250),
   ]);
 
-/**
- * DESIGN.md's layout rules, read off the page: `scrolls` names each of LAYOUT_SIZES where the page
- * scrolls (sideways always counts; down only on an app screen, not a `reading` Page), and `shifted`
- * names what moved by itself (not right after a key or click) since the page loaded or the last call (Chromium reports layout
- * shifts; other engines report none). Hands back the window it found.
- */
+/** The recorded shifts since the last call, cleared; throws when watchPage() didn't record them. */
+const takeShifts = (page: Page) =>
+  page.evaluate(() => {
+    const log = (window as unknown as { lselShifts?: ShiftLog }).lselShifts;
+    if (log === undefined) return null;
+    log.flush();
+    return log.shifts.splice(0);
+  });
+
+const how = (from: Rect, to: Rect) => {
+  const parts: string[] = [];
+  const dy = Math.round(to.y - from.y);
+  const dx = Math.round(to.x - from.x);
+  const dh = Math.round(to.height - from.height);
+  const dw = Math.round(to.width - from.width);
+  if (dy !== 0) parts.push(`${dy > 0 ? "down" : "up"} ${Math.abs(dy)}px`);
+  if (dx !== 0) parts.push(`${dx > 0 ? "right" : "left"} ${Math.abs(dx)}px`);
+  if (dh !== 0) parts.push(`${dh > 0 ? "taller" : "shorter"} ${Math.abs(dh)}px`);
+  if (dw !== 0) parts.push(`${dw > 0 ? "wider" : "narrower"} ${Math.abs(dw)}px`);
+  return parts.join(", ");
+};
+
+/** DESIGN.md's layout rules: where the page scrolls at LAYOUT_SIZES, and what moved by itself since load or the last call (Chromium only). */
 export async function lselLayout(page: Page): Promise<{ scrolls: string[]; shifted: string[] }> {
   await page.evaluate(() => document.fonts.ready);
   await settle(page);
-  const shifted = await page.evaluate(() => {
-    const seen = (window as { lselLayoutSeen?: number }).lselLayoutSeen ?? 0;
-    const name = (n: Node | null | undefined): string => {
-      if (!(n instanceof Element))
-        return n?.parentElement ? `text in ${name(n.parentElement)}` : "text";
-      const label = n.getAttribute("aria-label");
-      const cls = typeof n.className === "string" ? n.className.trim().split(/\s+/)[0] : "";
-      const text = n.textContent?.trim() ?? "";
-      const said = text !== "" && text.length <= 24 ? ` "${text}"` : "";
-      return `${n.localName}${cls ? `.${cls}` : ""}${label ? `[${label}]` : ""}${said}`;
-    };
-    type Rect = { x: number; y: number; width: number; height: number };
-    const how = (from: Rect, to: Rect) => {
-      const parts: string[] = [];
-      const dy = Math.round(to.y - from.y);
-      const dx = Math.round(to.x - from.x);
-      const dh = Math.round(to.height - from.height);
-      const dw = Math.round(to.width - from.width);
-      if (dy !== 0) parts.push(`${dy > 0 ? "down" : "up"} ${Math.abs(dy)}px`);
-      if (dx !== 0) parts.push(`${dx > 0 ? "right" : "left"} ${Math.abs(dx)}px`);
-      if (dh !== 0) parts.push(`${dh > 0 ? "taller" : "shorter"} ${Math.abs(dh)}px`);
-      if (dw !== 0) parts.push(`${dw > 0 ? "wider" : "narrower"} ${Math.abs(dw)}px`);
-      return parts.join(", ");
-    };
-    if (!PerformanceObserver.supportedEntryTypes.includes("layout-shift")) return [];
-    // buffered entries are handed over at once, so no timer (which page.clock may have stopped) is needed
-    const observer = new PerformanceObserver(() => undefined);
-    observer.observe({ type: "layout-shift", buffered: true });
-    type Shift = PerformanceEntry & {
-      hadRecentInput: boolean;
-      sources?: { node?: Node | null; previousRect: Rect; currentRect: Rect }[];
-    };
-    const entries = observer.takeRecords() as Shift[];
-    observer.disconnect();
-    // a move the user asked for (a key, a click) is theirs; DESIGN.md forbids only what moves by itself
-    return entries
-      .slice(seen)
-      .filter((e) => !e.hadRecentInput)
-      .flatMap((e) =>
-        (e.sources ?? []).flatMap((source) => {
-          const moved = how(source.previousRect, source.currentRect);
-          // under a pixel every way: text redrawn in place, nothing anyone sees move
-          return moved === "" ? [] : [`${name(source.node)} ${moved}`];
-        }),
-      );
-  });
+  const shifts = await takeShifts(page);
+  if (shifts === null) throw new Error("lselLayout needs watchPage(page) called before goto");
+  // a move the user asked for (a key, a click) is theirs; DESIGN.md forbids only what moves by itself
+  const shifted = shifts
+    .filter((e) => !e.hadRecentInput)
+    .flatMap((e) =>
+      e.sources.flatMap((source) => {
+        const moved = how(source.from, source.to);
+        // under a pixel every way: text redrawn in place, nothing anyone sees move
+        return moved === "" ? [] : [`${source.node} ${moved}`];
+      }),
+    );
   const found = page.viewportSize();
   const scrolls: string[] = [];
   for (const size of LAYOUT_SIZES) {
@@ -187,9 +212,8 @@ export async function lselLayout(page: Page): Promise<{ scrolls: string[]; shift
     await settle(page);
     const over = await page.evaluate(() => {
       const root = document.documentElement;
-      const reading = document.querySelector("main[data-lsel-reading]") !== null;
       return {
-        down: !reading && root.scrollHeight > root.clientHeight,
+        down: root.scrollHeight > root.clientHeight,
         sideways: root.scrollWidth > root.clientWidth,
       };
     });
@@ -199,14 +223,8 @@ export async function lselLayout(page: Page): Promise<{ scrolls: string[]; shift
   }
   if (found !== null) await page.setViewportSize(found);
   await settle(page);
-  // the resizing above moved things; the next call counts from here (by count: page.clock fakes the time)
-  await page.evaluate(() => {
-    if (!PerformanceObserver.supportedEntryTypes.includes("layout-shift")) return;
-    const observer = new PerformanceObserver(() => undefined);
-    observer.observe({ type: "layout-shift", buffered: true });
-    (window as { lselLayoutSeen?: number }).lselLayoutSeen = observer.takeRecords().length;
-    observer.disconnect();
-  });
+  // the resizing above moved things; the next call counts from here
+  await takeShifts(page);
   return { scrolls, shifted: [...new Set(shifted)] };
 }
 

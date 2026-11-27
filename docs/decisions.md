@@ -22,9 +22,12 @@ stay in their own repos.
 Apps use what the kit provides rather than their own copies; when an app
 doesn't fit, the app changes unless something real is missing, and then the
 kit grows. `lsel-check` fails an app that rolls its own keys, storage, date
-formats, server or styling, so the copies don't come back. The kit grows only
-from what two or more apps need, and loses what none uses any more; one app's
-piece stays in that app.
+formats, server or styling, so the copies don't come back. How it grows is
+`DESIGN.md`'s rule. Layout doesn't wait for a second app: a fitted grid or a
+stable label built inside one app drifted from the kit's and broke the layout
+rules (lsel-station's hand-built counts, typ's rows forced from outside).
+Anything else waits, so the kit holds only what is shared, and it loses what
+none uses any more.
 
 ## The kit is read from source
 

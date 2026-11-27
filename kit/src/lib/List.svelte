@@ -2,13 +2,10 @@
 <script lang="ts" generics="T">
 import type { Snippet } from "svelte";
 import Empty from "./Empty.svelte";
+import { refit } from "./fit.ts";
 import { keys } from "./keys.svelte.ts";
-
-interface Action {
-  key: string;
-  label: string;
-  run(item: T): void;
-}
+import Pager from "./Pager.svelte";
+import { type Action, selection } from "./selection.svelte.ts";
 
 interface Props {
   items: readonly T[];
@@ -22,17 +19,14 @@ interface Props {
   /** Enter, or a click on the selected row. */
   onopen?: (item: T) => void;
   /** Keys for the selected row; a function when they depend on the row. */
-  actions?: readonly Action[] | ((item: T) => readonly Action[]);
+  actions?: readonly Action<T>[] | ((item: T) => readonly Action<T>[]);
   /** Column headings, aligned with the rows. */
   head?: Snippet;
   /** Beside the pager, on its line: a count, the selected row's detail. */
   foot?: Snippet;
-  /** Shows its keys in the page footer. */
+  /** Shows its keys under the page's title. */
   hint?: boolean;
-  /**
-   * Rows per page; the list always holds a full page, so its height never changes with the items.
-   * "fit" shows as many as fit in the window, so the page never scrolls.
-   */
+  /** Rows per page, every row as tall as the tallest, so the height never changes; "fit" fills the window. */
   pageSize?: number | "fit";
 }
 
@@ -51,26 +45,17 @@ let {
   pageSize,
 }: Props = $props();
 
-// where the selection was, so a row that goes away hands it to its neighbor, not the first row
-let last = 0;
-const index = $derived.by(() => {
-  const found = items.findIndex((item) => id(item) === selected);
-  return found !== -1 ? found : Math.min(last, Math.max(0, items.length - 1));
-});
-const current = $derived(items[index]);
+const s = selection(
+  () => ({ items, id, selected, actions }),
+  (next) => (selected = next),
+);
 
-$effect(() => {
-  // an empty list (a search matching nothing, items still loading) keeps the selection for later
-  if (current === undefined) return;
-  last = index;
-  if (id(current) !== selected) selected = id(current);
-});
 // a fitted page is never shorter than this, so a small window scrolls instead
 const FIT_MIN = 3;
 let fitted = $state(10);
 const size = $derived(pageSize === "fit" ? fitted : (pageSize ?? Math.max(1, items.length)));
 const pages = $derived(Math.max(1, Math.ceil(items.length / size)));
-const page = $derived(Math.floor(index / size));
+const page = $derived(Math.floor(s.index / size));
 const start = $derived(page * size);
 const visible = $derived(items.slice(start, start + size));
 // an empty fitted list keeps its height: the empty line takes one row, fillers the rest
@@ -87,8 +72,9 @@ $effect(() => {
   const ul = list;
   // the page is main, its margins included; html and body may be sized to the window
   const page = ul.closest("main") ?? document.body;
-  const fit = () => {
+  return refit(page, () => {
     if (ul.children.length === 0) return;
+    // the rows are all one height (grid-auto-rows: 1fr), fillers included
     const row = ul.offsetHeight / ul.children.length;
     const style = getComputedStyle(page);
     const height =
@@ -98,48 +84,23 @@ $effect(() => {
     // everything but the rows: the room the rows have left is the window less that
     const rest = height - ul.offsetHeight;
     fitted = Math.max(FIT_MIN, Math.floor((document.documentElement.clientHeight - rest) / row));
-  };
-  // a frame later: resizing the page inside the observer's own callback is a loop WebKit reports
-  let frame = 0;
-  const later = () => {
-    cancelAnimationFrame(frame);
-    frame = requestAnimationFrame(fit);
-  };
-  const observer = new ResizeObserver(later);
-  observer.observe(page);
-  addEventListener("resize", later);
-  // once now, before the first paint: a list drawn at the default size and then fitted jumps
-  fit();
-  return () => {
-    cancelAnimationFrame(frame);
-    observer.disconnect();
-    removeEventListener("resize", later);
-  };
+  });
 });
 
 $effect(() => {
-  rows[index - start]?.scrollIntoView({ block: "nearest" });
+  rows[s.index - start]?.scrollIntoView({ block: "nearest" });
 });
 
-function select(i: number): void {
-  const item = items[Math.min(items.length - 1, Math.max(0, i))];
-  if (item !== undefined) selected = id(item);
+// the empty line's whole text, for when it is cut short
+function titled(el: HTMLElement) {
+  const set = () => {
+    el.title = el.textContent?.trim() ?? "";
+  };
+  set();
+  const observer = new MutationObserver(set);
+  observer.observe(el, { subtree: true, childList: true, characterData: true });
+  return () => observer.disconnect();
 }
-
-function click(event: MouseEvent, i: number): void {
-  // a control in the row does its own thing
-  if (
-    event.target instanceof Element &&
-    event.target.closest("button, a, input, label, select, textarea")
-  )
-    return;
-  if (i === index && current !== undefined) onopen?.(current);
-  else select(i);
-}
-
-const rowActions = $derived(
-  current === undefined ? [] : typeof actions === "function" ? actions(current) : actions,
-);
 
 keys(() =>
   items.length === 0
@@ -150,38 +111,28 @@ keys(() =>
           label: "Next",
           hint,
           inField: "search",
-          run: () => select(index + 1),
+          run: () => s.select(s.index + 1),
         },
         {
           key: ["k", "ArrowUp"],
           label: "Previous",
           inField: "search",
-          run: () => select(index - 1),
+          run: () => s.select(s.index - 1),
         },
-        { key: "g", label: "First", run: () => select(0) },
-        { key: "G", label: "Last", run: () => select(items.length - 1) },
+        { key: "g", label: "First", run: () => s.select(0) },
+        { key: "G", label: "Last", run: () => s.select(items.length - 1) },
         ...(pages > 1
           ? [
-              { key: ["l", "PageDown"], label: "Next page", hint, run: () => select(index + size) },
-              { key: ["h", "PageUp"], label: "Previous page", run: () => select(index - size) },
-            ]
-          : []),
-        ...(onopen
-          ? [
               {
-                key: "Enter",
-                label: "Open",
+                key: ["l", "PageDown"],
+                label: "Next page",
                 hint,
-                inField: "search" as const,
-                run: () => current !== undefined && onopen(current),
+                run: () => s.select(s.index + size),
               },
+              { key: ["h", "PageUp"], label: "Previous page", run: () => s.select(s.index - size) },
             ]
           : []),
-        ...rowActions.map((a) => ({
-          key: a.key,
-          label: a.label,
-          run: () => current !== undefined && a.run(current),
-        })),
+        ...s.keys(onopen, { hint, inField: "search" }),
       ],
 );
 </script>
@@ -190,13 +141,13 @@ keys(() =>
   <Empty>{@render empty()}</Empty>
 {:else}
   {#if head}<div class="head" aria-hidden="true">{@render head()}</div>{/if}
-  <ul class="lsel-list" aria-label={label} bind:this={list}>
-    {#if items.length === 0}<li class="filler"><Empty>{@render empty()}</Empty></li>{/if}
+  <ul class="lsel-list" class:paged={pageSize !== undefined} aria-label={label} bind:this={list}>
+    {#if items.length === 0}<li class="filler blank" {@attach titled}><Empty>{@render empty()}</Empty></li>{/if}
     {#each visible as item, i (id(item))}
       <!-- the keys above are the keyboard way in; a click is the pointer's -->
       <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
-      <li bind:this={rows[i]} aria-current={start + i === index} onclick={(e) => click(e, start + i)}>
-        {@render row(item, start + i === index)}
+      <li bind:this={rows[i]} aria-current={start + i === s.index} onclick={(e) => s.click(e, start + i, onopen)}>
+        {@render row(item, start + i === s.index)}
       </li>
     {/each}
     {#each { length: fillers }, i (i)}
@@ -204,16 +155,15 @@ keys(() =>
     {/each}
   </ul>
   {#if pageSize !== undefined}
-    <div class="pager">
-      {#if foot}<div class="foot">{@render foot()}</div>{/if}
-      <button type="button" disabled={page === 0} onclick={() => select(index - size)}
-        >‹ <kbd>h</kbd></button
-      >
-      <span>Page {page + 1} of {pages}</span>
-      <button type="button" disabled={page === pages - 1} onclick={() => select(index + size)}
-        ><kbd>l</kbd> ›</button
-      >
-    </div>
+    <Pager
+      {page}
+      {pages}
+      previous="h"
+      next="l"
+      onprevious={() => s.select(s.index - size)}
+      onnext={() => s.select(s.index + size)}
+      {foot}
+    />
   {/if}
 {/if}
 
@@ -222,6 +172,12 @@ keys(() =>
     margin: 0;
     padding: 0;
     list-style: none;
+  }
+  /* a page's rows all as tall as the tallest, fillers too, so the fitted count and the height hold */
+  .paged {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-auto-rows: 1fr;
   }
   li,
   .head {
@@ -244,18 +200,10 @@ keys(() =>
     border-bottom-color: transparent;
     cursor: auto;
   }
-  .pager {
-    display: flex;
-    gap: var(--space-3);
-    align-items: center;
-    justify-content: flex-end;
-    padding-top: var(--space-2);
-    color: var(--subtle);
-    font-size: var(--text-xs);
-    font-variant-numeric: tabular-nums;
-  }
-  .foot {
-    flex: 1;
-    min-width: 0;
+  /* one line, like a plain row: a wrapped one would set every row's height */
+  .blank :global(.lsel-empty) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 </style>

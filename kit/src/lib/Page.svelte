@@ -23,8 +23,6 @@ interface Props {
   width?: number;
   /** Fills the window, children taking the height left: a game or an editor. */
   fill?: boolean;
-  /** A page read top to bottom (sammysul), the one kind that may scroll down (DESIGN.md, Layout). */
-  reading?: boolean;
   actions?: Snippet;
   children: Snippet;
 }
@@ -37,7 +35,6 @@ let {
   license = "MIT",
   width = 960,
   fill = false,
-  reading = false,
   actions,
   children,
 }: Props = $props();
@@ -49,11 +46,11 @@ keys(() => [
   { key: "K", label: hintsShown.value ? "Hide these keys" : "Show the keys", run: toggleHints },
 ]);
 
-// `?` last: it leads to every other key
+// `?` first: it leads to every other key, and the line is cut from the end
 const hints = $derived(
   activeBindings()
     .filter((b) => b.hint)
-    .toSorted((a, b) => Number(a.key === "?") - Number(b.key === "?")),
+    .toSorted((a, b) => Number(b.key === "?") - Number(a.key === "?")),
 );
 </script>
 
@@ -62,7 +59,7 @@ const hints = $derived(
   <meta name="theme-color" content={palette.base} />
 </svelte:head>
 
-<main class="lsel-page" class:fill data-lsel-reading={reading || undefined} style:max-width="{width}px">
+<main class="lsel-page" class:fill style:max-width="{width}px">
   <div class="top">
     <header>
       <div class="title">
@@ -125,6 +122,7 @@ const hints = $derived(
     display: flex;
     flex: 1;
     flex-direction: column;
+    gap: var(--space-5);
     min-height: 0;
   }
   header {

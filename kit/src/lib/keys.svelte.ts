@@ -7,7 +7,7 @@ export interface Binding {
   key: string | readonly string[];
   /** Listed under `?`; unlabeled keys aren't. */
   label?: string;
-  /** Also shown in the page footer. */
+  /** Also shown under the page's title. */
   hint?: boolean;
   /** Also fires in fields: all, a search box for keys that type nothing, or those inside an element. */
   inField?: boolean | "search" | Element | undefined;

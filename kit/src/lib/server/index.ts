@@ -207,11 +207,7 @@ export function serve<E extends v.ObjectEntries, T = undefined>(opts: {
   }
   const http = handler(config.staticDir, opts.routes?.(config), { csp: opts.csp });
   const socket = opts.socket?.(config);
-  const at = {
-    hostname: config.host,
-    port: config.port,
-    ...(opts.idleTimeout === undefined ? {} : { idleTimeout: opts.idleTimeout }),
-  };
+  const at = { hostname: config.host, port: config.port, idleTimeout: opts.idleTimeout ?? 10 };
   const server =
     socket === undefined
       ? Bun.serve({ ...at, fetch: http })

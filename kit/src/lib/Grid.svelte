@@ -2,13 +2,10 @@
 <script lang="ts" generics="T">
 import type { Snippet } from "svelte";
 import Empty from "./Empty.svelte";
-import { keyName, keys } from "./keys.svelte.ts";
-
-interface Action {
-  key: string;
-  label: string;
-  run(item: T): void;
-}
+import { refit } from "./fit.ts";
+import { keys } from "./keys.svelte.ts";
+import Pager from "./Pager.svelte";
+import { type Action, selection } from "./selection.svelte.ts";
 
 interface Props {
   items: readonly T[];
@@ -25,7 +22,7 @@ interface Props {
   /** Any tile clicked opens at once: one tap on a phone, where a preview takes the grid's place. */
   openOnClick?: boolean;
   /** Keys for the selected tile; a function when they depend on it. */
-  actions?: readonly Action[] | ((item: T) => readonly Action[]);
+  actions?: readonly Action<T>[] | ((item: T) => readonly Action<T>[]);
   /** Beside the pager, on its line: a count, the selected tile's detail. */
   foot?: Snippet;
   /** Shows its keys under the page's title. */
@@ -52,28 +49,19 @@ let {
   ratio = 1.25,
 }: Props = $props();
 
-// where the selection was, so a tile that goes away hands it to its neighbor, not the first
-let last = 0;
-const index = $derived.by(() => {
-  const found = items.findIndex((item) => id(item) === selected);
-  return found !== -1 ? found : Math.min(last, Math.max(0, items.length - 1));
-});
-const current = $derived(items[index]);
-
-$effect(() => {
-  // no tiles (a filter matching nothing, items still loading) keeps the selection for later
-  if (current === undefined) return;
-  last = index;
-  if (id(current) !== selected) selected = id(current);
-});
+const s = selection(
+  () => ({ items, id, selected, actions }),
+  (next) => (selected = next),
+);
 
 // until measured nothing is drawn, so the first tiles never resize in place
 let shape = $state<{ cols: number; rows: number; height: number } | null>(null);
 const size = $derived(shape === null ? 1 : shape.cols * shape.rows);
 const pages = $derived(Math.max(1, Math.ceil(items.length / size)));
-const page = $derived(Math.floor(index / size));
+const page = $derived(Math.floor(s.index / size));
 const start = $derived(page * size);
 const visible = $derived(items.slice(start, start + size));
+const cols = $derived(shape?.cols ?? 1);
 
 let area: HTMLDivElement | undefined = $state();
 
@@ -81,8 +69,9 @@ $effect(() => {
   // unmounting sets the bound element to null
   if (!area) return;
   const box = area;
-  const fit = () => {
-    const gap = Number.parseFloat(getComputedStyle(box).rowGap) || 0;
+  return refit(box, () => {
+    // the tiles' gap, read before the tiles exist
+    const gap = Number.parseFloat(getComputedStyle(box).getPropertyValue("--space-2")) || 0;
     const width = box.clientWidth;
     const height = box.clientHeight;
     if (width === 0 || height === 0) return;
@@ -101,77 +90,31 @@ $effect(() => {
     if (shape?.cols !== best.cols || shape.rows !== best.rows || shape.height !== best.height) {
       shape = best;
     }
-  };
-  // a frame later: resizing inside the observer's own callback is a loop WebKit reports
-  let frame = 0;
-  const later = () => {
-    cancelAnimationFrame(frame);
-    frame = requestAnimationFrame(fit);
-  };
-  const observer = new ResizeObserver(later);
-  observer.observe(box);
-  fit();
-  return () => {
-    cancelAnimationFrame(frame);
-    observer.disconnect();
-  };
+  });
 });
-
-function select(i: number): void {
-  const item = items[Math.min(items.length - 1, Math.max(0, i))];
-  if (item !== undefined) selected = id(item);
-}
-
-function click(event: MouseEvent, i: number): void {
-  // a control in the tile does its own thing
-  if (
-    event.target instanceof Element &&
-    event.target.closest("button, a, input, label, select, textarea")
-  )
-    return;
-  const item = items[i];
-  if (item !== undefined && (openOnClick || i === index)) {
-    select(i);
-    onopen?.(item);
-  } else select(i);
-}
-
-const tileActions = $derived(
-  current === undefined ? [] : typeof actions === "function" ? actions(current) : actions,
-);
-const cols = $derived(shape?.cols ?? 1);
 
 keys(() =>
   items.length === 0
     ? []
     : [
-        { key: ["l", "ArrowRight"], label: "Next", run: () => select(index + 1) },
-        { key: ["h", "ArrowLeft"], label: "Previous", run: () => select(index - 1) },
-        { key: ["j", "ArrowDown"], label: "Down a row", hint, run: () => select(index + cols) },
-        { key: ["k", "ArrowUp"], label: "Up a row", run: () => select(index - cols) },
-        { key: "g", label: "First", run: () => select(0) },
-        { key: "G", label: "Last", run: () => select(items.length - 1) },
+        { key: ["l", "ArrowRight"], label: "Next", run: () => s.select(s.index + 1) },
+        { key: ["h", "ArrowLeft"], label: "Previous", run: () => s.select(s.index - 1) },
+        {
+          key: ["j", "ArrowDown"],
+          label: "Down a row",
+          hint,
+          run: () => s.select(s.index + cols),
+        },
+        { key: ["k", "ArrowUp"], label: "Up a row", run: () => s.select(s.index - cols) },
+        { key: "g", label: "First", run: () => s.select(0) },
+        { key: "G", label: "Last", run: () => s.select(items.length - 1) },
         ...(pages > 1
           ? [
-              { key: "PageDown", label: "Next page", hint, run: () => select(index + size) },
-              { key: "PageUp", label: "Previous page", run: () => select(index - size) },
+              { key: "PageDown", label: "Next page", hint, run: () => s.select(s.index + size) },
+              { key: "PageUp", label: "Previous page", run: () => s.select(s.index - size) },
             ]
           : []),
-        ...(onopen
-          ? [
-              {
-                key: "Enter",
-                label: "Open",
-                hint,
-                run: () => current !== undefined && onopen(current),
-              },
-            ]
-          : []),
-        ...tileActions.map((a) => ({
-          key: a.key,
-          label: a.label,
-          run: () => current !== undefined && a.run(current),
-        })),
+        ...s.keys(onopen, { hint }),
       ],
 );
 </script>
@@ -189,31 +132,29 @@ keys(() =>
         {#each visible as item, i (id(item))}
           <!-- the keys above are the keyboard way in; a click is the pointer's -->
           <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
-          <li aria-current={start + i === index} onclick={(e) => click(e, start + i)}>
-            {@render tile(item, start + i === index)}
+          <li aria-current={start + i === s.index} onclick={(e) => s.click(e, start + i, onopen, openOnClick)}>
+            {@render tile(item, start + i === s.index)}
           </li>
         {/each}
       </ul>
     {/if}
   </div>
   <!-- always there, so the grid's height never depends on how many pages it has -->
-  <div class="pager">
-    <div class="foot">{#if foot}{@render foot()}{/if}</div>
-    <button type="button" disabled={page === 0} onclick={() => select(index - size)}
-      >‹ <kbd>{keyName("PageUp")}</kbd></button
-    >
-    <span>Page {page + 1} of {pages}</span>
-    <button type="button" disabled={page >= pages - 1} onclick={() => select(index + size)}
-      ><kbd>{keyName("PageDown")}</kbd> ›</button
-    >
-  </div>
+  <Pager
+    {page}
+    {pages}
+    previous="PageUp"
+    next="PageDown"
+    onprevious={() => s.select(s.index - size)}
+    onnext={() => s.select(s.index + size)}
+    {foot}
+  />
 </div>
 
 <style>
   .lsel-grid {
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
     height: 100%;
     min-height: 0;
   }
@@ -221,7 +162,6 @@ keys(() =>
     flex: 1;
     min-height: 0;
     overflow: hidden;
-    row-gap: var(--space-2);
   }
   ul {
     display: grid;
@@ -241,37 +181,5 @@ keys(() =>
   }
   li[aria-current="true"] {
     border-color: var(--accent);
-  }
-  .pager {
-    display: flex;
-    gap: var(--space-3);
-    align-items: center;
-    color: var(--subtle);
-    font-size: var(--text-xs);
-    font-variant-numeric: tabular-nums;
-    white-space: nowrap;
-  }
-  .foot {
-    flex: 1;
-    min-width: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  /* as wide as "Page 10 of 10", so a growing count never moves the button after it */
-  .pager span {
-    min-width: 11ch;
-    text-align: center;
-  }
-  /* on a phone the detail gets its own line, always there, so the pager keeps one height */
-  @media (max-width: 600px) {
-    .pager {
-      flex-wrap: wrap;
-      justify-content: flex-end;
-      row-gap: var(--space-1);
-    }
-    .foot {
-      flex-basis: 100%;
-      min-height: 1lh;
-    }
   }
 </style>

@@ -70,8 +70,10 @@ in
 
     --border: 1px solid var(--overlay);
     --focus: 2px solid var(--accent);
+    /* a control's line, padding and border; lh resolves where it's used, so a row kept for controls matches its own text */
+    --control-height: calc(1lh + 2 * var(--space-1) + 2px);
     --ease: cubic-bezier(0.4, 0, 0.2, 1);
-    --ease-in: cubic-bezier(0, 0, 0.2, 1);
+    --ease-out: cubic-bezier(0, 0, 0.2, 1);
     --motion-fast: 150ms;
     --motion: 180ms;
     --motion-slow: 300ms;
@@ -82,11 +84,6 @@ in
   *::after {
     box-sizing: border-box;
     border-radius: 0;
-  }
-
-  /* a reading page (the one kind that scrolls) keeps room for its scrollbar, so one appearing never shifts it sideways */
-  html:has(main[data-lsel-reading]) {
-    scrollbar-gutter: stable;
   }
 
   html,
@@ -142,6 +139,11 @@ in
     background: var(--base);
     border: var(--border);
     padding: var(--space-1) var(--space-3);
+  }
+  button,
+  select,
+  input:not([type="checkbox"], [type="radio"], [type="range"], [type="file"]) {
+    min-height: var(--control-height);
   }
   button,
   select {
@@ -243,7 +245,7 @@ in
 
   /* Content that appears or swaps; re-key the element in Svelte to replay it. */
   .lsel-appear {
-    animation: lsel-appear var(--motion) var(--ease-in) both;
+    animation: lsel-appear var(--motion) var(--ease-out) both;
   }
 
   @media (prefers-reduced-motion: reduce) {
