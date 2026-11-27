@@ -33,6 +33,7 @@ const listOrder = [...puzzles].sort(comparePuzzles);
 // Unit tests check every solution against the engine and vim, parity.e2e every browser's keys:
 // Chromium walks the whole list, the others its start.
 const walked = (name: string) => (name === "chromium" ? listOrder : listOrder.slice(0, 15));
+const WALKERS = 6;
 /** Rows on a page of the puzzle list, fillers included, once it has fitted the window. */
 async function perPage(page: Page): Promise<number> {
   await page.evaluate(
@@ -176,7 +177,7 @@ eachBrowser((browser, name) => {
     if (opts.clock) await ctx.clock.install({ time: Date.UTC(2026, 0, 1) });
     const page = await ctx.newPage();
     const watch = watchPage(page, { ignore: VITE });
-    await page.goto(`${vite.base}/#/`, { waitUntil: "networkidle" });
+    await page.goto(`${vite.base}/#/`);
     await page.bringToFront();
     await page.locator(".table a.row").first().waitFor();
     return { ctx, page, problems: watch.take };
@@ -321,48 +322,55 @@ eachBrowser((browser, name) => {
   test(
     "each puzzle walked locks in on its reference solution with the self-check ok; Enter walks the list",
     async () => {
-      const { ctx, page, problems } = await fresh();
-      const first = listOrder[0] as Puzzle;
-      await openRound(page, first.id);
-      const rows: string[] = [];
-      for (const [i, p] of walked(name).entries()) {
-        await waitRound(page, p.id);
-        await page.keyboard.press("Space");
-        await typeKeys(page, p.solution);
-        await cardShown(page);
-        const c = await card(page);
-        const s = await probe(page);
-        const badge = await selfCheckDone(page);
-        rows.push(
-          JSON.stringify([
-            p.id,
-            c.headline,
-            c.keys,
-            c.notation,
-            badge,
-            s.doc === p.target,
-            s.log.length,
-          ]),
-        );
-        expect(rows.at(-1)).toBe(
-          JSON.stringify([
-            p.id,
-            "Locked in",
-            String(p.solution.length),
-            formatKeys(p.solution),
-            "DEV self-check: ok",
-            true,
-            p.solution.length,
-          ]),
-        );
-        await page.keyboard.press("Enter");
-        const next = listOrder[(i + 1) % listOrder.length] as Puzzle;
-        await page.waitForFunction((h) => location.hash === h, `#/p/${next.id}`);
-      }
-      await done(ctx, problems);
+      // In slices walked side by side, each in its own tab: a lock-in's pulse would otherwise cost the walk 400 ms a puzzle.
+      const list = walked(name);
+      const size = Math.ceil(list.length / WALKERS);
+      const slices = Array.from({ length: WALKERS }, (_, n) => n * size).filter(
+        (s) => s < list.length,
+      );
+      await Promise.all(slices.map((from) => walk(from, list.slice(from, from + size))));
     },
     walked(name).length * 2_000,
   );
+
+  async function walk(from: number, slice: readonly Puzzle[]): Promise<void> {
+    const { ctx, page, problems } = await fresh();
+    await openRound(page, (slice[0] as Puzzle).id);
+    for (const [j, p] of slice.entries()) {
+      await waitRound(page, p.id);
+      await page.keyboard.press("Space");
+      await typeKeys(page, p.solution);
+      await cardShown(page);
+      const c = await card(page);
+      const s = await probe(page);
+      const badge = await selfCheckDone(page);
+      expect(
+        JSON.stringify([
+          p.id,
+          c.headline,
+          c.keys,
+          c.notation,
+          badge,
+          s.doc === p.target,
+          s.log.length,
+        ]),
+      ).toBe(
+        JSON.stringify([
+          p.id,
+          "Locked in",
+          String(p.solution.length),
+          formatKeys(p.solution),
+          "DEV self-check: ok",
+          true,
+          p.solution.length,
+        ]),
+      );
+      await page.keyboard.press("Enter");
+      const next = listOrder[(from + j + 1) % listOrder.length] as Puzzle;
+      await page.waitForFunction((h) => location.hash === h, `#/p/${next.id}`);
+    }
+    await done(ctx, problems);
+  }
 
   test("result card: r retries, Esc goes back to the list with the best filled in", async () => {
     const { ctx, page, problems } = await fresh();
@@ -390,7 +398,8 @@ eachBrowser((browser, name) => {
     const { ctx, page: a, problems } = await fresh();
     const b = await ctx.newPage();
     const bProblems = watchPage(b, { ignore: VITE }).take;
-    await b.goto(`${vite.base}/#/`, { waitUntil: "networkidle" });
+    await b.goto(`${vite.base}/#/`);
+    await b.locator(".table a.row").first().waitFor();
     const indent = P("indent-body");
     const css = P("css-comment");
     await openRound(a, indent.id);
@@ -404,7 +413,7 @@ eachBrowser((browser, name) => {
     await playToLockIn(b, indent, "<Esc><Esc>");
     const worse = await card(b);
     expect([worse.keys, worse.best.replace(/\d:\d\d\.\d/, "T")]).toEqual(["6", "4 keys in T"]);
-    await a.reload({ waitUntil: "networkidle" });
+    await a.reload();
     await a.evaluate(() => {
       location.hash = "#/";
     });
@@ -631,7 +640,7 @@ eachBrowser((browser, name) => {
     await page.keyboard.press("u");
     await page.keyboard.press("/");
     await page.keyboard.type("o");
-    await page.reload({ waitUntil: "networkidle" });
+    await page.reload();
     await page.locator(".table a.row").first().waitFor();
     expect(await page.locator(".search").inputValue()).toBe("");
     const PAGE = await perPage(page);
@@ -647,7 +656,7 @@ eachBrowser((browser, name) => {
     const ctx = await browser().newContext({ viewport: { width: 390, height: 844 } });
     const page = await ctx.newPage();
     const watch = watchPage(page, { ignore: VITE });
-    await page.goto(`${vite.base}/#/`, { waitUntil: "networkidle" });
+    await page.goto(`${vite.base}/#/`);
     expect(await text(page, ".needs-keyboard h2")).toBe("Yank Wars needs a keyboard");
     expect(await page.locator(".table a.row").count()).toBe(0);
     await page.getByRole("button", { name: "Play anyway" }).click();

@@ -76,7 +76,9 @@ starts with it: `config.ts`, `api.ts`, `main.ts`, `src/shared/` and a
 2. Pushing `main` runs CI on twelve's Forgejo runner (`.forgejo/workflows/ci.yml`,
    `runs-on: self-hosted`, the host's Nix): `nix flake check` builds every app
    and runs each one's `bun run check` and `test` (an app nothing touched is a
-   cache hit); the browser tests run in the dev shell. Then `lsel-release` turns
+   cache hit); the browser tests run in the dev shell, for the members changed
+   since the last green run (`nix/touched.sh`; every member when the kit, the
+   theme, Nix or the lockfile's dependencies changed). Then `lsel-release` turns
    each app version without its `<name>-v<version>` tag into a Forgejo release
    listing the commit subjects under that app since its last tag; any other
    push releases nothing. GitHub mirrors the repository, with no workflows

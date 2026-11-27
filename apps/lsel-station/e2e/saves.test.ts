@@ -41,11 +41,15 @@ async function moved(key: string, before: number): Promise<void> {
   while ((await revision(key)) === before && Date.now() < until) await Bun.sleep(250);
 }
 
+/** The page's name, once start() has mounted the game. */
+const mounted = (page: Page) => page.getByRole("heading", { level: 1 }).waitFor();
+
 /** Opens the game in a context and watches its console; the context's clock is left as the caller set it. */
 async function open(context: BrowserContext, query = "") {
   const page = await context.newPage();
   const watch = watchPage(page);
-  await page.goto(address() + query, { waitUntil: "networkidle" });
+  await page.goto(address() + query);
+  await mounted(page);
   return { page, problems: () => watch.take() };
 }
 
@@ -98,7 +102,8 @@ eachBrowser((browser) => {
       await context.clock.fastForward(30_000);
       expect(await texts(page, ".stock li")).toEqual(["Iron ore 10"]);
       expect((await texts(page, ".saved"))[0]).toMatch(/^Saved \d{1,2}:\d\d (AM|PM)$/);
-      await page.reload({ waitUntil: "networkidle" });
+      await page.reload();
+      await mounted(page);
       expect([await texts(page, ".stock li"), await texts(page, ".crew li")]).toEqual([
         ["Iron ore 10"],
         ["Ana Petrov everything +3% › Mining"],
@@ -438,7 +443,8 @@ eachBrowser((browser) => {
         ],
         '{"game":"lsel-station","version":1,"n":0}',
       ]);
-      await page.reload({ waitUntil: "networkidle" });
+      await page.reload();
+      await mounted(page);
       expect(
         await page.evaluate(() => [
           localStorage.getItem("lsel-station.save.unreadable"),

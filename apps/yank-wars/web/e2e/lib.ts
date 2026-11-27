@@ -1,3 +1,4 @@
+import { rmSync } from "node:fs";
 import { join } from "node:path";
 import { parseKeys, type VimKey } from "@yank-wars/engine";
 import type { Page } from "playwright-core";
@@ -46,6 +47,8 @@ export async function startVite(
   env: Record<string, string> = {},
 ): Promise<Vite> {
   const port = await freePort();
+  // a cache of its own: suites run side by side (`--parallel`), and two vites optimizing into one cache race
+  const cacheDir = join(WEB, "node_modules/.vite-e2e", String(port));
   const proc = Bun.spawn(
     [
       "bun",
@@ -59,19 +62,28 @@ export async function startVite(
       "--host",
       "127.0.0.1",
     ],
-    { cwd: WEB, stdout: "ignore", stderr: "pipe", env: { ...process.env, ...env } },
+    {
+      cwd: WEB,
+      stdout: "ignore",
+      stderr: "pipe",
+      env: { ...process.env, ...env, YW_VITE_CACHE: cacheDir },
+    },
   );
+  const stop = () => {
+    proc.kill();
+    rmSync(cacheDir, { recursive: true, force: true });
+  };
   // Drained so vite never blocks on a full pipe; shown only if it fails to start.
   const stderr = new Response(proc.stderr).text();
   const base = `http://127.0.0.1:${port}`;
   const until = Date.now() + 30_000;
   while (Date.now() < until && proc.exitCode === null) {
     try {
-      if ((await fetch(`${base}/harness.html`)).ok) return { base, stop: () => proc.kill() };
+      if ((await fetch(`${base}/harness.html`)).ok) return { base, stop };
     } catch {}
     await Bun.sleep(100);
   }
-  proc.kill();
+  stop();
   throw new Error(`vite did not serve ${base} within 30 s:\n${await stderr}`);
 }
 

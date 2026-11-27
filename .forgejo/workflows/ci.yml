@@ -15,12 +15,21 @@ jobs:
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v7
-      - run: nix develop -c bun install --frozen-lockfile
-      - run: nix develop -c bun run build
+        with: { fetch-depth: 0 }
+      # the members changed since main's last green browsers run; every member when shared code changed
+      - id: touched
+        env: { TOKEN: "${{ secrets.GITHUB_TOKEN }}" }
+        run: echo "filters=$(nix run .#touched)" >> "$GITHUB_OUTPUT"
+      - if: steps.touched.outputs.filters != ''
+        run: nix develop -c bun install --frozen-lockfile
+      - if: steps.touched.outputs.filters != ''
+        run: nix develop -c bun run ${{ steps.touched.outputs.filters }} build
       # every yank-wars oracle case in every browser, not the local default's sample of 40
-      - run: nix develop -c bun run test:e2e
+      - if: steps.touched.outputs.filters != ''
+        run: nix develop -c bun run ${{ steps.touched.outputs.filters }} test:e2e
         env: { YW_SAMPLE: all }
       - name: yank-wars' built server verifies a claim with its embedded worker and puzzles
+        if: contains(steps.touched.outputs.filters, './apps/yank-wars')
         run: nix develop -c bun apps/yank-wars/server/smoke.ts "$(nix build .#yank-wars --no-link --print-out-paths)"
 
   # An app whose version has no <name>-v tag yet is released; `squares` deploys the newest tag.

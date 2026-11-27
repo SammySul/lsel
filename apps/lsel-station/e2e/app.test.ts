@@ -56,12 +56,16 @@ function audio(page: Page) {
   });
 }
 
+/** The page's name, once start() has mounted the game. */
+const mounted = (page: Page) => page.getByRole("heading", { level: 1 }).waitFor();
+
 /** Opens the game with its clock stopped, so a test moves time by exact amounts. `query` can fix the seed. */
 async function open(page: Page, query = ""): Promise<() => Promise<string[]>> {
   const watch = watchPage(page);
   await page.addInitScript(spyOnAudio);
   await page.clock.install({ time: 0 });
-  await page.goto(address() + query, { waitUntil: "networkidle" });
+  await page.goto(address() + query);
+  await mounted(page);
   await page.evaluate(() => document.fonts.ready);
   await page.clock.pauseAt(60_000);
   return () => watch.take();
@@ -531,7 +535,8 @@ eachBrowser((browser) => {
         "#/refining",
         ["Refining Lv 1"],
       ]);
-      await page.reload({ waitUntil: "networkidle" });
+      await page.reload();
+      await mounted(page);
       expect(await texts(page, "section > header")).toEqual(["Refining Lv 1"]);
     },
     TIMEOUT,
@@ -628,7 +633,8 @@ eachBrowser((browser) => {
       ]);
 
       // the setting is kept on this device, and a muted game never opens audio
-      await page.reload({ waitUntil: "networkidle" });
+      await page.reload();
+      await mounted(page);
       await page.keyboard.press("Enter");
       expect([await audio(page), await soundOn()]).toEqual([
         { contexts: 0, shots: [], calls: [] },

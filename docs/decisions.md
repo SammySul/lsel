@@ -55,6 +55,20 @@ any runs its browser tests in Chromium only (`BROWSERS=chromium` in its
 `test:e2e`): Firefox and WebKit would add time and flaky runs and test nothing
 of its own.
 
+## CI browser-tests what a push changed
+
+Browser tests were most of CI's time (19 minutes in November 2026, while
+`nix flake check` took two), and most pushes touch one app. CI runs them for
+the members changed since main's last green `browsers` job (`nix/touched.sh`),
+and for every member when shared code changed: the kit, the theme, Nix, the
+workflow or a dependency in the lockfile. A release's version bump in
+`bun.lock` counts only for its app. _Rejected:_ diffing against the previous
+commit alone, since a push often cancels the run before it, whose changes
+would then go untested.
+
+A test waits for the element or answer it reads next; `networkidle` (500 ms of
+quiet a page) stays only where loading has no mark of its own to wait for.
+
 ## Waiting is shown twice: a line and a bar
 
 A waiting line names what it waits for, which also serves screen readers; a 2px

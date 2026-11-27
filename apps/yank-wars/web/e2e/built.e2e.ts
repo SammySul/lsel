@@ -42,10 +42,11 @@ eachBrowser((browser) => {
   test("lsel's look, and CodeMirror styled under the server's CSP", async () => {
     const page = await browser().newPage({ viewport: { width: 1280, height: 800 } });
     const watch = watchPage(page);
-    await page.goto(url(), { waitUntil: "networkidle" });
+    await page.goto(url());
+    await page.locator(".table a.row").first().waitFor();
     expect(await lselLook(page)).toEqual(LSEL_LOOK);
     expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
-    await page.goto(`${url()}#/p/indent-body`, { waitUntil: "networkidle" });
+    await page.goto(`${url()}#/p/indent-body`);
     await page.locator(".cm-editor").first().waitFor();
     // CodeMirror's base theme makes the editor `position: relative`, from a <style> it injects
     expect(
@@ -62,7 +63,7 @@ eachBrowser((browser) => {
   test("a room's socket connects under the server's CSP", async () => {
     const page = await browser().newPage({ viewport: { width: 1280, height: 800 } });
     const watch = watchPage(page);
-    await page.goto(`${withRooms.url.href}#/r`, { waitUntil: "networkidle" });
+    await page.goto(`${withRooms.url.href}#/r`);
     await page.locator(".invite .link").waitFor({ timeout: 10_000 });
     expect(await page.evaluate(() => /^#\/r\/[a-z2-7]{10}$/.test(location.hash))).toBe(true);
     expect(await watch.take()).toEqual([]);

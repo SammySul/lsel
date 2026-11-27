@@ -24,6 +24,9 @@ const fontFile = (name: string, buffer: Buffer = FONT) => ({
   buffer,
 });
 
+// main.ts reads the stored fonts before it mounts, so the page is whole once its name shows
+const mounted = (page: Page) => page.getByText("typ", { exact: true }).first().waitFor();
+
 eachBrowser((browser, name) => {
   let ctx: BrowserContext | undefined;
   afterEach(async () => {
@@ -35,7 +38,8 @@ eachBrowser((browser, name) => {
     ctx = await browser().newContext({ viewport: { width: 1280, height: 900 } });
     const page = await ctx.newPage();
     const watch = watchPage(page);
-    await page.goto(url(), { waitUntil: "networkidle" });
+    await page.goto(url());
+    await mounted(page);
     return { page, problems: () => watch.take() };
   }
 
@@ -52,8 +56,8 @@ eachBrowser((browser, name) => {
   const rows = (page: Page) =>
     page.getByRole("list", { name: "Your fonts" }).locator(":scope > li").count();
   const reload = async (page: Page) => {
-    await page.reload({ waitUntil: "networkidle" });
-    await page.getByText("typ", { exact: true }).first().waitFor();
+    await page.reload();
+    await mounted(page);
   };
 
   test("lsel's look, under the strict CSP", async () => {

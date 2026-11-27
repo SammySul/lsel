@@ -17,8 +17,9 @@ eachBrowser((browser) => {
   test("lists every project with its link, in lsel's look, with a quiet console", async () => {
     const page = await browser().newPage();
     const watch = watchPage(page);
-    await page.goto(url(), { waitUntil: "networkidle" });
+    await page.goto(url());
     const links = page.locator('ul[aria-label="Projects"] a');
+    await links.first().waitFor();
     expect(await links.allTextContents()).toEqual([
       "typ",
       "yank-wars",
@@ -46,7 +47,8 @@ eachBrowser((browser) => {
     await page.route("https://yankwars.app/**", (route) =>
       route.fulfill({ contentType: "text/plain", body: "yank-wars" }),
     );
-    await page.goto(url(), { waitUntil: "networkidle" });
+    await page.goto(url());
+    await page.locator('ul[aria-label="Projects"]').waitFor();
     await page.keyboard.press("j");
     expect(
       await page.locator('ul[aria-label="Projects"] li[aria-current="true"] a').textContent(),

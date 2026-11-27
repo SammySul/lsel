@@ -23,7 +23,7 @@ eachBrowser((browser) => {
     const ctx = await browser().newContext({ timezoneId: "UTC" });
     const page = await ctx.newPage();
     const watch = watchPage(page);
-    await page.goto(url(), { waitUntil: "networkidle" });
+    await page.goto(url());
     expect(await page.getByRole("heading", { level: 1 }).textContent()).toBe(project);
     await page.getByText("Hello from the server").waitFor();
     expect(await page.locator(".answer").textContent()).toBe(

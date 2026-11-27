@@ -61,6 +61,13 @@ afterEach(() => {
   fake.state.fail = undefined;
 });
 
+/** Navigates, then waits for the first report's answer, which every test reads. */
+async function loaded(page: Page, go: () => Promise<unknown>): Promise<void> {
+  const answered = page.waitForResponse((r) => r.url().includes("/api/report"));
+  await go();
+  await answered;
+}
+
 eachBrowser((browser) => {
   async function open(
     at = url,
@@ -77,7 +84,7 @@ eachBrowser((browser) => {
     });
     const page = await ctx.newPage();
     const watch = watchPage(page);
-    await page.goto(at(), { waitUntil: "networkidle" });
+    await loaded(page, () => page.goto(at()));
     return { ctx, page, problems: () => watch.take() };
   }
 
@@ -164,7 +171,7 @@ eachBrowser((browser) => {
     await page.getByRole("button", { name: "Reason_ING" }).click();
     await page.keyboard.press("3");
     await page.locator("select").selectOption("walkDistance");
-    await page.reload({ waitUntil: "networkidle" });
+    await loaded(page, () => page.reload());
     expect(await pressed(page, "Players")).toEqual(["AntennaTower", "Rectifier94"]);
     expect(await pressed(page, "View")).toEqual(["Line 3"]);
     expect(await page.locator("select").inputValue()).toBe("walkDistance");

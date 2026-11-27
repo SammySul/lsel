@@ -129,6 +129,17 @@
             text = builtins.readFile ./nix/release.sh;
           };
 
+          touched = pkgs.writeShellApplication {
+            name = "lsel-touched";
+            runtimeInputs = [
+              pkgs.coreutils
+              pkgs.curl
+              pkgs.git
+              pkgs.jq
+            ];
+            text = builtins.readFile ./nix/touched.sh;
+          };
+
           # `nix run lsel#favicon -- d > favicon.svg`: a letter in the display face as a path, so no font is needed to show it
           favicon =
             pkgs.writers.writePython3Bin "lsel-favicon"
@@ -184,7 +195,7 @@
         in
         {
           # writeShellApplication runs shellcheck on it
-          inherit (self.packages.${pkgs.stdenv.hostPlatform.system}) release;
+          inherit (self.packages.${pkgs.stdenv.hostPlatform.system}) release touched;
           contrast =
             pkgs.runCommand "lsel-contrast"
               {

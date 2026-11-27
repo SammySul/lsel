@@ -16,7 +16,7 @@ Playwright drives the DEV server in Chromium, Firefox and WebKit. They need the 
 browsers and are not part of plain `bun test` (the files end in `.e2e.ts`):
 
 ```sh
-nix develop -c bun run test:e2e                     # all three; CI sets YW_SAMPLE=all
+nix develop -c bun run test:e2e                     # flow, parity, room side by side, then built; CI sets YW_SAMPLE=all
 nix develop -c bun test ./web/e2e/flow.e2e.ts       # the real app, list to result card
 nix develop -c bun test ./web/e2e/parity.e2e.ts     # oracle cases: live == replay of the log
 nix develop -c bun test ./web/e2e/room.e2e.ts       # two players in a room, a reload mid-round

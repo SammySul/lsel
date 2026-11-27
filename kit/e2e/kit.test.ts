@@ -31,6 +31,8 @@ const url = serveBuilt(join(import.meta.dir, "../playground-dist"));
 const current = (page: Page) =>
   page.locator('ul[aria-label="Feeds"] li[aria-current="true"] span').textContent();
 const status = (page: Page) => page.locator("p.said").textContent();
+// the first screen's list: start() has mounted the playground
+const mounted = (page: Page) => page.locator('ul[aria-label="Feeds"]').waitFor();
 
 for (const name of browsers()) {
   describe(name, () => {
@@ -49,7 +51,8 @@ for (const name of browsers()) {
     async function open(): Promise<{ page: Page; problems: () => Promise<string[]> }> {
       const page = await browser.newPage();
       const watch = watchPage(page);
-      await page.goto(url(), { waitUntil: "networkidle" });
+      await page.goto(url());
+      await mounted(page);
       return { page, problems: () => watch.take() };
     }
 
@@ -100,13 +103,23 @@ for (const name of browsers()) {
       const open_ = await state();
       expect(open_.slice(0, 2)).toEqual(["true", "false"]);
       expect(open_[2]).toBeGreaterThan(0);
+      // the fold is a transition: wait for the height it ends at
+      const folded = (height: unknown) =>
+        page.waitForFunction(
+          (h) =>
+            Math.round(
+              document.querySelector(".top .hints")?.getBoundingClientRect().height ?? -1,
+            ) === h,
+          height,
+        );
       await page.keyboard.press("K");
-      await page.waitForTimeout(400);
+      await folded(0);
       expect(await state()).toEqual(["false", "true", 0]);
-      await page.reload({ waitUntil: "networkidle" });
+      await page.reload();
+      await mounted(page);
       expect(await state()).toEqual(["false", "true", 0]);
       await toggle.click();
-      await page.waitForTimeout(400);
+      await folded(open_[2]);
       expect(await state()).toEqual(open_);
       expect(await problems()).toEqual([]);
     });
@@ -115,7 +128,8 @@ for (const name of browsers()) {
       const page = await browser.newPage();
       const all = watchPage(page);
       const some = watchPage(page, { ignore: /^warning: dev / });
-      await page.goto(url(), { waitUntil: "networkidle" });
+      await page.goto(url());
+      await mounted(page);
       await page.evaluate(() => {
         console.warn("dev server chatter");
         console.error("broke", { at: 3 });
@@ -230,19 +244,26 @@ for (const name of browsers()) {
       await page.setViewportSize({ width: 1000, height: 720 });
       await page.keyboard.press("5");
       const list = page.getByRole("list", { name: "Items" });
-      // the window's room left under the page, and one row's height: a fitted page leaves less than a row
+      // the room left under the page and a row's height, once nothing moves: a fitted page leaves less than a row
       const fit = async () => {
-        await page.waitForTimeout(400);
-        return page.evaluate(() => {
+        const measure = () => {
           const root = document.documentElement;
-          const ul = document.querySelector('ul[aria-label="Items"]') as HTMLElement;
+          const ul = document.querySelector<HTMLElement>('ul[aria-label="Items"]');
+          if (ul === null) return { rows: 0, fits: false, moving: true };
           const left = root.clientHeight - root.getBoundingClientRect().height;
           const row = ul.offsetHeight / ul.children.length;
           return {
             rows: ul.children.length,
             fits: left >= 0 && left < row && root.scrollHeight <= root.clientHeight,
+            moving: document.getAnimations().some((a) => a instanceof CSSTransition),
           };
-        });
+        };
+        const until = Date.now() + 2000;
+        for (;;) {
+          const { rows, fits, moving } = await page.evaluate(measure);
+          if ((fits && !moving) || Date.now() > until) return { rows, fits };
+          await page.evaluate(() => new Promise((done) => requestAnimationFrame(done)));
+        }
       };
       const tall = await fit();
       expect(tall.fits).toBe(true);
@@ -417,7 +438,8 @@ for (const name of browsers()) {
           }
         }).observe(document, { subtree: true, attributes: true, childList: true });
       });
-      await page.goto(url(), { waitUntil: "networkidle" });
+      await page.goto(url());
+      await mounted(page);
       await page.keyboard.press("2");
       await page.locator(".answer", { hasText: "answer 1" }).waitFor();
       await page.waitForTimeout(400);
@@ -445,7 +467,8 @@ for (const name of browsers()) {
     test("with reduced motion the loading bar is a still, full line", async () => {
       const page = await browser.newPage();
       await page.emulateMedia({ reducedMotion: "reduce" });
-      await page.goto(url(), { waitUntil: "networkidle" });
+      await page.goto(url());
+      await mounted(page);
       await page.keyboard.press("2");
       await page.getByRole("button", { name: "slow" }).click();
       await page.locator(".lsel-loading.shown").waitFor({ state: "attached" });
