@@ -3,7 +3,15 @@ import { afterEach, expect, test } from "bun:test";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { eachBrowser, LSEL_LOOK, lselLook, serveBuilt, watchPage } from "@sammysul/lsel/testing";
+import {
+  eachBrowser,
+  LSEL_LAYOUT,
+  LSEL_LOOK,
+  lselLayout,
+  lselLook,
+  serveBuilt,
+  watchPage,
+} from "@sammysul/lsel/testing";
 import type { BrowserContext, Page } from "playwright-core";
 import { api } from "../src/server/api.ts";
 import { fakeInstagram, WORLD } from "../src/server/fakeInstagram.ts";
@@ -56,7 +64,7 @@ eachBrowser((browser) => {
     const ctx = await browser().newContext({
       timezoneId: "UTC",
       acceptDownloads: true,
-      viewport: { width: 1280, height: 900 },
+      viewport: { width: 1280, height: 800 },
     });
     const page = await ctx.newPage();
     const watch = watchPage(page);
@@ -66,21 +74,32 @@ eachBrowser((browser) => {
 
   const tiles = (page: Page) => page.locator('[aria-label="Files"] > li');
   const currentTile = (page: Page) =>
-    page.locator('[aria-label="Files"] > li[aria-current="true"]').getAttribute("aria-label");
+    page
+      .locator('[aria-label="Files"] > li[aria-current="true"] input')
+      .getAttribute("aria-label")
+      .then((label) => label?.replace(/^Tick (.*) for the zip$/, "$1"));
   const facts = (page: Page) => page.locator(".facts").textContent();
   const ticked = (page: Page) => page.locator(".count").textContent();
+  const foot = (page: Page) =>
+    page
+      .locator(".pager .foot")
+      .textContent()
+      .then((t) => t?.replace(/\s+/g, " ").trim());
+  const pager = (page: Page) => page.locator(".pager > span").textContent();
 
   test("lsel's look under the strict CSP, every tile's image drawn through the server", async () => {
     const { ctx, page, problems } = await open("#/nat.geo");
     await tiles(page).first().waitFor();
     expect(await lselLook(page)).toEqual(LSEL_LOOK);
-    expect(await tiles(page).count()).toBe(11);
+    expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
+    // 4 across and 2 down fit at 1280×800: the 11 files take two pages, the page never scrolls
+    expect([await tiles(page).count(), await pager(page)]).toEqual([8, "Page 1 of 2"]);
     const drawn = await page
       .locator('[aria-label="Files"] img')
       .evaluateAll((imgs: HTMLImageElement[]) =>
         Promise.all(imgs.map((i) => i.decode().then(() => i.naturalWidth))),
       );
-    expect(drawn).toEqual(new Array(11).fill(1));
+    expect(drawn).toEqual(new Array(8).fill(1));
     expect(await problems()).toEqual([]);
     await ctx.close();
   });
@@ -96,12 +115,10 @@ eachBrowser((browser) => {
     await page.locator(".who h2").waitFor();
     expect(new URL(page.url()).hash).toBe("#/nat.geo");
     expect(await page.locator(".who h2").textContent()).toBe("National Geo");
-    expect(await page.locator(".who .sub").textContent()).toBe(
+    expect(await page.locator(".who .line").textContent()).toBe(
       "nat.geo · verified · 267,196,027 followers · 800 posts",
     );
-    expect(await page.getByText("The newest 8").textContent()).toBe(
-      "The newest 8: all Instagram shows without a login.",
-    );
+    expect(await foot(page)).toBe("The newest 8: all Instagram shows without a login");
     await page.getByLabel("Username").fill("no spaces");
     await page.keyboard.press("Enter");
     expect(await page.getByLabel("Username").getAttribute("aria-invalid")).toBe("true");
@@ -146,9 +163,19 @@ eachBrowser((browser) => {
     await page.keyboard.press("k");
     expect(await currentTile(page)).toBe("Video 3 of 3 in post Car-ousel2");
     await page.keyboard.press("G");
-    expect(await currentTile(page)).toBe("Photo, post Photo8");
-    await tiles(page).nth(2).click();
-    expect(await currentTile(page)).toBe("Photo 1 of 3 in post Car-ousel2");
+    expect([await currentTile(page), await pager(page), await tiles(page).count()]).toEqual([
+      "Photo, post Photo8",
+      "Page 2 of 2",
+      3,
+    ]);
+    // a page back is 8 back: from the 11th file, the 3rd
+    await page.keyboard.press("PageUp");
+    expect([await currentTile(page), await pager(page)]).toEqual([
+      "Photo 1 of 3 in post Car-ousel2",
+      "Page 1 of 2",
+    ]);
+    await tiles(page).nth(4).click();
+    expect(await currentTile(page)).toBe("Video 3 of 3 in post Car-ousel2");
     expect(await problems()).toEqual([]);
     await ctx.close();
   });
@@ -163,8 +190,9 @@ eachBrowser((browser) => {
     await page.keyboard.press("l");
     await page.keyboard.press("l");
     await page.keyboard.press("l");
-    await page.keyboard.press(" ");
-    await tiles(page).nth(10).locator("input").check();
+    await page.keyboard.press("x");
+    await page.keyboard.press("PageDown");
+    await tiles(page).nth(2).locator("input").check();
     expect(await ticked(page)).toBe("3 of 11 files ticked");
     const dir = mkdtempSync(join(tmpdir(), "grab-e2e-"));
     const [archive] = await Promise.all([page.waitForEvent("download"), page.keyboard.press("z")]);
@@ -174,7 +202,7 @@ eachBrowser((browser) => {
       "nat.geo_picture.jpg\nnat.geo_Car-ousel2_3.mp4\nnat.geo_Photo8_1.jpg\n",
     );
     const [one] = await Promise.all([page.waitForEvent("download"), page.keyboard.press("d")]);
-    expect(one.suggestedFilename()).toBe("nat.geo_Car-ousel2_3.mp4");
+    expect(one.suggestedFilename()).toBe("nat.geo_Photo8_1.jpg");
     await page.keyboard.press("a");
     expect(await ticked(page)).toBe("11 of 11 files ticked");
     await page.keyboard.press("n");
@@ -185,17 +213,17 @@ eachBrowser((browser) => {
 
   test("a missing post, an empty profile and an unknown name each say so", async () => {
     const { ctx, page, problems } = await open("#/patchy");
-    await page.locator(".missing").waitFor();
-    expect(await page.locator(".missing").textContent()).toBe(
-      "1 post couldn't be loaded from Instagram.",
-    );
-    expect(await tiles(page).count()).toBe(2);
+    await page.locator(".pager .warning").waitFor();
+    expect([await foot(page), await tiles(page).count()]).toEqual([
+      "1 post couldn't be loaded from Instagram",
+      2,
+    ]);
     await page.goto(`${url()}#/quiet`, { waitUntil: "networkidle" });
-    await page.locator(".lsel-empty").waitFor();
-    expect(await page.locator(".lsel-empty").textContent()).toBe(
-      "No public posts. The account may be private or have none yet; its picture is below.",
-    );
-    expect(await tiles(page).count()).toBe(1);
+    await page.getByText("No public posts").waitFor();
+    expect([await foot(page), await tiles(page).count()]).toEqual([
+      "No public posts: the account may be private or have none yet",
+      1,
+    ]);
     await page.goto(`${url()}#/ghost`, { waitUntil: "networkidle" });
     const alert = page.getByRole("alert");
     await alert.waitFor();
@@ -221,24 +249,25 @@ eachBrowser((browser) => {
     moody.state.fail = undefined;
     await page.keyboard.press("r");
     await page.locator(".who h2").waitFor();
-    expect([await alert.count(), await tiles(page).count()]).toEqual([0, 11]);
+    expect([await alert.count(), await tiles(page).count()]).toEqual([0, 8]);
     await ctx.close();
   });
 
   test("cut short by Instagram's rate limit: what came, a line saying so, and r loads the rest", async () => {
     throttled.state.limitAfter = 3;
     const { ctx, page, problems } = await open("#/nat.geo", throttledUrl);
-    const line = page.locator(".missing");
+    const line = page.locator(".pager .warning");
     await line.waitFor();
-    expect((await line.textContent())?.replace(/\s+/g, " ").trim()).toBe(
-      "Instagram is limiting this server, so 5 posts didn't load. r loads the rest; if it stops again, wait a few minutes.",
+    expect(await foot(page)).toBe(
+      "Instagram is limiting this server: 5 posts didn't load. r loads the rest.",
     );
     // the picture, the pinned photo, the carousel's three and the reel
-    expect(await tiles(page).count()).toBe(6);
+    expect([await tiles(page).count(), await pager(page)]).toEqual([6, "Page 1 of 1"]);
     throttled.state.limitAfter = undefined;
     await page.keyboard.press("r");
     await line.waitFor({ state: "detached" });
-    expect(await tiles(page).count()).toBe(11);
+    expect([await tiles(page).count(), await pager(page)]).toEqual([8, "Page 1 of 2"]);
+    expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
     expect(await problems()).toEqual([]);
     await ctx.close();
   });
@@ -248,14 +277,44 @@ eachBrowser((browser) => {
     const progress = page.getByText(/^Loaded \d of the newest 8 posts/);
     await progress.waitFor();
     expect(await progress.textContent()).toMatch(
-      /^Loaded [1-7] of the newest 8 posts; Instagram answers about one a second\.$/,
+      /^Loaded [0-7] of the newest 8 posts, about one a second$/,
     );
-    expect(await tiles(page).count()).toBeLessThan(11);
     await page
-      .getByText("The newest 8: all Instagram shows without a login.")
+      .getByText("The newest 8: all Instagram shows without a login")
       .waitFor({ timeout: 10_000 });
-    expect([await tiles(page).count(), await progress.count()]).toEqual([11, 0]);
+    expect([await tiles(page).count(), await progress.count()]).toEqual([8, 0]);
+    // the posts that came in on their own moved nothing
+    expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
     expect(await problems()).toEqual([]);
     await ctx.close();
   }, 20_000);
+
+  test("on a phone a tap opens the file in the grid's place, and Esc goes back", async () => {
+    const ctx = await browser().newContext({
+      viewport: { width: 390, height: 844 },
+      timezoneId: "UTC",
+      hasTouch: true,
+      isMobile: true,
+    });
+    const page = await ctx.newPage();
+    const watch = watchPage(page);
+    await page.goto(`${url()}#/nat.geo`, { waitUntil: "networkidle" });
+    await tiles(page).first().waitFor();
+    const shown = () =>
+      Promise.all([
+        page.getByRole("list", { name: "Files" }).isVisible(),
+        page.getByRole("region", { name: "Preview" }).isVisible(),
+      ]);
+    expect(await shown()).toEqual([true, false]);
+    await tiles(page).nth(1).tap();
+    expect([await shown(), await facts(page)]).toEqual([
+      [false, true],
+      "Photo · 1080 × 1350 · Oct 17, 3:00 PM",
+    ]);
+    expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
+    await page.keyboard.press("Escape");
+    expect(await shown()).toEqual([true, false]);
+    expect(await watch.take()).toEqual([]);
+    await ctx.close();
+  });
 });

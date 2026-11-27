@@ -40,6 +40,7 @@ keys(() => [{ key: "/", label: "Type a username", hint: true, run: () => field?.
   {version}
   source="https://git.sammysul.com/SammySul/lsel/src/branch/main/apps/grab"
   width={1200}
+  fill
 >
   <form class="lookup" onsubmit={submit}>
     <Field label="Username" error={invalid}>
