@@ -1,0 +1,17 @@
+{
+  "id": "equals-before-the-digit",
+  "title": "Equals before the digit",
+  "difficulty": "medium",
+  "description": "Record once, replay on the other lines.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "x1\ny2\nz3",
+  "target": "x=1\ny=2\nz=3",
+  "solution": "qq$i=<Esc>jq2@q",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["macro"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "backwards",
+  "title": "Backwards",
+  "difficulty": "hard",
+  "description": "Reverse four letters with deletes and puts.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "abcd",
+  "target": "dcba",
+  "solution": "$x0P$x0lP$x02lP",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "yank-put"]
+}

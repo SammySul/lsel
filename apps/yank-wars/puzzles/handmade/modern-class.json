@@ -1,0 +1,17 @@
+{
+  "id": "modern-class",
+  "title": "Modern class",
+  "difficulty": "easy",
+  "description": "Delete the parens and what is between.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "class Shape(object):\n    pass",
+  "target": "class Shape:\n    pass",
+  "solution": "f(d%",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["match", "delete"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "return-the-zero-too",
+  "title": "Return a nil too",
+  "difficulty": "easy",
+  "description": "Insert before the last word.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "\treturn err",
+  "target": "\treturn nil, err",
+  "solution": "$binil,<Space>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert", "motion"]
+}

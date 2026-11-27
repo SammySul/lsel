@@ -1,0 +1,17 @@
+{
+  "id": "biggest-first",
+  "title": "Biggest first",
+  "difficulty": "medium",
+  "description": "Sort numerically, in reverse.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "3\n10\n2",
+  "target": "10\n3\n2",
+  "solution": ":sort! n<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["sort", "ex"]
+}

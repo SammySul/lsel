@@ -1,0 +1,17 @@
+{
+  "id": "skip-a-directory",
+  "title": "Skip a directory",
+  "difficulty": "easy",
+  "description": "Find a slash, step over it, delete through the next.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "/usr/local/bin",
+  "target": "/usr/bin",
+  "solution": "f/ldf/",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "find"]
+}

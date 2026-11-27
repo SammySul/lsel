@@ -1,0 +1,17 @@
+{
+  "id": "delete-the-line-after",
+  "title": "Delete the line after",
+  "difficulty": "medium",
+  "description": "Remove the line that follows each match.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "start\nx\nstart\ny\nz",
+  "target": "start\nstart\nz",
+  "solution": ":g/start/+1d<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global", "delete"]
+}

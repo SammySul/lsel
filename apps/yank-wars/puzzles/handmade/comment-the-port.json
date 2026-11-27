@@ -1,0 +1,17 @@
+{
+  "id": "comment-the-port",
+  "title": "Comment out the port",
+  "difficulty": "easy",
+  "description": "Put a hash and a space in front.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "PORT=3000\nDEBUG=true",
+  "target": "# PORT=3000\nDEBUG=true",
+  "solution": "I#<Space>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

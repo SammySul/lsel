@@ -1,0 +1,17 @@
+{
+  "id": "enable-the-button",
+  "title": "Enable the button",
+  "difficulty": "easy",
+  "description": "Delete the attribute up to the bracket.",
+  "language": "jsx",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "<button disabled>Go</button>",
+  "target": "<button>Go</button>",
+  "solution": "f<Space>dt>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "find"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "double-every-line",
+  "title": "Double every line",
+  "difficulty": "medium",
+  "description": "Copy each line below itself with :g.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "a\nb",
+  "target": "a\na\nb\nb",
+  "solution": ":g/^/t.<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global"]
+}

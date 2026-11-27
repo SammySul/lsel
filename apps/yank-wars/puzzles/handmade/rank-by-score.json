@@ -1,0 +1,17 @@
+{
+  "id": "rank-by-score",
+  "title": "Rank by score",
+  "difficulty": "hard",
+  "description": "Sort by a pattern, highest first.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "carol 7\nalice 9\nbob 8",
+  "target": "alice 9\nbob 8\ncarol 7",
+  "solution": ":sort! /\\D\\+/<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["sort", "regex"]
+}

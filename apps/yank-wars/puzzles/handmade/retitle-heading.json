@@ -1,0 +1,17 @@
+{
+  "id": "retitle-heading",
+  "title": "Retitle the heading",
+  "difficulty": "easy",
+  "description": "Change the text inside the tag.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "<h1>Old</h1>",
+  "target": "<h1>New</h1>",
+  "solution": "citNew",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object", "change"]
+}

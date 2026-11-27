@@ -1,0 +1,17 @@
+{
+  "id": "first-goes-last",
+  "title": "First goes last",
+  "difficulty": "easy",
+  "description": "Cut the first line, paste it at the end.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "a\nb\nc",
+  "target": "b\nc\na",
+  "solution": "ddGp",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "yank-put"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "renumber-the-list",
+  "title": "Renumber the list",
+  "difficulty": "easy",
+  "description": "Increment each number by a different count.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "1. a\n1. b\n1. c",
+  "target": "1. a\n2. b\n3. c",
+  "solution": "j<C-a>j2<C-a>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["increment"]
+}

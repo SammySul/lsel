@@ -1,0 +1,17 @@
+{
+  "id": "drop-a-column",
+  "title": "Drop a column",
+  "difficulty": "easy",
+  "description": "Delete up to the next comma.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "name,age,city",
+  "target": "name,city",
+  "solution": "f,dt,",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "find"]
+}

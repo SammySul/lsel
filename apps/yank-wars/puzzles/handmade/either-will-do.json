@@ -1,0 +1,17 @@
+{
+  "id": "either-will-do",
+  "title": "Either will do",
+  "difficulty": "easy",
+  "description": "Change a word with cw.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "if a and b:\n    pass",
+  "target": "if a or b:\n    pass",
+  "solution": "wwcwor",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change", "word"]
+}

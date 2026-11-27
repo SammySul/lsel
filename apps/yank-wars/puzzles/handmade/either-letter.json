@@ -1,0 +1,17 @@
+{
+  "id": "either-letter",
+  "title": "Either letter",
+  "difficulty": "medium",
+  "description": "One pattern with an or.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "abc cab",
+  "target": "XXc cXX",
+  "solution": ":s/a\\|b/X/g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

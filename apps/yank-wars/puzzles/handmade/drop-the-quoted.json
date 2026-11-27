@@ -1,0 +1,17 @@
+{
+  "id": "drop-the-quoted",
+  "title": "Drop the quoted word",
+  "difficulty": "easy",
+  "description": "Delete a quoted word with its quotes.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "a \"quoted\" word",
+  "target": "a word",
+  "solution": "da\"",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object", "delete"]
+}

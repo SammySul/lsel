@@ -1,0 +1,17 @@
+{
+  "id": "bump-base-image",
+  "title": "Bump the base image",
+  "difficulty": "easy",
+  "description": "Raise 18 to 20 in place.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "FROM node:18\nRUN npm ci",
+  "target": "FROM node:20\nRUN npm ci",
+  "solution": "f12<C-a>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["increment", "find"]
+}

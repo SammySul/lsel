@@ -43,6 +43,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-add-the-prefix": {
+      "start": "transition: all 1s;",
+      "keys": "yyPI-webkit-",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "-webkit-transition: all 1s;\ntransition: all 1s;",
+      "cursor": {
+        "line": 1,
+        "col": 9
+      },
+      "mode": "insert"
+    },
     "puzzle-alphabet-soup": {
       "start": "pear fig apple kiwi date",
       "keys": ":s/ /\\r/g<CR>:sor<CR>gg5J",
@@ -295,6 +309,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-backwards": {
+      "start": "abcd",
+      "keys": "$x0P$x0lP$x02lP",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "dcba",
+      "cursor": {
+        "line": 1,
+        "col": 3
+      },
+      "mode": "normal"
+    },
     "puzzle-batman": {
       "start": "Batman!",
       "keys": "8Ina <Esc>",
@@ -309,6 +337,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-big-words": {
+      "start": "std.out std.err std.in",
+      "keys": "2dW",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "std.in",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-bigger-font": {
       "start": "p {\n  font-size: 12px;\n}",
       "keys": "j4<C-a>",
@@ -320,6 +362,34 @@
       "cursor": {
         "line": 2,
         "col": 15
+      },
+      "mode": "normal"
+    },
+    "puzzle-biggest-first": {
+      "start": "3\n10\n2",
+      "keys": ":sort! n<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "10\n3\n2",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-black-hole": {
+      "start": "KEEP\nold\nother",
+      "keys": "yyj\"_ddP",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "KEEP\nKEEP\nother",
+      "cursor": {
+        "line": 2,
+        "col": 1
       },
       "mode": "normal"
     },
@@ -435,6 +505,34 @@
       },
       "mode": "normal"
     },
+    "puzzle-bullet-swap": {
+      "start": "- a\n- b\n- c",
+      "keys": "<C-v>jjr*",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "* a\n* b\n* c",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-bump-base-image": {
+      "start": "FROM node:18\nRUN npm ci",
+      "keys": "f12<C-a>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "FROM node:20\nRUN npm ci",
+      "cursor": {
+        "line": 1,
+        "col": 12
+      },
+      "mode": "normal"
+    },
     "puzzle-bump-minor": {
       "start": "{\n  \"name\": \"yank-wars\",\n  \"version\": \"1.4.0\",\n  \"private\": true\n}",
       "keys": "/4<CR><C-a>",
@@ -518,6 +616,20 @@
         "col": 1
       },
       "mode": "normal"
+    },
+    "puzzle-change-the-alias": {
+      "start": "export type Id = string;",
+      "keys": "$bcwnumber",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "export type Id = number;",
+      "cursor": {
+        "line": 1,
+        "col": 24
+      },
+      "mode": "insert"
     },
     "puzzle-check-all": {
       "start": "- [ ] buy milk\n- [ ] call mom\n- [ ] fix bike",
@@ -673,6 +785,20 @@
       },
       "mode": "insert"
     },
+    "puzzle-collapse-doubles": {
+      "start": "aabbcc dd",
+      "keys": ":s/\\(.\\)\\1/\\1/g<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "abc d",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-comma-separated": {
       "start": "red\ngreen\nblue",
       "keys": "A,<Esc>j.k3J",
@@ -684,6 +810,20 @@
       "cursor": {
         "line": 1,
         "col": 12
+      },
+      "mode": "normal"
+    },
+    "puzzle-comma-to-newline": {
+      "start": "a,b,c",
+      "keys": "f,r<CR>;.",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "a\nb\nc",
+      "cursor": {
+        "line": 3,
+        "col": 1
       },
       "mode": "normal"
     },
@@ -743,6 +883,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-comment-the-port": {
+      "start": "PORT=3000\nDEBUG=true",
+      "keys": "I#<Space>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "# PORT=3000\nDEBUG=true",
+      "cursor": {
+        "line": 1,
+        "col": 3
+      },
+      "mode": "insert"
+    },
     "puzzle-const-to-let": {
       "start": "const total = 10;",
       "keys": "cwlet",
@@ -768,6 +922,20 @@
       "cursor": {
         "line": 3,
         "col": 5
+      },
+      "mode": "normal"
+    },
+    "puzzle-copy-line-two-up": {
+      "start": "a := 1\nb := 2\nc := 3",
+      "keys": ":2t0<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "\t"
+      },
+      "doc": "b := 2\na := 1\nb := 2\nc := 3",
+      "cursor": {
+        "line": 1,
+        "col": 1
       },
       "mode": "normal"
     },
@@ -1037,6 +1205,34 @@
       },
       "mode": "insert"
     },
+    "puzzle-delete-the-line-after": {
+      "start": "start\nx\nstart\ny\nz",
+      "keys": ":g/start/+1d<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "start\nstart\nz",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-derive-debug": {
+      "start": "struct Point {\n    x: i32,\n    y: i32,\n}",
+      "keys": "O#[derive(Debug)]",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "#[derive(Debug)]\nstruct Point {\n    x: i32,\n    y: i32,\n}",
+      "cursor": {
+        "line": 1,
+        "col": 17
+      },
+      "mode": "insert"
+    },
     "puzzle-destructure": {
       "start": "const a = obj.a;\nconst b = obj.b;\nconst c = obj.c;",
       "keys": ":%s/const \\(\\w\\).*/\\1,/<CR>gg3J$xIconst { <Esc>A } = obj;",
@@ -1078,6 +1274,20 @@
         "col": 19
       },
       "mode": "normal"
+    },
+    "puzzle-dict-skeleton": {
+      "start": "name\nage\ncity",
+      "keys": ":%s/.*/    \"&\": None,/<CR>ggOconfig = {<Esc>Go}",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "config = {\n    \"name\": None,\n    \"age\": None,\n    \"city\": None,\n}",
+      "cursor": {
+        "line": 5,
+        "col": 2
+      },
+      "mode": "insert"
     },
     "puzzle-dict-to-kwargs": {
       "start": "opts = {\"host\": \"db\", \"port\": 5432}",
@@ -1135,6 +1345,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-dots-for-underscores": {
+      "start": "v1_2_3",
+      "keys": "f_r.;.",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "v1.2.3",
+      "cursor": {
+        "line": 1,
+        "col": 5
+      },
+      "mode": "normal"
+    },
     "puzzle-double-equals": {
       "start": "def is_empty(items):\n    if len(items) = 0:\n        return True\n    return False",
       "keys": "jf=i=",
@@ -1148,6 +1372,20 @@
         "col": 20
       },
       "mode": "insert"
+    },
+    "puzzle-double-every-line": {
+      "start": "a\nb",
+      "keys": ":g/^/t.<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "a\na\nb\nb",
+      "cursor": {
+        "line": 4,
+        "col": 1
+      },
+      "mode": "normal"
     },
     "puzzle-double-quotes": {
       "start": "{'a': 1}",
@@ -1188,6 +1426,34 @@
       "cursor": {
         "line": 1,
         "col": 15
+      },
+      "mode": "normal"
+    },
+    "puzzle-double-the-matches": {
+      "start": "keep\nfoo 1\nkeep\nfoo 2",
+      "keys": ":g/foo/t.<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "keep\nfoo 1\nfoo 1\nkeep\nfoo 2\nfoo 2",
+      "cursor": {
+        "line": 6,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-drop-a-column": {
+      "start": "name,age,city",
+      "keys": "f,dt,",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "name,city",
+      "cursor": {
+        "line": 1,
+        "col": 5
       },
       "mode": "normal"
     },
@@ -1303,6 +1569,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-drop-the-group": {
+      "start": "const total = sum(a, b) + tax;",
+      "keys": "f(d%",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "const total = sum + tax;",
+      "cursor": {
+        "line": 1,
+        "col": 18
+      },
+      "mode": "normal"
+    },
     "puzzle-drop-the-ids": {
       "start": "10 ada\n20 bob\n30 cy",
       "keys": "<C-v>2j2ld",
@@ -1314,6 +1594,20 @@
       "cursor": {
         "line": 1,
         "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-drop-the-quoted": {
+      "start": "a \"quoted\" word",
+      "keys": "da\"",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "a word",
+      "cursor": {
+        "line": 1,
+        "col": 3
       },
       "mode": "normal"
     },
@@ -1372,6 +1666,34 @@
         "col": 1
       },
       "mode": "normal"
+    },
+    "puzzle-either-letter": {
+      "start": "abc cab",
+      "keys": ":s/a\\|b/X/g<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "XXc cXX",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-either-will-do": {
+      "start": "if a and b:\n    pass",
+      "keys": "wwcwor",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "if a or b:\n    pass",
+      "cursor": {
+        "line": 1,
+        "col": 8
+      },
+      "mode": "insert"
     },
     "puzzle-elif": {
       "start": "if x < 0:\n    sign = -1\nelse if x > 0:\n    sign = 1",
@@ -1443,6 +1765,62 @@
       },
       "mode": "insert"
     },
+    "puzzle-empty-the-list": {
+      "start": "const a = [1, 2, 3];",
+      "keys": "f[di[",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "const a = [];",
+      "cursor": {
+        "line": 1,
+        "col": 12
+      },
+      "mode": "normal"
+    },
+    "puzzle-empty-the-literal": {
+      "start": "p := Point{1, 2}",
+      "keys": "f{di{",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "\t"
+      },
+      "doc": "p := Point{}",
+      "cursor": {
+        "line": 1,
+        "col": 12
+      },
+      "mode": "normal"
+    },
+    "puzzle-empty-the-tag": {
+      "start": "<p>old text</p>",
+      "keys": "dit",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "<p></p>",
+      "cursor": {
+        "line": 1,
+        "col": 4
+      },
+      "mode": "normal"
+    },
+    "puzzle-enable-the-button": {
+      "start": "<button disabled>Go</button>",
+      "keys": "f<Space>dt>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "<button>Go</button>",
+      "cursor": {
+        "line": 1,
+        "col": 8
+      },
+      "mode": "normal"
+    },
     "puzzle-enough-milk": {
       "start": "milk\nmilk\nmilk\nmilk\neggs\nbread",
       "keys": "j3dd",
@@ -1456,6 +1834,20 @@
         "col": 1
       },
       "mode": "normal"
+    },
+    "puzzle-enum-from-names": {
+      "start": "RED\nGREEN\nBLUE",
+      "keys": ":%s/.*/  & = \"&\",/<CR>ggOenum Color {<Esc>Go}",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "enum Color {\n  RED = \"RED\",\n  GREEN = \"GREEN\",\n  BLUE = \"BLUE\",\n}",
+      "cursor": {
+        "line": 5,
+        "col": 2
+      },
+      "mode": "insert"
     },
     "puzzle-env-prod": {
       "start": "{\"env\": \"dev\"}",
@@ -1482,6 +1874,20 @@
       "cursor": {
         "line": 3,
         "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-equals-before-the-digit": {
+      "start": "x1\ny2\nz3",
+      "keys": "qq$i=<Esc>jq2@q",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "x=1\ny=2\nz=3",
+      "cursor": {
+        "line": 3,
+        "col": 2
       },
       "mode": "normal"
     },
@@ -1653,6 +2059,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-fill-in-the-host": {
+      "start": "192.168.0.1",
+      "keys": "$s254",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "192.168.0.254",
+      "cursor": {
+        "line": 1,
+        "col": 14
+      },
+      "mode": "insert"
+    },
     "puzzle-fill-in-the-name": {
       "start": "Dear [name],\nyou won a mug.",
       "keys": "Wca[Ada",
@@ -1695,6 +2115,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-first-goes-last": {
+      "start": "a\nb\nc",
+      "keys": "ddGp",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "b\nc\na",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-first-names-first": {
       "start": "Lovelace, Ada\nHopper, Grace\nTuring, Alan",
       "keys": "qqdWA<Space><C-r>\"<BS><BS><Esc>+q2@q",
@@ -1706,6 +2140,20 @@
       "cursor": {
         "line": 3,
         "col": 11
+      },
+      "mode": "normal"
+    },
+    "puzzle-first-pair-gone": {
+      "start": "{\"a\": 1, \"b\": 2}",
+      "keys": "ld/\"b<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "{\"b\": 2}",
+      "cursor": {
+        "line": 1,
+        "col": 2
       },
       "mode": "normal"
     },
@@ -1793,6 +2241,20 @@
       },
       "mode": "insert"
     },
+    "puzzle-flip-each-assignment": {
+      "start": "x=1;y=2;z=3",
+      "keys": ":s/\\(\\w\\)=\\(\\w\\)/\\2=\\1/g<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "1=x;2=y;3=z",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-flip-map": {
       "start": "{\n  \"en\": \"hello\",\n  \"fr\": \"bonjour\",\n  \"de\": \"hallo\"\n}",
       "keys": ":%s/\\(\"\\w\\+\"\\): \\(\"\\w\\+\"\\)/\\2: \\1<CR>",
@@ -1862,6 +2324,20 @@
         "col": 1
       },
       "mode": "normal"
+    },
+    "puzzle-focus-not-hover": {
+      "start": "a:hover {\n  color: red;\n}",
+      "keys": "f:lcwfocus",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a:focus {\n  color: red;\n}",
+      "cursor": {
+        "line": 1,
+        "col": 8
+      },
+      "mode": "insert"
     },
     "puzzle-forgot-self": {
       "start": "class Bot:\n    def greet(name):\n        return name",
@@ -2087,6 +2563,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-hardcode-it": {
+      "start": "x = compute()",
+      "keys": "fcC0",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "x = 0",
+      "cursor": {
+        "line": 1,
+        "col": 6
+      },
+      "mode": "insert"
+    },
     "puzzle-heavier-rule": {
       "start": "Chapter 1\n---------",
       "keys": "j9r=",
@@ -2227,6 +2717,20 @@
       },
       "mode": "insert"
     },
+    "puzzle-include-the-last": {
+      "start": "for i := 0; i < 10; i++ {\n}",
+      "keys": "f<lt>a=",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "\t"
+      },
+      "doc": "for i := 0; i <= 10; i++ {\n}",
+      "cursor": {
+        "line": 1,
+        "col": 17
+      },
+      "mode": "insert"
+    },
     "puzzle-indent-body": {
       "start": "func greet(name string) string {\nmsg := \"hello, \" + name\nmsg += \"!\"\nreturn msg\n}",
       "keys": "j3>>",
@@ -2269,6 +2773,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-indent-the-prints": {
+      "start": "print(a)\nx = 1\nprint(b)",
+      "keys": ":g/print/><CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "    print(a)\nx = 1\n    print(b)",
+      "cursor": {
+        "line": 3,
+        "col": 5
+      },
+      "mode": "normal"
+    },
     "puzzle-initial-value": {
       "start": "var count int",
       "keys": "A = 0",
@@ -2296,6 +2814,20 @@
         "col": 1
       },
       "mode": "normal"
+    },
+    "puzzle-ink-variable": {
+      "start": "a {\n  color: #333;\n  border-color: #333;\n  outline-color: #333;\n}",
+      "keys": ":%s/#333/var(--ink)/<CR>ggO:root { --ink: #333; }",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": ":root { --ink: #333; }\na {\n  color: var(--ink);\n  border-color: var(--ink);\n  outline-color: var(--ink);\n}",
+      "cursor": {
+        "line": 1,
+        "col": 23
+      },
+      "mode": "insert"
     },
     "puzzle-inline-format": {
       "start": "fn main() {\n    let x = 1;\n    println!(\"{}\", x);\n}",
@@ -2451,6 +2983,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-join-the-tail": {
+      "start": "title\na\nb\nc",
+      "keys": "j3J",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "title\na b c",
+      "cursor": {
+        "line": 2,
+        "col": 4
+      },
+      "mode": "normal"
+    },
     "puzzle-json-lines": {
       "start": "{\"id\": 1}\n{\"id\": 2}\n{\"id\": 3}",
       "keys": "O[<Esc>jA,<Esc>j.Go]",
@@ -2549,6 +3095,34 @@
       },
       "mode": "normal"
     },
+    "puzzle-keep-the-last": {
+      "start": "xs = [1, 2, 3]",
+      "keys": "f1d2f<Space>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "xs = [3]",
+      "cursor": {
+        "line": 1,
+        "col": 7
+      },
+      "mode": "normal"
+    },
+    "puzzle-keep-the-ok-lines": {
+      "start": "ok 1\nfail 2\nok 3\nfail 4",
+      "keys": ":v/ok/d<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "ok 1\nok 3",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-keep-the-tail": {
       "start": "a\nb\nc\nd",
       "keys": "jdgg",
@@ -2576,6 +3150,20 @@
         "col": 1
       },
       "mode": "normal"
+    },
+    "puzzle-keep-two": {
+      "start": "[1, 2, 3, 4]",
+      "keys": "2f,c$]",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "[1, 2]",
+      "cursor": {
+        "line": 1,
+        "col": 7
+      },
+      "mode": "insert"
     },
     "puzzle-knock-knock": {
       "start": "*knock knock knock* Penny",
@@ -2672,6 +3260,20 @@
       "cursor": {
         "line": 1,
         "col": 16
+      },
+      "mode": "normal"
+    },
+    "puzzle-laugh-track": {
+      "start": "ha",
+      "keys": "y$$2p",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "hahaha",
+      "cursor": {
+        "line": 1,
+        "col": 6
       },
       "mode": "normal"
     },
@@ -2773,6 +3375,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-literal-list": {
+      "start": "l = list()",
+      "keys": "wwC[]",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "l = []",
+      "cursor": {
+        "line": 1,
+        "col": 7
+      },
+      "mode": "insert"
+    },
     "puzzle-lorem-gone": {
       "start": "const p = <p>Lorem ipsum dolor sit amet</p>;",
       "keys": "f>dit",
@@ -2787,6 +3403,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-lose-the-first-argument": {
+      "start": "console.log(a, b);",
+      "keys": "f(ldf<Space>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "console.log(b);",
+      "cursor": {
+        "line": 1,
+        "col": 13
+      },
+      "mode": "normal"
+    },
     "puzzle-loud-levels": {
       "start": "warn: low disk\nerror: no space left",
       "keys": "gUt:j.",
@@ -2797,6 +3427,20 @@
       "doc": "WARN: low disk\nERROR: no space left",
       "cursor": {
         "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-lower-constant": {
+      "start": "MAX_RETRIES = 5",
+      "keys": "guiw",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "max_retries = 5",
+      "cursor": {
+        "line": 1,
         "col": 1
       },
       "mode": "normal"
@@ -2955,6 +3599,20 @@
       },
       "mode": "insert"
     },
+    "puzzle-min-not-max": {
+      "start": "@media (max-width: 600px) {\n}",
+      "keys": "f(wcwmin",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "@media (min-width: 600px) {\n}",
+      "cursor": {
+        "line": 1,
+        "col": 12
+      },
+      "mode": "insert"
+    },
     "puzzle-missing-colons": {
       "start": "for x in xs\n    if x\n        print(x)",
       "keys": "A:<Esc>j.",
@@ -2996,6 +3654,20 @@
         "col": 11
       },
       "mode": "insert"
+    },
+    "puzzle-modern-class": {
+      "start": "class Shape(object):\n    pass",
+      "keys": "f(d%",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "class Shape:\n    pass",
+      "cursor": {
+        "line": 1,
+        "col": 12
+      },
+      "mode": "normal"
     },
     "puzzle-monday-first": {
       "start": "Tuesday\nMonday\nWednesday",
@@ -3151,6 +3823,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-narrow-the-generic": {
+      "start": "let ids: Set<string>;",
+      "keys": "f<lt>ci<lt>Id",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "let ids: Set<Id>;",
+      "cursor": {
+        "line": 1,
+        "col": 16
+      },
+      "mode": "insert"
+    },
     "puzzle-negate-it": {
       "start": "if (a) {\n  run();\n}",
       "keys": "f(a!",
@@ -3193,6 +3879,48 @@
       },
       "mode": "insert"
     },
+    "puzzle-new-class": {
+      "start": "<div className=\"a\">hi</div>",
+      "keys": "f\"ci\"b",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "<div className=\"b\">hi</div>",
+      "cursor": {
+        "line": 1,
+        "col": 18
+      },
+      "mode": "insert"
+    },
+    "puzzle-new-domain": {
+      "start": "sam@old.com",
+      "keys": "f@lcwnew",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "sam@new.com",
+      "cursor": {
+        "line": 1,
+        "col": 8
+      },
+      "mode": "insert"
+    },
+    "puzzle-new-name": {
+      "start": "{\"name\": \"old\"}",
+      "keys": "f:f\"ci\"new",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "{\"name\": \"new\"}",
+      "cursor": {
+        "line": 1,
+        "col": 14
+      },
+      "mode": "insert"
+    },
     "puzzle-new-paragraph": {
       "start": "<p>old text</p>",
       "keys": "citnew",
@@ -3204,6 +3932,34 @@
       "cursor": {
         "line": 1,
         "col": 7
+      },
+      "mode": "insert"
+    },
+    "puzzle-nine-in-matching": {
+      "start": "cat: 1\ndog: 2\ncat: 3",
+      "keys": ":g/cat/s/\\d/9/<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "cat: 9\ndog: 2\ncat: 9",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-no-border": {
+      "start": "border: 1px solid red;",
+      "keys": "f:wCnone;",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "border: none;",
+      "cursor": {
+        "line": 1,
+        "col": 14
       },
       "mode": "insert"
     },
@@ -3627,6 +4383,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-one-selector-per-line": {
+      "start": "h1, h2, h3 { margin: 0; }",
+      "keys": "f<Space>r<CR>;.",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "h1,\nh2,\nh3 { margin: 0; }",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-only-numbers": {
       "start": "a1\nb\nc3\nd",
       "keys": ":v/\\d/d<CR>",
@@ -3669,6 +4439,20 @@
       },
       "mode": "insert"
     },
+    "puzzle-other-delimiter": {
+      "start": "src/lib/main",
+      "keys": ":s#/#.#g<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "src.lib.main",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-outdent": {
       "start": "def run():\n        step_one()\n        step_two()",
       "keys": "j2<lt><lt>",
@@ -3682,6 +4466,20 @@
         "col": 5
       },
       "mode": "normal"
+    },
+    "puzzle-overwrite-the-price": {
+      "start": "price: 100",
+      "keys": "f1R999",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "price: 999",
+      "cursor": {
+        "line": 1,
+        "col": 11
+      },
+      "mode": "replace"
     },
     "puzzle-pair-up": {
       "start": "name\nada\nage\n36\nrole\nadmin\nteam\ncore",
@@ -3711,6 +4509,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-pairs-to-object": {
+      "start": "a=1\nb=2\nc=3",
+      "keys": ":%s/\\(.\\)=\\(.\\)/\"\\1\": \\2,/<CR>:%j<CR>$s}<Esc>I{",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "{\"a\": 1, \"b\": 2, \"c\": 3}",
+      "cursor": {
+        "line": 1,
+        "col": 2
+      },
+      "mode": "insert"
+    },
     "puzzle-paren-numbers": {
       "start": "3 apples and 12 pears",
       "keys": ":s/\\d\\+/(&)/g<CR>",
@@ -3736,6 +4548,20 @@
       "cursor": {
         "line": 3,
         "col": 10
+      },
+      "mode": "normal"
+    },
+    "puzzle-pick-just-one": {
+      "start": "const {a, b} = obj;",
+      "keys": "f,dt}",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "const {a} = obj;",
+      "cursor": {
+        "line": 1,
+        "col": 9
       },
       "mode": "normal"
     },
@@ -3949,6 +4775,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-quiet-hex": {
+      "start": "a { color: #FFAA00; }",
+      "keys": "fFgue",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "a { color: #ffaa00; }",
+      "cursor": {
+        "line": 1,
+        "col": 13
+      },
+      "mode": "normal"
+    },
     "puzzle-quiet-logs": {
       "start": "log(user, 'login')\nlog(user, 'logout')\nlog(err)",
       "keys": "f(di(j.j.",
@@ -4047,6 +4887,20 @@
       },
       "mode": "insert"
     },
+    "puzzle-raise-the-layer": {
+      "start": ".modal { z-index: 9; }",
+      "keys": "f9a9",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": ".modal { z-index: 99; }",
+      "cursor": {
+        "line": 1,
+        "col": 21
+      },
+      "mode": "insert"
+    },
     "puzzle-range-from-zero": {
       "start": "for i in range(0, n):\n    print(i)",
       "keys": "f0dtn",
@@ -4075,6 +4929,34 @@
       },
       "mode": "normal"
     },
+    "puzzle-rank-by-score": {
+      "start": "carol 7\nalice 9\nbob 8",
+      "keys": ":sort! /\\D\\+/<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "alice 9\nbob 8\ncarol 7",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-readonly-fields": {
+      "start": "id: number;\nname: string;\nage: number;",
+      "keys": "<C-v>jjIreadonly<Space><Esc>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "readonly id: number;\nreadonly name: string;\nreadonly age: number;",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-real-boolean": {
       "start": "{\n  \"enabled\": \"true\"\n}",
       "keys": "j$xF\".",
@@ -4100,6 +4982,20 @@
       "cursor": {
         "line": 1,
         "col": 21
+      },
+      "mode": "normal"
+    },
+    "puzzle-relative-range": {
+      "start": "a\nb\nc\nd",
+      "keys": "j:.,+1d<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "a\nd",
+      "cursor": {
+        "line": 2,
+        "col": 1
       },
       "mode": "normal"
     },
@@ -4159,6 +5055,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-renumber-the-list": {
+      "start": "1. a\n1. b\n1. c",
+      "keys": "j<C-a>j2<C-a>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "1. a\n2. b\n3. c",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-reorder-rule": {
       "start": ".card {\n  border: 0;\n  margin: 0;\n  color: red;\n  padding: 8px;\n}",
       "keys": ":2,3m5<CR>",
@@ -4170,6 +5080,20 @@
       "cursor": {
         "line": 5,
         "col": 3
+      },
+      "mode": "normal"
+    },
+    "puzzle-repeat-the-substitute": {
+      "start": "foo bar\nfoo bar\nfoo bar",
+      "keys": ":s/foo/baz/<CR>j&j&",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "baz bar\nbaz bar\nbaz bar",
+      "cursor": {
+        "line": 3,
+        "col": 1
       },
       "mode": "normal"
     },
@@ -4186,6 +5110,20 @@
         "col": 3
       },
       "mode": "normal"
+    },
+    "puzzle-retitle-heading": {
+      "start": "<h1>Old</h1>",
+      "keys": "citNew",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "<h1>New</h1>",
+      "cursor": {
+        "line": 1,
+        "col": 8
+      },
+      "mode": "insert"
     },
     "puzzle-return-err": {
       "start": "func load() error {\n\terr := read()\n\tif err != nil {\n\t\treturn nil\n\t}\n\treturn nil\n}",
@@ -4228,6 +5166,20 @@
         "col": 10
       },
       "mode": "normal"
+    },
+    "puzzle-return-the-zero-too": {
+      "start": "\treturn err",
+      "keys": "$binil,<Space>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "\t"
+      },
+      "doc": "\treturn nil, err",
+      "cursor": {
+        "line": 1,
+        "col": 14
+      },
+      "mode": "insert"
     },
     "puzzle-return-tuple": {
       "start": "def pair(a, b):\n    return a, b",
@@ -4368,6 +5320,20 @@
         "col": 9
       },
       "mode": "insert"
+    },
+    "puzzle-save-it-for-later": {
+      "start": "a\nb\nc",
+      "keys": "\"ayyjdd\"ap",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "a\nc\na",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
     },
     "puzzle-say-it-back": {
       "start": "hello world",
@@ -4593,6 +5559,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-shout-one-paragraph": {
+      "start": "first para\nstill first\n\nsecond",
+      "keys": "gUip",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "FIRST PARA\nSTILL FIRST\n\nsecond",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-shout-sql": {
       "start": "select id, name from users where active = 1",
       "keys": "gUiw4w.2w.",
@@ -4634,6 +5614,20 @@
         "col": 21
       },
       "mode": "insert"
+    },
+    "puzzle-skip-a-directory": {
+      "start": "/usr/local/bin",
+      "keys": "f/ldf/",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "/usr/bin",
+      "cursor": {
+        "line": 1,
+        "col": 6
+      },
+      "mode": "normal"
     },
     "puzzle-skip-the-test": {
       "start": "it(\"adds\", () => {\n  expect(add(1, 1)).toBe(2);\n});",
@@ -4817,6 +5811,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-split-the-import": {
+      "start": "import os, sys",
+      "keys": "f,s<CR>import",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "import os\nimport sys",
+      "cursor": {
+        "line": 2,
+        "col": 7
+      },
+      "mode": "insert"
+    },
     "puzzle-sql-values": {
       "start": "ada 36\nbob 41\ncy 29",
       "keys": ":%s/\\(\\w\\+\\) \\(\\d\\+\\)/('\\1', \\2),<CR>$x",
@@ -4841,6 +5849,20 @@
       "doc": "pick 1a2b add login\nf 3c4d fix typo\nf 5e6f fix typo again",
       "cursor": {
         "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-squeeze-spaces": {
+      "start": "a   b    c\nd  e",
+      "keys": ":%s/\\s\\+/ /g<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "a b c\nd e",
+      "cursor": {
+        "line": 2,
         "col": 1
       },
       "mode": "normal"
@@ -4870,6 +5892,20 @@
       "cursor": {
         "line": 5,
         "col": 5
+      },
+      "mode": "normal"
+    },
+    "puzzle-start-at-the-start": {
+      "start": "head = xs[0:3]",
+      "keys": "f0x",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "head = xs[:3]",
+      "cursor": {
+        "line": 1,
+        "col": 11
       },
       "mode": "normal"
     },
@@ -5083,6 +6119,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-swap-last-two": {
+      "start": "x := 1\ny := 2\nz := 3",
+      "keys": "jddp",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "\t"
+      },
+      "doc": "x := 1\nz := 3\ny := 2",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-swap-sections": {
       "start": "## Usage\nRun it.\n\n## Install\nBuild it.",
       "keys": ":4,5m0<CR>:5m2<CR>",
@@ -5138,6 +6188,20 @@
         "col": 1
       },
       "mode": "normal"
+    },
+    "puzzle-table-rows": {
+      "start": "1 2\n3 4\n5 6",
+      "keys": ":%s/\\(\\d\\) \\(\\d\\)/{\\1, \\2},/<CR>:%><CR>ggOtests := []P{<Esc>Go}",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "\t"
+      },
+      "doc": "tests := []P{\n\t{1, 2},\n\t{3, 4},\n\t{5, 6},\n}",
+      "cursor": {
+        "line": 5,
+        "col": 2
+      },
+      "mode": "insert"
     },
     "puzzle-tabs-to-spaces": {
       "start": "a\tb\nc\td",
@@ -5248,6 +6312,20 @@
       "cursor": {
         "line": 1,
         "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-tick-the-box": {
+      "start": "- [ ] write tests",
+      "keys": "f[lrx",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "- [x] write tests",
+      "cursor": {
+        "line": 1,
+        "col": 4
       },
       "mode": "normal"
     },
@@ -5461,6 +6539,34 @@
       },
       "mode": "normal"
     },
+    "puzzle-type-only-import": {
+      "start": "import { A } from \"./a\";",
+      "keys": "witype<Space>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "import type { A } from \"./a\";",
+      "cursor": {
+        "line": 1,
+        "col": 13
+      },
+      "mode": "insert"
+    },
+    "puzzle-type-over-it": {
+      "start": "hello world",
+      "keys": "wRthere",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "hello there",
+      "cursor": {
+        "line": 1,
+        "col": 12
+      },
+      "mode": "replace"
+    },
     "puzzle-type-the-arg": {
       "start": "function greet(u) {\n  return u;\n}",
       "keys": "f)i: User",
@@ -5559,6 +6665,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-unquote-keys": {
+      "start": "{\"a\": 1, \"b\": 2}",
+      "keys": ":s/\"\\(\\w\\+\\)\"/\\1/g<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "{a: 1, b: 2}",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-unquote-reply": {
       "start": "> hi\n> how\n> are",
       "keys": "<C-v>jjld",
@@ -5570,6 +6690,34 @@
       "cursor": {
         "line": 1,
         "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-unsigned-please": {
+      "start": "fn add(a: i32, b: i32) -> i32 {\n    a + b\n}",
+      "keys": ":s/i32/u32/g<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "fn add(a: u32, b: u32) -> u32 {\n    a + b\n}",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-unwrap-bold": {
+      "start": "x<b>bold</b>y",
+      "keys": "f<lt>dat",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "xy",
+      "cursor": {
+        "line": 1,
+        "col": 2
       },
       "mode": "normal"
     },
@@ -5696,6 +6844,20 @@
       "cursor": {
         "line": 2,
         "col": 15
+      },
+      "mode": "insert"
+    },
+    "puzzle-widen-the-type": {
+      "start": "x := []int{1, 2}",
+      "keys": "fiea64",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "\t"
+      },
+      "doc": "x := []int64{1, 2}",
+      "cursor": {
+        "line": 1,
+        "col": 13
       },
       "mode": "insert"
     },

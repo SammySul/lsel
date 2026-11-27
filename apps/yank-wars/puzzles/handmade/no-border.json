@@ -1,0 +1,17 @@
+{
+  "id": "no-border",
+  "title": "No border",
+  "difficulty": "easy",
+  "description": "Replace the rest of the line.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "border: 1px solid red;",
+  "target": "border: none;",
+  "solution": "f:wCnone;",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change", "find"]
+}

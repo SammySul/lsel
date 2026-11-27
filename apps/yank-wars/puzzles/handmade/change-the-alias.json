@@ -1,0 +1,17 @@
+{
+  "id": "change-the-alias",
+  "title": "Change the alias",
+  "difficulty": "easy",
+  "description": "Go back a word from the semicolon.",
+  "language": "typescript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "export type Id = string;",
+  "target": "export type Id = number;",
+  "solution": "$bcwnumber",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change", "word"]
+}

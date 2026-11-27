@@ -1,0 +1,17 @@
+{
+  "id": "lower-constant",
+  "title": "Lower the constant",
+  "difficulty": "easy",
+  "description": "Lowercase one identifier.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "MAX_RETRIES = 5",
+  "target": "max_retries = 5",
+  "solution": "guiw",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["case", "text-object"]
+}

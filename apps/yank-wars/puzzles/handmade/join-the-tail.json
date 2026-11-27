@@ -1,0 +1,17 @@
+{
+  "id": "join-the-tail",
+  "title": "Join the tail",
+  "difficulty": "easy",
+  "description": "Join three lines with a count.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "title\na\nb\nc",
+  "target": "title\na b c",
+  "solution": "j3J",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["join", "count"]
+}

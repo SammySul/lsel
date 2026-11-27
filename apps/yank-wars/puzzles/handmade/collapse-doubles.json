@@ -1,0 +1,17 @@
+{
+  "id": "collapse-doubles",
+  "title": "Collapse the doubles",
+  "difficulty": "medium",
+  "description": "The pattern refers back to its own group.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "aabbcc dd",
+  "target": "abc d",
+  "solution": ":s/\\(.\\)\\1/\\1/g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

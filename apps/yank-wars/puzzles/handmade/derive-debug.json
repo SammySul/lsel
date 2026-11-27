@@ -1,0 +1,17 @@
+{
+  "id": "derive-debug",
+  "title": "Derive Debug",
+  "difficulty": "medium",
+  "description": "Open a line above and type the attribute.",
+  "language": "rust",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "struct Point {\n    x: i32,\n    y: i32,\n}",
+  "target": "#[derive(Debug)]\nstruct Point {\n    x: i32,\n    y: i32,\n}",
+  "solution": "O#[derive(Debug)]",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["open-line"]
+}

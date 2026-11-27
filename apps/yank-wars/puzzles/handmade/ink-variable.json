@@ -1,0 +1,17 @@
+{
+  "id": "ink-variable",
+  "title": "One ink variable",
+  "difficulty": "hard",
+  "description": "Replace every use with a variable, then declare it.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "a {\n  color: #333;\n  border-color: #333;\n  outline-color: #333;\n}",
+  "target": ":root { --ink: #333; }\na {\n  color: var(--ink);\n  border-color: var(--ink);\n  outline-color: var(--ink);\n}",
+  "solution": ":%s/#333/var(--ink)/<CR>ggO:root { --ink: #333; }",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "open-line"]
+}

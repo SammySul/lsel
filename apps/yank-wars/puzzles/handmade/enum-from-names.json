@@ -1,0 +1,17 @@
+{
+  "id": "enum-from-names",
+  "title": "Enum from names",
+  "difficulty": "hard",
+  "description": "Turn bare names into an enum.",
+  "language": "typescript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "RED\nGREEN\nBLUE",
+  "target": "enum Color {\n  RED = \"RED\",\n  GREEN = \"GREEN\",\n  BLUE = \"BLUE\",\n}",
+  "solution": ":%s/.*/  & = \"&\",/<CR>ggOenum Color {<Esc>Go}",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "open-line"]
+}

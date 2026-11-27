@@ -1,0 +1,17 @@
+{
+  "id": "split-the-import",
+  "title": "Split the import",
+  "difficulty": "easy",
+  "description": "One import per line.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "import os, sys",
+  "target": "import os\nimport sys",
+  "solution": "f,s<CR>import",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace", "find"]
+}

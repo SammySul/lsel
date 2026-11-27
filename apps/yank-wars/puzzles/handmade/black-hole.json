@@ -1,0 +1,17 @@
+{
+  "id": "black-hole",
+  "title": "Black hole",
+  "difficulty": "easy",
+  "description": "Delete without touching the register.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "KEEP\nold\nother",
+  "target": "KEEP\nKEEP\nother",
+  "solution": "yyj\"_ddP",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["registers", "delete"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "readonly-fields",
+  "title": "Read-only fields",
+  "difficulty": "medium",
+  "description": "Insert one word on every line.",
+  "language": "typescript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "id: number;\nname: string;\nage: number;",
+  "target": "readonly id: number;\nreadonly name: string;\nreadonly age: number;",
+  "solution": "<C-v>jjIreadonly<Space><Esc>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block", "insert"]
+}

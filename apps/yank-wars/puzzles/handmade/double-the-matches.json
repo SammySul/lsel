@@ -1,0 +1,17 @@
+{
+  "id": "double-the-matches",
+  "title": "Double the matches",
+  "difficulty": "medium",
+  "description": "Copy each matching line right below itself.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "keep\nfoo 1\nkeep\nfoo 2",
+  "target": "keep\nfoo 1\nfoo 1\nkeep\nfoo 2\nfoo 2",
+  "solution": ":g/foo/t.<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global"]
+}

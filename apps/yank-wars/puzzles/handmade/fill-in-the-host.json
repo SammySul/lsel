@@ -1,0 +1,17 @@
+{
+  "id": "fill-in-the-host",
+  "title": "Fill in the host",
+  "difficulty": "easy",
+  "description": "Replace the last octet.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "192.168.0.1",
+  "target": "192.168.0.254",
+  "solution": "$s254",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "narrow-the-generic",
+  "title": "Narrow the generic",
+  "difficulty": "easy",
+  "description": "Change what is inside the angle brackets.",
+  "language": "typescript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "let ids: Set<string>;",
+  "target": "let ids: Set<Id>;",
+  "solution": "f<lt>ci<lt>Id",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object", "change"]
+}

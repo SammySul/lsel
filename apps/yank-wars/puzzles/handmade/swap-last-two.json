@@ -1,0 +1,17 @@
+{
+  "id": "swap-last-two",
+  "title": "Swap the last two",
+  "difficulty": "easy",
+  "description": "Move line two below line three.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "x := 1\ny := 2\nz := 3",
+  "target": "x := 1\nz := 3\ny := 2",
+  "solution": "jddp",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "yank-put"]
+}

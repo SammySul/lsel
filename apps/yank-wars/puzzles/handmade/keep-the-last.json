@@ -1,0 +1,17 @@
+{
+  "id": "keep-the-last",
+  "title": "Keep the last",
+  "difficulty": "easy",
+  "description": "Delete through the second space.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "xs = [1, 2, 3]",
+  "target": "xs = [3]",
+  "solution": "f1d2f<Space>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "find"]
+}

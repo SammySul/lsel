@@ -1,0 +1,17 @@
+{
+  "id": "repeat-the-substitute",
+  "title": "Repeat the substitute",
+  "difficulty": "medium",
+  "description": "Run it once, then repeat with &.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "foo bar\nfoo bar\nfoo bar",
+  "target": "baz bar\nbaz bar\nbaz bar",
+  "solution": ":s/foo/baz/<CR>j&j&",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "repeat"]
+}

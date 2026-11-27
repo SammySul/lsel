@@ -1,0 +1,17 @@
+{
+  "id": "add-the-prefix",
+  "title": "Add the prefix",
+  "difficulty": "medium",
+  "description": "Duplicate the line, prefix the copy.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "transition: all 1s;",
+  "target": "-webkit-transition: all 1s;\ntransition: all 1s;",
+  "solution": "yyPI-webkit-",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["yank-put", "insert"]
+}

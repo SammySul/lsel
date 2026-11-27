@@ -1,0 +1,17 @@
+{
+  "id": "unwrap-bold",
+  "title": "Unwrap the bold",
+  "difficulty": "easy",
+  "description": "Delete the whole tag pair.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "x<b>bold</b>y",
+  "target": "xy",
+  "solution": "f<lt>dat",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object", "delete"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "table-rows",
+  "title": "Table rows",
+  "difficulty": "hard",
+  "description": "Wrap the pairs, indent, then add the frame.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "1 2\n3 4\n5 6",
+  "target": "tests := []P{\n\t{1, 2},\n\t{3, 4},\n\t{5, 6},\n}",
+  "solution": ":%s/\\(\\d\\) \\(\\d\\)/{\\1, \\2},/<CR>:%><CR>ggOtests := []P{<Esc>Go}",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "indent"]
+}

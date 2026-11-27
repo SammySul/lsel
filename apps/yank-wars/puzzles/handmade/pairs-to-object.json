@@ -1,0 +1,17 @@
+{
+  "id": "pairs-to-object",
+  "title": "Pairs to object",
+  "difficulty": "hard",
+  "description": "Build one object from key=value lines.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "a=1\nb=2\nc=3",
+  "target": "{\"a\": 1, \"b\": 2, \"c\": 3}",
+  "solution": ":%s/\\(.\\)=\\(.\\)/\"\\1\": \\2,/<CR>:%j<CR>$s}<Esc>I{",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "join"]
+}

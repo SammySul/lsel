@@ -1,0 +1,17 @@
+{
+  "id": "laugh-track",
+  "title": "Laugh track",
+  "difficulty": "easy",
+  "description": "Yank a line, then paste it twice.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "ha",
+  "target": "hahaha",
+  "solution": "y$$2p",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["yank-put", "count"]
+}

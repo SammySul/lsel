@@ -1,0 +1,17 @@
+{
+  "id": "one-selector-per-line",
+  "title": "One selector per line",
+  "difficulty": "easy",
+  "description": "Break at each space, then repeat.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "h1, h2, h3 { margin: 0; }",
+  "target": "h1,\nh2,\nh3 { margin: 0; }",
+  "solution": "f<Space>r<CR>;.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace", "repeat"]
+}

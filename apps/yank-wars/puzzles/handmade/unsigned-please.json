@@ -1,0 +1,17 @@
+{
+  "id": "unsigned-please",
+  "title": "Unsigned, please",
+  "difficulty": "medium",
+  "description": "Replace every i32 on the line.",
+  "language": "rust",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "fn add(a: i32, b: i32) -> i32 {\n    a + b\n}",
+  "target": "fn add(a: u32, b: u32) -> u32 {\n    a + b\n}",
+  "solution": ":s/i32/u32/g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

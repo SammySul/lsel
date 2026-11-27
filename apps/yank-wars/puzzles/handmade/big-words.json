@@ -1,0 +1,17 @@
+{
+  "id": "big-words",
+  "title": "Big words",
+  "difficulty": "easy",
+  "description": "A WORD stops only at spaces.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "std.out std.err std.in",
+  "target": "std.in",
+  "solution": "2dW",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["motion", "count"]
+}

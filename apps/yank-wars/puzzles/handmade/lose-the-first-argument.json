@@ -1,0 +1,17 @@
+{
+  "id": "lose-the-first-argument",
+  "title": "Lose the first argument",
+  "difficulty": "easy",
+  "description": "Delete through the first space.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "console.log(a, b);",
+  "target": "console.log(b);",
+  "solution": "f(ldf<Space>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "find"]
+}

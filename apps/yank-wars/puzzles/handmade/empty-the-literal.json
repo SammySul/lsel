@@ -1,0 +1,17 @@
+{
+  "id": "empty-the-literal",
+  "title": "Empty the literal",
+  "difficulty": "easy",
+  "description": "Clear the braces.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "p := Point{1, 2}",
+  "target": "p := Point{}",
+  "solution": "f{di{",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object", "delete"]
+}

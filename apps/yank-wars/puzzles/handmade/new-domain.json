@@ -1,0 +1,17 @@
+{
+  "id": "new-domain",
+  "title": "Move to the new domain",
+  "difficulty": "easy",
+  "description": "Change one word after the at sign.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "sam@old.com",
+  "target": "sam@new.com",
+  "solution": "f@lcwnew",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change", "find"]
+}

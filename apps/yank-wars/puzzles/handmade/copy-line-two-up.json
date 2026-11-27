@@ -1,0 +1,17 @@
+{
+  "id": "copy-line-two-up",
+  "title": "Copy line two up",
+  "difficulty": "medium",
+  "description": "Copy a line by number to the top.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "a := 1\nb := 2\nc := 3",
+  "target": "b := 2\na := 1\nb := 2\nc := 3",
+  "solution": ":2t0<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["ex"]
+}

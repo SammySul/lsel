@@ -1,0 +1,17 @@
+{
+  "id": "nine-in-matching",
+  "title": "Nine in the cats",
+  "difficulty": "medium",
+  "description": "Substitute only on matching lines.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "cat: 1\ndog: 2\ncat: 3",
+  "target": "cat: 9\ndog: 2\ncat: 9",
+  "solution": ":g/cat/s/\\d/9/<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global", "substitute"]
+}

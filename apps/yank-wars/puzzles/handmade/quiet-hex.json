@@ -1,0 +1,17 @@
+{
+  "id": "quiet-hex",
+  "title": "Quiet hex",
+  "difficulty": "easy",
+  "description": "Lowercase the color code.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "a { color: #FFAA00; }",
+  "target": "a { color: #ffaa00; }",
+  "solution": "fFgue",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["case", "find"]
+}

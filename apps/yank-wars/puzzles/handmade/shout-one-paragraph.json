@@ -1,0 +1,17 @@
+{
+  "id": "shout-one-paragraph",
+  "title": "Shout one paragraph",
+  "difficulty": "easy",
+  "description": "Uppercase the paragraph under the cursor.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "first para\nstill first\n\nsecond",
+  "target": "FIRST PARA\nSTILL FIRST\n\nsecond",
+  "solution": "gUip",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["case", "text-object"]
+}

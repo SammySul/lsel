@@ -1,0 +1,17 @@
+{
+  "id": "widen-the-type",
+  "title": "Widen the type",
+  "difficulty": "easy",
+  "description": "Append to the type name.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "x := []int{1, 2}",
+  "target": "x := []int64{1, 2}",
+  "solution": "fiea64",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert", "find"]
+}

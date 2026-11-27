@@ -1,0 +1,17 @@
+{
+  "id": "include-the-last",
+  "title": "Include the last one",
+  "difficulty": "easy",
+  "description": "Make the loop bound inclusive.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "for i := 0; i < 10; i++ {\n}",
+  "target": "for i := 0; i <= 10; i++ {\n}",
+  "solution": "f<lt>a=",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert", "find"]
+}

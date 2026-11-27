@@ -1,0 +1,17 @@
+{
+  "id": "empty-the-tag",
+  "title": "Empty the tag",
+  "difficulty": "easy",
+  "description": "Delete what is inside the tag.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "<p>old text</p>",
+  "target": "<p></p>",
+  "solution": "dit",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object", "delete"]
+}

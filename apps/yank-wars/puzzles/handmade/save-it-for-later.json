@@ -1,0 +1,17 @@
+{
+  "id": "save-it-for-later",
+  "title": "Save it for later",
+  "difficulty": "easy",
+  "description": "A named register survives a delete.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "a\nb\nc",
+  "target": "a\nc\na",
+  "solution": "\"ayyjdd\"ap",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["registers"]
+}

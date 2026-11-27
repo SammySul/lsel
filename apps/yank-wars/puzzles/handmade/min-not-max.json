@@ -1,0 +1,17 @@
+{
+  "id": "min-not-max",
+  "title": "Min, not max",
+  "difficulty": "easy",
+  "description": "Flip the media query.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "@media (max-width: 600px) {\n}",
+  "target": "@media (min-width: 600px) {\n}",
+  "solution": "f(wcwmin",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change", "find"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "comma-to-newline",
+  "title": "Comma to newline",
+  "difficulty": "easy",
+  "description": "Replace with a line break, then repeat.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "a,b,c",
+  "target": "a\nb\nc",
+  "solution": "f,r<CR>;.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace", "repeat"]
+}

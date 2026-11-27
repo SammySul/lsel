@@ -1,0 +1,17 @@
+{
+  "id": "flip-each-assignment",
+  "title": "Flip each assignment",
+  "difficulty": "hard",
+  "description": "Swap both sides of every pair.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "x=1;y=2;z=3",
+  "target": "1=x;2=y;3=z",
+  "solution": ":s/\\(\\w\\)=\\(\\w\\)/\\2=\\1/g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

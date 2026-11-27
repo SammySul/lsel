@@ -1,0 +1,17 @@
+{
+  "id": "type-over-it",
+  "title": "Type over it",
+  "difficulty": "easy",
+  "description": "Replace mode overwrites the word.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "hello world",
+  "target": "hello there",
+  "solution": "wRthere",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace-mode"]
+}

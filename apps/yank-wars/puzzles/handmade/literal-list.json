@@ -1,0 +1,17 @@
+{
+  "id": "literal-list",
+  "title": "Literal list",
+  "difficulty": "easy",
+  "description": "Change to the end of the line.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "l = list()",
+  "target": "l = []",
+  "solution": "wwC[]",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change"]
+}

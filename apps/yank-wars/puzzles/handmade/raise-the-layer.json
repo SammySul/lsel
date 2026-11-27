@@ -1,0 +1,17 @@
+{
+  "id": "raise-the-layer",
+  "title": "Raise the layer",
+  "difficulty": "easy",
+  "description": "Append a digit after the 9.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".modal { z-index: 9; }",
+  "target": ".modal { z-index: 99; }",
+  "solution": "f9a9",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert", "find"]
+}

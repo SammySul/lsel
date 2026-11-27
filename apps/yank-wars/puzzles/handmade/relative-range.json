@@ -1,0 +1,17 @@
+{
+  "id": "relative-range",
+  "title": "Relative range",
+  "difficulty": "medium",
+  "description": "Delete this line and the next with a range.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "a\nb\nc\nd",
+  "target": "a\nd",
+  "solution": "j:.,+1d<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["ex", "delete"]
+}

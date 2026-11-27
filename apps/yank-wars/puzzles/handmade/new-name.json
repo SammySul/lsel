@@ -1,0 +1,17 @@
+{
+  "id": "new-name",
+  "title": "New name",
+  "difficulty": "easy",
+  "description": "The quote object finds the next pair.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\"name\": \"old\"}",
+  "target": "{\"name\": \"new\"}",
+  "solution": "f:f\"ci\"new",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object", "change"]
+}

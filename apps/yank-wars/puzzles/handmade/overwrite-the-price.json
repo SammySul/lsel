@@ -1,0 +1,17 @@
+{
+  "id": "overwrite-the-price",
+  "title": "Overwrite the price",
+  "difficulty": "easy",
+  "description": "Replace mode again.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "price: 100",
+  "target": "price: 999",
+  "solution": "f1R999",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace-mode", "find"]
+}

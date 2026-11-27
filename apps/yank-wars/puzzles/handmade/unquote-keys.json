@@ -1,0 +1,17 @@
+{
+  "id": "unquote-keys",
+  "title": "Unquote the keys",
+  "difficulty": "medium",
+  "description": "Strip the quotes around each word.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\"a\": 1, \"b\": 2}",
+  "target": "{a: 1, b: 2}",
+  "solution": ":s/\"\\(\\w\\+\\)\"/\\1/g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

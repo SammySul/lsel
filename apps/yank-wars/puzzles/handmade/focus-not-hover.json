@@ -1,0 +1,17 @@
+{
+  "id": "focus-not-hover",
+  "title": "Focus, not hover",
+  "difficulty": "easy",
+  "description": "Change the pseudo-class.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "a:hover {\n  color: red;\n}",
+  "target": "a:focus {\n  color: red;\n}",
+  "solution": "f:lcwfocus",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change", "find"]
+}

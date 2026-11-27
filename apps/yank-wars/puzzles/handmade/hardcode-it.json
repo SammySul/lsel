@@ -1,0 +1,17 @@
+{
+  "id": "hardcode-it",
+  "title": "Hardcode it",
+  "difficulty": "easy",
+  "description": "Replace the call with a constant.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "x = compute()",
+  "target": "x = 0",
+  "solution": "fcC0",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change"]
+}

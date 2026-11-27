@@ -1,0 +1,17 @@
+{
+  "id": "keep-the-ok-lines",
+  "title": "Keep the ok lines",
+  "difficulty": "medium",
+  "description": "Delete every line that does not match.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "ok 1\nfail 2\nok 3\nfail 4",
+  "target": "ok 1\nok 3",
+  "solution": ":v/ok/d<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global"]
+}

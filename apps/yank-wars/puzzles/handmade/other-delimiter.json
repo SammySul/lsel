@@ -1,0 +1,17 @@
+{
+  "id": "other-delimiter",
+  "title": "Another delimiter",
+  "difficulty": "medium",
+  "description": "Use a hash so the slashes need no escape.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "src/lib/main",
+  "target": "src.lib.main",
+  "solution": ":s#/#.#g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

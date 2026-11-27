@@ -1,0 +1,17 @@
+{
+  "id": "indent-the-prints",
+  "title": "Indent the prints",
+  "difficulty": "medium",
+  "description": "Shift only the matching lines.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "print(a)\nx = 1\nprint(b)",
+  "target": "    print(a)\nx = 1\n    print(b)",
+  "solution": ":g/print/><CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global", "indent"]
+}

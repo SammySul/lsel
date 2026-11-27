@@ -1,0 +1,17 @@
+{
+  "id": "bullet-swap",
+  "title": "Bullet swap",
+  "difficulty": "easy",
+  "description": "Replace a column of dashes.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "- a\n- b\n- c",
+  "target": "* a\n* b\n* c",
+  "solution": "<C-v>jjr*",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block", "replace"]
+}

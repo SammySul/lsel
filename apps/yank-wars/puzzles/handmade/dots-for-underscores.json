@@ -1,0 +1,17 @@
+{
+  "id": "dots-for-underscores",
+  "title": "Dots for underscores",
+  "difficulty": "easy",
+  "description": "Replace one, then repeat the find.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "v1_2_3",
+  "target": "v1.2.3",
+  "solution": "f_r.;.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["find", "repeat"]
+}

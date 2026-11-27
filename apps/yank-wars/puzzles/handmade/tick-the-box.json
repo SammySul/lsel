@@ -1,0 +1,17 @@
+{
+  "id": "tick-the-box",
+  "title": "Tick the box",
+  "difficulty": "easy",
+  "description": "Replace the space inside the brackets.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "- [ ] write tests",
+  "target": "- [x] write tests",
+  "solution": "f[lrx",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace", "find"]
+}

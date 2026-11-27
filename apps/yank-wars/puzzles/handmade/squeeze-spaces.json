@@ -1,0 +1,17 @@
+{
+  "id": "squeeze-spaces",
+  "title": "Squeeze the spaces",
+  "difficulty": "medium",
+  "description": "Collapse each run of whitespace to one space.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "a   b    c\nd  e",
+  "target": "a b c\nd e",
+  "solution": ":%s/\\s\\+/ /g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

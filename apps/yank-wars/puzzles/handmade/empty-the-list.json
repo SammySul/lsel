@@ -1,0 +1,17 @@
+{
+  "id": "empty-the-list",
+  "title": "Empty the list",
+  "difficulty": "easy",
+  "description": "Clear the brackets.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const a = [1, 2, 3];",
+  "target": "const a = [];",
+  "solution": "f[di[",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object", "delete"]
+}

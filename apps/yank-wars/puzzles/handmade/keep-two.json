@@ -1,0 +1,17 @@
+{
+  "id": "keep-two",
+  "title": "Keep the first two",
+  "difficulty": "easy",
+  "description": "Change from the second comma on.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "[1, 2, 3, 4]",
+  "target": "[1, 2]",
+  "solution": "2f,c$]",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change", "find"]
+}

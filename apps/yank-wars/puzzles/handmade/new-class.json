@@ -1,0 +1,17 @@
+{
+  "id": "new-class",
+  "title": "New class",
+  "difficulty": "easy",
+  "description": "Change the attribute value.",
+  "language": "jsx",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "<div className=\"a\">hi</div>",
+  "target": "<div className=\"b\">hi</div>",
+  "solution": "f\"ci\"b",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object", "change"]
+}

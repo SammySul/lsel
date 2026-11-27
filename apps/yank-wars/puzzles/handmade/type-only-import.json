@@ -1,0 +1,17 @@
+{
+  "id": "type-only-import",
+  "title": "Type-only import",
+  "difficulty": "easy",
+  "description": "Insert a word before the brace.",
+  "language": "typescript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "import { A } from \"./a\";",
+  "target": "import type { A } from \"./a\";",
+  "solution": "witype<Space>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert", "word"]
+}

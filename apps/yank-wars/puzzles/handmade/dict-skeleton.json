@@ -1,0 +1,17 @@
+{
+  "id": "dict-skeleton",
+  "title": "Dict skeleton",
+  "difficulty": "hard",
+  "description": "Wrap each name, then add the frame.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "name\nage\ncity",
+  "target": "config = {\n    \"name\": None,\n    \"age\": None,\n    \"city\": None,\n}",
+  "solution": ":%s/.*/    \"&\": None,/<CR>ggOconfig = {<Esc>Go}",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "open-line"]
+}

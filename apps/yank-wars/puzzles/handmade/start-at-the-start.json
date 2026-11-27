@@ -1,0 +1,17 @@
+{
+  "id": "start-at-the-start",
+  "title": "Start at the start",
+  "difficulty": "easy",
+  "description": "Drop the zero from the slice.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "head = xs[0:3]",
+  "target": "head = xs[:3]",
+  "solution": "f0x",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "find"]
+}

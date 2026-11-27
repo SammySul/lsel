@@ -1,0 +1,17 @@
+{
+  "id": "first-pair-gone",
+  "title": "Remove the first pair",
+  "difficulty": "easy",
+  "description": "Delete up to a search match.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\"a\": 1, \"b\": 2}",
+  "target": "{\"b\": 2}",
+  "solution": "ld/\"b<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["search", "delete"]
+}
