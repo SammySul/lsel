@@ -59,7 +59,7 @@
     },
     "apps/sammysul": {
       "name": "sammysul",
-      "version": "0.1.9",
+      "version": "0.1.10",
       "dependencies": {
         "@sammysul/lsel": "workspace:*",
         "svelte": "catalog:",

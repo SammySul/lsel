@@ -24,6 +24,7 @@ eachBrowser((browser) => {
       "yank-wars",
       "lsel-station",
       "dajaj",
+      "grab",
       "lsel",
     ]);
     expect(await links.evaluateAll((as) => as.map((a) => a.getAttribute("href")))).toEqual([
@@ -31,6 +32,7 @@ eachBrowser((browser) => {
       "https://yankwars.app",
       "https://lsel-station.sammysul.com",
       "https://dajaj.sammysul.com",
+      "https://grab.sammysul.com",
       "https://git.sammysul.com/SammySul/lsel",
     ]);
     expect(await lselLook(page)).toEqual(LSEL_LOOK);

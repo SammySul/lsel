@@ -28,6 +28,11 @@ export const projects: readonly Project[] = [
     url: "https://dajaj.sammysul.com",
   },
   {
+    name: "grab",
+    what: "Preview and download a public Instagram profile's picture and newest posts",
+    url: "https://grab.sammysul.com",
+  },
+  {
     name: "lsel",
     what: "The source of all of them, and the kit they share",
     url: "https://git.sammysul.com/SammySul/lsel",
