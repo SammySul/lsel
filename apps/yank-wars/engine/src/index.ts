@@ -9,12 +9,12 @@ export {
   type DailyBoard,
   DailyClaim,
   dailyPuzzle,
-  SCHEDULE,
   dayOf,
   isPlayerId,
   msUntilNextDay,
   PlayerId,
   parseDailyClaim,
+  SCHEDULE,
 } from "./game/daily.ts";
 export { currentRun, type KeyLog, type LogEntry, RESET, scoreOf } from "./game/log.ts";
 export {
