@@ -9,6 +9,11 @@ traps. The why behind the design: `docs/decisions.md`.
   the post embed (`/p/<code>/embed/captioned/`). `web_profile_info` and the
   GraphQL `doc_id` queries answer 404 or 401. When Instagram changes a page,
   update `fakeInstagram.ts` to the new shape first, then the parser.
+- **Threads' profile page (`threads.com/@<user>`) is the only anonymous source
+  of a picture above 150 px**: `hd_profile_pic_versions` beside `username` in
+  the user object of one `<script type="application/json" data-sjs>` (checked
+  Nov 27, 2026). It answers about 1 MB, so ask it once per profile, never to
+  probe; when it changes, update `threadsPage` in `fakeInstagram.ts` first.
 - **A single photo's post embed has no JSON** (`contextJSON` is null): it is
   parsed from `img.EmbeddedMediaImage`'s srcset and `div.Caption`. Carousels
   and videos have the JSON.

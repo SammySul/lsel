@@ -3,7 +3,8 @@
 A public Instagram profile's picture and newest posts, to preview and
 download: one file at a time, or the ticked ones as a zip. No login, so it
 sees what a logged-out visitor sees: the newest 12 posts (every carousel item
-and reel video in them at full size) and a 150 px profile picture. No
+and reel video in them at full size) and the profile picture at 640 px from
+the account's Threads profile, or 150 px from Instagram when it has none. No
 stories, no private accounts.
 
 ## Develop

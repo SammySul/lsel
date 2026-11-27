@@ -21,6 +21,8 @@ export interface FakeProfile {
   verified: boolean;
   followers: number;
   posts: FakePost[];
+  /** Has a Threads profile, whose page gives the picture at 320 and 640 px; without, Threads answers 404. */
+  threads?: boolean;
 }
 
 export type FakeWorld = Record<string, FakeProfile>;
@@ -122,7 +124,7 @@ function profileEmbed(username: string, p: FakeProfile): string {
       full_name: p.fullName,
       verified: p.verified,
       is_verified: p.verified,
-      profile_pic_url: `${CDN}/v/t51.82787-19/${username}_pic.jpg?stp=dst-jpg_s150x150_tt6&oe=6930A1B2`,
+      profile_pic_url: picture(username, 150),
       followers_count: p.followers,
       posts_count: p.posts.length * 100,
       has_public_story: true,
@@ -149,6 +151,79 @@ function profilePage(username: string, p: FakeProfile): string {
   return `<!DOCTYPE html><html><head><title>${p.fullName} (&#064;${username})</title></head><body><img alt="${username}&#x27;s profile picture">${links.join("")}${other}</body></html>`;
 }
 
+export const picture = (username: string, size: number | null) =>
+  `${CDN}/v/t51.82787-19/${username}_pic.jpg?${size === null ? "" : `stp=dst-jpg_s${size}x${size}_tt6&`}oe=6930A1B2`;
+
+/**
+ * A Threads profile page: the user object in a Relay preload inside one of many JSON scripts,
+ * slashes escaped, its picture at each of `sizes` (in Threads' order) and its largest without a size.
+ */
+export function threadsPage(username: string, p: FakeProfile, sizes = [320, 640]): string {
+  const largest = Math.max(...sizes);
+  const user = {
+    profile_pic_url: picture(username, 150),
+    friendship_status: null,
+    has_onboarded_to_text_post_app: true,
+    pk: "63269174602",
+    text_post_app_is_private: false,
+    username,
+    follower_count: Math.round(p.followers / 15),
+    profile_context_facepile_users: [
+      { profile_pic_url: picture("someoneelse", 150), username: "someoneelse", is_verified: false },
+    ],
+    hd_profile_pic_versions: sizes.map((size) => ({
+      height: size,
+      url: picture(username, size === largest ? null : size),
+      width: size,
+    })),
+    is_verified: p.verified,
+    biography: "",
+    full_name: p.fullName,
+    id: "63269174602",
+  };
+  const preload = {
+    require: [
+      [
+        "ScheduledServerJS",
+        "handle",
+        null,
+        [
+          {
+            __bbox: {
+              require: [
+                [
+                  "RelayPrefetchedStreamCache",
+                  "next",
+                  [],
+                  [
+                    "adp_BarcelonaProfilePageDirectQueryRelayPreloader_6b09dd303de4a2d02755324",
+                    {
+                      __bbox: {
+                        complete: true,
+                        result: { data: { user }, extensions: { is_final: true } },
+                        sequence_number: 0,
+                      },
+                    },
+                  ],
+                ],
+                ["CometResourceScheduler", "registerHighPriHashes", null, [["g+CzcU6"]]],
+              ],
+            },
+          },
+        ],
+      ],
+    ],
+  };
+  const script = (data: unknown) => {
+    const text = JSON.stringify(data).replaceAll("/", "\\/");
+    return `<script type="application/json" nonce="swa12XXi"  data-content-len="${text.length}" data-sjs>${text}</script>`;
+  };
+  const other = script({
+    require: [["ServerJSPayloadListener", "process", null, [{ r: ["or/9fVC"] }]]],
+  });
+  return `<!DOCTYPE html><html lang="en"><head><title>${p.fullName} (@${username}) • Threads, Say more</title></head><body>${other}${script(preload)}</body></html>`;
+}
+
 const html = (body: string, status = 200, headers: Record<string, string> = {}) =>
   new Response(body, {
     status,
@@ -162,6 +237,7 @@ const NOT_FOUND =
  * `calls` lists every path asked for; `fail` forces a status, `expired` the CDN's 403,
  * `limitAfter` lets that many more post embeds through and then redirects as Instagram's rate limit does;
  * `refuse` redirects the next that many requests for a page (Infinity: every one).
+ * Threads is apart: `threadsCalls` lists its pages asked for, `threads` forces their status.
  */
 export function fakeInstagram(world: FakeWorld) {
   const state = {
@@ -170,9 +246,12 @@ export function fakeInstagram(world: FakeWorld) {
     expired: false,
     limitAfter: undefined as number | undefined,
     refuse: 0,
+    threadsCalls: [] as string[],
+    threads: undefined as number | undefined,
   };
   const handle = (url: string, headers: Headers): Response => {
     const u = new URL(url);
+    if (u.hostname === "www.threads.com") return threads(u);
     state.calls.push(u.hostname.endsWith("cdninstagram.com") ? `cdn${u.pathname}` : u.pathname);
     if (state.fail !== undefined) return html(NOT_FOUND, state.fail);
     if (u.hostname.endsWith("cdninstagram.com")) {
@@ -221,6 +300,16 @@ export function fakeInstagram(world: FakeWorld) {
     }
     return html(NOT_FOUND, 404);
   };
+  const threads = (u: URL): Response => {
+    state.threadsCalls.push(u.pathname);
+    if (state.threads === 302) {
+      return html("", 302, { Location: "https://www.threads.com/login/?show_choice_screen=false" });
+    }
+    if (state.threads !== undefined) return html("", state.threads);
+    const name = /^\/@([a-z0-9._]+)$/.exec(u.pathname)?.[1] ?? "";
+    const p = world[name];
+    return p?.threads ? html(threadsPage(name, p)) : html(NOT_FOUND, 404);
+  };
   return {
     state,
     fetch: async (url: string, init: RequestInit) => handle(url, new Headers(init.headers)),
@@ -245,6 +334,7 @@ export const WORLD: FakeWorld = {
     fullName: "National Geo",
     verified: true,
     followers: 267_196_027,
+    threads: true,
     posts: [
       post("Pin_ned-1", [photo], { takenAt: T - 40 * DAY }),
       post("Car-ousel2", [photo, { width: 2048, height: 2560 }, reel], { takenAt: T }),
@@ -256,7 +346,7 @@ export const WORLD: FakeWorld = {
       post("Photo8", [{ width: 1440, height: 1080 }]),
     ],
   },
-  quiet: { fullName: "", verified: false, followers: 3, posts: [] },
+  quiet: { fullName: "", verified: false, followers: 3, posts: [], threads: true },
   patchy: {
     fullName: "Patchy",
     verified: false,

@@ -61,3 +61,19 @@
   moves, and the page's polls never show fewer posts than it had. Not
   `localStorage`: CDN links and counts would outlive the visit they were good
   for.
+
+## The picture from Threads, the file on its own (2026-11-27)
+
+- **The profile picture comes from Threads at 640 px**: Instagram's anonymous
+  pages give only 150 px, while `threads.com/@<user>` answers without a login
+  and its page's JSON lists the picture at 320 and 640 px on Instagram's CDN,
+  so the media proxy serves it unchanged. It costs one more request per new
+  profile (about 1 MB), asked once the profile embed is in, beside Instagram's
+  queue with its own pacing, and kept with the profile for its 6 hours.
+- **Threads can only fall back, never fail a profile**: no Threads profile, a
+  redirect, a 429, a changed page, a picture for another username or no answer
+  in 5 s keeps the embed's 150 px picture, logged. Its refusals never count as
+  Instagram's, so they can't cut a profile short.
+- **`o` opens the file itself in a new tab** (shown, not downloaded) and `O`
+  the post on Instagram: the file at full size is what a preview is most often
+  opened further for.

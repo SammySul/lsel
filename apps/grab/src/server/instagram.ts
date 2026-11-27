@@ -1,6 +1,6 @@
 // Instagram's public pages and CDN as a logged-out browser sees them, cached: a profile for 6 hours, a post for an hour.
 
-import type { Profile } from "../shared/types.ts";
+import type { Media, Profile } from "../shared/types.ts";
 import {
   type EmbeddedPost,
   InstagramError,
@@ -10,6 +10,7 @@ import {
   parseProfileEmbed,
   profileCodes,
 } from "./parse.ts";
+import type { Threads } from "./threads.ts";
 
 type Fetch = (url: string, init: RequestInit) => Promise<Response>;
 type Sleep = (ms: number) => Promise<void>;
@@ -53,6 +54,8 @@ export interface InstagramOptions {
   gap?: number;
   /** Milliseconds before asking again for a page the rate limit refused. */
   retryWait?: number;
+  /** Where the 640 px profile picture comes from; without it, the embed's 150 px one stays. */
+  threads?: Pick<Threads, "picture">;
 }
 
 /** Only Instagram's CDN, so the proxy can't be pointed anywhere else. */
@@ -68,7 +71,7 @@ export function cdnUrl(raw: string): URL | null {
 }
 
 /** Runs what it is handed one at a time, each starting at least `gap` ms after the one before. */
-function paced(gap: number, now: () => number, sleep: Sleep) {
+export function paced(gap: number, now: () => number, sleep: Sleep) {
   let queue: Promise<unknown> = Promise.resolve();
   let last = Number.NEGATIVE_INFINITY;
   return <T>(run: () => Promise<T>): Promise<T> => {
@@ -141,6 +144,7 @@ export class Instagram {
   readonly #loads = new Map<string, Load>();
   readonly #pace: ReturnType<typeof paced>;
   readonly #retryWait: number;
+  readonly #threads: Pick<Threads, "picture"> | undefined;
 
   constructor(opts: InstagramOptions = {}) {
     this.#fetch = opts.fetch ?? ((url, init) => fetch(url, init));
@@ -150,6 +154,7 @@ export class Instagram {
     this.#posts = new Cache(POST_TTL, now);
     this.#pace = paced(opts.gap ?? GAP, now, this.#sleep);
     this.#retryWait = opts.retryWait ?? RETRY_WAIT;
+    this.#threads = opts.threads;
   }
 
   /** Cached or loading: asking for it costs Instagram nothing more. */
@@ -261,12 +266,22 @@ export class Instagram {
     return profile;
   }
 
-  /** The profile page lists twelve; if it lists none, or is refused, the embed's six stand in. */
+  /** The embed's profile, its picture from Threads when Threads has one, and the posts to ask for. */
   async #list(username: string): Promise<Listing> {
     const embed = await this.#page(`/${username}/embed/`).catch((e: unknown) => {
       throw e instanceof InstagramError && e.kind === "not-found" ? noProfile(username) : e;
     });
     const head = parseProfileEmbed(embed, username);
+    // beside Instagram's queue, never failing: Threads' refusals don't hold it up or count as Instagram's
+    const picture: Promise<Media | null> =
+      this.#threads?.picture(head.username) ?? Promise.resolve(null);
+    const listing = await this.#codes(head);
+    const hd = await picture;
+    return hd === null ? listing : { ...listing, head: { ...listing.head, picture: hd } };
+  }
+
+  /** The profile page lists twelve; if it lists none, or is refused, the embed's six stand in. */
+  async #codes(head: ProfileHead): Promise<Listing> {
     if (head.postCount === 0) return { head, codes: [], unlisted: 0 };
     const embedded = head.recent.map((r) => r.code);
     let listed: string[];

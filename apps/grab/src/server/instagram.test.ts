@@ -1,11 +1,18 @@
 import { expect, test } from "bun:test";
 import { type FakeProfile, fakeInstagram, WORLD } from "./fakeInstagram.ts";
 import { cdnUrl, Instagram } from "./instagram.ts";
+import { Threads } from "./threads.ts";
 
 function setup() {
   const fake = fakeInstagram(WORLD);
   let clock = 1_800_000_000_000;
-  const ig = new Instagram({ fetch: fake.fetch, now: () => clock, gap: 0, retryWait: 0 });
+  const ig = new Instagram({
+    fetch: fake.fetch,
+    now: () => clock,
+    gap: 0,
+    retryWait: 0,
+    threads: new Threads({ fetch: fake.fetch, gap: 0 }),
+  });
   return { fake, ig, later: (minutes: number) => (clock += minutes * 60_000) };
 }
 
@@ -37,6 +44,49 @@ test("a profile: the page's twelve in grid order, each post's files, dates from 
   ]);
   expect(fake.state.calls.slice(0, 2)).toEqual(["/nat.geo/embed/", "/nat.geo/"]);
   expect(fake.state.calls.length).toBe(10);
+});
+
+const PIC = "https://scontent-fra5-1.cdninstagram.com/v/t51.82787-19";
+
+test("the picture is Threads' 640 px one; without a Threads profile, Instagram's 150 px", async () => {
+  const { fake, ig } = setup();
+  const natGeo = (await ig.profile("nat.geo")).picture;
+  expect([natGeo.id, natGeo.width, natGeo.height, natGeo.src, natGeo.thumb]).toEqual([
+    "picture",
+    640,
+    640,
+    `${PIC}/nat.geo_pic.jpg?oe=6930A1B2`,
+    `${PIC}/nat.geo_pic.jpg?oe=6930A1B2`,
+  ]);
+  const patchy = (await ig.profile("patchy")).picture;
+  expect([patchy.width, patchy.src]).toEqual([
+    150,
+    `${PIC}/patchy_pic.jpg?stp=dst-jpg_s150x150_tt6&oe=6930A1B2`,
+  ]);
+  // asked once per profile, kept with it
+  await ig.profile("nat.geo");
+  expect(fake.state.threadsCalls).toEqual(["/@nat.geo", "/@patchy"]);
+});
+
+test("Threads redirecting, rate limiting or changing its page keeps the 150 px picture, and isn't Instagram's limit", async () => {
+  for (const status of [302, 429]) {
+    const { fake, ig } = setup();
+    fake.state.threads = status;
+    const p = await ig.profile("nat.geo");
+    expect([p.picture.width, p.posts.length, p.missing, p.limited]).toEqual([150, 8, 0, false]);
+    expect(fake.state.calls.length).toBe(10);
+  }
+  const fake = fakeInstagram(WORLD);
+  const changed = new Instagram({
+    fetch: fake.fetch,
+    gap: 0,
+    retryWait: 0,
+    threads: new Threads({
+      gap: 0,
+      fetch: async () => new Response("<html><script>window.__a=1</script></html>"),
+    }),
+  });
+  expect((await changed.profile("nat.geo")).picture.width).toBe(150);
 });
 
 test("a profile is kept 6 hours, its posts an hour: after, the profile and its posts are asked again", async () => {

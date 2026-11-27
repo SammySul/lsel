@@ -1,4 +1,4 @@
-// Instagram is fakeInstagram, injected as fetch. Run `bun run build` first.
+// Instagram and Threads are fakeInstagram, injected as fetch. Run `bun run build` first.
 import { afterEach, expect, test } from "bun:test";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -16,6 +16,7 @@ import type { BrowserContext, Page } from "playwright-core";
 import { api } from "../src/server/api.ts";
 import { fakeInstagram, WORLD } from "../src/server/fakeInstagram.ts";
 import { Instagram } from "../src/server/instagram.ts";
+import { Threads } from "../src/server/threads.ts";
 
 const DIST = join(import.meta.dir, "../dist");
 
@@ -24,7 +25,14 @@ function server({ gap = 0 } = {}) {
   const fake = fakeInstagram(WORLD);
   const url = serveBuilt(
     DIST,
-    api({ instagram: new Instagram({ fetch: fake.fetch, gap, retryWait: 0 }) }),
+    api({
+      instagram: new Instagram({
+        fetch: fake.fetch,
+        gap,
+        retryWait: 0,
+        threads: new Threads({ fetch: fake.fetch, gap: 0 }),
+      }),
+    }),
   );
   return { fake, url };
 }
@@ -122,7 +130,7 @@ eachBrowser((browser) => {
     await tiles(page).first().waitFor();
     expect([await currentTile(page), await facts(page)]).toEqual([
       "Profile picture",
-      "Profile picture · 150 × 150",
+      "Profile picture · 640 × 640",
     ]);
     await page.keyboard.press("l");
     expect([await currentTile(page), await facts(page)]).toEqual([
@@ -163,6 +171,40 @@ eachBrowser((browser) => {
     ]);
     await tiles(page).nth(4).click();
     expect(await currentTile(page)).toBe("Video 3 of 3 in post Car-ousel2");
+    expect(await problems()).toEqual([]);
+    await ctx.close();
+  });
+
+  test("o opens the current file alone in a new tab, shown rather than downloaded; O opens its post on Instagram", async () => {
+    const { ctx, page, problems } = await open("#/nat.geo");
+    await ctx.route("https://www.instagram.com/**", (route) =>
+      route.fulfill({ body: "Instagram" }),
+    );
+    await tiles(page).first().waitFor();
+    await page.keyboard.press("l");
+    expect(await currentTile(page)).toBe("Photo, post Pin_ned-1");
+    const [file] = await Promise.all([ctx.waitForEvent("page"), page.keyboard.press("o")]);
+    await file.waitForLoadState();
+    expect([file.url(), await file.evaluate(() => document.contentType)]).toEqual([
+      `${url()}api/media?src=https%3A%2F%2Fscontent-fra5-1.cdninstagram.com%2Fv%2Ft51.82787-15%2FPin_ned-1_1.jpg%3Fstp%3Ddst-jpg%26oe%3D6930A1B2`,
+      "image/jpeg",
+    ]);
+    const [post] = await Promise.all([ctx.waitForEvent("page"), page.keyboard.press("O")]);
+    await post.waitForLoadState();
+    expect(post.url()).toBe("https://www.instagram.com/p/Pin_ned-1/");
+    expect(
+      await page
+        .locator(".preview .actions a")
+        .evaluateAll((as: HTMLAnchorElement[]) =>
+          as.map((a) => [a.textContent, a.getAttribute("href")]),
+        ),
+    ).toEqual([
+      [
+        "Open file o",
+        "/api/media?src=https%3A%2F%2Fscontent-fra5-1.cdninstagram.com%2Fv%2Ft51.82787-15%2FPin_ned-1_1.jpg%3Fstp%3Ddst-jpg%26oe%3D6930A1B2",
+      ],
+      ["Open on Instagram O", "https://www.instagram.com/p/Pin_ned-1/"],
+    ]);
     expect(await problems()).toEqual([]);
     await ctx.close();
   });

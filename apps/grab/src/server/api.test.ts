@@ -6,11 +6,17 @@ import { rateLimiter } from "@sammysul/lsel/server";
 import { api } from "./api.ts";
 import { cdn, type FakeProfile, fakeInstagram, fileBytes, WORLD } from "./fakeInstagram.ts";
 import { Instagram } from "./instagram.ts";
+import { Threads } from "./threads.ts";
 
 function setup(allow?: (visitor: string, now: number) => boolean, world = WORLD) {
   const fake = fakeInstagram(world);
   const routes = api({
-    instagram: new Instagram({ fetch: fake.fetch, gap: 0, retryWait: 0 }),
+    instagram: new Instagram({
+      fetch: fake.fetch,
+      gap: 0,
+      retryWait: 0,
+      threads: new Threads({ fetch: fake.fetch, gap: 0 }),
+    }),
     ...(allow === undefined ? {} : { allow }),
   });
   const get = async (path: string, headers: Record<string, string> = {}) => {

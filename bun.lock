@@ -25,7 +25,7 @@
     },
     "apps/grab": {
       "name": "grab",
-      "version": "0.5.0",
+      "version": "0.6.0",
       "dependencies": {
         "@sammysul/lsel": "workspace:*",
         "svelte": "catalog:",
