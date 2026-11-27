@@ -4,15 +4,21 @@ export type { Extension, Text } from "@codemirror/state";
 export type { EditorView } from "@codemirror/view";
 export { feedKey, type KeyResult } from "./feedKey.ts";
 export {
+  ACCOUNT,
+  type Account,
+  AccountSync,
+  Best,
+  type Me,
+  parseAccountSync,
+} from "./game/account.ts";
+export {
   type BoardEntry,
   DAILY,
   type DailyBoard,
   DailyClaim,
   dailyPuzzle,
   dayOf,
-  isPlayerId,
   msUntilNextDay,
-  PlayerId,
   parseDailyClaim,
   SCHEDULE,
 } from "./game/daily.ts";

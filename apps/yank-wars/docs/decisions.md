@@ -53,10 +53,9 @@ dropping is never an advantage. _Rejected:_ pausing (pull the plug to think).
 draws a new puzzle and keeps a running tally. Rooms close 5 minutes after the
 last socket leaves.
 
-**Identity: Better Auth.** Anonymous plugin from step 2 (every player has a
-stable id and a nickname, no login screen), GitHub sign-in with account
-linking (`onLinkAccount` moves history) in step 5 with ratings. Step 1 stays
-client-only.
+**Identity: Better Auth.** Anonymous plugin (every player has a stable id and
+a nickname, no login screen) and GitHub sign-in with account linking
+(`onLinkAccount` moves history); see "Accounts". Solo play stays client-only.
 
 ## Engine: CodeMirror 6 + @replit/codemirror-vim
 
@@ -213,7 +212,7 @@ Visual-block `I`, `A`, `c`, `s`, `C`, `D`, `X` and `Y` follow vim since 2026-11-
 random from the whole pool, one the room hasn't played first, so the pool's mix
 (mostly easy and medium) sets the odds: two players each picking a difficulty
 in the lobby was chaotic. Names are typed, remembered in
-prefs, and editable in the lobby; accounts come with part 3.
+prefs (and the account, once signed in), and editable in the lobby.
 
 **The cap wins over grace.** A lock-in at 3:55 leaves 5 s, not 10: the
 4-minute cap is a promise about how long a round can take.
@@ -262,15 +261,43 @@ never moves a day that has begun. _Rejected:_ a stride through the pool sorted
 by id (shipped in 1.5.0): every new puzzle reshuffled every day ahead, today's
 included, and the 500-puzzle release moved day 1 mid-day.
 
-**The board before accounts.** A run counts once the server replays its log
-(the rooms' replay worker), so keys can't be faked; the time is the client's,
-checked only against the round cap, and breaks ties. A player is a random id in
-prefs, with the name they type on the card; one row per player and day keeps
-their best. Runs live in `daily.sqlite` in the state directory. Accounts (part
-3) will replace the id and make names trustworthy.
+**The board.** A run counts once the server replays its log (the rooms'
+replay worker), so keys can't be faked; the time is the client's, checked only
+against the round cap, and breaks ties. A run is sent signed in: the session
+says who, never the body; one row per account and day keeps their best. Runs
+live in `daily.sqlite` in the state directory.
 
-**Streaks stay in the browser** (the days solved, in prefs), and the share line
-carries one.
+**Streaks are the days solved**, in prefs and on the account, and the share
+line carries one.
+
+## Accounts (2026-11-27)
+
+**GitHub sign-in moved ahead of ratings** (Sammy's call): bests and streaks
+should follow a player between devices before anything else is built on them.
+Better Auth 1.7 on the server only; the browser calls its endpoints with
+`fetch`, so no client library ships. Its tables, and the account's progress,
+live in `accounts.sqlite` in the state directory, migrated at start.
+
+**A guest is made on first use of the server**: the first daily run sends
+`/api/auth/sign-in/anonymous`. Browsing and solo play make no rows. Signing in
+with GitHub links the guest (`onLinkAccount`): its progress and board runs
+move to the account, the better run of a day both played wins.
+
+**What follows the account: the board name, each puzzle's best and the days
+solved.** A sync sends one device's side; the server keeps the better best of
+each puzzle and every day of both, and answers with the merged account, which
+the device takes in. Filters and the key-hints toggle stay per browser. A name
+is sent only when typed, so another device's stale name never wins; it starts
+as the GitHub username and a rename shows on every run of the player's.
+_Rejected:_ syncing all prefs (more to merge, little gain); a guest per visit
+(rows for people who never play).
+
+**Bests are trusted, runs are not.** A best only shows the player their own
+progress, so a sync is checked for shape and bounds, not replayed; only the
+board replays.
+
+**Better Auth limits sign-ins per address**, read from `cf-connecting-ip`;
+tests give each browser its own address.
 
 ## Project
 
@@ -282,8 +309,8 @@ deploy are lsel's (`STACK.md`).
 0–3. Done (2026-11-17, `v1.0.0`): the solo game live at `yankwars.app`, ~50
 handmade puzzles. The daily puzzle with its board: done 2026-11-27 (`v1.5.0`)
 4. Rooms (step 2 parts 2 and 3): part 2 done 2026-11-26 (invite links, grace
-timer, round cap, reconnect, replay with mismatch logging); part 3 next: Better
-Auth anonymous sessions on `bun:sqlite`, upstream PRs for the core patch
+timer, round cap, reconnect, replay with mismatch logging); part 3: accounts
+(guests and GitHub sign-in) done 2026-11-27 (`v1.6.0`); next: rooms named by
+the account, upstream PRs for the core patch
 5. Matchmaking queue with daily/solo fallback
-6. Only if people rematch: GitHub login + linking, ratings (Glicko-2 /
-OpenSkill), ghosts
+6. Only if people rematch: ratings (Glicko-2 / OpenSkill), ghosts

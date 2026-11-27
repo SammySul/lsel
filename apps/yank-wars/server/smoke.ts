@@ -1,5 +1,5 @@
-// Plays one room round and posts one daily run against a built server: bun server/smoke.ts <out path>
-// Proves what only the compiled binary can: the embedded replay worker, puzzles and SQLite.
+// Plays one room round, then signs in as a guest and posts one daily run, against a built server: bun server/smoke.ts <out path>
+// Proves what only the compiled binary can: the embedded replay worker, puzzles, SQLite and Better Auth's migrations.
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -11,7 +11,12 @@ const port = 20_000 + Math.floor(Math.random() * 20_000);
 // the state directory: the daily board's database and the mismatch log land here
 const state = mkdtempSync(join(tmpdir(), "yank-wars-smoke-"));
 const proc = Bun.spawn([join(out, "bin/yank-wars")], {
-  env: { ...process.env, YW_PORT: String(port) },
+  env: {
+    ...process.env,
+    YW_PORT: String(port),
+    YW_ORIGIN: `http://127.0.0.1:${port}`,
+    YW_AUTH_SECRET: crypto.randomUUID() + crypto.randomUUID(),
+  },
   cwd: state,
   stdout: "pipe",
   stderr: "inherit",
@@ -90,25 +95,37 @@ try {
   }
   console.log(`smoke: ${id} verified in the built server (${keys.length} keys)`);
 
-  const base = `http://127.0.0.1:${port}/api/daily`;
-  const today = (await (await fetch(base)).json()) as DailyBoard;
-  const run = solutionOf(today.puzzle);
-  const posted = await fetch(base, {
+  const origin = `http://127.0.0.1:${port}`;
+  const guest = await fetch(`${origin}/api/auth/sign-in/anonymous`, {
     method: "POST",
-    body: JSON.stringify({
-      day: today.day,
-      player: "f".repeat(32),
-      name: "smoke",
-      log: run,
-      ms: 1,
-    }),
+    headers: { origin, "content-type": "application/json" },
+    body: "{}",
+  });
+  const cookie = guest.headers
+    .getSetCookie()
+    .map((c) => c.split(";")[0])
+    .join("; ");
+  if (guest.status !== 200 || cookie === "") throw new Error(`guest sign-in ${guest.status}`);
+  const as = { origin, cookie, "content-type": "application/json" };
+  const named = await fetch(`${origin}/api/me`, {
+    method: "PUT",
+    headers: as,
+    body: JSON.stringify({ name: "smoke" }),
+  });
+  if (named.status !== 200) throw new Error(`rename ${named.status} ${await named.text()}`);
+  const today = (await (await fetch(`${origin}/api/daily`)).json()) as DailyBoard;
+  const run = solutionOf(today.puzzle);
+  const posted = await fetch(`${origin}/api/daily`, {
+    method: "POST",
+    headers: as,
+    body: JSON.stringify({ day: today.day, log: run, ms: 1 }),
   });
   const board = (await posted.json()) as DailyBoard;
   const top = board.top[0];
-  if (posted.status !== 200 || top?.name !== "smoke" || top.keys !== run.length) {
+  if (posted.status !== 200 || top?.name !== "smoke" || !top.you || top.keys !== run.length) {
     throw new Error(`daily ${posted.status} ${JSON.stringify(board)}`);
   }
-  console.log(`smoke: daily #${today.day} (${today.puzzle}) on the built server's board`);
+  console.log(`smoke: a guest's daily #${today.day} (${today.puzzle}) on the built server's board`);
 } finally {
   clearTimeout(giveUp);
   proc.kill();

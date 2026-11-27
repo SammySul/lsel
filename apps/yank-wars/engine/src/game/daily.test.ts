@@ -40,26 +40,20 @@ describe("dailyPuzzle", () => {
 });
 
 describe("DailyClaim", () => {
-  const claim: DailyClaim = {
-    day: 3,
-    player: "0123456789abcdef0123456789abcdef",
-    name: "  sammy ",
-    log: parseKeys("dd"),
-    ms: 4_200,
-  };
+  const claim: DailyClaim = { day: 3, log: parseKeys("dd"), ms: 4_200 };
 
-  test("accepts a run and trims the name", () => {
-    expect(v.parse(DailyClaim, claim)).toEqual({ ...claim, name: "sammy" });
+  test("accepts a run", () => {
+    expect(v.is(DailyClaim, claim)).toBe(true);
   });
 
-  test("refuses a bad player id, an empty log, a non-key and a time past the cap", () => {
+  test("refuses an empty log, a non-key, a time past the cap, day 0, and who sent it: that's the session's", () => {
     for (const bad of [
-      { player: "nope" },
       { log: [] },
       { log: ["notakey"] },
       { ms: 240_001 },
       { day: 0 },
-      { extra: 1 },
+      { player: "0123456789abcdef0123456789abcdef" },
+      { name: "ada" },
     ]) {
       expect(v.is(DailyClaim, { ...claim, ...bad })).toBe(false);
     }

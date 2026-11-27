@@ -3,6 +3,7 @@
 import { duration } from "@sammysul/lsel";
 import { LIMITS } from "@yank-wars/engine";
 import { untrack } from "svelte";
+import { account } from "../lib/account.svelte.ts";
 import { type BoardAnswer, type Daily, fetchBoard, sendRun, streakOf } from "../lib/daily.ts";
 import type { RoundController } from "../lib/round.svelte.ts";
 
@@ -15,33 +16,33 @@ const locked = untrack(() => ctl.phase === "locked");
 let answer = $state<BoardAnswer | undefined>();
 let name = $state(untrack(() => prefs.name));
 
-function send(): void {
-  answer = undefined;
-  void sendRun({
-    day,
-    player: prefs.player,
-    name: prefs.name,
-    log: [...ctl.round.log],
-    ms: Math.round(ctl.elapsed),
-  }).then((a) => {
-    answer = a;
-  });
+// the first run on the board makes this browser a guest account, unless it's signed in already
+async function send(): Promise<void> {
+  if (!(await account.ensure())) {
+    answer = { ok: false, error: "the board is unreachable" };
+    return;
+  }
+  answer = await sendRun({ day, log: [...ctl.round.log], ms: Math.round(ctl.elapsed) });
 }
 
 if (locked) {
   prefs.solvedDaily(day);
-  send();
+  void send();
 } else {
-  void fetchBoard(prefs.player).then((a) => {
+  void fetchBoard().then((a) => {
     answer = a;
   });
 }
 
-function rename(): void {
+// the account takes the name, and the board shows it on every run of the player's
+async function rename(): Promise<void> {
   const n = name.trim();
   if (n === prefs.name) return;
   prefs.name = n;
-  if (locked) send();
+  if (!locked) return;
+  answer = undefined;
+  await account.settled();
+  answer = await fetchBoard();
 }
 
 const streak = $derived(streakOf(prefs.daily, day));
@@ -86,7 +87,7 @@ const rows = $derived(
         placeholder="anonymous"
         spellcheck="false"
         autocomplete="off"
-        onchange={rename}
+        onchange={() => void rename()}
       />
     </label>
   {/if}

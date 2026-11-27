@@ -8,11 +8,11 @@ import {
   type DailyBoard,
   dailyPuzzle,
   dayOf,
-  isPlayerId,
   type KeyLog,
   type Puzzle,
   parseDailyClaim,
 } from "@yank-wars/engine";
+import type { Player } from "./accounts.ts";
 import type { Verdict } from "./replay.ts";
 
 const LIMITS = {
@@ -107,6 +107,31 @@ export class Board {
     return { day, puzzle, players, top, you };
   }
 
+  /** A new board name shows on every run of the player's. */
+  rename(player: string, name: string): void {
+    this.#db.query("UPDATE runs SET name = ? WHERE player = ?").run(name, player);
+  }
+
+  /** A guest's runs join the account it signed in to, keeping the better run of any day both played. */
+  reassign(from: string, to: string, name: string): void {
+    this.#db.transaction(() => {
+      // WHERE true: SQLite's upsert after a SELECT needs it to parse ON CONFLICT
+      this.#db
+        .query(
+          `INSERT INTO runs (day, player, puzzle, name, keys, ms, at)
+           SELECT day, ?2, puzzle, name, keys, ms, at FROM runs WHERE player = ?1 AND true
+           ON CONFLICT (day, player) DO UPDATE SET
+             puzzle = CASE WHEN ${BETTER} THEN excluded.puzzle ELSE puzzle END,
+             keys = CASE WHEN ${BETTER} THEN excluded.keys ELSE keys END,
+             ms = CASE WHEN ${BETTER} THEN excluded.ms ELSE ms END,
+             at = CASE WHEN ${BETTER} THEN excluded.at ELSE at END`,
+        )
+        .run(from, to);
+      this.#db.query("DELETE FROM runs WHERE player = ?").run(from);
+      this.rename(to, name);
+    })();
+  }
+
   close(): void {
     this.#db.close();
   }
@@ -118,12 +143,16 @@ const BETTER = `(excluded.puzzle <> puzzle OR excluded.keys < keys OR
 
 export interface DailyDeps {
   board: Board;
+  /** the signed-in player behind a request, or null */
+  player: (req: Request) => Promise<Player | null>;
+  /** a verified run: the day counts toward the player's streak on every device */
+  solved: (player: string, day: number) => void;
   puzzles: ReadonlyMap<string, Puzzle>;
   verify: (puzzle: Puzzle, log: KeyLog) => Promise<Verdict>;
   now?: () => number;
 }
 
-/** `/api/daily`: GET today's board (`?player=` adds the asker's rank), POST a locked-in run. */
+/** `/api/daily`: GET today's board (with the asker's rank, when signed in), POST a locked-in run. */
 export function dailyRoutes(deps: DailyDeps): Routes {
   const now = deps.now ?? Date.now;
   const allowed = rateLimiter(LIMITS.perAddress);
@@ -132,11 +161,10 @@ export function dailyRoutes(deps: DailyDeps): Routes {
     const day = dayOf(now());
     const puzzle = dailyPuzzle(deps.puzzles.values(), day);
     if (puzzle === undefined) return json({ error: "no daily today" }, 503);
-    if (req.method === "GET") {
-      const player = url.searchParams.get("player");
-      return json(deps.board.board(day, puzzle.id, isPlayerId(player) ? player : null));
-    }
+    const player = await deps.player(req);
+    if (req.method === "GET") return json(deps.board.board(day, puzzle.id, player?.id ?? null));
     if (req.method !== "POST") return respond("method not allowed", 405, { Allow: "GET, POST" });
+    if (player === null) return json({ error: "not signed in" }, 401);
     // cloudflared passes the visitor's address; without it, everyone shares one budget
     if (!allowed(req.headers.get("cf-connecting-ip") ?? "direct", now())) {
       return json({ error: "too many requests" }, 429);
@@ -162,12 +190,13 @@ export function dailyRoutes(deps: DailyDeps): Routes {
     deps.board.record({
       day,
       puzzle: puzzle.id,
-      player: claim.player,
-      name: claim.name === "" ? "anonymous" : claim.name,
+      player: player.id,
+      name: player.name === "" ? "anonymous" : player.name,
       keys: verdict.score,
       ms: claim.ms,
       at: now(),
     });
-    return json(deps.board.board(day, puzzle.id, claim.player));
+    deps.solved(player.id, day);
+    return json(deps.board.board(day, puzzle.id, player.id));
   };
 }

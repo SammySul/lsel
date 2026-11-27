@@ -1,7 +1,10 @@
-// Starts the server: the built web app, the rooms on /ws and the daily board on /api/daily.
+// Starts the server: the built web app, the rooms on /ws, and /api (accounts and the daily board).
 
+import { Database } from "bun:sqlite";
 import { serve } from "@sammysul/lsel/server";
-import { Board, dailyRoutes } from "./daily.ts";
+import { api } from "./api.ts";
+import { Board } from "./daily.ts";
+import { ENV, github } from "./env.ts";
 import { mismatchLog } from "./mismatches.ts";
 import { PUZZLES, picker } from "./puzzles.ts";
 import { Replayer } from "./replay.ts";
@@ -9,19 +12,13 @@ import { Rooms } from "./rooms.ts";
 import { CSP } from "./server.ts";
 
 const replayer = new Replayer();
+const verify = replayer.verify.bind(replayer);
 const rooms = new Rooms({
   puzzles: PUZZLES,
   pick: picker(PUZZLES),
-  verify: (puzzle, log) => replayer.verify(puzzle, log),
+  verify,
   // The working directory is the service's state directory on twelve.
   mismatch: mismatchLog("mismatches.jsonl"),
-});
-
-const daily = dailyRoutes({
-  // in the service's state directory, like the mismatch log
-  board: new Board("daily.sqlite"),
-  puzzles: PUZZLES,
-  verify: (puzzle, log) => replayer.verify(puzzle, log),
 });
 
 serve({
@@ -29,6 +26,25 @@ serve({
   prefix: "YW",
   port: 7300,
   csp: CSP,
-  routes: () => daily,
+  extra: ENV,
+  routes: (config) => {
+    // Better Auth brings its tables up to date before the first request is answered
+    const ready = api({
+      // in the service's state directory, like the mismatch log
+      accounts: new Database("accounts.sqlite", { create: true, strict: true }),
+      board: new Board("daily.sqlite"),
+      origin: config.YW_ORIGIN,
+      secret: config.YW_AUTH_SECRET,
+      github: github(config),
+      puzzles: PUZZLES,
+      verify,
+    });
+    ready.catch((e: unknown) => {
+      console.error("accounts:", e);
+      process.exit(1);
+    });
+    return async (req, url) =>
+      url.pathname.startsWith("/api/") ? (await ready)(req, url) : undefined;
+  },
   socket: () => rooms.socket(),
 });

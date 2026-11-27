@@ -78,7 +78,7 @@ test("unreadable stored values fall back field by field, and bad bests are dropp
       relativeNumbers: "no",
       name: "x".repeat(25),
       best: { a: { keys: 3, ms: 10 }, b: { keys: -1, ms: 10 }, c: { keys: 1.5, ms: 1 }, d: "x" },
-      player: "ABC",
+      signedIn: "yes",
       daily: [1, "2"],
       filter: { difficulty: "expert", unsolved: true },
     }),
@@ -86,7 +86,7 @@ test("unreadable stored values fall back field by field, and bad bests are dropp
     relativeNumbers: true,
     name: "",
     best: { a: { keys: 3, ms: 10 } },
-    player: "",
+    signedIn: false,
     daily: [],
     filter: { difficulty: null, unsolved: true },
   });
@@ -94,19 +94,52 @@ test("unreadable stored values fall back field by field, and bad bests are dropp
     relativeNumbers: false,
     name: "ada",
     best: {},
-    player: "",
+    signedIn: false,
     daily: [],
     filter: { difficulty: null, unsolved: false },
   });
 });
 
-test("the player id is made once and kept, whichever tab asks first", () => {
+test("an account's side joins this device's: the better best of each puzzle, every day, its name", () => {
   const storage = memoryStorage();
-  const tabA = new Prefs(storage);
-  const tabB = new Prefs(storage);
-  const id = tabA.player;
-  expect(id).toMatch(/^[0-9a-f]{32}$/);
-  expect([tabA.player, tabB.player, new Prefs(storage).player]).toEqual([id, id, id]);
+  const prefs = new Prefs(storage);
+  prefs.recordBest("a", { keys: 5, ms: 9_000 });
+  prefs.recordBest("b", { keys: 4, ms: 1_000 });
+  prefs.solvedDaily(2);
+  prefs.name = "laptop";
+  prefs.adopt({
+    name: "ada",
+    login: "ada",
+    best: { a: { keys: 4, ms: 9_500 }, b: { keys: 6, ms: 1 }, c: { keys: 3, ms: 2_000 } },
+    daily: [1, 3],
+  });
+  const reloaded = new Prefs(storage);
+  expect([reloaded.best, reloaded.daily, reloaded.name]).toEqual([
+    { a: { keys: 4, ms: 9_500 }, b: { keys: 4, ms: 1_000 }, c: { keys: 3, ms: 2_000 } },
+    [1, 2, 3],
+    "ada",
+  ]);
+});
+
+test("a guest account with no name yet leaves this device's name alone", () => {
+  const prefs = new Prefs(memoryStorage());
+  prefs.name = "laptop";
+  prefs.adopt({ name: "", login: null, best: {}, daily: [] });
+  expect(prefs.name).toBe("laptop");
+});
+
+test("the account hears changes made here, once each, and none of what it brought in", () => {
+  const prefs = new Prefs(memoryStorage());
+  const heard: string[] = [];
+  prefs.listen((change) => heard.push(change));
+  prefs.recordBest("a", { keys: 5, ms: 9_000 });
+  prefs.recordBest("a", { keys: 6, ms: 1 });
+  prefs.solvedDaily(4);
+  prefs.solvedDaily(4);
+  prefs.name = "ada";
+  prefs.name = "ada";
+  prefs.adopt({ name: "bo", login: null, best: { z: { keys: 3, ms: 1 } }, daily: [9] });
+  expect(heard).toEqual(["best", "daily", "name"]);
 });
 
 test("solved dailies from two tabs add up, in order, once each", () => {

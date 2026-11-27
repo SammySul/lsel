@@ -4,6 +4,7 @@ import { duration, go, keys, List, Page } from "@sammysul/lsel";
 import { DIFFICULTIES, type Difficulty } from "@yank-wars/engine";
 import { untrack } from "svelte";
 import { version } from "../../../package.json";
+import { account } from "../lib/account.svelte.ts";
 import { CHORD_LABELS } from "../lib/chords.ts";
 import { dailyAt, streakOf } from "../lib/daily.ts";
 import { prefs } from "../lib/prefs.svelte.ts";
@@ -80,6 +81,14 @@ keys(() =>
       {/if}
       <button onclick={() => go("/r")}>Play a friend <kbd>f</kbd></button>
       {#if streak > 0}<span class="aside">{streak}-day streak</span>{/if}
+      {#if account.account?.login}
+        <span class="aside account"
+          >{account.account.name || account.account.login} on GitHub ·
+          <button class="link" onclick={() => void account.signOut()}>Sign out</button></span
+        >
+      {:else}
+        <button class="account" onclick={() => void account.signIn()}>Sign in with GitHub</button>
+      {/if}
     </p>
     {#if progress.solved > 0}
       <p class="progress">
@@ -207,6 +216,18 @@ keys(() =>
   }
   .aside {
     color: var(--subtle);
+  }
+  /* bests and streak follow the account: it sits apart, at the row's end */
+  .account {
+    margin-left: auto;
+  }
+  .link {
+    padding: 0;
+    border: 0;
+    background: none;
+    color: var(--accent);
+    font: inherit;
+    cursor: pointer;
   }
   .progress {
     margin: 0;

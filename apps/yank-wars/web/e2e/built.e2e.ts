@@ -2,7 +2,15 @@
 import { afterAll, expect, test } from "bun:test";
 import { join } from "node:path";
 import { handler, upgrade } from "@sammysul/lsel/server";
-import { eachBrowser, LSEL_LOOK, lselLook, serveBuilt, watchPage } from "@sammysul/lsel/testing";
+import {
+  eachBrowser,
+  LSEL_LAYOUT,
+  LSEL_LOOK,
+  lselLayout,
+  lselLook,
+  serveBuilt,
+  watchPage,
+} from "@sammysul/lsel/testing";
 import { PUZZLES, picker } from "../../server/src/puzzles.ts";
 import { type Conn, Rooms } from "../../server/src/rooms.ts";
 import { CSP } from "../../server/src/server.ts";
@@ -36,6 +44,7 @@ eachBrowser((browser) => {
     const watch = watchPage(page);
     await page.goto(url(), { waitUntil: "networkidle" });
     expect(await lselLook(page)).toEqual(LSEL_LOOK);
+    expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
     await page.goto(`${url()}#/p/indent-body`, { waitUntil: "networkidle" });
     await page.locator(".cm-editor").first().waitFor();
     // CodeMirror's base theme makes the editor `position: relative`, from a <style> it injects

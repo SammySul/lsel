@@ -1,7 +1,7 @@
 // The daily puzzle: which day it is, its puzzle, and the result a player sends the board.
 import * as v from "valibot";
 import schedule from "../../../puzzles/daily.json";
-import { Entry, LIMITS, Name } from "./protocol.ts";
+import { Entry, LIMITS } from "./protocol.ts";
 import { ROUND } from "./round.ts";
 
 export const DAILY = {
@@ -36,13 +36,9 @@ export function dailyPuzzle<P extends { readonly id: string }>(
   return undefined;
 }
 
-export const PlayerId = v.pipe(v.string(), v.regex(/^[0-9a-f]{32}$/, "not a player id"));
-
-/** A locked-in daily run: the server replays `log` against the day's puzzle before it counts. */
+/** A locked-in daily run, sent signed in: the server replays `log` against the day's puzzle before it counts. */
 export const DailyClaim = v.strictObject({
   day: v.pipe(v.number(), v.integer(), v.minValue(1)),
-  player: PlayerId,
-  name: Name,
   log: v.pipe(v.array(Entry), v.minLength(1), v.maxLength(LIMITS.logEntries)),
   ms: v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(ROUND.capMs)),
 });
@@ -53,9 +49,6 @@ export function parseDailyClaim(raw: unknown): DailyClaim | null {
   const r = v.safeParse(DailyClaim, raw);
   return r.success ? r.output : null;
 }
-
-/** Whether `id` can be a player id (the board's `?player=`). */
-export const isPlayerId = (id: unknown): id is string => v.is(PlayerId, id);
 
 export interface BoardEntry {
   readonly rank: number;

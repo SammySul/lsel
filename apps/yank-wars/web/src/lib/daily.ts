@@ -61,8 +61,7 @@ async function answer(res: Promise<Response>): Promise<BoardAnswer> {
   }
 }
 
-export const fetchBoard = (player: string): Promise<BoardAnswer> =>
-  answer(fetch(`/api/daily?player=${player}`));
+export const fetchBoard = (): Promise<BoardAnswer> => answer(fetch("/api/daily"));
 
 export const sendRun = (claim: DailyClaim): Promise<BoardAnswer> =>
   answer(
