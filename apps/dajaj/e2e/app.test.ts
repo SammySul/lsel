@@ -52,6 +52,35 @@ const lonelyUrl = serveBuilt(
   }),
 );
 
+// ten players, as many as DAJAJ_PLAYERS allows, and a key PUBG refuses
+const TEN = [
+  "AntennaTower",
+  "Rectifier94",
+  "Reason_ING",
+  "Lurker",
+  "PanFryer",
+  "Zone_Runner",
+  "BlueHole",
+  "Redzone_7",
+  "CrateHunter",
+  "Chicken_Dinner",
+];
+// what the browser logs for the report's answer
+const REFUSED =
+  "error: Failed to load resource: the server responded with a status of 502 (Bad Gateway)";
+const refusedUrl = serveBuilt(
+  DIST,
+  api({
+    players: TEN,
+    pubg: new Pubg({
+      apiKey: "revoked-key",
+      baseUrl: "https://pubg.test/shards/steam",
+      db: new Database(":memory:"),
+      fetch: fakePubg(WORLD).fetch,
+    }),
+  }),
+);
+
 afterAll(() => {
   pubgServer.stop(true);
 });
@@ -116,6 +145,8 @@ eachBrowser((browser) => {
     expect((await row("AntennaTower").allTextContents()).slice(0, 3)).toEqual(["5", "6", "501"]);
     expect(await page.locator("thead th").allTextContents()).toContain("Ride distance (km)");
     expect(await row("Reason_ING").nth(11).textContent()).toBe("2.5");
+    // every column, the last included, inside the frame at 1280
+    expect(await page.locator(".frame").evaluate((f) => f.scrollWidth - f.clientWidth)).toBe(0);
     expect(await problems()).toEqual([]);
     await ctx.close();
   });
@@ -198,6 +229,45 @@ eachBrowser((browser) => {
     await refresh(page);
     expect(await alert.count()).toBe(0);
     expect(await summary(page)).toBe("1 match together since Nov 12, 9:40 PM.");
+    await ctx.close();
+  });
+
+  test("a refused key says so above and in the frame, with no old results to show", async () => {
+    const { ctx, page, problems } = await open(refusedUrl);
+    const alert = page.getByRole("alert");
+    await alert.waitFor();
+    expect(await alert.textContent()).toBe("PUBG refused dajaj's API key.");
+    expect(await page.locator(".frame").textContent()).toBe(
+      "No report to show. r asks PUBG again.",
+    );
+    expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
+    expect(await problems()).toEqual([REFUSED]);
+    await ctx.close();
+  });
+
+  test("ten players fit a laptop's row; on a phone they page with ] and every one is in reach", async () => {
+    const { ctx, page, problems } = await open(refusedUrl);
+    const group = page.locator('[aria-label="Players"]');
+    expect(await pressed(page, "Players")).toEqual(TEN);
+    await page.setViewportSize({ width: 390, height: 844 });
+    const next = page.getByRole("button", { name: "Next players" });
+    await next.waitFor();
+    const seen: string[] = [];
+    for (;;) {
+      seen.push(...(await pressed(page, "Players")));
+      if (await next.isDisabled()) break;
+      await next.click();
+    }
+    expect(seen).toEqual(TEN);
+    await page.getByRole("button", { name: "Chicken_Dinner" }).click();
+    expect(
+      await page.getByRole("button", { name: "Chicken_Dinner" }).getAttribute("aria-pressed"),
+    ).toBe("false");
+    // two lines of controls on a phone: 31 + 8 + 31
+    expect(Math.round((await group.boundingBox())?.height ?? 0)).toBe(70);
+    expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
+    // the first report and the one after the click
+    expect(await problems()).toEqual([REFUSED, REFUSED]);
     await ctx.close();
   });
 

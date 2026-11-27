@@ -1,6 +1,6 @@
 <!-- Pick players, then compare their stats as a table or a chart. -->
 <script lang="ts">
-import { Action, Empty, Page, plural, resource, Status, Tabs, when } from "@sammysul/lsel";
+import { Action, Empty, Page, plural, resource, Status, Tabs, Toggles, when } from "@sammysul/lsel";
 import { version } from "../../package.json";
 import { STATS } from "../shared/stats.ts";
 import Chart from "./components/Chart.svelte";
@@ -45,11 +45,7 @@ function toggle(player: string) {
   fill
 >
   <section class="controls" aria-label="Choices">
-    <div class="players" role="group" aria-label="Players">
-      {#each available as player (player)}
-        <button aria-pressed={selected.includes(player)} onclick={() => toggle(player)}>{player}</button>
-      {/each}
-    </div>
+    <Toggles items={available} pressed={selected} label="Players" ontoggle={toggle} />
     <div class="row">
       <Tabs items={VIEWS} bind:value={prefs.value.view} label="View" />
       <label class="stat">
@@ -87,7 +83,11 @@ function toggle(player: string) {
     </div>
 
     <div class="frame">
-      {#if roster.value !== undefined && selected.length === 0}
+      {#if roster.value === undefined}
+        {#if roster.error !== null}
+          <div class="empty"><Empty>No players to show. <kbd>r</kbd> asks dajaj again.</Empty></div>
+        {/if}
+      {:else if selected.length === 0}
         <div class="empty"><Empty>No players chosen. Choose one or more above.</Empty></div>
       {:else if shown}
         {#key prefs.value.view}
@@ -101,6 +101,8 @@ function toggle(player: string) {
         {/key}
       {:else if report.value}
         <div class="empty"><Empty>No recent matches with all of them. Drop a player to see more.</Empty></div>
+      {:else if report.error !== null}
+        <div class="empty"><Empty>No report to show. <kbd>r</kbd> asks PUBG again.</Empty></div>
       {/if}
     </div>
   </section>
@@ -117,20 +119,6 @@ function toggle(player: string) {
     flex-wrap: wrap;
     gap: var(--space-3) var(--space-5);
     align-items: center;
-  }
-  /* one line kept from the start: players arrive later and are cut at the edge, never wrap; the padding keeps focus outlines unclipped */
-  .players {
-    box-sizing: content-box;
-    display: flex;
-    gap: var(--space-2);
-    min-height: var(--control-height);
-    margin: calc(-1 * var(--space-1));
-    padding: var(--space-1);
-    overflow: hidden;
-    white-space: nowrap;
-  }
-  .players button {
-    flex: none;
   }
   .stat {
     display: flex;

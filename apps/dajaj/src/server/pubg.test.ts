@@ -54,7 +54,7 @@ test("an unknown player is a not-found error naming them", async () => {
   const { pubg } = setup();
   expect(await failure(pubg.players(["Nobody"]))).toEqual([
     "not-found",
-    "PUBG found nothing for /players?filter[playerNames]=Nobody",
+    "PUBG has no player called Nobody",
   ]);
 });
 
@@ -170,7 +170,10 @@ test("PUBG's failures become typed errors", async () => {
   expect(await failure(pubg.match("m-1"))).toEqual(["unavailable", "PUBG answered 503"]);
   fake.state.fail = undefined;
   fake.state.apiKey = "another-key";
-  expect((await failure(pubg.players(["AntennaTower"])))[0]).toBe("unexpected");
+  expect(await failure(pubg.players(["AntennaTower"]))).toEqual([
+    "refused",
+    "PUBG refused dajaj's API key",
+  ]);
 });
 
 test("a response in a shape dajaj doesn't read fails loudly, naming the field", async () => {

@@ -6,6 +6,7 @@ import { type Pubg, PubgError, type PubgFailure } from "./pubg.ts";
 
 const STATUS: Record<PubgFailure, number> = {
   "rate-limited": 429,
+  refused: 502,
   "not-found": 404,
   unavailable: 502,
   unexpected: 502,

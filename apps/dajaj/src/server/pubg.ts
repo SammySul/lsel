@@ -4,7 +4,7 @@ import type { Database } from "bun:sqlite";
 import * as v from "valibot";
 import type { Match, ParticipantStats, Player } from "../shared/stats.ts";
 
-export type PubgFailure = "rate-limited" | "not-found" | "unavailable" | "unexpected";
+export type PubgFailure = "rate-limited" | "refused" | "not-found" | "unavailable" | "unexpected";
 
 export class PubgError extends Error {
   constructor(
@@ -150,7 +150,13 @@ export class Pubg {
       await this.#once(key, async () => {
         const body = parse(
           Players,
-          await this.#get(`/players?filter[playerNames]=${missing.join(",")}`, true),
+          await this.#get(
+            `/players?filter[playerNames]=${missing.join(",")}`,
+            true,
+            missing.length === 1
+              ? `PUBG has no player called ${missing[0]}`
+              : `PUBG has none of these players: ${missing.join(", ")}`,
+          ),
           "player lookup",
         );
         for (const p of body.data) {
@@ -174,7 +180,11 @@ export class Pubg {
     return this.#once(`recent:${playerId}`, async () => {
       const body = parse(
         Season,
-        await this.#get(`/players/${playerId}/seasons/lifetime`, true),
+        await this.#get(
+          `/players/${playerId}/seasons/lifetime`,
+          true,
+          "PUBG has no stats for one of the players",
+        ),
         "lifetime stats",
       );
       const ids = MODES.flatMap(
@@ -193,7 +203,9 @@ export class Pubg {
     return this.#once(`match:${id}`, async () => {
       const body = parse(
         MatchResponse,
-        await this.#matchSlot(() => this.#get(`/matches/${encodeURIComponent(id)}`, false)),
+        await this.#matchSlot(() =>
+          this.#get(`/matches/${encodeURIComponent(id)}`, false, "PUBG no longer has a match"),
+        ),
         "match",
       );
       const participants: ParticipantStats[] = body.included
@@ -231,7 +243,8 @@ export class Pubg {
     return p;
   }
 
-  async #get(path: string, auth: boolean): Promise<unknown> {
+  /** `nothing` is what a 404 says: the request's path is no sentence for the screen. */
+  async #get(path: string, auth: boolean, nothing: string): Promise<unknown> {
     const headers: Record<string, string> = { Accept: "application/vnd.api+json" };
     if (auth) headers.Authorization = `Bearer ${this.#opts.apiKey}`;
     let res: Response;
@@ -245,9 +258,11 @@ export class Pubg {
     }
     if (res.status === 429)
       throw new PubgError("rate-limited", "PUBG's rate limit was hit; try again in a minute");
-    if (res.status === 404) throw new PubgError("not-found", `PUBG found nothing for ${path}`);
+    if (res.status === 401 || res.status === 403)
+      throw new PubgError("refused", "PUBG refused dajaj's API key");
+    if (res.status === 404) throw new PubgError("not-found", nothing);
     if (res.status >= 500) throw new PubgError("unavailable", `PUBG answered ${res.status}`);
-    if (!res.ok) throw new PubgError("unexpected", `PUBG answered ${res.status} for ${path}`);
+    if (!res.ok) throw new PubgError("unexpected", `PUBG answered ${res.status}`);
     return res.json();
   }
 }

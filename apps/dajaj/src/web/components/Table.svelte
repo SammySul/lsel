@@ -33,8 +33,10 @@ let { report }: Props = $props();
 </table>
 
 <style>
+  /* 18 columns: the narrower padding fits them all in the frame at 1280 */
   th,
   td {
+    padding-inline: var(--space-2);
     text-align: right;
     white-space: nowrap;
   }
