@@ -137,6 +137,11 @@ export class Instagram {
     this.#retryWait = opts.retryWait ?? RETRY_WAIT;
   }
 
+  /** Cached or loading: asking for it costs Instagram nothing more. */
+  known(username: string): boolean {
+    return this.#profiles.get(username) !== undefined || this.#loads.has(username);
+  }
+
   /** The profile and its newest posts (at most 12: all Instagram lists without a login), once all are in. */
   profile(username: string): Promise<Profile> {
     const hit = this.#profiles.get(username);

@@ -5,8 +5,12 @@
 - **No login, so no stories.** Every story viewer runs logged-in accounts;
   Sammy chose to leave stories out rather than give the server an account's
   cookie, which Instagram flags and bans.
-- **Tailnet only.** Scraping breaks Instagram's terms; a public site would
-  invite takedowns and have strangers spend the server's rate limit.
+- **Public, with a limit per visitor** (from 0.3.0; it began tailnet only).
+  Every new profile spends twelve's one Instagram budget, which all visitors
+  share, so each may start 5 new profiles a minute; polling and cached
+  profiles don't count.
+- **Zips keep posts apart**: each post's files sit in a folder named for its
+  date and shortcode, so a carousel stays together.
 - **Three public pages, no API.** On Nov 27, 2026 the anonymous
   `web_profile_info` (www and `i.`) answered 404 and the post GraphQL query
   401. The profile page lists the newest 12 (pinned first), the profile embed

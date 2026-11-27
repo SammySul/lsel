@@ -2,6 +2,7 @@ import { expect, test } from "bun:test";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { rateLimiter } from "@sammysul/lsel/server";
 import { api, cdnUrl } from "./api.ts";
 import { cdn, fakeInstagram, fileBytes, WORLD } from "./fakeInstagram.ts";
 import { Instagram } from "./instagram.ts";
@@ -102,17 +103,22 @@ test("a zip of the chosen files, named for download; what the CDN refuses is lis
   const names = Bun.spawnSync(["unzip", "-Z1", path]).stdout.toString().trim().split("\n");
   expect(names).toEqual([
     "nat.geo_picture.jpg",
-    "nat.geo_Car-ousel2_3.mp4",
-    "nat.geo_Photo4_1.jpg",
+    "2026-11-26 Car-ousel2/nat.geo_Car-ousel2_3.mp4",
+    "2026-11-24 Photo4/nat.geo_Photo4_1.jpg",
   ]);
-  const photo = Bun.spawnSync(["unzip", "-p", path, "nat.geo_Photo4_1.jpg"]).stdout;
+  const photo = Bun.spawnSync([
+    "unzip",
+    "-p",
+    path,
+    "2026-11-24 Photo4/nat.geo_Photo4_1.jpg",
+  ]).stdout;
   expect(Buffer.compare(photo, Buffer.from(fileBytes("/v/t51.82787-15/Photo4_1.jpg")))).toBe(0);
 
   fake.state.expired = true;
   const broken = await get("/api/zip/nat.geo?ids=Photo4.1");
   writeFileSync(path, new Uint8Array(await broken.arrayBuffer()));
   expect(Bun.spawnSync(["unzip", "-p", path, "MISSING.txt"]).stdout.toString()).toBe(
-    "Instagram didn't send these:\nnat.geo_Photo4_1.jpg: Instagram's CDN answered 403\n",
+    "Instagram didn't send these:\n2026-11-24 Photo4/nat.geo_Photo4_1.jpg: Instagram's CDN answered 403\n",
   );
 });
 
@@ -126,4 +132,25 @@ test("a zip of nothing, or of a file the profile doesn't have, is refused", asyn
     400,
     { error: "not in nat.geo's recent posts: Nope.1" },
   ]);
+});
+
+test("a visitor may start only so many new profiles a minute; a cached one and another visitor still get through", async () => {
+  const fake = fakeInstagram(WORLD);
+  const routes = api({
+    instagram: new Instagram({ fetch: fake.fetch, gap: 0, retryWait: 0 }),
+    fetch: fake.fetch,
+    allow: rateLimiter(2),
+  });
+  const status = async (username: string, ip: string) => {
+    const url = new URL(`http://grab.test/api/profile/${username}`);
+    const res = await routes(new Request(url, { headers: { "cf-connecting-ip": ip } }), url);
+    return res?.status;
+  };
+  expect([
+    await status("nat.geo", "203.0.113.7"),
+    await status("quiet", "203.0.113.7"),
+    await status("patchy", "203.0.113.7"),
+    await status("nat.geo", "203.0.113.7"),
+    await status("patchy", "198.51.100.2"),
+  ]).toEqual([200, 200, 429, 200, 200]);
 });

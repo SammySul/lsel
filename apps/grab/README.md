@@ -32,5 +32,5 @@ bun run dev          # vite, proxying /api to the server
 | `GRAB_STATIC`            | the package's web app | absolute path to `dist/` |
 | `GRAB_HOST`, `GRAB_PORT` | `127.0.0.1`, `7340`   |                          |
 
-It runs on the tailnet only: Instagram's terms forbid what it does, so it
-isn't a public site.
+It runs at grab.sammysul.com. Each visitor may start 5 new profiles a minute:
+every profile spends the server's one Instagram budget, which all share.

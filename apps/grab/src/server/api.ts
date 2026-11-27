@@ -1,6 +1,6 @@
 // The JSON API the web app calls, the media it shows and downloads (through this server: the CSP allows only 'self'), and the zip.
 
-import { json, type Routes, respond } from "@sammysul/lsel/server";
+import { json, type Routes, rateLimiter, respond } from "@sammysul/lsel/server";
 import { fileName, type Media, type Profile, toUsername } from "../shared/types.ts";
 import { BROWSER, type Fetch, type Instagram } from "./instagram.ts";
 import { type Failure, InstagramError } from "./parse.ts";
@@ -15,7 +15,9 @@ const STATUS: Record<Failure, number> = {
 };
 
 export interface Deps {
-  instagram: Pick<Instagram, "snapshot" | "profile">;
+  instagram: Pick<Instagram, "snapshot" | "profile" | "known">;
+  /** Whether this visitor may start another profile now; polling and cached profiles never count. */
+  allow?: (visitor: string, now: number) => boolean;
   /** For the CDN's files. */
   fetch?: Fetch;
 }
@@ -35,7 +37,14 @@ export function cdnUrl(raw: string): URL | null {
 const SAFE_NAME = /^[A-Za-z0-9._-]{1,120}$/;
 const ZIP_AHEAD = 4;
 
+// every new profile spends twelve's Instagram budget, which all visitors share
+const NEW_PROFILES_A_MINUTE = 5;
+
+/** Behind cloudflared the visitor is in cf-connecting-ip; on the tailnet or in tests there is one. */
+const visitor = (req: Request) => req.headers.get("cf-connecting-ip") ?? "local";
+
 export function api(deps: Deps): Routes {
+  const allow = deps.allow ?? rateLimiter(NEW_PROFILES_A_MINUTE);
   const get: Fetch = deps.fetch ?? ((url, init) => fetch(url, init));
 
   async function file(src: string): Promise<Uint8Array> {
@@ -53,7 +62,9 @@ export function api(deps: Deps): Routes {
       return respond("method not allowed", 405, { Allow: "GET, HEAD" });
     }
     const profileAt = /^\/api\/profile\/([^/]+)$/.exec(pathname);
-    if (profileAt) return profile(deps, decodeURIComponent(profileAt[1] as string));
+    if (profileAt) {
+      return profile(deps, allow, req, decodeURIComponent(profileAt[1] as string));
+    }
     if (pathname === "/api/media") return media(get, req, url);
     const zipAt = /^\/api\/zip\/([^/]+)$/.exec(pathname);
     if (zipAt) return archive(deps, file, decodeURIComponent(zipAt[1] as string), url);
@@ -72,9 +83,22 @@ function failure(e: unknown): Response {
 const badName = (input: string) =>
   json({ error: `${input} isn't an Instagram username: letters, numbers, . and _` }, 400);
 
-async function profile(deps: Deps, input: string): Promise<Response> {
+async function profile(
+  deps: Deps,
+  allow: NonNullable<Deps["allow"]>,
+  req: Request,
+  input: string,
+): Promise<Response> {
   const username = toUsername(input);
   if (username === null) return badName(input);
+  if (!deps.instagram.known(username) && !allow(visitor(req), Date.now())) {
+    return json(
+      {
+        error: `That's ${NEW_PROFILES_A_MINUTE} new profiles this minute, all Instagram allows this server for one visitor; try again in a minute`,
+      },
+      429,
+    );
+  }
   try {
     return json(await deps.instagram.snapshot(username));
   } catch (e) {
@@ -116,15 +140,23 @@ async function media(get: Fetch, req: Request, url: URL): Promise<Response> {
 interface Chosen {
   media: Media;
   modified: Date;
+  /** The post's folder in the zip: its date when known, then its shortcode; none for the picture. */
+  folder: string | null;
 }
+
+const day = (at: number) => new Date(at).toISOString().slice(0, 10);
 
 function files(profile: Profile): Map<string, Chosen> {
   const byId = new Map<string, Chosen>([
-    [profile.picture.id, { media: profile.picture, modified: new Date() }],
+    [profile.picture.id, { media: profile.picture, modified: new Date(), folder: null }],
   ]);
   for (const post of profile.posts) {
     for (const m of post.media) {
-      byId.set(m.id, { media: m, modified: new Date(post.takenAt ?? Date.now()) });
+      byId.set(m.id, {
+        media: m,
+        modified: new Date(post.takenAt ?? Date.now()),
+        folder: post.takenAt === null ? post.code : `${day(post.takenAt)} ${post.code}`,
+      });
     }
   }
   return byId;
@@ -184,7 +216,7 @@ async function* entries(
     for (let k = i; k < i + ZIP_AHEAD; k++) start(k);
     const data = await started[i];
     started[i] = undefined;
-    const name = fileName(username, c.media);
+    const name = `${c.folder === null ? "" : `${c.folder}/`}${fileName(username, c.media)}`;
     if (data instanceof Uint8Array) yield { name, data, modified: c.modified };
     else missing.push(`${name}: ${data?.message}`);
   }

@@ -1,18 +1,24 @@
 <!-- One profile: who it is, its files as a fitted grid beside the current one, and the zip of the ticked ones. -->
 <script lang="ts">
 import { Action, count, duration, Grid, keys, plural, resource, Status } from "@sammysul/lsel";
+import { untrack } from "svelte";
 import { SvelteSet } from "svelte/reactivity";
 import { download, fetchProfile, mediaUrl, zipUrl } from "../lib/api.ts";
 import { describe, type Entry, entries } from "../lib/entries.ts";
 import Preview from "./Preview.svelte";
 
-let { username }: { username: string } = $props();
+let { username, onfound }: { username: string; onfound: (username: string) => void } = $props();
 
 // made once per username: App keys this component on it, so no answer outlives its profile
 const profile = resource((signal) => fetchProfile(username, signal));
 export const reload = () => profile.reload();
 
 const shown = $derived(profile.value);
+$effect(() => {
+  const name = shown?.username;
+  // untracked: what onfound reads (the remembered list) must not re-run this
+  if (name !== undefined) untrack(() => onfound(name));
+});
 const items = $derived(shown === undefined ? [] : entries(shown));
 const listed = $derived(
   shown === undefined ? 0 : shown.posts.length + shown.missing + shown.pending,
@@ -81,6 +87,12 @@ keys(() => [
           done="Downloading"
           disabled={selected.size === 0}
           run={() => download(zipUrl(shown.username, items.filter((e) => selected.has(e.media.id)).map((e) => e.media.id)))}
+        />
+        <Action
+          label="Download all"
+          key="Z"
+          done="Downloading"
+          run={() => download(zipUrl(shown.username, items.map((e) => e.media.id)))}
         />
         <span class="count">{count(selected.size)} of {plural(items.length, "file", "files")} ticked</span>
       </div>

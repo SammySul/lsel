@@ -199,7 +199,7 @@ eachBrowser((browser) => {
     expect(archive.suggestedFilename()).toBe("nat.geo.zip");
     await archive.saveAs(join(dir, "a.zip"));
     expect(Bun.spawnSync(["unzip", "-Z1", join(dir, "a.zip")]).stdout.toString()).toBe(
-      "nat.geo_picture.jpg\nnat.geo_Car-ousel2_3.mp4\nnat.geo_Photo8_1.jpg\n",
+      "nat.geo_picture.jpg\n2026-11-26 Car-ousel2/nat.geo_Car-ousel2_3.mp4\nPhoto8/nat.geo_Photo8_1.jpg\n",
     );
     const [one] = await Promise.all([page.waitForEvent("download"), page.keyboard.press("d")]);
     expect(one.suggestedFilename()).toBe("nat.geo_Photo8_1.jpg");
@@ -315,6 +315,35 @@ eachBrowser((browser) => {
     await page.keyboard.press("Escape");
     expect(await shown()).toEqual([true, false]);
     expect(await watch.take()).toEqual([]);
+    await ctx.close();
+  });
+
+  test("Z zips every file, each post in its own folder; profiles opened come back on 1 to 5, after a reload too", async () => {
+    const { ctx, page, problems } = await open("#/patchy");
+    await tiles(page).first().waitFor();
+    const dir = mkdtempSync(join(tmpdir(), "grab-e2e-"));
+    const [all] = await Promise.all([
+      page.waitForEvent("download"),
+      page.keyboard.press("Shift+Z"),
+    ]);
+    await all.saveAs(join(dir, "all.zip"));
+    expect(Bun.spawnSync(["unzip", "-Z1", join(dir, "all.zip")]).stdout.toString()).toBe(
+      "patchy_picture.jpg\nFine1/patchy_Fine1_1.jpg\n",
+    );
+    await page.goto(`${url()}#/quiet`, { waitUntil: "networkidle" });
+    await page.getByText("No public posts").waitFor();
+    const recent = () =>
+      page.getByRole("navigation", { name: "Recent profiles" }).locator("button").allTextContents();
+    expect(await recent()).toEqual(["quiet 1", "patchy 2"]);
+    await page.reload({ waitUntil: "networkidle" });
+    await page.keyboard.press("2");
+    await page.locator(".who h2").getByText("Patchy").waitFor();
+    expect([new URL(page.url()).hash, await recent()]).toEqual([
+      "#/patchy",
+      ["patchy 1", "quiet 2"],
+    ]);
+    expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
+    expect(await problems()).toEqual([]);
     await ctx.close();
   });
 });
