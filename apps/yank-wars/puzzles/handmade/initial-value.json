@@ -1,0 +1,17 @@
+{
+  "id": "initial-value",
+  "title": "Initial value",
+  "difficulty": "easy",
+  "description": "Give the variable a value.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "var count int",
+  "target": "var count int = 0",
+  "solution": "A = 0",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "println-printf",
+  "title": "Printf, not Println",
+  "difficulty": "easy",
+  "description": "Change two letters into one.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "func main() {\n\tfmt.Println(\"done\")\n}",
+  "target": "func main() {\n\tfmt.Printf(\"done\")\n}",
+  "solution": "jflcwf",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["find", "change"]
+}

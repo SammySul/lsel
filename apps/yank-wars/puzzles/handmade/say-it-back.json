@@ -1,0 +1,17 @@
+{
+  "id": "say-it-back",
+  "title": "Say it back",
+  "difficulty": "easy",
+  "description": "Copy a word over another.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "hello world",
+  "target": "world world",
+  "solution": "wyiwbcw<C-r>0",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["registers", "yank-put"]
+}

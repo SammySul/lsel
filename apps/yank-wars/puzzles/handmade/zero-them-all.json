@@ -1,0 +1,17 @@
+{
+  "id": "zero-them-all",
+  "title": "Zero them all",
+  "difficulty": "easy",
+  "description": "Repeat the replace on each line.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "a = 1\nb = 1\nc = 1",
+  "target": "a = 0\nb = 0\nc = 0",
+  "solution": "$r0j.j.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace", "repeat"]
+}

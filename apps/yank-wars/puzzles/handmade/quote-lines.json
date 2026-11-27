@@ -1,0 +1,17 @@
+{
+  "id": "quote-lines",
+  "title": "Quote each line",
+  "difficulty": "medium",
+  "description": "Quote and add a comma.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "red\ngreen\nblue",
+  "target": "\"red\",\n\"green\",\n\"blue\",",
+  "solution": ":%s/.*/\"&\",/<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

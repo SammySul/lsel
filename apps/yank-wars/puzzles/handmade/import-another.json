@@ -1,0 +1,17 @@
+{
+  "id": "import-another",
+  "title": "Import another",
+  "difficulty": "easy",
+  "description": "Bring in b as well.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "import { a } from \"x\";",
+  "target": "import { a, b } from \"x\";",
+  "solution": "faa, b",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert", "find"]
+}

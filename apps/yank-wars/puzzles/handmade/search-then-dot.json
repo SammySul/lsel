@@ -1,0 +1,17 @@
+{
+  "id": "search-then-dot",
+  "title": "Search then dot",
+  "difficulty": "medium",
+  "description": "Change each foo.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "foo bar foo baz foo",
+  "target": "x bar x baz x",
+  "solution": "cwx<Esc>/foo<CR>.n.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["search", "repeat"]
+}

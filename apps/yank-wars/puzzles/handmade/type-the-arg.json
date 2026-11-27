@@ -1,0 +1,17 @@
+{
+  "id": "type-the-arg",
+  "title": "Type the argument",
+  "difficulty": "easy",
+  "description": "Annotate the parameter.",
+  "language": "typescript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "function greet(u) {\n  return u;\n}",
+  "target": "function greet(u: User) {\n  return u;\n}",
+  "solution": "f)i: User",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert", "find"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "copy-and-rename",
+  "title": "Copy and rename",
+  "difficulty": "medium",
+  "description": "Three rows from one.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "row_a = 0",
+  "target": "row_a = 0\nrow_b = 0\nrow_c = 0",
+  "solution": "yy2p5|rbjrc",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["yank-put", "count"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "only-numbers",
+  "title": "Only the numbered",
+  "difficulty": "medium",
+  "description": "Keep lines with a digit.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "a1\nb\nc3\nd",
+  "target": "a1\nc3",
+  "solution": ":v/\\d/d<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global", "delete"]
+}

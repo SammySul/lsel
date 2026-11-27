@@ -1,0 +1,17 @@
+{
+  "id": "drop-paragraph",
+  "title": "Drop the paragraph",
+  "difficulty": "easy",
+  "description": "The first paragraph goes.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "a\nb\n\nc\nd",
+  "target": "c\nd",
+  "solution": "dap",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object", "delete"]
+}

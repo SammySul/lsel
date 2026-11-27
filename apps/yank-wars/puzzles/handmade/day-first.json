@@ -1,0 +1,17 @@
+{
+  "id": "day-first",
+  "title": "Day first",
+  "difficulty": "hard",
+  "description": "Year-month-day to day/month/year.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "2026-11-27",
+  "target": "27/11/2026",
+  "solution": ":s/\\(\\d\\+\\)-\\(\\d\\+\\)-\\(\\d\\+\\)/\\3\\/\\2\\/\\1/<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

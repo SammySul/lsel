@@ -1,0 +1,17 @@
+{
+  "id": "let-ts-infer",
+  "title": "Let TypeScript infer",
+  "difficulty": "easy",
+  "description": "Drop the annotation.",
+  "language": "typescript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "let a: string = \"x\";",
+  "target": "let a = \"x\";",
+  "solution": "f:de",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "word"]
+}

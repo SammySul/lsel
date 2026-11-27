@@ -1,0 +1,17 @@
+{
+  "id": "glue",
+  "title": "Glue it together",
+  "difficulty": "easy",
+  "description": "Join with no spaces.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "foo\nbar\nbaz",
+  "target": "foobarbaz",
+  "solution": "3gJ",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["join", "count"]
+}

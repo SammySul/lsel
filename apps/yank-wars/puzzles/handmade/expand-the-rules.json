@@ -1,0 +1,17 @@
+{
+  "id": "expand-the-rules",
+  "title": "Expand the rules",
+  "difficulty": "hard",
+  "description": "One declaration per line.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".a { color: red; }\n.b { color: blue; }",
+  "target": ".a {\n  color: red;\n}\n.b {\n  color: blue;\n}",
+  "solution": ":%s/{ \\(.*\\) }/{\\r  \\1\\r}/<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

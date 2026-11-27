@@ -1,0 +1,17 @@
+{
+  "id": "last-word",
+  "title": "Last word out",
+  "difficulty": "easy",
+  "description": "Lose the final word.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "see you tomorrow morning",
+  "target": "see you tomorrow",
+  "solution": "$daw",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object", "delete"]
+}

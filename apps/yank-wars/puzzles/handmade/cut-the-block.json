@@ -1,0 +1,17 @@
+{
+  "id": "cut-the-block",
+  "title": "Cut the block",
+  "difficulty": "medium",
+  "description": "Delete from BEGIN to END.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "a\nBEGIN\nb\nc\nEND\nd",
+  "target": "a\nd",
+  "solution": ":/BEGIN/,/END/d<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["ex", "delete"]
+}

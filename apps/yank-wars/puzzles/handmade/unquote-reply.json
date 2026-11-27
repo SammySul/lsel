@@ -1,0 +1,17 @@
+{
+  "id": "unquote-reply",
+  "title": "Unquote the reply",
+  "difficulty": "easy",
+  "description": "Remove the quote markers.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "> hi\n> how\n> are",
+  "target": "hi\nhow\nare",
+  "solution": "<C-v>jjld",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block", "delete"]
+}

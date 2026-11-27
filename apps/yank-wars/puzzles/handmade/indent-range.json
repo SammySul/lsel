@@ -1,0 +1,17 @@
+{
+  "id": "indent-range",
+  "title": "Indent a range",
+  "difficulty": "medium",
+  "description": "Indent lines two and three.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "func main() {\nfmt.Println(1)\nfmt.Println(2)\n}",
+  "target": "func main() {\n\tfmt.Println(1)\n\tfmt.Println(2)\n}",
+  "solution": ":2,3><CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["ex", "indent"]
+}

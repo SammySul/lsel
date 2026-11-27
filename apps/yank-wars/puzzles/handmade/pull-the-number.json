@@ -1,0 +1,17 @@
+{
+  "id": "pull-the-number",
+  "title": "Pull out the number",
+  "difficulty": "hard",
+  "description": "Keep only the digits.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "file-12.txt\nimage-7.png",
+  "target": "12\n7",
+  "solution": ":%s/^.*-\\(\\d\\+\\)\\..*$/\\1/<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

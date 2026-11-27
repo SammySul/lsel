@@ -1,0 +1,17 @@
+{
+  "id": "augmented",
+  "title": "Augmented",
+  "difficulty": "easy",
+  "description": "Use the shorter assignment.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "x = x + 1",
+  "target": "x += 1",
+  "solution": "f=C+= 1",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change", "find"]
+}

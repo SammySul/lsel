@@ -1,0 +1,17 @@
+{
+  "id": "last-comma",
+  "title": "Last comma",
+  "difficulty": "easy",
+  "description": "Only the last comma becomes a space.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "a,b,c,d",
+  "target": "a,b,c d",
+  "solution": "f,;;r<Space>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["find", "replace"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "echo-at-end",
+  "title": "Echo at the end",
+  "difficulty": "easy",
+  "description": "Copy the title to the bottom.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "title\nbody\nend",
+  "target": "title\nbody\nend\ntitle",
+  "solution": ":1t$<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["ex"]
+}

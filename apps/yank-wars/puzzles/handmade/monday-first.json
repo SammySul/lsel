@@ -1,0 +1,17 @@
+{
+  "id": "monday-first",
+  "title": "Monday first",
+  "difficulty": "easy",
+  "description": "The week starts on Monday.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "Tuesday\nMonday\nWednesday",
+  "target": "Monday\nTuesday\nWednesday",
+  "solution": "ddp",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "yank-put"]
+}

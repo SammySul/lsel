@@ -1,0 +1,17 @@
+{
+  "id": "numeric-sort",
+  "title": "Numeric order",
+  "difficulty": "medium",
+  "description": "Sort as numbers.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "10\n9\n100\n1",
+  "target": "1\n9\n10\n100",
+  "solution": ":sort n<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["sort", "ex"]
+}

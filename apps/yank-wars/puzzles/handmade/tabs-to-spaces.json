@@ -1,0 +1,17 @@
+{
+  "id": "tabs-to-spaces",
+  "title": "Tabs to spaces",
+  "difficulty": "medium",
+  "description": "One space per tab.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "a\tb\nc\td",
+  "target": "a b\nc d",
+  "solution": ":%s/\\t/ /g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "split-assignment",
+  "title": "Split the assignment",
+  "difficulty": "hard",
+  "description": "Two declarations, two lines.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "func main() {\n\tx, y := 1, 2\n}",
+  "target": "func main() {\n\tx := 1\n\ty := 2\n}",
+  "solution": "j:s/\\(.\\), \\(.\\) := \\(.\\), \\(.\\)/\\1 := \\3\\r\\t\\2 := \\4/<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

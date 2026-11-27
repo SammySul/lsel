@@ -1,0 +1,17 @@
+{
+  "id": "return-nil",
+  "title": "Nothing went wrong",
+  "difficulty": "easy",
+  "description": "Return nil for both.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "func f() (int, error) {\n\treturn 0, err\n}",
+  "target": "func f() (int, error) {\n\treturn 0, nil\n}",
+  "solution": "j$bcwnil",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change", "word"]
+}

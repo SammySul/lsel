@@ -1,0 +1,17 @@
+{
+  "id": "label-the-logs",
+  "title": "Label the logs",
+  "difficulty": "hard",
+  "description": "Print the name with the value.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "log(a)\nlog(b)",
+  "target": "log(\"a:\", a)\nlog(\"b:\", b)",
+  "solution": ":%s/log(\\(.*\\))/log(\"\\1:\", \\1)/<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

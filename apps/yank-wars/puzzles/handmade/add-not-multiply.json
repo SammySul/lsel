@@ -1,0 +1,17 @@
+{
+  "id": "add-not-multiply",
+  "title": "Add, don't multiply",
+  "difficulty": "easy",
+  "description": "Change the operator.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "def area(w, h):\n    return w * h",
+  "target": "def area(w, h):\n    return w + h",
+  "solution": "jf*r+",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace", "find"]
+}

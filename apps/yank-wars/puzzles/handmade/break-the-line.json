@@ -1,0 +1,17 @@
+{
+  "id": "break-the-line",
+  "title": "Break the line",
+  "difficulty": "easy",
+  "description": "Split at the comma.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "red,green",
+  "target": "red\ngreen",
+  "solution": "f,r<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace", "find"]
+}

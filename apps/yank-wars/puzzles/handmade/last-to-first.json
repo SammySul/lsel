@@ -1,0 +1,17 @@
+{
+  "id": "last-to-first",
+  "title": "Last to first",
+  "difficulty": "easy",
+  "description": "Move the last line to the top.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "a\nb\nc\nd",
+  "target": "d\na\nb\nc",
+  "solution": ":$m0<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["ex", "move"]
+}

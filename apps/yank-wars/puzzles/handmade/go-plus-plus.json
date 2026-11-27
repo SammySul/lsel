@@ -1,0 +1,17 @@
+{
+  "id": "go-plus-plus",
+  "title": "Increment, Go style",
+  "difficulty": "easy",
+  "description": "Use the short form.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "func f() {\n\tx = x + 1\n}",
+  "target": "func f() {\n\tx++\n}",
+  "solution": "jwlDa++",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change", "insert"]
+}

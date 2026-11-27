@@ -1,0 +1,17 @@
+{
+  "id": "flip-debug",
+  "title": "Debug off",
+  "difficulty": "easy",
+  "description": "Flip the flag.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "debug = True",
+  "target": "debug = False",
+  "solution": "wwCFalse",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change", "word"]
+}

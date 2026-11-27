@@ -1,0 +1,17 @@
+{
+  "id": "new-paragraph",
+  "title": "New paragraph text",
+  "difficulty": "easy",
+  "description": "Change what is inside the tag.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "<p>old text</p>",
+  "target": "<p>new</p>",
+  "solution": "citnew",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object", "change"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "break-the-statements",
+  "title": "Break the statements",
+  "difficulty": "medium",
+  "description": "One call per line.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "a(); b(); c();",
+  "target": "a();\nb();\nc();",
+  "solution": ":s/; /;\\r/g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

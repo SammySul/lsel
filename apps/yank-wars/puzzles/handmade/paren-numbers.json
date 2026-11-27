@@ -1,0 +1,17 @@
+{
+  "id": "paren-numbers",
+  "title": "Parenthesize the numbers",
+  "difficulty": "medium",
+  "description": "Wrap every number.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "3 apples and 12 pears",
+  "target": "(3) apples and (12) pears",
+  "solution": ":s/\\d\\+/(&)/g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

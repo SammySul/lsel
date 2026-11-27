@@ -1,0 +1,17 @@
+{
+  "id": "odd-lines",
+  "title": "Odd lines only",
+  "difficulty": "medium",
+  "description": "Keep lines one, three and five.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "a\nb\nc\nd\ne\nf",
+  "target": "a\nc\ne",
+  "solution": ":g/[bdf]/d<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global", "delete"]
+}

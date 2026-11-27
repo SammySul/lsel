@@ -1,0 +1,17 @@
+{
+  "id": "trailing-comment",
+  "title": "Trailing comment",
+  "difficulty": "easy",
+  "description": "Lose the note and its spaces.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "x = 5  # five",
+  "target": "x = 5",
+  "solution": "f#2hD",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "find"]
+}

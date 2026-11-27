@@ -1,0 +1,17 @@
+{
+  "id": "cut-the-rest",
+  "title": "Cut the rest",
+  "difficulty": "easy",
+  "description": "Delete to the end of the file.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "keep\nkeep\ndrop\ndrop",
+  "target": "keep\nkeep",
+  "solution": "jjdG",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "motion"]
+}

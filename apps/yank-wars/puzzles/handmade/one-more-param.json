@@ -1,0 +1,17 @@
+{
+  "id": "one-more-param",
+  "title": "One more parameter",
+  "difficulty": "easy",
+  "description": "Add a second argument.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "def f(self):\n    pass",
+  "target": "def f(self, x):\n    pass",
+  "solution": "f)i, x",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert", "find"]
+}

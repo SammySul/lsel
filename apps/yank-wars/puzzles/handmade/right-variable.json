@@ -1,0 +1,17 @@
+{
+  "id": "right-variable",
+  "title": "Right variable",
+  "difficulty": "easy",
+  "description": "Show the total.",
+  "language": "jsx",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "<p>{count}</p>",
+  "target": "<p>{total}</p>",
+  "solution": "f{ci{total",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object", "change"]
+}

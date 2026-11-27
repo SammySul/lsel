@@ -1,0 +1,17 @@
+{
+  "id": "return-nothing",
+  "title": "Return nothing",
+  "difficulty": "easy",
+  "description": "Drop the None.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "def f():\n    return None",
+  "target": "def f():\n    return",
+  "solution": "j$daw",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object", "delete"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "unpack-the-args",
+  "title": "Unpack the arguments",
+  "difficulty": "hard",
+  "description": "One argument per line.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "f(a, b, c)",
+  "target": "f(\n  a,\n  b,\n  c\n)",
+  "solution": ":%s/, /,\\r  /g<CR>:%s/(/(\\r  /<CR>:%s/)/\\r)/<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

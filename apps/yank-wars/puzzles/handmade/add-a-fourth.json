@@ -1,0 +1,17 @@
+{
+  "id": "add-a-fourth",
+  "title": "Add a fourth",
+  "difficulty": "easy",
+  "description": "Append one more element.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "[1, 2, 3]",
+  "target": "[1, 2, 3, 4]",
+  "solution": "$i, 4",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

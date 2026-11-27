@@ -1,0 +1,17 @@
+{
+  "id": "flip-the-block",
+  "title": "Flip the block",
+  "difficulty": "easy",
+  "description": "Swap case on three lines.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "hello\nworld\nagain\nleft",
+  "target": "HELLO\nWORLD\nAGAIN\nleft",
+  "solution": "Vjj~",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual", "case"]
+}

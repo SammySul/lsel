@@ -1,0 +1,17 @@
+{
+  "id": "const-to-let",
+  "title": "Let it change",
+  "difficulty": "easy",
+  "description": "It gets reassigned later.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const total = 10;",
+  "target": "let total = 10;",
+  "solution": "cwlet",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change"]
+}

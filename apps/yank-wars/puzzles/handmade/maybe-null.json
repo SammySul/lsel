@@ -1,0 +1,17 @@
+{
+  "id": "maybe-null",
+  "title": "Maybe null",
+  "difficulty": "easy",
+  "description": "It can be null.",
+  "language": "typescript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "let user: User;",
+  "target": "let user: User | null;",
+  "solution": "$i | null",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

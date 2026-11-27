@@ -1,0 +1,17 @@
+{
+  "id": "two-rules-too-many",
+  "title": "Two rules too many",
+  "difficulty": "easy",
+  "description": "Drop border and margin.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".box {\n  color: red;\n  border: 1px;\n  margin: 0;\n  padding: 0;\n}",
+  "target": ".box {\n  color: red;\n  padding: 0;\n}",
+  "solution": "jj2dd",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "count"]
+}

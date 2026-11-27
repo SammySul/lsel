@@ -1,0 +1,17 @@
+{
+  "id": "two-headings",
+  "title": "Two headings",
+  "difficulty": "easy",
+  "description": "Style h2 the same way.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "h1 {\n  color: red;\n}",
+  "target": "h1, h2 {\n  color: red;\n}",
+  "solution": "ea, h2",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

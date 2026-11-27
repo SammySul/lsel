@@ -1,0 +1,17 @@
+{
+  "id": "first-word-loud",
+  "title": "First word loud",
+  "difficulty": "easy",
+  "description": "Uppercase only the first word.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "please stop now",
+  "target": "PLEASE stop now",
+  "solution": "gUiw",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["case", "text-object"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "last-line-only",
+  "title": "Last line only",
+  "difficulty": "easy",
+  "description": "Fix the final line.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "a\nb\nc!",
+  "target": "a\nb\nc",
+  "solution": "G$x",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["motion", "delete"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "new-args",
+  "title": "New arguments",
+  "difficulty": "easy",
+  "description": "Replace what is inside the parens.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "Math.max(a, b, c);",
+  "target": "Math.max(1, 2);",
+  "solution": "f(ci(1, 2",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object", "change"]
+}

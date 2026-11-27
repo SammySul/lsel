@@ -1,0 +1,17 @@
+{
+  "id": "three-loud",
+  "title": "Three loud lines",
+  "difficulty": "easy",
+  "description": "Shout the first three lines.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "alpha\nbeta\ngamma\ndelta",
+  "target": "ALPHA\nBETA\nGAMMA\ndelta",
+  "solution": "3gUU",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["case", "count"]
+}

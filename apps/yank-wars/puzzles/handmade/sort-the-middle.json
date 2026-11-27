@@ -1,0 +1,17 @@
+{
+  "id": "sort-the-middle",
+  "title": "Sort the middle",
+  "difficulty": "medium",
+  "description": "Only lines two to four.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "header\nc\nb\na\nfooter",
+  "target": "header\na\nb\nc\nfooter",
+  "solution": ":2,4sort<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["ex", "sort"]
+}

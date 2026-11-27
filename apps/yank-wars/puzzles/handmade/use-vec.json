@@ -1,0 +1,17 @@
+{
+  "id": "use-vec",
+  "title": "Use vec!",
+  "difficulty": "medium",
+  "description": "The macro is shorter.",
+  "language": "rust",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "fn main() {\n    let v: Vec<i32> = Vec::new();\n}",
+  "target": "fn main() {\n    let v: Vec<i32> = vec![];\n}",
+  "solution": "jf=llCvec![];",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change", "find"]
+}

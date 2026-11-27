@@ -1,0 +1,17 @@
+{
+  "id": "drop-call-args",
+  "title": "Drop the call",
+  "difficulty": "easy",
+  "description": "Remove the call, keep the name.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "render(a, b) + tail",
+  "target": "render + tail",
+  "solution": "f(d%",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["match", "delete"]
+}

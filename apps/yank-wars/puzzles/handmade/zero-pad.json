@@ -1,0 +1,17 @@
+{
+  "id": "zero-pad",
+  "title": "Zero-pad",
+  "difficulty": "medium",
+  "description": "Single digits get a zero.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "7\n42\n3",
+  "target": "07\n42\n03",
+  "solution": ":%s/^\\d$/0&/<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "flip-case",
+  "title": "Flip the case",
+  "difficulty": "easy",
+  "description": "Every letter swaps case.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "iPhone",
+  "target": "IpHONE",
+  "solution": "g~~",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["case"]
+}

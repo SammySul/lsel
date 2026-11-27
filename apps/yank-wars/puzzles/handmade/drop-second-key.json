@@ -1,0 +1,17 @@
+{
+  "id": "drop-second-key",
+  "title": "Drop the second key",
+  "difficulty": "easy",
+  "description": "Keep only a.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\"a\": 1, \"b\": 2}",
+  "target": "{\"a\": 1}",
+  "solution": "f,C}",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change", "find"]
+}

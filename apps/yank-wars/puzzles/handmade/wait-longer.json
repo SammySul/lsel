@@ -1,0 +1,17 @@
+{
+  "id": "wait-longer",
+  "title": "Wait longer",
+  "difficulty": "easy",
+  "description": "Five seconds, not one.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "setTimeout(done, 1000);",
+  "target": "setTimeout(done, 5000);",
+  "solution": "f1r5",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace", "find"]
+}

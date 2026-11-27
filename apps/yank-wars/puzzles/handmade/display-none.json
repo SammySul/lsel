@@ -1,0 +1,17 @@
+{
+  "id": "display-none",
+  "title": "Hide the modal",
+  "difficulty": "easy",
+  "description": "Stop displaying it.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".modal {\n  display: block;\n}",
+  "target": ".modal {\n  display: none;\n}",
+  "solution": "jfbcwnone",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change", "find"]
+}

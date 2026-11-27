@@ -1,0 +1,17 @@
+{
+  "id": "at-least",
+  "title": "At least",
+  "difficulty": "easy",
+  "description": "Greater than or equal.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "func ok(n int) bool {\n\treturn n > 0\n}",
+  "target": "func ok(n int) bool {\n\treturn n >= 0\n}",
+  "solution": "jf>a=",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["find", "insert"]
+}

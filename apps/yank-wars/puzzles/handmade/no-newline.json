@@ -1,0 +1,17 @@
+{
+  "id": "no-newline",
+  "title": "No newline",
+  "difficulty": "easy",
+  "description": "Print without a line break.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "print(a)",
+  "target": "print(a, end=\"\")",
+  "solution": "$i, end=\"\"",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

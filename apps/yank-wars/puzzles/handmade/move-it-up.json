@@ -1,0 +1,17 @@
+{
+  "id": "move-it-up",
+  "title": "Move it up",
+  "difficulty": "easy",
+  "description": "The summary belongs above the body.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "intro\nbody\nsummary\noutro",
+  "target": "intro\nsummary\nbody\noutro",
+  "solution": "jjddkP",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "yank-put"]
+}

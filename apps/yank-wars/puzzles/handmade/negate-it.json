@@ -1,0 +1,17 @@
+{
+  "id": "negate-it",
+  "title": "Negate it",
+  "difficulty": "easy",
+  "description": "Run when it is falsy.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "if (a) {\n  run();\n}",
+  "target": "if (!a) {\n  run();\n}",
+  "solution": "f(a!",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

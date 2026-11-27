@@ -1,0 +1,17 @@
+{
+  "id": "inline-format",
+  "title": "Inline the argument",
+  "difficulty": "medium",
+  "description": "Put x inside the braces.",
+  "language": "rust",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "fn main() {\n    let x = 1;\n    println!(\"{}\", x);\n}",
+  "target": "fn main() {\n    let x = 1;\n    println!(\"{x}\");\n}",
+  "solution": "jjf}ix<Esc>f,3x",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert", "delete"]
+}

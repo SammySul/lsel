@@ -1,0 +1,17 @@
+{
+  "id": "swap-first-two",
+  "title": "Swap the first two",
+  "difficulty": "easy",
+  "description": "Two words trade places.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "one two three",
+  "target": "two one three",
+  "solution": "dwwP",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "yank-put"]
+}

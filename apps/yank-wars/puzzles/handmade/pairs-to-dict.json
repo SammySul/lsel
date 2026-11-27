@@ -1,0 +1,17 @@
+{
+  "id": "pairs-to-dict",
+  "title": "Pairs to dict",
+  "difficulty": "hard",
+  "description": "Turn pairs into dict items.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "a 1\nb 2\nc 3",
+  "target": "\"a\": 1,\n\"b\": 2,\n\"c\": 3,",
+  "solution": ":%s/\\(\\w\\+\\) \\(\\d\\+\\)/\"\\1\": \\2,/<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "async-tests",
+  "title": "Async tests",
+  "difficulty": "medium",
+  "description": "Only the test functions.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "def test_a():\n    pass\n\ndef helper():\n    pass\n\ndef test_b():\n    pass",
+  "target": "async def test_a():\n    pass\n\ndef helper():\n    pass\n\nasync def test_b():\n    pass",
+  "solution": ":g/test/s/def/async def/<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global", "substitute"]
+}

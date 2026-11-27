@@ -1,0 +1,17 @@
+{
+  "id": "fully-opaque",
+  "title": "Fully opaque",
+  "difficulty": "easy",
+  "description": "Opacity goes to one.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".fade {\n  opacity: 0.5;\n}",
+  "target": ".fade {\n  opacity: 1;\n}",
+  "solution": "jf0C1;",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change", "find"]
+}

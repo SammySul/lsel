@@ -1,0 +1,17 @@
+{
+  "id": "reverse-order",
+  "title": "Reverse the order",
+  "difficulty": "medium",
+  "description": "Last line first.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "one\ntwo\nthree\nfour",
+  "target": "four\nthree\ntwo\none",
+  "solution": ":g/^/m0<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global", "move"]
+}

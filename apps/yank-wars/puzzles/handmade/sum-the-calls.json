@@ -1,0 +1,17 @@
+{
+  "id": "sum-the-calls",
+  "title": "Sum the calls",
+  "difficulty": "medium",
+  "description": "Join and add plus signs.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "total(1)\ntotal(2)\ntotal(3)",
+  "target": "total(1) + total(2) + total(3)",
+  "solution": "3J:s/) /) + /g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["join", "substitute"]
+}

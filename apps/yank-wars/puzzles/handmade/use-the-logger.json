@@ -1,0 +1,17 @@
+{
+  "id": "use-the-logger",
+  "title": "Use the logger",
+  "difficulty": "medium",
+  "description": "No more print.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "print(\"start\")\nprint(\"done\")",
+  "target": "logger.info(\"start\")\nlogger.info(\"done\")",
+  "solution": ":%s/print/logger.info/<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

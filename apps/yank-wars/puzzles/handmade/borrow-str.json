@@ -1,0 +1,17 @@
+{
+  "id": "borrow-str",
+  "title": "Borrow a str",
+  "difficulty": "medium",
+  "description": "Take &str, not &String.",
+  "language": "rust",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "fn len(s: &String) -> usize {\n    s.len()\n}",
+  "target": "fn len(s: &str) -> usize {\n    s.len()\n}",
+  "solution": "f&lcwstr",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change", "find"]
+}

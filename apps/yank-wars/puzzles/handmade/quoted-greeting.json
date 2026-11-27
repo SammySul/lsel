@@ -1,0 +1,17 @@
+{
+  "id": "quoted-greeting",
+  "title": "Quoted greeting",
+  "difficulty": "easy",
+  "description": "Change what is quoted.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "say 'hello' now",
+  "target": "say 'bye' now",
+  "solution": "ci'bye",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object", "change"]
+}

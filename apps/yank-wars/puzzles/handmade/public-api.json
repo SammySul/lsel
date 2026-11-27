@@ -1,0 +1,17 @@
+{
+  "id": "public-api",
+  "title": "Public API",
+  "difficulty": "easy",
+  "description": "Export the function.",
+  "language": "typescript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "function add(a: number, b: number) {\n  return a + b;\n}",
+  "target": "export function add(a: number, b: number) {\n  return a + b;\n}",
+  "solution": "Iexport ",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

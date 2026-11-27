@@ -1,0 +1,17 @@
+{
+  "id": "keep-the-tail",
+  "title": "Keep the tail",
+  "difficulty": "easy",
+  "description": "Delete up to the top.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "a\nb\nc\nd",
+  "target": "c\nd",
+  "solution": "jdgg",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "motion"]
+}

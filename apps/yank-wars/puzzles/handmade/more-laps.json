@@ -1,0 +1,17 @@
+{
+  "id": "more-laps",
+  "title": "More laps",
+  "difficulty": "easy",
+  "description": "Ten loops become a hundred.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "for i := 0; i < 10; i++ {\n\tprocess(i)\n}",
+  "target": "for i := 0; i < 100; i++ {\n\tprocess(i)\n}",
+  "solution": "f1a0",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["find", "insert"]
+}

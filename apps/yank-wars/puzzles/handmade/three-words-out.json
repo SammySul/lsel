@@ -1,0 +1,17 @@
+{
+  "id": "three-words-out",
+  "title": "Three words out",
+  "difficulty": "easy",
+  "description": "Delete the first three words.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "one two three four five",
+  "target": "four five",
+  "solution": "d3w",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "count"]
+}

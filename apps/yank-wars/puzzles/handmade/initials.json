@@ -1,0 +1,17 @@
+{
+  "id": "initials",
+  "title": "Initials",
+  "difficulty": "hard",
+  "description": "First letters with dots.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "Ada Lovelace\nAlan Turing\nGrace Hopper",
+  "target": "A.L.\nA.T.\nG.H.",
+  "solution": ":%s/\\(\\w\\)\\w* \\(\\w\\)\\w*/\\1.\\2./<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

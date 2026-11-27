@@ -1,0 +1,17 @@
+{
+  "id": "env-prod",
+  "title": "Go to prod",
+  "difficulty": "easy",
+  "description": "Switch the environment.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\"env\": \"dev\"}",
+  "target": "{\"env\": \"prod\"}",
+  "solution": "fdcwprod",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change", "find"]
+}
