@@ -19,16 +19,19 @@ const say = (text: string) => {
   said = text;
 };
 
-type View = "list" | "states" | "form" | "pages";
+type View = "list" | "states" | "form" | "pages" | "fit";
 const VIEWS = [
   { id: "list", label: "List" },
   { id: "states", label: "States" },
   { id: "form", label: "Form" },
   { id: "pages", label: "Pages" },
+  { id: "fit", label: "Fit" },
 ] as const;
 
 // more rows than a page, the last page short
 const ITEMS = Array.from({ length: 23 }, (_, i) => `Item ${i + 1}`);
+// more than any window holds
+const MANY = Array.from({ length: 200 }, (_, i) => `Item ${i + 1}`);
 let view: View = $state("list");
 
 interface Feed {
@@ -118,6 +121,13 @@ let nameError: string | null = $state(null);
   {:else if view === "pages"}
     <section aria-label="Pages">
       <List items={ITEMS} id={(item) => item} label="Items" pageSize={10} hint>
+        {#snippet row(item)}{item}{/snippet}
+        {#snippet empty()}No items.{/snippet}
+      </List>
+    </section>
+  {:else if view === "fit"}
+    <section aria-label="Fit">
+      <List items={MANY} id={(item) => item} label="Items" pageSize="fit" hint>
         {#snippet row(item)}{item}{/snippet}
         {#snippet empty()}No items.{/snippet}
       </List>

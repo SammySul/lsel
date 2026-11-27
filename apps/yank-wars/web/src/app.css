@@ -3,3 +3,7 @@ body,
 #app {
   height: 100%;
 }
+/* main's margins stay inside, or they push a full-height #app 24 px past the window */
+#app {
+  display: flow-root;
+}

@@ -25,10 +25,15 @@ interface Props {
   actions?: readonly Action[] | ((item: T) => readonly Action[]);
   /** Column headings, aligned with the rows. */
   head?: Snippet;
+  /** Beside the pager, on its line: a count, the selected row's detail. */
+  foot?: Snippet;
   /** Shows its keys in the page footer. */
   hint?: boolean;
-  /** Rows per page; the list always holds a full page, so its height never changes with the items. */
-  pageSize?: number;
+  /**
+   * Rows per page; the list always holds a full page, so its height never changes with the items.
+   * "fit" shows as many as fit in the window, so the page never scrolls.
+   */
+  pageSize?: number | "fit";
 }
 
 let {
@@ -41,6 +46,7 @@ let {
   onopen,
   actions = [],
   head,
+  foot,
   hint = false,
   pageSize,
 }: Props = $props();
@@ -59,7 +65,10 @@ $effect(() => {
   last = index;
   if (id(current) !== selected) selected = id(current);
 });
-const size = $derived(pageSize ?? Math.max(1, items.length));
+// a fitted page is never shorter than this, so a small window scrolls instead
+const FIT_MIN = 3;
+let fitted = $state(10);
+const size = $derived(pageSize === "fit" ? fitted : (pageSize ?? Math.max(1, items.length)));
 const pages = $derived(Math.max(1, Math.ceil(items.length / size)));
 const page = $derived(Math.floor(index / size));
 const start = $derived(page * size);
@@ -67,6 +76,41 @@ const visible = $derived(items.slice(start, start + size));
 const fillers = $derived(pageSize === undefined ? 0 : size - visible.length);
 
 const rows: HTMLElement[] = $state([]);
+let list: HTMLUListElement | undefined = $state();
+
+$effect(() => {
+  // unmounting sets the bound list to null
+  if (pageSize !== "fit" || !list) return;
+  const ul = list;
+  // the page is main, its margins included; html and body may be sized to the window
+  const page = ul.closest("main") ?? document.body;
+  const fit = () => {
+    if (ul.children.length === 0) return;
+    const row = ul.offsetHeight / ul.children.length;
+    const style = getComputedStyle(page);
+    const height =
+      page.getBoundingClientRect().height +
+      Number.parseFloat(style.marginTop) +
+      Number.parseFloat(style.marginBottom);
+    // everything but the rows: the room the rows have left is the window less that
+    const rest = height - ul.offsetHeight;
+    fitted = Math.max(FIT_MIN, Math.floor((document.documentElement.clientHeight - rest) / row));
+  };
+  // a frame later: resizing the page inside the observer's own callback is a loop WebKit reports
+  let frame = 0;
+  const later = () => {
+    cancelAnimationFrame(frame);
+    frame = requestAnimationFrame(fit);
+  };
+  const observer = new ResizeObserver(later);
+  observer.observe(page);
+  addEventListener("resize", later);
+  return () => {
+    cancelAnimationFrame(frame);
+    observer.disconnect();
+    removeEventListener("resize", later);
+  };
+});
 
 $effect(() => {
   rows[index - start]?.scrollIntoView({ block: "nearest" });
@@ -141,7 +185,7 @@ keys(() =>
   <Empty>{@render empty()}</Empty>
 {:else}
   {#if head}<div class="head" aria-hidden="true">{@render head()}</div>{/if}
-  <ul class="lsel-list" aria-label={label}>
+  <ul class="lsel-list" aria-label={label} bind:this={list}>
     {#each visible as item, i (id(item))}
       <!-- the keys above are the keyboard way in; a click is the pointer's -->
       <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
@@ -155,6 +199,7 @@ keys(() =>
   </ul>
   {#if pageSize !== undefined}
     <div class="pager">
+      {#if foot}<div class="foot">{@render foot()}</div>{/if}
       <button type="button" disabled={page === 0} onclick={() => select(index - size)}
         >‹ <kbd>h</kbd></button
       >
@@ -202,5 +247,9 @@ keys(() =>
     color: var(--subtle);
     font-size: var(--text-xs);
     font-variant-numeric: tabular-nums;
+  }
+  .foot {
+    flex: 1;
+    min-width: 0;
   }
 </style>

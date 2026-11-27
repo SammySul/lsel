@@ -144,6 +144,42 @@ for (const name of browsers()) {
       expect(await problems()).toEqual([]);
     });
 
+    test("a fitted list fills the window without scrolling it, as the window and the hints change", async () => {
+      const { page, problems } = await open();
+      await page.setViewportSize({ width: 1000, height: 720 });
+      await page.keyboard.press("5");
+      const list = page.getByRole("list", { name: "Items" });
+      // the window's room left under the page, and one row's height: a fitted page leaves less than a row
+      const fit = async () => {
+        await page.waitForTimeout(400);
+        return page.evaluate(() => {
+          const root = document.documentElement;
+          const ul = document.querySelector('ul[aria-label="Items"]') as HTMLElement;
+          const left = root.clientHeight - root.getBoundingClientRect().height;
+          const row = ul.offsetHeight / ul.children.length;
+          return {
+            rows: ul.children.length,
+            fits: left >= 0 && left < row && root.scrollHeight <= root.clientHeight,
+          };
+        });
+      };
+      const tall = await fit();
+      expect(tall.fits).toBe(true);
+      await page.keyboard.press("K");
+      const folded = await fit();
+      expect(folded.fits).toBe(true);
+      expect(folded.rows).toBeGreaterThan(tall.rows);
+      await page.setViewportSize({ width: 1000, height: 600 });
+      const short = await fit();
+      expect(short.fits).toBe(true);
+      expect(short.rows).toBeLessThan(folded.rows);
+      await page.keyboard.press("G");
+      expect(await list.locator('li[aria-current="true"]').textContent()).toBe("Item 200");
+      await page.keyboard.press("K");
+      expect((await fit()).fits).toBe(true);
+      expect(await problems()).toEqual([]);
+    });
+
     test("in a search box keys type, arrows still move, and Esc clears then leaves", async () => {
       const { page, problems } = await open();
       await page.keyboard.press("G");
@@ -204,6 +240,7 @@ for (const name of browsers()) {
         "Show states",
         "Show form",
         "Show pages",
+        "Show fit",
         "Next",
         "Previous",
         "First",

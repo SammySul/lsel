@@ -232,7 +232,8 @@ process-global state with it. _Rejected:_ replaying on the main thread (one
 slow claim stalls every socket).
 
 **Protocol:** JSON frames on `/ws`, parsed with Valibot (`engine/src/game/protocol.ts`),
-every client frame stamped `v: 1`; a frame from another version gets `reload`,
+every client frame stamped with `PROTOCOL` (2 since rooms stopped picking a
+difficulty); a frame from another version gets `reload`,
 so an old tab after a deploy refreshes. The server sends durations, never
 timestamps, so client clocks don't matter; state frames go out at most every
 100 ms per room. Frames are capped at 16 KB, 60 per second per socket.

@@ -57,24 +57,26 @@ keys(() =>
   source="https://git.sammysul.com/SammySul/lsel/src/branch/main/apps/yank-wars"
   width={760}
 >
-  <ol class="how">
-    <li>Make your buffer match the target, using vim.</li>
-    <li>Every keystroke counts. Match par, or beat it.</li>
-    <li>
-      It locks in the moment it matches. <kbd>{CHORD_LABELS.reset}</kbd> starts over,
-      <kbd>{CHORD_LABELS.forfeit}</kbd> gives up.
-    </li>
-  </ol>
-  <p class="start">
-    <button onclick={quickPlay} disabled={shown.length === 0}>Quick play <kbd>p</kbd></button>
-    a random unsolved puzzle, or <a href="#/r">play a friend</a> <kbd>f</kbd>: a room for two, the
-    same puzzle.
-  </p>
-  {#if progress.solved > 0}
-    <p class="progress">
-      {progress.solved} of {puzzles.length} solved · {progress.parOrBetter} at par or better
+  <div class="intro">
+    <ol class="how">
+      <li>Make your buffer match the target, using vim.</li>
+      <li>Every keystroke counts. Match par, or beat it.</li>
+      <li>
+        It locks in the moment it matches. <kbd>{CHORD_LABELS.reset}</kbd> starts over,
+        <kbd>{CHORD_LABELS.forfeit}</kbd> gives up.
+      </li>
+    </ol>
+    <p class="start">
+      <button onclick={quickPlay} disabled={shown.length === 0}>Quick play <kbd>p</kbd></button>
+      a random unsolved puzzle, or <a href="#/r">play a friend</a> <kbd>f</kbd>: a room for two, the
+      same puzzle.
     </p>
-  {/if}
+    {#if progress.solved > 0}
+      <p class="progress">
+        {progress.solved} of {puzzles.length} solved · {progress.parOrBetter} at par or better
+      </p>
+    {/if}
+  </div>
 
   {#if missing}
     <p class="notice">No puzzle called <code>{missing}</code>.</p>
@@ -83,82 +85,89 @@ keys(() =>
   {#if puzzles.length === 0}
     <p class="notice">No puzzles found in <code>puzzles/handmade/</code>.</p>
   {:else}
-    <div class="filters">
-      <div class="chips" role="group" aria-label="Difficulty">
-        <button
-          class="chip"
-          aria-pressed={filter.difficulty === null}
-          onclick={() => setDifficulty(null)}>All</button
-        >
-        {#each DIFFICULTIES as d (d)}
+    <div class="browse">
+      <div class="filters">
+        <div class="chips" role="group" aria-label="Difficulty">
           <button
-            class="chip {d}"
-            aria-pressed={filter.difficulty === d}
-            onclick={() => setDifficulty(d)}>{d}</button
+            class="chip"
+            aria-pressed={filter.difficulty === null}
+            onclick={() => setDifficulty(null)}>All</button
           >
-        {/each}
-        <button class="chip" aria-pressed={filter.unsolved} onclick={toggleUnsolved}
-          >Unsolved</button
-        >
+          {#each DIFFICULTIES as d (d)}
+            <button
+              class="chip {d}"
+              aria-pressed={filter.difficulty === d}
+              onclick={() => setDifficulty(d)}>{d}</button
+            >
+          {/each}
+          <button class="chip" aria-pressed={filter.unsolved} onclick={toggleUnsolved}
+            >Unsolved</button
+          >
+        </div>
+        <input
+          bind:this={search}
+          class="search"
+          type="search"
+          placeholder="/ search"
+          aria-label="Search puzzles"
+          spellcheck="false"
+          autocomplete="off"
+          value={filter.query}
+          oninput={(e) => (prefs.filter = { ...filter, query: e.currentTarget.value })}
+        />
       </div>
-      <input
-        bind:this={search}
-        class="search"
-        type="search"
-        placeholder="/ search"
-        aria-label="Search puzzles"
-        spellcheck="false"
-        autocomplete="off"
-        value={filter.query}
-        oninput={(e) => (prefs.filter = { ...filter, query: e.currentTarget.value })}
-      />
-    </div>
 
-    <div class="table">
-      <List
-        items={shown}
-        id={(p) => p.id}
-        bind:selected={selectedId}
-        label="Puzzles"
-        onopen={(p) => go(`/p/${p.id}`)}
-        hint
-        pageSize={10}
-      >
-        {#snippet head()}
-          <div class="row heading">
-            <span>Puzzle</span><span>Language</span><span class="num">Par</span><span
-              >Difficulty</span
-            ><span class="num">Your best</span>
-          </div>
-        {/snippet}
-        {#snippet row(p)}
-          {@const best = prefs.best[p.id]}
-          <a class="row" href="#/p/{p.id}" onfocus={() => (selectedId = p.id)}>
-            <span class="title">{p.title}</span>
-            <span class="lang">{p.language}</span>
-            <span class="num">{p.par}</span>
-            <span class="diff {p.difficulty}">{p.difficulty}</span>
-            <span class="num best" class:none={!best}>
-              {#if best}
-                {@const mark = markOf(best, p.par)}
-                <span class="mark {mark}" title={mark === "under" ? "under par" : mark === "par" ? "par" : ""}
-                  >{mark === "under" ? "★ " : ""}{best.keys}</span
-                >
-                <small>in {duration(best.ms, "m:ss.t")}</small>
-              {:else}–{/if}
-            </span>
-          </a>
-        {/snippet}
-        {#snippet empty()}
-          No puzzles match. <kbd>0</kbd> shows every difficulty, <kbd>Esc</kbd> in the search clears it.
-        {/snippet}
-      </List>
+      <div class="table">
+        <List
+          items={shown}
+          id={(p) => p.id}
+          bind:selected={selectedId}
+          label="Puzzles"
+          onopen={(p) => go(`/p/${p.id}`)}
+          hint
+          pageSize="fit"
+        >
+          {#snippet head()}
+            <div class="row heading">
+              <span>Puzzle</span><span>Language</span><span class="num">Par</span><span
+                >Difficulty</span
+              ><span class="num">Your best</span>
+            </div>
+          {/snippet}
+          {#snippet row(p)}
+            {@const best = prefs.best[p.id]}
+            <a class="row" href="#/p/{p.id}" onfocus={() => (selectedId = p.id)}>
+              <span class="title">{p.title}</span>
+              <span class="lang">{p.language}</span>
+              <span class="num">{p.par}</span>
+              <span class="diff {p.difficulty}">{p.difficulty}</span>
+              <span class="num best" class:none={!best}>
+                {#if best}
+                  {@const mark = markOf(best, p.par)}
+                  <span class="mark {mark}" title={mark === "under" ? "under par" : mark === "par" ? "par" : ""}
+                    >{mark === "under" ? "★ " : ""}{best.keys}</span
+                  >
+                  <small>in {duration(best.ms, "m:ss.t")}</small>
+                {:else}–{/if}
+              </span>
+            </a>
+          {/snippet}
+          {#snippet foot()}
+            <p class="detail">
+              <span class="about"
+                >{current?.description ?? ""}
+                {#if current?.tags?.length}<span class="tags">{current.tags.join(" · ")}</span
+                  >{/if}</span
+              >
+              <span class="count">{shown.length} of {puzzles.length} puzzles</span>
+            </p>
+          {/snippet}
+          {#snippet empty()}
+            No puzzles match. <kbd>0</kbd> shows every difficulty, <kbd>Esc</kbd> in the search clears it.
+          {/snippet}
+        </List>
+      </div>
     </div>
-    <p class="detail">
-      {current?.description ?? ""}
-      {#if current?.tags?.length}<span class="tags">{current.tags.join(" · ")}</span>{/if}
-    </p>
-    <p class="count">{shown.length} of {puzzles.length} puzzles</p>
   {/if}
 
   {#if puzzleErrors.length > 0}
@@ -246,8 +255,21 @@ keys(() =>
     margin-left: 8px;
     font-size: var(--text-xs);
   }
+  /* each group's parts sit closer than the page's sections, so the list gets the height */
+  .intro,
+  .browse {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  /* one line, whatever the puzzle: a wrap would change the page's height, and so its rows */
+  .about {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
   .count {
-    margin: 0;
+    flex: none;
     color: var(--subtle);
     font-size: var(--text-xs);
   }
@@ -282,8 +304,12 @@ keys(() =>
     color: var(--subtle);
   }
   .detail {
-    min-height: 1.4em;
+    display: flex;
+    gap: var(--space-4);
+    justify-content: space-between;
+    align-items: baseline;
     margin: 0;
+    font-size: var(--text-sm);
     color: var(--subtle);
   }
   .errors h2 {
