@@ -1,0 +1,17 @@
+{
+  "id": "room-to-breathe",
+  "title": "Room to breathe",
+  "difficulty": "easy",
+  "description": "A blank line between each pair.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "one\ntwo\nthree\nfour",
+  "target": "one\n\ntwo\n\nthree\n\nfour",
+  "solution": "o<Esc>j.j.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat", "open-line"]
+}

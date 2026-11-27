@@ -1,0 +1,17 @@
+{
+  "id": "bookends",
+  "title": "Bookends",
+  "difficulty": "medium",
+  "description": "Repeat the banner at the bottom.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "=== REPORT ===\nsales: 12\nrefunds: 3",
+  "target": "=== REPORT ===\nsales: 12\nrefunds: 3\n=== REPORT ===",
+  "solution": ":t$<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["ex"]
+}

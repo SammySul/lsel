@@ -1,0 +1,17 @@
+{
+  "id": "real-boolean",
+  "title": "A real boolean",
+  "difficulty": "easy",
+  "description": "Not a string.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\n  \"enabled\": \"true\"\n}",
+  "target": "{\n  \"enabled\": true\n}",
+  "solution": "j$xF\".",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat"]
+}

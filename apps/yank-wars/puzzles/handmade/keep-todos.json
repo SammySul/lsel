@@ -1,0 +1,16 @@
+{
+  "id": "keep-todos",
+  "title": "Only the TODOs",
+  "difficulty": "medium",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "TODO: write docs\nDONE: fix login\nTODO: add tests\nDONE: bump deps\nTODO: release",
+  "target": "TODO: write docs\nTODO: add tests\nTODO: release",
+  "solution": ":v/TODO/d<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global"]
+}

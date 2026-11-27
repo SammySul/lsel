@@ -1,0 +1,16 @@
+{
+  "id": "dont-delete-everyone",
+  "title": "Don't delete everyone",
+  "difficulty": "easy",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "DELETE FROM users;\nWHERE id = 7;",
+  "target": "DELETE FROM users WHERE id = 7;",
+  "solution": "$xJ",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["join"]
+}

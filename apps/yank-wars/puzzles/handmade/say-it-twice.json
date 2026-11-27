@@ -1,0 +1,16 @@
+{
+  "id": "say-it-twice",
+  "title": "Say it twice",
+  "difficulty": "medium",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "Ready?\nSet!\nGo!",
+  "target": "Ready?\nReady?\nSet!\nSet!\nGo!\nGo!",
+  "solution": ":g/^/t.<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global"]
+}

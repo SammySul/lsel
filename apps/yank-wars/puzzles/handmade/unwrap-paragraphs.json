@@ -1,0 +1,17 @@
+{
+  "id": "unwrap-paragraphs",
+  "title": "Unwrap the paragraphs",
+  "difficulty": "easy",
+  "description": "One line per paragraph.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "Vim is a\nmodal text\neditor.\n\nIt was released\nin 1991 by\nBram Moolenaar.",
+  "target": "Vim is a modal text editor.\n\nIt was released in 1991 by Bram Moolenaar.",
+  "solution": "3J}j.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["join", "repeat"]
+}

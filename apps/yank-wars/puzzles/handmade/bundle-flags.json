@@ -1,0 +1,16 @@
+{
+  "id": "bundle-flags",
+  "title": "Bundle the flags",
+  "difficulty": "easy",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "ls -l -a -h",
+  "target": "ls -lah",
+  "solution": "2f<Space>2xl.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat"]
+}

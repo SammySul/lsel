@@ -1,0 +1,17 @@
+{
+  "id": "em-not-i",
+  "title": "Emphasis",
+  "difficulty": "easy",
+  "description": "Use em instead of i.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "<i>so</i> cool",
+  "target": "<em>so</em> cool",
+  "solution": "lcwem<Esc>fi.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat"]
+}

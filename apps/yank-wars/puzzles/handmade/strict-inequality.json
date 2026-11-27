@@ -1,0 +1,16 @@
+{
+  "id": "strict-inequality",
+  "title": "Strict inequality",
+  "difficulty": "easy",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "if (a != b && c != d) {\n  warn();\n}",
+  "target": "if (a !== b && c !== d) {\n  warn();\n}",
+  "solution": "f=a=<Esc>;.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat"]
+}

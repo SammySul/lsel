@@ -1,0 +1,16 @@
+{
+  "id": "times-table",
+  "title": "Times table",
+  "difficulty": "hard",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "3 x 1 = 3",
+  "target": "3 x 1 = 3\n3 x 2 = 6\n3 x 3 = 9\n3 x 4 = 12\n3 x 5 = 15",
+  "solution": "qqyyp2w<C-a>$3<C-a>q3@q",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["macro", "increment"]
+}

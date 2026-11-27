@@ -1,0 +1,17 @@
+{
+  "id": "go-export",
+  "title": "Export them",
+  "difficulty": "easy",
+  "description": "Go exports capitalized names.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "func parse() {}\nfunc load() {}\nfunc save() {}",
+  "target": "func Parse() {}\nfunc Load() {}\nfunc Save() {}",
+  "solution": "w<C-v>jj~",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block", "case"]
+}

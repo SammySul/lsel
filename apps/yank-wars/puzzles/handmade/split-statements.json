@@ -1,0 +1,16 @@
+{
+  "id": "split-statements",
+  "title": "One statement per line",
+  "difficulty": "easy",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "a = 1; b = 2",
+  "target": "a = 1\nb = 2",
+  "solution": "f;xr<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace"]
+}

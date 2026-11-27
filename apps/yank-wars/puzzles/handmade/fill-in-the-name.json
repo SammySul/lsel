@@ -1,0 +1,16 @@
+{
+  "id": "fill-in-the-name",
+  "title": "Fill in the name",
+  "difficulty": "easy",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "Dear [name],\nyou won a mug.",
+  "target": "Dear Ada,\nyou won a mug.",
+  "solution": "Wca[Ada",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object"]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "forward-slashes",
+  "title": "Forward slashes",
+  "difficulty": "medium",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "C:\\Users\\ada\\projects\\vim",
+  "target": "C:/Users/ada/projects/vim",
+  "solution": ":s#\\\\#/#g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

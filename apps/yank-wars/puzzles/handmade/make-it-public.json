@@ -1,0 +1,16 @@
+{
+  "id": "make-it-public",
+  "title": "Make it public",
+  "difficulty": "medium",
+  "language": "rust",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "struct User {\n    name: String,\n    age: u32,\n}",
+  "target": "struct User {\n    pub name: String,\n    pub age: u32,\n}",
+  "solution": "+<C-v>jIpub <Esc>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block"]
+}

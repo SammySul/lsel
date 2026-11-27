@@ -1,0 +1,17 @@
+{
+  "id": "rot13-spoiler",
+  "title": "Spoiler alert",
+  "difficulty": "easy",
+  "description": "Decode the spoiler.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "Spoiler: Gur ohgyre qvq vg.",
+  "target": "Spoiler: The butler did it.",
+  "solution": "Wg?$",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["rot13"]
+}

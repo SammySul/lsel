@@ -1,0 +1,16 @@
+{
+  "id": "empty-not-null",
+  "title": "Empty, not null",
+  "difficulty": "easy",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\n  \"name\": \"ada\",\n  \"tags\": null\n}",
+  "target": "{\n  \"name\": \"ada\",\n  \"tags\": []\n}",
+  "solution": "2jfncw[]",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change"]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "failures-last",
+  "title": "Failures last",
+  "difficulty": "medium",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "PASS login\nFAIL upload\nPASS logout\nFAIL search\nPASS signup",
+  "target": "PASS login\nPASS logout\nPASS signup\nFAIL upload\nFAIL search",
+  "solution": ":g/FAIL/m$<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global"]
+}

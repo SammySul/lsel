@@ -1,0 +1,17 @@
+{
+  "id": "goes-to-eleven",
+  "title": "Goes to eleven",
+  "difficulty": "easy",
+  "description": "One louder.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "amp:\n    gain: 3\n    volume: 1",
+  "target": "amp:\n    gain: 3\n    volume: 11",
+  "solution": "G10<C-a>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["increment", "count"]
+}

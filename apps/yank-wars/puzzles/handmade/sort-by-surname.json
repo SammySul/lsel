@@ -1,0 +1,16 @@
+{
+  "id": "sort-by-surname",
+  "title": "Sort by surname",
+  "difficulty": "medium",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "Ada Lovelace\nAlan Turing\nGrace Hopper\nLinus Torvalds",
+  "target": "Grace Hopper\nAda Lovelace\nLinus Torvalds\nAlan Turing",
+  "solution": ":sor /\\w\\+ /<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["sort"]
+}

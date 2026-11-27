@@ -1,0 +1,17 @@
+{
+  "id": "getters",
+  "title": "Getters",
+  "difficulty": "hard",
+  "description": "One getter per field.",
+  "language": "typescript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "name\nemail\nage",
+  "target": "get name() { return this.name; }\nget email() { return this.email; }\nget age() { return this.age; }",
+  "solution": ":%s/.*/get &() { return this.&; }<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

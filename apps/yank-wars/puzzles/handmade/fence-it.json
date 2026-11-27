@@ -1,0 +1,17 @@
+{
+  "id": "fence-it",
+  "title": "Fence it",
+  "difficulty": "medium",
+  "description": "A Markdown code block.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "bun install",
+  "target": "```\nbun install\n```",
+  "solution": "O```<Esc>yyjp",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["open-line", "yank-put"]
+}

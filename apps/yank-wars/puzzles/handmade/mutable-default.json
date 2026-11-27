@@ -1,0 +1,17 @@
+{
+  "id": "mutable-default",
+  "title": "Mutable default",
+  "difficulty": "easy",
+  "description": "A list default is shared between calls.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "def add(item, items=[]):\n    items.append(item)\n    return items",
+  "target": "def add(item, items=None):\n    items.append(item)\n    return items",
+  "solution": "f[2sNone",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change"]
+}

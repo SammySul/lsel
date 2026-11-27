@@ -1,0 +1,16 @@
+{
+  "id": "cut-to-the-chase",
+  "title": "Cut to the chase",
+  "difficulty": "easy",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "Well, um, so, basically, the build is green.",
+  "target": "The build is green.",
+  "solution": "d/the<CR>~",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["search", "delete"]
+}

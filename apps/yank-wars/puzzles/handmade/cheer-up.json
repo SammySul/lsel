@@ -1,0 +1,16 @@
+{
+  "id": "cheer-up",
+  "title": "Cheer up",
+  "difficulty": "easy",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "The build passed :(",
+  "target": "The build passed :)",
+  "solution": "$r)",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace"]
+}

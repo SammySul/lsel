@@ -1,0 +1,16 @@
+{
+  "id": "drop-the-else",
+  "title": "Drop the else",
+  "difficulty": "easy",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "if (ok) {\n  go();\n} else {\n  stop();\n}",
+  "target": "if (ok) {\n  go();\n}",
+  "solution": "2jld%",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "motion"]
+}

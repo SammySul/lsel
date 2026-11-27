@@ -1,0 +1,17 @@
+{
+  "id": "double-recipe",
+  "title": "Double the recipe",
+  "difficulty": "easy",
+  "description": "Guests are coming.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "2 eggs\n1 l milk\n3 g yeast",
+  "target": "4 eggs\n2 l milk\n6 g yeast",
+  "solution": "2<C-a>j<C-a>j3<C-a>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["increment"]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "like-totally",
+  "title": "Like, totally",
+  "difficulty": "medium",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "It was, like, totally, like, done.",
+  "target": "It was, totally, done.",
+  "solution": "/like, <CR>dgn.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["search", "repeat"]
+}

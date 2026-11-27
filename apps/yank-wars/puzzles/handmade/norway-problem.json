@@ -1,0 +1,17 @@
+{
+  "id": "norway-problem",
+  "title": "The Norway problem",
+  "difficulty": "easy",
+  "description": "YAML 1.1 reads a bare NO as false.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "country: NO",
+  "target": "country: \"NO\"",
+  "solution": "A\"<Esc>bi\"",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

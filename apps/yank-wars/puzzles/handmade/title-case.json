@@ -1,0 +1,16 @@
+{
+  "id": "title-case",
+  "title": "Title case",
+  "difficulty": "medium",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "the lord of the rings",
+  "target": "The Lord Of The Rings",
+  "solution": ":s/\\w\\+/\\u&/g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "case"]
+}

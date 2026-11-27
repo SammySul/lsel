@@ -1,0 +1,17 @@
+{
+  "id": "useless-cat",
+  "title": "Useless cat",
+  "difficulty": "medium",
+  "description": "grep can read the file itself.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "cat log.txt | grep ERROR",
+  "target": "grep ERROR log.txt",
+  "solution": "WdEA <C-r>\"<Esc>0d2W",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["registers", "delete"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "snake-case",
+  "title": "Snake case",
+  "difficulty": "hard",
+  "description": "Python names are snake_case.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "def getUserName(userId):\n    return lookupName(userId)",
+  "target": "def get_user_name(user_id):\n    return lookup_name(user_id)",
+  "solution": ":%s/[A-Z]/_\\l&/g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "es-modules",
+  "title": "ES modules",
+  "difficulty": "medium",
+  "description": "require becomes import.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const fs = require(\"fs\");",
+  "target": "import fs from \"fs\";",
+  "solution": "cwimport<Esc>f=cf(from <Esc>$X",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change"]
+}

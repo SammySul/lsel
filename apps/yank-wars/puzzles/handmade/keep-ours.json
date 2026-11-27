@@ -1,0 +1,17 @@
+{
+  "id": "keep-ours",
+  "title": "Keep ours",
+  "difficulty": "easy",
+  "description": "Resolve the conflict with our side.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "<<<<<<< HEAD\nport = 8080\n=======\nport = 9090\n>>>>>>> main",
+  "target": "port = 8080",
+  "solution": "ddjdG",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

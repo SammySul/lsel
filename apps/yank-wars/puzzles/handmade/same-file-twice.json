@@ -1,0 +1,17 @@
+{
+  "id": "same-file-twice",
+  "title": "Same file twice",
+  "difficulty": "easy",
+  "description": "The output should be a PDF.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "pandoc notes.md -o notes.md",
+  "target": "pandoc notes.md -o notes.pdf",
+  "solution": "$ciwpdf",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object"]
+}

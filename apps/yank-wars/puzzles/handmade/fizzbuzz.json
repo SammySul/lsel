@@ -1,0 +1,16 @@
+{
+  "id": "fizzbuzz",
+  "title": "FizzBuzz",
+  "difficulty": "hard",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15",
+  "target": "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz",
+  "solution": "qqjjccFizz<Esc>jq4@qABuzz<Esc>5GccBuzz<Esc>5j.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["macro", "repeat"]
+}

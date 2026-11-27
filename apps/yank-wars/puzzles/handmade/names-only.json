@@ -1,0 +1,16 @@
+{
+  "id": "names-only",
+  "title": "Names only",
+  "difficulty": "medium",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "ada 36 admin\nbob 41 user\ncy 29 guest",
+  "target": "ada\nbob\ncy",
+  "solution": ":%s/ .*<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

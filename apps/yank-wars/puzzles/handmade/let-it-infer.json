@@ -1,0 +1,17 @@
+{
+  "id": "let-it-infer",
+  "title": "Let it infer",
+  "difficulty": "easy",
+  "description": "The compiler knows the type.",
+  "language": "rust",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "let x: i32 = 5;",
+  "target": "let x = 5;",
+  "solution": "f:de",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

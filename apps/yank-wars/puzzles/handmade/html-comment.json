@@ -1,0 +1,16 @@
+{
+  "id": "html-comment",
+  "title": "Comment it out",
+  "difficulty": "medium",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "<p>draft</p>",
+  "target": "<!-- <p>draft</p> -->",
+  "solution": "I<lt>!-- <Esc>A -->",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

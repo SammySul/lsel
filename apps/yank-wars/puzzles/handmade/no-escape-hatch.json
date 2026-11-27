@@ -1,0 +1,17 @@
+{
+  "id": "no-escape-hatch",
+  "title": "No escape hatch",
+  "difficulty": "easy",
+  "description": "Let the type checker do its job.",
+  "language": "typescript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const user = data as any;",
+  "target": "const user = data;",
+  "solution": "$2dF<Space>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

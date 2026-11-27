@@ -1,0 +1,17 @@
+{
+  "id": "squash-fixups",
+  "title": "Squash the fixups",
+  "difficulty": "easy",
+  "description": "f is short for fixup.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "pick 1a2b add login\npick 3c4d fix typo\npick 5e6f fix typo again",
+  "target": "pick 1a2b add login\nf 3c4d fix typo\nf 5e6f fix typo again",
+  "solution": "jcwf<Esc>j.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat"]
+}

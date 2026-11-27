@@ -1,0 +1,17 @@
+{
+  "id": "knock-knock",
+  "title": "Knock knock",
+  "difficulty": "easy",
+  "description": "Three times, like always.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "*knock knock knock* Penny",
+  "target": "*knock knock knock* Penny\n*knock knock knock* Penny\n*knock knock knock* Penny",
+  "solution": "Y2p",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["yank-put", "count"]
+}

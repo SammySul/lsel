@@ -1,0 +1,16 @@
+{
+  "id": "json-to-yaml",
+  "title": "JSON to YAML",
+  "difficulty": "hard",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\"name\": \"app\", \"port\": 80}",
+  "target": "name: app\nport: 80",
+  "solution": ":s/[{}\"]//g<CR>:s/, /\\r/g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

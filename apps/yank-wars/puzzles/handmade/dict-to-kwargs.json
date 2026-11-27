@@ -1,0 +1,16 @@
+{
+  "id": "dict-to-kwargs",
+  "title": "Dict to kwargs",
+  "difficulty": "hard",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "opts = {\"host\": \"db\", \"port\": 5432}",
+  "target": "opts = dict(host=\"db\", port=5432)",
+  "solution": ":s/\"\\(\\w\\+\\)\": /\\1=/g<CR>f{sdict(<Esc>$r)",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

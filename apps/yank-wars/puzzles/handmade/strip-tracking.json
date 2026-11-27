@@ -1,0 +1,16 @@
+{
+  "id": "strip-tracking",
+  "title": "Strip the tracking",
+  "difficulty": "easy",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "https://shop.example.com/item/42?utm_source=mail&utm_medium=email",
+  "target": "https://shop.example.com/item/42",
+  "solution": "f?D",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "elif",
+  "title": "Elif",
+  "difficulty": "easy",
+  "description": "Python spells it elif.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "if x < 0:\n    sign = -1\nelse if x > 0:\n    sign = 1",
+  "target": "if x < 0:\n    sign = -1\nelif x > 0:\n    sign = 1",
+  "solution": "2jfsdw",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

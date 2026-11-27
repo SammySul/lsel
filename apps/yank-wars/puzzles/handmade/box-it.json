@@ -1,0 +1,17 @@
+{
+  "id": "box-it",
+  "title": "Box it",
+  "difficulty": "hard",
+  "description": "Draw a box around the word.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "hello",
+  "target": "+-------+\n| hello |\n+-------+",
+  "solution": "I| <Esc>A |<Esc>yyPVr-r+$r+yyjp",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["yank-put", "visual", "replace"]
+}

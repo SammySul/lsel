@@ -1,0 +1,17 @@
+{
+  "id": "no-more-any",
+  "title": "No more any",
+  "difficulty": "easy",
+  "description": "These are users.",
+  "language": "typescript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const users: Array<any> = [];",
+  "target": "const users: Array<User> = [];",
+  "solution": "f<lt>ci<lt>User",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object"]
+}

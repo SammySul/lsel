@@ -1,0 +1,16 @@
+{
+  "id": "positional-args",
+  "title": "Positional args",
+  "difficulty": "easy",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "connect(host=\"db\", port=5432)",
+  "target": "connect(\"db\", 5432)",
+  "solution": "fhdf=fp.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat"]
+}

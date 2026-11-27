@@ -1,0 +1,17 @@
+{
+  "id": "commas-to-tabs",
+  "title": "Commas to tabs",
+  "difficulty": "medium",
+  "description": "CSV to TSV.",
+  "language": "text",
+  "tabSize": 8,
+  "indentUnit": "\t",
+  "start": "name,age,city\nada,36,London\nbob,41,Oslo",
+  "target": "name\tage\tcity\nada\t36\tLondon\nbob\t41\tOslo",
+  "solution": ":%s/,/\\t/g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "in-list",
+  "title": "IN list",
+  "difficulty": "medium",
+  "description": "One SQL list from four ids.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "3\n14\n15\n92",
+  "target": "(3, 14, 15, 92)",
+  "solution": "<C-v>2j$A,<Esc>4JI(<Esc>A)",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block", "join"]
+}

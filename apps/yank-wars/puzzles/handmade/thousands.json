@@ -1,0 +1,16 @@
+{
+  "id": "thousands",
+  "title": "Thousands separator",
+  "difficulty": "easy",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "Population: 1000000",
+  "target": "Population: 1,000,000",
+  "solution": "$2hi,<Esc>3h.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat"]
+}

@@ -1,0 +1,16 @@
+{
+  "id": "swap-values",
+  "title": "Swap the values",
+  "difficulty": "easy",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "a = 'left'\nb = 'right'",
+  "target": "a = 'right'\nb = 'left'",
+  "solution": "rbjraddP",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace", "swap"]
+}

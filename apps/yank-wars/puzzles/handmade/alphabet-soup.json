@@ -1,0 +1,17 @@
+{
+  "id": "alphabet-soup",
+  "title": "Alphabet soup",
+  "difficulty": "hard",
+  "description": "Sort the words on the line.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "pear fig apple kiwi date",
+  "target": "apple date fig kiwi pear",
+  "solution": ":s/ /\\r/g<CR>:sor<CR>gg5J",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "sort", "join"]
+}

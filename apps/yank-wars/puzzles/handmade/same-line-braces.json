@@ -1,0 +1,16 @@
+{
+  "id": "same-line-braces",
+  "title": "Same-line braces",
+  "difficulty": "easy",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "if (x)\n{\n  a();\n}\nelse\n{\n  b();\n}",
+  "target": "if (x) {\n  a();\n} else {\n  b();\n}",
+  "solution": "J2j3J",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["join"]
+}

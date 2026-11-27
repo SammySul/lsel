@@ -1,0 +1,16 @@
+{
+  "id": "countdown",
+  "title": "Countdown",
+  "difficulty": "hard",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "1 2 3 4 5 liftoff",
+  "target": "liftoff 5 4 3 2 1",
+  "solution": ":s/ /\\r/g<CR>:g/^/m0<CR>6J",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "global", "join"]
+}

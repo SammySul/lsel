@@ -15,6 +15,34 @@
       },
       "mode": "insert"
     },
+    "puzzle-alphabet-soup": {
+      "start": "pear fig apple kiwi date",
+      "keys": ":s/ /\\r/g<CR>:sor<CR>gg5J",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "apple date fig kiwi pear",
+      "cursor": {
+        "line": 1,
+        "col": 20
+      },
+      "mode": "normal"
+    },
+    "puzzle-always-true": {
+      "start": "if (true) {\n  run();\n}",
+      "keys": "ddjdd<lt><lt>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "run();",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-api-url": {
       "start": "const BASE = \"http://localhost:3000\";\nexport default BASE;",
       "keys": "ci\"/api",
@@ -28,6 +56,20 @@
         "col": 19
       },
       "mode": "insert"
+    },
+    "puzzle-apply-the-patch": {
+      "start": " def greet(name):\n-    print(\"hi\")\n+    print(f\"hi {name}\")\n     return name",
+      "keys": ":g/^-/d<CR>:%s/^.<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "def greet(name):\n    print(f\"hi {name}\")\n    return name",
+      "cursor": {
+        "line": 3,
+        "col": 5
+      },
+      "mode": "normal"
     },
     "puzzle-arrow-function": {
       "start": "const double = function (x) {\n  return x * 2;\n};",
@@ -57,6 +99,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-batman": {
+      "start": "Batman!",
+      "keys": "8Ina <Esc>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "na na na na na na na na Batman!",
+      "cursor": {
+        "line": 1,
+        "col": 24
+      },
+      "mode": "normal"
+    },
     "puzzle-bigger-font": {
       "start": "p {\n  font-size: 12px;\n}",
       "keys": "j4<C-a>",
@@ -68,6 +124,34 @@
       "cursor": {
         "line": 2,
         "col": 15
+      },
+      "mode": "normal"
+    },
+    "puzzle-bookends": {
+      "start": "=== REPORT ===\nsales: 12\nrefunds: 3",
+      "keys": ":t$<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "=== REPORT ===\nsales: 12\nrefunds: 3\n=== REPORT ===",
+      "cursor": {
+        "line": 4,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-box-it": {
+      "start": "hello",
+      "keys": "I| <Esc>A |<Esc>yyPVr-r+$r+yyjp",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "+-------+\n| hello |\n+-------+",
+      "cursor": {
+        "line": 3,
+        "col": 1
       },
       "mode": "normal"
     },
@@ -113,6 +197,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-bundle-flags": {
+      "start": "ls -l -a -h",
+      "keys": "2f<Space>2xl.",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "ls -lah",
+      "cursor": {
+        "line": 1,
+        "col": 7
+      },
+      "mode": "normal"
+    },
     "puzzle-camel-case": {
       "start": "const user_name = get_user_name(user_id);",
       "keys": ":s/_\\(\\w\\)/\\u\\1/g<CR>",
@@ -152,6 +250,48 @@
       "cursor": {
         "line": 1,
         "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-check-all": {
+      "start": "- [ ] buy milk\n- [ ] call mom\n- [ ] fix bike",
+      "keys": "4|<C-v>jjrx",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "- [x] buy milk\n- [x] call mom\n- [x] fix bike",
+      "cursor": {
+        "line": 1,
+        "col": 4
+      },
+      "mode": "normal"
+    },
+    "puzzle-checkerboard": {
+      "start": "#.",
+      "keys": "3A#.<Esc>yypxA#<Esc>ykP",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "#.#.#.#.\n.#.#.#.#\n#.#.#.#.\n.#.#.#.#",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-cheer-up": {
+      "start": "The build passed :(",
+      "keys": "$r)",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "The build passed :)",
+      "cursor": {
+        "line": 1,
+        "col": 19
       },
       "mode": "normal"
     },
@@ -239,6 +379,20 @@
       },
       "mode": "insert"
     },
+    "puzzle-close-the-box": {
+      "start": "+------+\n| yank\n+------+",
+      "keys": "jA |",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "+------+\n| yank |\n+------+",
+      "cursor": {
+        "line": 2,
+        "col": 9
+      },
+      "mode": "insert"
+    },
     "puzzle-comma-separated": {
       "start": "red\ngreen\nblue",
       "keys": "A,<Esc>j.k3J",
@@ -253,6 +407,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-commas-to-tabs": {
+      "start": "name,age,city\nada,36,London\nbob,41,Oslo",
+      "keys": ":%s/,/\\t/g<CR>",
+      "settings": {
+        "tabSize": 8,
+        "indentUnit": "\t"
+      },
+      "doc": "name\tage\tcity\nada\t36\tLondon\nbob\t41\tOslo",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-comment-block": {
       "start": "@cache\ndef load(path):\n    with open(path) as f:\n        text = f.read()\n    rows = text.splitlines()\n    return [r.split(\",\") for r in rows]",
       "keys": "2jw<C-v>3jI#<Space><Esc>",
@@ -263,6 +431,20 @@
       "doc": "@cache\ndef load(path):\n    # with open(path) as f:\n    #     text = f.read()\n    # rows = text.splitlines()\n    # return [r.split(\",\") for r in rows]",
       "cursor": {
         "line": 3,
+        "col": 5
+      },
+      "mode": "normal"
+    },
+    "puzzle-comment-the-logs": {
+      "start": "function save(user) {\n  console.log(\"saving\", user);\n  db.put(user);\n  console.log(\"saved\");\n  return user;\n}",
+      "keys": ":g/log/norm I// <CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "function save(user) {\n  // console.log(\"saving\", user);\n  db.put(user);\n  // console.log(\"saved\");\n  return user;\n}",
+      "cursor": {
+        "line": 4,
         "col": 5
       },
       "mode": "normal"
@@ -281,6 +463,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-countdown": {
+      "start": "1 2 3 4 5 liftoff",
+      "keys": ":s/ /\\r/g<CR>:g/^/m0<CR>6J",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "liftoff 5 4 3 2 1",
+      "cursor": {
+        "line": 1,
+        "col": 16
+      },
+      "mode": "normal"
+    },
     "puzzle-css-comment": {
       "start": ".banner {\n  color: red;\n  margin: 0 auto;\n}",
       "keys": "O/*<Esc>Go*/",
@@ -294,6 +490,20 @@
         "col": 3
       },
       "mode": "insert"
+    },
+    "puzzle-cut-to-the-chase": {
+      "start": "Well, um, so, basically, the build is green.",
+      "keys": "d/the<CR>~",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "The build is green.",
+      "cursor": {
+        "line": 1,
+        "col": 2
+      },
+      "mode": "normal"
     },
     "puzzle-dead-code": {
       "start": "func main() {\n\trun()\n}\n\nfunc unused() {\n\tpanic(\"no\")\n}\n\nfunc run() {\n\tprintln(\"hi\")\n}",
@@ -337,6 +547,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-dev-deps": {
+      "start": "flask==3.0.0\npytest==8.1.0  # dev\nrequests==2.31.0\nruff==0.4.0  # dev",
+      "keys": ":g/dev/s/==/>=<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "flask==3.0.0\npytest>=8.1.0  # dev\nrequests==2.31.0\nruff>=0.4.0  # dev",
+      "cursor": {
+        "line": 4,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-dict-access": {
       "start": "print(user.name)\nprint(user.email)",
       "keys": "qqf.r[a\"<Esc>ea\"]<Esc>+q@q",
@@ -348,6 +572,20 @@
       "cursor": {
         "line": 2,
         "col": 19
+      },
+      "mode": "normal"
+    },
+    "puzzle-dict-to-kwargs": {
+      "start": "opts = {\"host\": \"db\", \"port\": 5432}",
+      "keys": ":s/\"\\(\\w\\+\\)\": /\\1=/g<CR>f{sdict(<Esc>$r)",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "opts = dict(host=\"db\", port=5432)",
+      "cursor": {
+        "line": 1,
+        "col": 33
       },
       "mode": "normal"
     },
@@ -365,6 +603,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-dont-delete-everyone": {
+      "start": "DELETE FROM users;\nWHERE id = 7;",
+      "keys": "$xJ",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "DELETE FROM users WHERE id = 7;",
+      "cursor": {
+        "line": 1,
+        "col": 18
+      },
+      "mode": "normal"
+    },
     "puzzle-double-equals": {
       "start": "def is_empty(items):\n    if len(items) = 0:\n        return True\n    return False",
       "keys": "jf=i=",
@@ -378,6 +630,20 @@
         "col": 20
       },
       "mode": "insert"
+    },
+    "puzzle-double-recipe": {
+      "start": "2 eggs\n1 l milk\n3 g yeast",
+      "keys": "2<C-a>j<C-a>j3<C-a>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "4 eggs\n2 l milk\n6 g yeast",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
     },
     "puzzle-double-spaces": {
       "start": "Old  habits  die  hard.",
@@ -421,6 +687,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-drop-the-else": {
+      "start": "if (ok) {\n  go();\n} else {\n  stop();\n}",
+      "keys": "2jld%",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "if (ok) {\n  go();\n}",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-drop-todo": {
       "start": "function clamp(n, lo, hi) {\n  if (n < lo) return lo; // TODO: is this right?\n  return Math.min(n, hi);\n}",
       "keys": "jf;lD",
@@ -449,6 +729,34 @@
       },
       "mode": "normal"
     },
+    "puzzle-elif": {
+      "start": "if x < 0:\n    sign = -1\nelse if x > 0:\n    sign = 1",
+      "keys": "2jfsdw",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "if x < 0:\n    sign = -1\nelif x > 0:\n    sign = 1",
+      "cursor": {
+        "line": 3,
+        "col": 3
+      },
+      "mode": "normal"
+    },
+    "puzzle-em-not-i": {
+      "start": "<i>so</i> cool",
+      "keys": "lcwem<Esc>fi.",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "<em>so</em> cool",
+      "cursor": {
+        "line": 1,
+        "col": 10
+      },
+      "mode": "normal"
+    },
     "puzzle-empty-body": {
       "start": "func noop() {\n\tlog.Println(\"start\")\n\twork()\n}",
       "keys": "jdi{",
@@ -462,6 +770,20 @@
         "col": 1
       },
       "mode": "normal"
+    },
+    "puzzle-empty-not-null": {
+      "start": "{\n  \"name\": \"ada\",\n  \"tags\": null\n}",
+      "keys": "2jfncw[]",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "{\n  \"name\": \"ada\",\n  \"tags\": []\n}",
+      "cursor": {
+        "line": 3,
+        "col": 13
+      },
+      "mode": "insert"
     },
     "puzzle-enough-milk": {
       "start": "milk\nmilk\nmilk\nmilk\neggs\nbread",
@@ -488,6 +810,20 @@
       "cursor": {
         "line": 2,
         "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-es-modules": {
+      "start": "const fs = require(\"fs\");",
+      "keys": "cwimport<Esc>f=cf(from <Esc>$X",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "import fs from \"fs\";",
+      "cursor": {
+        "line": 1,
+        "col": 20
       },
       "mode": "normal"
     },
@@ -533,6 +869,48 @@
       },
       "mode": "normal"
     },
+    "puzzle-f-strings": {
+      "start": "print(\"Hi %s\" % name)",
+      "keys": "f\"if<Esc>f%C{name}\")",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "print(f\"Hi {name}\")",
+      "cursor": {
+        "line": 1,
+        "col": 20
+      },
+      "mode": "insert"
+    },
+    "puzzle-failures-last": {
+      "start": "PASS login\nFAIL upload\nPASS logout\nFAIL search\nPASS signup",
+      "keys": ":g/FAIL/m$<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "PASS login\nPASS logout\nPASS signup\nFAIL upload\nFAIL search",
+      "cursor": {
+        "line": 5,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-fence-it": {
+      "start": "bun install",
+      "keys": "O```<Esc>yyjp",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "```\nbun install\n```",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-fewer-parens": {
       "start": "if ((user.is_admin)):\n    grant()",
       "keys": "f(2x$2X",
@@ -558,6 +936,34 @@
       "cursor": {
         "line": 1,
         "col": 14
+      },
+      "mode": "normal"
+    },
+    "puzzle-fill-in-the-name": {
+      "start": "Dear [name],\nyou won a mug.",
+      "keys": "Wca[Ada",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "Dear Ada,\nyou won a mug.",
+      "cursor": {
+        "line": 1,
+        "col": 9
+      },
+      "mode": "insert"
+    },
+    "puzzle-first-dash-only": {
+      "start": "name-Ada Lovelace\nborn-1815-12-10\nknown-for-the first program",
+      "keys": ":%s/-/: <CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "name: Ada Lovelace\nborn: 1815-12-10\nknown: for-the first program",
+      "cursor": {
+        "line": 3,
+        "col": 1
       },
       "mode": "normal"
     },
@@ -603,6 +1009,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-fizzbuzz": {
+      "start": "1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15",
+      "keys": "qqjjccFizz<Esc>jq4@qABuzz<Esc>5GccBuzz<Esc>5j.",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "1\n2\nFizz\n4\nBuzz\nFizz\n7\n8\nFizz\nBuzz\n11\nFizz\n13\n14\nFizzBuzz",
+      "cursor": {
+        "line": 10,
+        "col": 4
+      },
+      "mode": "normal"
+    },
     "puzzle-flip-map": {
       "start": "{\n  \"en\": \"hello\",\n  \"fr\": \"bonjour\",\n  \"de\": \"hallo\"\n}",
       "keys": ":%s/\\(\"\\w\\+\"\\): \\(\"\\w\\+\"\\)/\\2: \\1<CR>",
@@ -630,6 +1050,20 @@
         "col": 21
       },
       "mode": "insert"
+    },
+    "puzzle-forward-slashes": {
+      "start": "C:\\Users\\ada\\projects\\vim",
+      "keys": ":s#\\\\#/#g<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "C:/Users/ada/projects/vim",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
     },
     "puzzle-from-csv": {
       "start": "const people = [\n  ada,36\n  bob,41\n  cy,29\n];",
@@ -673,6 +1107,34 @@
       },
       "mode": "insert"
     },
+    "puzzle-getters": {
+      "start": "name\nemail\nage",
+      "keys": ":%s/.*/get &() { return this.&; }<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "get name() { return this.name; }\nget email() { return this.email; }\nget age() { return this.age; }",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-go-export": {
+      "start": "func parse() {}\nfunc load() {}\nfunc save() {}",
+      "keys": "w<C-v>jj~",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "\t"
+      },
+      "doc": "func Parse() {}\nfunc Load() {}\nfunc Save() {}",
+      "cursor": {
+        "line": 1,
+        "col": 6
+      },
+      "mode": "normal"
+    },
     "puzzle-go-semicolons": {
       "start": "func main() {\n\tx := 1;\n\ty := 2;\n\tfmt.Println(x + y);\n}",
       "keys": ":%s/;<CR>",
@@ -684,6 +1146,48 @@
       "cursor": {
         "line": 4,
         "col": 2
+      },
+      "mode": "normal"
+    },
+    "puzzle-goes-to-eleven": {
+      "start": "amp:\n    gain: 3\n    volume: 1",
+      "keys": "G10<C-a>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "amp:\n    gain: 3\n    volume: 11",
+      "cursor": {
+        "line": 3,
+        "col": 14
+      },
+      "mode": "normal"
+    },
+    "puzzle-group-vars": {
+      "start": "var a = 1\nvar b = 2",
+      "keys": "<C-v>j3ld>jOvar (<Esc>Go)",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "\t"
+      },
+      "doc": "var (\n\ta = 1\n\tb = 2\n)",
+      "cursor": {
+        "line": 4,
+        "col": 2
+      },
+      "mode": "insert"
+    },
+    "puzzle-hangman": {
+      "start": "y_nk w_rs",
+      "keys": "f_ra;.",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "yank wars",
+      "cursor": {
+        "line": 1,
+        "col": 7
       },
       "mode": "normal"
     },
@@ -715,6 +1219,48 @@
       },
       "mode": "insert"
     },
+    "puzzle-html-comment": {
+      "start": "<p>draft</p>",
+      "keys": "I<lt>!-- <Esc>A -->",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "<!-- <p>draft</p> -->",
+      "cursor": {
+        "line": 1,
+        "col": 22
+      },
+      "mode": "insert"
+    },
+    "puzzle-html-list": {
+      "start": "apple\npear\nplum",
+      "keys": ":%s/.*/  <lt>li>&<lt>\\/li><CR>ggO<lt>ul><Esc>Go<lt>/ul>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "<ul>\n  <li>apple</li>\n  <li>pear</li>\n  <li>plum</li>\n</ul>",
+      "cursor": {
+        "line": 5,
+        "col": 6
+      },
+      "mode": "insert"
+    },
+    "puzzle-in-list": {
+      "start": "3\n14\n15\n92",
+      "keys": "<C-v>2j$A,<Esc>4JI(<Esc>A)",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "(3, 14, 15, 92)",
+      "cursor": {
+        "line": 1,
+        "col": 16
+      },
+      "mode": "insert"
+    },
     "puzzle-indent-body": {
       "start": "func greet(name string) string {\nmsg := \"hello, \" + name\nmsg += \"!\"\nreturn msg\n}",
       "keys": "j3>>",
@@ -743,6 +1289,20 @@
       },
       "mode": "insert"
     },
+    "puzzle-inside-out": {
+      "start": "const key = trim(lower(name));",
+      "keys": "fldf(FtP",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "const key = lower(trim(name));",
+      "cursor": {
+        "line": 1,
+        "col": 18
+      },
+      "mode": "normal"
+    },
     "puzzle-its-a-macro": {
       "start": "fn main() {\n    println(\"hi\");\n}",
       "keys": "jf(i!",
@@ -757,6 +1317,20 @@
       },
       "mode": "insert"
     },
+    "puzzle-jeopardy": {
+      "start": "Q: What is 2 + 2?\nA: 4\nQ: Capital of France?\nA: Paris",
+      "keys": ":g/Q/m+<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "A: 4\nQ: What is 2 + 2?\nA: Paris\nQ: Capital of France?",
+      "cursor": {
+        "line": 4,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-join-lines": {
       "start": "let v = vec![\n    1,\n    2,\n    3,\n];",
       "keys": "Jx4JXx",
@@ -768,6 +1342,48 @@
       "cursor": {
         "line": 1,
         "col": 21
+      },
+      "mode": "normal"
+    },
+    "puzzle-json-lines": {
+      "start": "{\"id\": 1}\n{\"id\": 2}\n{\"id\": 3}",
+      "keys": "O[<Esc>jA,<Esc>j.Go]",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "[\n{\"id\": 1},\n{\"id\": 2},\n{\"id\": 3}\n]",
+      "cursor": {
+        "line": 5,
+        "col": 2
+      },
+      "mode": "insert"
+    },
+    "puzzle-json-tags": {
+      "start": "type User struct {\n\tName  string\n\tEmail string\n\tPhone string\n}",
+      "keys": ":2,4s/\\(\\w\\+\\) .*/& `json:\"\\l\\1\"`<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "\t"
+      },
+      "doc": "type User struct {\n\tName  string `json:\"name\"`\n\tEmail string `json:\"email\"`\n\tPhone string `json:\"phone\"`\n}",
+      "cursor": {
+        "line": 4,
+        "col": 2
+      },
+      "mode": "normal"
+    },
+    "puzzle-json-to-yaml": {
+      "start": "{\"name\": \"app\", \"port\": 80}",
+      "keys": ":s/[{}\"]//g<CR>:s/, /\\r/g<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "name: app\nport: 80",
+      "cursor": {
+        "line": 2,
+        "col": 1
       },
       "mode": "normal"
     },
@@ -799,6 +1415,48 @@
       },
       "mode": "normal"
     },
+    "puzzle-keep-ours": {
+      "start": "<<<<<<< HEAD\nport = 8080\n=======\nport = 9090\n>>>>>>> main",
+      "keys": "ddjdG",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "port = 8080",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-keep-todos": {
+      "start": "TODO: write docs\nDONE: fix login\nTODO: add tests\nDONE: bump deps\nTODO: release",
+      "keys": ":v/TODO/d<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "TODO: write docs\nTODO: add tests\nTODO: release",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-knock-knock": {
+      "start": "*knock knock knock* Penny",
+      "keys": "Y2p",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "*knock knock knock* Penny\n*knock knock knock* Penny\n*knock knock knock* Penny",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-last-arg": {
       "start": "const res = await fetch(url, opts, retries);",
       "keys": "2f,dt)",
@@ -824,6 +1482,34 @@
       "cursor": {
         "line": 1,
         "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-less-bold": {
+      "start": "This is **really** important.",
+      "keys": "f*2x;.",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "This is really important.",
+      "cursor": {
+        "line": 1,
+        "col": 15
+      },
+      "mode": "normal"
+    },
+    "puzzle-let-it-infer": {
+      "start": "let x: i32 = 5;",
+      "keys": "f:de",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "let x = 5;",
+      "cursor": {
+        "line": 1,
+        "col": 6
       },
       "mode": "normal"
     },
@@ -855,6 +1541,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-like-totally": {
+      "start": "It was, like, totally, like, done.",
+      "keys": "/like, <CR>dgn.",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "It was, totally, done.",
+      "cursor": {
+        "line": 1,
+        "col": 18
+      },
+      "mode": "normal"
+    },
     "puzzle-lorem-gone": {
       "start": "const p = <p>Lorem ipsum dolor sit amet</p>;",
       "keys": "f>dit",
@@ -866,6 +1566,20 @@
       "cursor": {
         "line": 1,
         "col": 14
+      },
+      "mode": "normal"
+    },
+    "puzzle-loud-levels": {
+      "start": "warn: low disk\nerror: no space left",
+      "keys": "gUt:j.",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "WARN: low disk\nERROR: no space left",
+      "cursor": {
+        "line": 2,
+        "col": 1
       },
       "mode": "normal"
     },
@@ -883,6 +1597,20 @@
       },
       "mode": "insert"
     },
+    "puzzle-make-it-a-link": {
+      "start": "https://vim.org Vim",
+      "keys": "dWA](<C-r>\"<BS>)<Esc>I[",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "[Vim](https://vim.org)",
+      "cursor": {
+        "line": 1,
+        "col": 2
+      },
+      "mode": "insert"
+    },
     "puzzle-make-it-constant": {
       "start": "max_size = 10\nif len(x) > max_size:\n    raise ValueError(max_size)",
       "keys": "*gUiwn.n.",
@@ -897,6 +1625,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-make-it-public": {
+      "start": "struct User {\n    name: String,\n    age: u32,\n}",
+      "keys": "+<C-v>jIpub <Esc>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "struct User {\n    pub name: String,\n    pub age: u32,\n}",
+      "cursor": {
+        "line": 2,
+        "col": 5
+      },
+      "mode": "normal"
+    },
     "puzzle-make-list": {
       "start": "eggs\nmilk\nbread\nbutter",
       "keys": "<C-v>3jI-<Space><Esc>",
@@ -907,6 +1649,20 @@
       "doc": "- eggs\n- milk\n- bread\n- butter",
       "cursor": {
         "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-makefile-tabs": {
+      "start": "build:\n    go build ./...\ntest:\n    go test ./...",
+      "keys": "j4s<Tab><Esc>jj0.",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "\t"
+      },
+      "doc": "build:\n\tgo build ./...\ntest:\n\tgo test ./...",
+      "cursor": {
+        "line": 4,
         "col": 1
       },
       "mode": "normal"
@@ -1009,6 +1765,20 @@
       },
       "mode": "insert"
     },
+    "puzzle-mutable-default": {
+      "start": "def add(item, items=[]):\n    items.append(item)\n    return items",
+      "keys": "f[2sNone",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "def add(item, items=None):\n    items.append(item)\n    return items",
+      "cursor": {
+        "line": 1,
+        "col": 25
+      },
+      "mode": "insert"
+    },
     "puzzle-name-the-color": {
       "start": ".error {\n  color: #ff0000;\n}",
       "keys": "jf#Cred;",
@@ -1037,6 +1807,34 @@
       },
       "mode": "insert"
     },
+    "puzzle-names-only": {
+      "start": "ada 36 admin\nbob 41 user\ncy 29 guest",
+      "keys": ":%s/ .*<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "ada\nbob\ncy",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-nest-the-keys": {
+      "start": "server:\nhost: localhost\nport: 8080\ndb:\nname: app\nuser: admin",
+      "keys": "j>j3j.",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "server:\n  host: localhost\n  port: 8080\ndb:\n  name: app\n  user: admin",
+      "cursor": {
+        "line": 5,
+        "col": 3
+      },
+      "mode": "normal"
+    },
     "puzzle-no-comments": {
       "start": "def area(w, h):\n    # width times height\n    result = w * h\n    # that's it\n    return result",
       "keys": ":g/#/d<CR>",
@@ -1062,6 +1860,20 @@
       "cursor": {
         "line": 1,
         "col": 8
+      },
+      "mode": "normal"
+    },
+    "puzzle-no-escape-hatch": {
+      "start": "const user = data as any;",
+      "keys": "$2dF<Space>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "const user = data;",
+      "cursor": {
+        "line": 1,
+        "col": 18
       },
       "mode": "normal"
     },
@@ -1121,6 +1933,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-no-more-any": {
+      "start": "const users: Array<any> = [];",
+      "keys": "f<lt>ci<lt>User",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "const users: Array<User> = [];",
+      "cursor": {
+        "line": 1,
+        "col": 24
+      },
+      "mode": "insert"
+    },
     "puzzle-no-more-var": {
       "start": "var a = 1;\nvar b = 2;\nvar c = 3;",
       "keys": "<C-v>2jecconst<Esc>",
@@ -1134,6 +1960,20 @@
         "col": 5
       },
       "mode": "normal"
+    },
+    "puzzle-norway-problem": {
+      "start": "country: NO",
+      "keys": "A\"<Esc>bi\"",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "country: \"NO\"",
+      "cursor": {
+        "line": 1,
+        "col": 11
+      },
+      "mode": "insert"
     },
     "puzzle-not-now": {
       "start": "track(event);\nnotify(user);\nsave(data);",
@@ -1188,6 +2028,20 @@
       "cursor": {
         "line": 1,
         "col": 20
+      },
+      "mode": "normal"
+    },
+    "puzzle-one-clause-per-line": {
+      "start": "SELECT id FROM users WHERE ok = 1 ORDER BY id",
+      "keys": "2f<Space>r<CR>2;.4;.",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "SELECT id\nFROM users\nWHERE ok = 1\nORDER BY id",
+      "cursor": {
+        "line": 4,
+        "col": 1
       },
       "mode": "normal"
     },
@@ -1303,6 +2157,34 @@
       },
       "mode": "normal"
     },
+    "puzzle-phone-book": {
+      "start": "5551234567\n5559876543\n5550001111",
+      "keys": "qqi(<Esc>3la) <Esc>3la-<Esc>+q2@q",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "(555) 123-4567\n(555) 987-6543\n(555) 000-1111",
+      "cursor": {
+        "line": 3,
+        "col": 10
+      },
+      "mode": "normal"
+    },
+    "puzzle-pin-versions": {
+      "start": "{\n  \"dependencies\": {\n    \"react\": \"^18.3.1\",\n    \"vite\": \"^5.4.0\",\n    \"zod\": \"^3.23.8\"\n  }\n}",
+      "keys": ":%s/\\^<CR>",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "{\n  \"dependencies\": {\n    \"react\": \"18.3.1\",\n    \"vite\": \"5.4.0\",\n    \"zod\": \"3.23.8\"\n  }\n}",
+      "cursor": {
+        "line": 5,
+        "col": 5
+      },
+      "mode": "normal"
+    },
     "puzzle-plain-print": {
       "start": "def report(msg):\n    print(msg, end=\"\", flush=True)",
       "keys": "jf,dt)",
@@ -1330,6 +2212,34 @@
         "col": 18
       },
       "mode": "insert"
+    },
+    "puzzle-pointless-filter": {
+      "start": "let n = xs.iter().filter(|_| true).count();",
+      "keys": "2f.d%",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "let n = xs.iter().count();",
+      "cursor": {
+        "line": 1,
+        "col": 18
+      },
+      "mode": "normal"
+    },
+    "puzzle-positional-args": {
+      "start": "connect(host=\"db\", port=5432)",
+      "keys": "fhdf=fp.",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "connect(\"db\", 5432)",
+      "cursor": {
+        "line": 1,
+        "col": 15
+      },
+      "mode": "normal"
     },
     "puzzle-pretty-json": {
       "start": "{\"a\": 1, \"b\": 2, \"c\": 3}",
@@ -1443,6 +2353,48 @@
       },
       "mode": "normal"
     },
+    "puzzle-range-from-zero": {
+      "start": "for i in range(0, n):\n    print(i)",
+      "keys": "f0dtn",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "for i in range(n):\n    print(i)",
+      "cursor": {
+        "line": 1,
+        "col": 16
+      },
+      "mode": "normal"
+    },
+    "puzzle-real-boolean": {
+      "start": "{\n  \"enabled\": \"true\"\n}",
+      "keys": "j$xF\".",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "{\n  \"enabled\": true\n}",
+      "cursor": {
+        "line": 2,
+        "col": 14
+      },
+      "mode": "normal"
+    },
+    "puzzle-redundant-ternary": {
+      "start": "const ok = count > 0 ? true : false;",
+      "keys": "f?hdt;",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "const ok = count > 0;",
+      "cursor": {
+        "line": 1,
+        "col": 21
+      },
+      "mode": "normal"
+    },
     "puzzle-rename-handler": {
       "start": "func handle(w http.ResponseWriter, r *http.Request) {\n\tfmt.Fprintln(w, \"ok\")\n}",
       "keys": "wcwserve",
@@ -1527,6 +2479,62 @@
       },
       "mode": "insert"
     },
+    "puzzle-room-to-breathe": {
+      "start": "one\ntwo\nthree\nfour",
+      "keys": "o<Esc>j.j.",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "one\n\ntwo\n\nthree\n\nfour",
+      "cursor": {
+        "line": 6,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-rot13-spoiler": {
+      "start": "Spoiler: Gur ohgyre qvq vg.",
+      "keys": "Wg?$",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "Spoiler: The butler did it.",
+      "cursor": {
+        "line": 1,
+        "col": 10
+      },
+      "mode": "normal"
+    },
+    "puzzle-same-file-twice": {
+      "start": "pandoc notes.md -o notes.md",
+      "keys": "$ciwpdf",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "pandoc notes.md -o notes.pdf",
+      "cursor": {
+        "line": 1,
+        "col": 29
+      },
+      "mode": "insert"
+    },
+    "puzzle-same-line-braces": {
+      "start": "if (x)\n{\n  a();\n}\nelse\n{\n  b();\n}",
+      "keys": "J2j3J",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "if (x) {\n  a();\n} else {\n  b();\n}",
+      "cursor": {
+        "line": 3,
+        "col": 7
+      },
+      "mode": "normal"
+    },
     "puzzle-same-margin": {
       "start": ".btn {\n  padding: 4px;\n}",
       "keys": "jyypcwmargin",
@@ -1540,6 +2548,20 @@
         "col": 9
       },
       "mode": "insert"
+    },
+    "puzzle-say-it-twice": {
+      "start": "Ready?\nSet!\nGo!",
+      "keys": ":g/^/t.<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "Ready?\nReady?\nSet!\nSet!\nGo!\nGo!",
+      "cursor": {
+        "line": 6,
+        "col": 1
+      },
+      "mode": "normal"
     },
     "puzzle-secure-url": {
       "start": "const API = \"http://api.example.com\";",
@@ -1709,6 +2731,20 @@
       },
       "mode": "insert"
     },
+    "puzzle-skip-the-test": {
+      "start": "it(\"adds\", () => {\n  expect(add(1, 1)).toBe(2);\n});",
+      "keys": "ea.skip",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "it.skip(\"adds\", () => {\n  expect(add(1, 1)).toBe(2);\n});",
+      "cursor": {
+        "line": 1,
+        "col": 8
+      },
+      "mode": "insert"
+    },
     "puzzle-skip-two": {
       "start": "package main\n\nimport \"fmt\"\n\nfunc main() {\n\tfmt.Println(\"one\")\n\tfmt.Println(\"two\")\n\tfmt.Println(\"three\")\n}",
       "keys": "7Gdd",
@@ -1723,6 +2759,34 @@
       },
       "mode": "normal"
     },
+    "puzzle-snake-case": {
+      "start": "def getUserName(userId):\n    return lookupName(userId)",
+      "keys": ":%s/[A-Z]/_\\l&/g<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "def get_user_name(user_id):\n    return lookup_name(user_id)",
+      "cursor": {
+        "line": 2,
+        "col": 5
+      },
+      "mode": "normal"
+    },
+    "puzzle-sort-by-surname": {
+      "start": "Ada Lovelace\nAlan Turing\nGrace Hopper\nLinus Torvalds",
+      "keys": ":sor /\\w\\+ /<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "Grace Hopper\nAda Lovelace\nLinus Torvalds\nAlan Turing",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-sort-imports": {
       "start": "package main\n\nimport (\n\t\"strings\"\n\t\"os\"\n\t\"fmt\"\n\t\"errors\"\n)",
       "keys": ":4,7sor<CR>",
@@ -1734,6 +2798,76 @@
       "cursor": {
         "line": 4,
         "col": 2
+      },
+      "mode": "normal"
+    },
+    "puzzle-spell-it-like-css": {
+      "start": ".title {\n  colour: navy;\n}",
+      "keys": "jfux",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": ".title {\n  color: navy;\n}",
+      "cursor": {
+        "line": 2,
+        "col": 7
+      },
+      "mode": "normal"
+    },
+    "puzzle-split-statements": {
+      "start": "a = 1; b = 2",
+      "keys": "f;xr<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "a = 1\nb = 2",
+      "cursor": {
+        "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-sql-values": {
+      "start": "ada 36\nbob 41\ncy 29",
+      "keys": ":%s/\\(\\w\\+\\) \\(\\d\\+\\)/('\\1', \\2),<CR>$x",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "('ada', 36),\n('bob', 41),\n('cy', 29)",
+      "cursor": {
+        "line": 3,
+        "col": 10
+      },
+      "mode": "normal"
+    },
+    "puzzle-squash-fixups": {
+      "start": "pick 1a2b add login\npick 3c4d fix typo\npick 5e6f fix typo again",
+      "keys": "jcwf<Esc>j.",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "pick 1a2b add login\nf 3c4d fix typo\nf 5e6f fix typo again",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-staircase": {
+      "start": "*",
+      "keys": "qqyypA*<Esc>q3@q",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "*\n**\n***\n****\n*****",
+      "cursor": {
+        "line": 5,
+        "col": 5
       },
       "mode": "normal"
     },
@@ -1779,6 +2913,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-strict-inequality": {
+      "start": "if (a != b && c != d) {\n  warn();\n}",
+      "keys": "f=a=<Esc>;.",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "if (a !== b && c !== d) {\n  warn();\n}",
+      "cursor": {
+        "line": 1,
+        "col": 20
+      },
+      "mode": "normal"
+    },
     "puzzle-string-enum": {
       "start": "enum Color {\n  Red,\n  Green,\n  Blue,\n}",
       "keys": ":%s/\\(\\w\\+\\),/\\1 = \"\\l\\1\",<CR>",
@@ -1821,6 +2969,48 @@
       },
       "mode": "normal"
     },
+    "puzzle-strip-tracking": {
+      "start": "https://shop.example.com/item/42?utm_source=mail&utm_medium=email",
+      "keys": "f?D",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "https://shop.example.com/item/42",
+      "cursor": {
+        "line": 1,
+        "col": 32
+      },
+      "mode": "normal"
+    },
+    "puzzle-stuck-key": {
+      "start": "Paris in the the spring, and and the cat sat sat down.",
+      "keys": ":s/\\(\\w\\+ \\)\\1/\\1/g<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "Paris in the spring, and the cat sat down.",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-sudoku-row": {
+      "start": "5 3 . | 6 7 . | 9 1 2",
+      "keys": "f.r4;r8",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "5 3 4 | 6 7 8 | 9 1 2",
+      "cursor": {
+        "line": 1,
+        "col": 13
+      },
+      "mode": "normal"
+    },
     "puzzle-swap-args": {
       "start": "def area(width, height):\n    return width * height\n\nprint(area(3, 4))\nprint(area(10, 2))\nprint(area(7, 5))",
       "keys": ":%s/(\\(\\w\\+\\), \\(\\w\\+\\))/(\\2, \\1)/<CR>",
@@ -1845,6 +3035,48 @@
       "doc": "import os\nimport sys\n\nprint(os.getcwd(), sys.argv)",
       "cursor": {
         "line": 2,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-swap-sections": {
+      "start": "## Usage\nRun it.\n\n## Install\nBuild it.",
+      "keys": ":4,5m0<CR>:5m2<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "## Install\nBuild it.\n\n## Usage\nRun it.",
+      "cursor": {
+        "line": 3,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-swap-the-ends": {
+      "start": "BOTTOM\nmiddle 1\nmiddle 2\nTOP",
+      "keys": "ddGpk:m0<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "TOP\nmiddle 1\nmiddle 2\nBOTTOM",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
+    "puzzle-swap-values": {
+      "start": "a = 'left'\nb = 'right'",
+      "keys": "rbjraddP",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "a = 'right'\nb = 'left'",
+      "cursor": {
+        "line": 1,
         "col": 1
       },
       "mode": "normal"
@@ -1877,6 +3109,20 @@
       },
       "mode": "insert"
     },
+    "puzzle-task-list": {
+      "start": "- buy milk\n- call mom\n- fix bike",
+      "keys": "<C-v>2jA [ ]<Esc>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "- [ ] buy milk\n- [ ] call mom\n- [ ] fix bike",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-teh-typo": {
       "start": "teh cat and teh dog and teh bird",
       "keys": "*cgnthe<Esc>..",
@@ -1902,6 +3148,48 @@
       "cursor": {
         "line": 1,
         "col": 29
+      },
+      "mode": "normal"
+    },
+    "puzzle-thousands": {
+      "start": "Population: 1000000",
+      "keys": "$2hi,<Esc>3h.",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "Population: 1,000,000",
+      "cursor": {
+        "line": 1,
+        "col": 14
+      },
+      "mode": "normal"
+    },
+    "puzzle-times-table": {
+      "start": "3 x 1 = 3",
+      "keys": "qqyyp2w<C-a>$3<C-a>q3@q",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "3 x 1 = 3\n3 x 2 = 6\n3 x 3 = 9\n3 x 4 = 12\n3 x 5 = 15",
+      "cursor": {
+        "line": 5,
+        "col": 10
+      },
+      "mode": "normal"
+    },
+    "puzzle-title-case": {
+      "start": "the lord of the rings",
+      "keys": ":s/\\w\\+/\\u&/g<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "The Lord Of The Rings",
+      "cursor": {
+        "line": 1,
+        "col": 1
       },
       "mode": "normal"
     },
@@ -1961,6 +3249,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-truthy-enough": {
+      "start": "if done == True:\n    ship()",
+      "keys": "f=hdt:",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "if done:\n    ship()",
+      "cursor": {
+        "line": 1,
+        "col": 8
+      },
+      "mode": "normal"
+    },
     "puzzle-typed-params": {
       "start": "function volume(width, height, depth) {\n  return width * height * depth;\n}",
       "keys": "f,i:<Space>number<Esc>2;.f).",
@@ -2003,6 +3305,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-unescape": {
+      "start": "Tom &amp; Jerry &amp; friends",
+      "keys": ":s/amp;//g<CR>",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "Tom & Jerry & friends",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-units-please": {
       "start": ".box {\n  width: 100;\n  height: 50;\n}",
       "keys": "j$ipx<Esc>j.",
@@ -2014,6 +3330,20 @@
       "cursor": {
         "line": 3,
         "col": 14
+      },
+      "mode": "normal"
+    },
+    "puzzle-unwrap-paragraphs": {
+      "start": "Vim is a\nmodal text\neditor.\n\nIt was released\nin 1991 by\nBram Moolenaar.",
+      "keys": "3J}j.",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "Vim is a modal text editor.\n\nIt was released in 1991 by Bram Moolenaar.",
+      "cursor": {
+        "line": 3,
+        "col": 27
       },
       "mode": "normal"
     },
@@ -2031,6 +3361,20 @@
       },
       "mode": "normal"
     },
+    "puzzle-useless-cat": {
+      "start": "cat log.txt | grep ERROR",
+      "keys": "WdEA <C-r>\"<Esc>0d2W",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "grep ERROR log.txt",
+      "cursor": {
+        "line": 1,
+        "col": 1
+      },
+      "mode": "normal"
+    },
     "puzzle-very-important": {
       "start": "This is very very very important.",
       "keys": "2w3dw",
@@ -2042,6 +3386,20 @@
       "cursor": {
         "line": 1,
         "col": 9
+      },
+      "mode": "normal"
+    },
+    "puzzle-win-in-one": {
+      "start": "X|O|.\n-+-+-\n.|X|O\n-+-+-\nO|.|.",
+      "keys": "G$rX",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "X|O|.\n-+-+-\n.|X|O\n-+-+-\nO|.|X",
+      "cursor": {
+        "line": 5,
+        "col": 5
       },
       "mode": "normal"
     },
@@ -2058,6 +3416,20 @@
         "col": 26
       },
       "mode": "normal"
+    },
+    "puzzle-wrap-in-main": {
+      "start": "x = 1\ny = 2\nprint(x + y)",
+      "keys": ">GOdef main():",
+      "settings": {
+        "tabSize": 4,
+        "indentUnit": "    "
+      },
+      "doc": "def main():\n    x = 1\n    y = 2\n    print(x + y)",
+      "cursor": {
+        "line": 1,
+        "col": 12
+      },
+      "mode": "insert"
     },
     "puzzle-wrong-expectation": {
       "start": "expect(add(2, 2)).toBe(5);",
@@ -2084,6 +3456,34 @@
       "cursor": {
         "line": 1,
         "col": 11
+      },
+      "mode": "normal"
+    },
+    "puzzle-yoda-condition": {
+      "start": "if (5 === x) {\n  win();\n}",
+      "keys": "f5rxfxr5",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": "if (x === 5) {\n  win();\n}",
+      "cursor": {
+        "line": 1,
+        "col": 11
+      },
+      "mode": "normal"
+    },
+    "puzzle-zero-unit": {
+      "start": ".card {\n  margin: 0px;\n}",
+      "keys": "jf;2X",
+      "settings": {
+        "tabSize": 2,
+        "indentUnit": "  "
+      },
+      "doc": ".card {\n  margin: 0;\n}",
+      "cursor": {
+        "line": 2,
+        "col": 12
       },
       "mode": "normal"
     }

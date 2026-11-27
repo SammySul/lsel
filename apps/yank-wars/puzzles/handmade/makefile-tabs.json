@@ -1,0 +1,17 @@
+{
+  "id": "makefile-tabs",
+  "title": "Makefile wants tabs",
+  "difficulty": "medium",
+  "description": "Recipes start with a tab.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "build:\n    go build ./...\ntest:\n    go test ./...",
+  "target": "build:\n\tgo build ./...\ntest:\n\tgo test ./...",
+  "solution": "j4s<Tab><Esc>jj0.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["count", "repeat"]
+}

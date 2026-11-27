@@ -1,0 +1,16 @@
+{
+  "id": "unescape",
+  "title": "Unescape",
+  "difficulty": "medium",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "Tom &amp; Jerry &amp; friends",
+  "target": "Tom & Jerry & friends",
+  "solution": ":s/amp;//g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

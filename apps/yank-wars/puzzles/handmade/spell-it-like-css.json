@@ -1,0 +1,17 @@
+{
+  "id": "spell-it-like-css",
+  "title": "Spell it like CSS",
+  "difficulty": "easy",
+  "description": "CSS uses US spelling.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".title {\n  colour: navy;\n}",
+  "target": ".title {\n  color: navy;\n}",
+  "solution": "jfux",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

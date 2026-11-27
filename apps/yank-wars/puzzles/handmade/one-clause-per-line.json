@@ -1,0 +1,16 @@
+{
+  "id": "one-clause-per-line",
+  "title": "One clause per line",
+  "difficulty": "medium",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "SELECT id FROM users WHERE ok = 1 ORDER BY id",
+  "target": "SELECT id\nFROM users\nWHERE ok = 1\nORDER BY id",
+  "solution": "2f<Space>r<CR>2;.4;.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace", "repeat"]
+}

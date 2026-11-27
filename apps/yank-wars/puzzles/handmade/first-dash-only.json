@@ -1,0 +1,16 @@
+{
+  "id": "first-dash-only",
+  "title": "First dash only",
+  "difficulty": "medium",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "name-Ada Lovelace\nborn-1815-12-10\nknown-for-the first program",
+  "target": "name: Ada Lovelace\nborn: 1815-12-10\nknown: for-the first program",
+  "solution": ":%s/-/: <CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

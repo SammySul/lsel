@@ -1,0 +1,17 @@
+{
+  "id": "make-it-a-link",
+  "title": "Make it a link",
+  "difficulty": "medium",
+  "description": "A Markdown link.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "https://vim.org Vim",
+  "target": "[Vim](https://vim.org)",
+  "solution": "dWA](<C-r>\"<BS>)<Esc>I[",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["registers", "insert"]
+}

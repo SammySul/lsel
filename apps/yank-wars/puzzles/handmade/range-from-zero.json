@@ -1,0 +1,16 @@
+{
+  "id": "range-from-zero",
+  "title": "Zero is the default",
+  "difficulty": "easy",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "for i in range(0, n):\n    print(i)",
+  "target": "for i in range(n):\n    print(i)",
+  "solution": "f0dtn",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

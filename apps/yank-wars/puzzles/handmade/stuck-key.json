@@ -1,0 +1,17 @@
+{
+  "id": "stuck-key",
+  "title": "Stuck key",
+  "difficulty": "hard",
+  "description": "Every doubled word, once.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "Paris in the the spring, and and the cat sat sat down.",
+  "target": "Paris in the spring, and the cat sat down.",
+  "solution": ":s/\\(\\w\\+ \\)\\1/\\1/g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

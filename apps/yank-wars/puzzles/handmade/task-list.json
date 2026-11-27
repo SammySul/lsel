@@ -1,0 +1,17 @@
+{
+  "id": "task-list",
+  "title": "Task list",
+  "difficulty": "medium",
+  "description": "Give every item a checkbox.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "- buy milk\n- call mom\n- fix bike",
+  "target": "- [ ] buy milk\n- [ ] call mom\n- [ ] fix bike",
+  "solution": "<C-v>2jA [ ]<Esc>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block"]
+}

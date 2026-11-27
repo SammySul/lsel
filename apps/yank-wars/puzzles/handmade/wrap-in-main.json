@@ -1,0 +1,16 @@
+{
+  "id": "wrap-in-main",
+  "title": "Wrap it in main",
+  "difficulty": "medium",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "x = 1\ny = 2\nprint(x + y)",
+  "target": "def main():\n    x = 1\n    y = 2\n    print(x + y)",
+  "solution": ">GOdef main():",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["indent", "open-line"]
+}

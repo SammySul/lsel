@@ -1,0 +1,17 @@
+{
+  "id": "apply-the-patch",
+  "title": "Apply the patch",
+  "difficulty": "hard",
+  "description": "Drop the minus lines and every marker.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": " def greet(name):\n-    print(\"hi\")\n+    print(f\"hi {name}\")\n     return name",
+  "target": "def greet(name):\n    print(f\"hi {name}\")\n    return name",
+  "solution": ":g/^-/d<CR>:%s/^.<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global", "substitute"]
+}

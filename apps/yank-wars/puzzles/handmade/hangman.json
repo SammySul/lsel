@@ -1,0 +1,17 @@
+{
+  "id": "hangman",
+  "title": "Hangman",
+  "difficulty": "easy",
+  "description": "Fill in the missing letters.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "y_nk w_rs",
+  "target": "yank wars",
+  "solution": "f_ra;.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat"]
+}

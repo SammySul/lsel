@@ -1,0 +1,16 @@
+{
+  "id": "close-the-box",
+  "title": "Close the box",
+  "difficulty": "easy",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "+------+\n| yank\n+------+",
+  "target": "+------+\n| yank |\n+------+",
+  "solution": "jA |",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

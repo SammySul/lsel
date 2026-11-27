@@ -1,0 +1,17 @@
+{
+  "id": "loud-levels",
+  "title": "Loud levels",
+  "difficulty": "easy",
+  "description": "Log levels in capitals.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "warn: low disk\nerror: no space left",
+  "target": "WARN: low disk\nERROR: no space left",
+  "solution": "gUt:j.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["case", "repeat"]
+}

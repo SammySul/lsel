@@ -1,0 +1,17 @@
+{
+  "id": "json-tags",
+  "title": "JSON tags",
+  "difficulty": "hard",
+  "description": "Lowercase json tags for every field.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "type User struct {\n\tName  string\n\tEmail string\n\tPhone string\n}",
+  "target": "type User struct {\n\tName  string `json:\"name\"`\n\tEmail string `json:\"email\"`\n\tPhone string `json:\"phone\"`\n}",
+  "solution": ":2,4s/\\(\\w\\+\\) .*/& `json:\"\\l\\1\"`<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

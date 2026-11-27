@@ -1,0 +1,17 @@
+{
+  "id": "inside-out",
+  "title": "Inside out",
+  "difficulty": "easy",
+  "description": "Trim first, then lowercase.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const key = trim(lower(name));",
+  "target": "const key = lower(trim(name));",
+  "solution": "fldf(FtP",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "yank-put"]
+}

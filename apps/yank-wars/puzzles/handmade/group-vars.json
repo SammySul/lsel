@@ -1,0 +1,16 @@
+{
+  "id": "group-vars",
+  "title": "Group the vars",
+  "difficulty": "medium",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "var a = 1\nvar b = 2",
+  "target": "var (\n\ta = 1\n\tb = 2\n)",
+  "solution": "<C-v>j3ld>jOvar (<Esc>Go)",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block", "indent"]
+}

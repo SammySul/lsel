@@ -1,0 +1,16 @@
+{
+  "id": "swap-the-ends",
+  "title": "Swap the ends",
+  "difficulty": "medium",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "BOTTOM\nmiddle 1\nmiddle 2\nTOP",
+  "target": "TOP\nmiddle 1\nmiddle 2\nBOTTOM",
+  "solution": "ddGpk:m0<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["move", "ex"]
+}

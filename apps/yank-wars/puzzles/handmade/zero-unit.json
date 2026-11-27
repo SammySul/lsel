@@ -1,0 +1,16 @@
+{
+  "id": "zero-unit",
+  "title": "Zero needs no unit",
+  "difficulty": "easy",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".card {\n  margin: 0px;\n}",
+  "target": ".card {\n  margin: 0;\n}",
+  "solution": "jf;2X",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

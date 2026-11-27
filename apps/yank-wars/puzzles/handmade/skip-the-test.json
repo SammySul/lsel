@@ -1,0 +1,16 @@
+{
+  "id": "skip-the-test",
+  "title": "Skip it for now",
+  "difficulty": "easy",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "it(\"adds\", () => {\n  expect(add(1, 1)).toBe(2);\n});",
+  "target": "it.skip(\"adds\", () => {\n  expect(add(1, 1)).toBe(2);\n});",
+  "solution": "ea.skip",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

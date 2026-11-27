@@ -1,0 +1,17 @@
+{
+  "id": "json-lines",
+  "title": "JSON Lines to JSON",
+  "difficulty": "medium",
+  "description": "One array of the three objects.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\"id\": 1}\n{\"id\": 2}\n{\"id\": 3}",
+  "target": "[\n{\"id\": 1},\n{\"id\": 2},\n{\"id\": 3}\n]",
+  "solution": "O[<Esc>jA,<Esc>j.Go]",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat", "open-line"]
+}

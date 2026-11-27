@@ -1,0 +1,16 @@
+{
+  "id": "nest-the-keys",
+  "title": "Nest the keys",
+  "difficulty": "easy",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "server:\nhost: localhost\nport: 8080\ndb:\nname: app\nuser: admin",
+  "target": "server:\n  host: localhost\n  port: 8080\ndb:\n  name: app\n  user: admin",
+  "solution": "j>j3j.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["indent", "repeat"]
+}

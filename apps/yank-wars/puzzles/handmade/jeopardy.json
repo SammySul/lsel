@@ -1,0 +1,17 @@
+{
+  "id": "jeopardy",
+  "title": "Jeopardy!",
+  "difficulty": "medium",
+  "description": "Answer first, then the question.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "Q: What is 2 + 2?\nA: 4\nQ: Capital of France?\nA: Paris",
+  "target": "A: 4\nQ: What is 2 + 2?\nA: Paris\nQ: Capital of France?",
+  "solution": ":g/Q/m+<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global", "move"]
+}

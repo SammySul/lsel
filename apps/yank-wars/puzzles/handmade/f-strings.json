@@ -1,0 +1,16 @@
+{
+  "id": "f-strings",
+  "title": "F-strings",
+  "difficulty": "medium",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "print(\"Hi %s\" % name)",
+  "target": "print(f\"Hi {name}\")",
+  "solution": "f\"if<Esc>f%C{name}\")",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert", "change"]
+}

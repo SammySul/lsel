@@ -1,0 +1,16 @@
+{
+  "id": "phone-book",
+  "title": "Phone book",
+  "difficulty": "hard",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "5551234567\n5559876543\n5550001111",
+  "target": "(555) 123-4567\n(555) 987-6543\n(555) 000-1111",
+  "solution": "qqi(<Esc>3la) <Esc>3la-<Esc>+q2@q",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["macro"]
+}

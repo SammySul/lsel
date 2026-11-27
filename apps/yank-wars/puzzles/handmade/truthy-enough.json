@@ -1,0 +1,17 @@
+{
+  "id": "truthy-enough",
+  "title": "Truthy enough",
+  "difficulty": "easy",
+  "description": "No need to compare with True.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "if done == True:\n    ship()",
+  "target": "if done:\n    ship()",
+  "solution": "f=hdt:",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

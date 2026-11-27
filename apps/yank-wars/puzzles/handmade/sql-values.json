@@ -1,0 +1,17 @@
+{
+  "id": "sql-values",
+  "title": "SQL values",
+  "difficulty": "hard",
+  "description": "Rows for an INSERT.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "ada 36\nbob 41\ncy 29",
+  "target": "('ada', 36),\n('bob', 41),\n('cy', 29)",
+  "solution": ":%s/\\(\\w\\+\\) \\(\\d\\+\\)/('\\1', \\2),<CR>$x",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

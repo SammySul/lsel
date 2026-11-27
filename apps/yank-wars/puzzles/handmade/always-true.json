@@ -1,0 +1,17 @@
+{
+  "id": "always-true",
+  "title": "Always true",
+  "difficulty": "easy",
+  "description": "Lose the if, keep the call.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "if (true) {\n  run();\n}",
+  "target": "run();",
+  "solution": "ddjdd<lt><lt>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "indent"]
+}

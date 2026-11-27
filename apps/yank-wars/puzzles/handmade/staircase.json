@@ -1,0 +1,16 @@
+{
+  "id": "staircase",
+  "title": "Staircase",
+  "difficulty": "medium",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "*",
+  "target": "*\n**\n***\n****\n*****",
+  "solution": "qqyypA*<Esc>q3@q",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["macro"]
+}

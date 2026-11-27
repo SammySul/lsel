@@ -1,0 +1,16 @@
+{
+  "id": "comment-the-logs",
+  "title": "Comment the logs",
+  "difficulty": "medium",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "function save(user) {\n  console.log(\"saving\", user);\n  db.put(user);\n  console.log(\"saved\");\n  return user;\n}",
+  "target": "function save(user) {\n  // console.log(\"saving\", user);\n  db.put(user);\n  // console.log(\"saved\");\n  return user;\n}",
+  "solution": ":g/log/norm I// <CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global", "normal"]
+}

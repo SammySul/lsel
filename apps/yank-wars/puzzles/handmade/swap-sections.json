@@ -1,0 +1,17 @@
+{
+  "id": "swap-sections",
+  "title": "Swap the sections",
+  "difficulty": "medium",
+  "description": "Install comes before Usage.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "## Usage\nRun it.\n\n## Install\nBuild it.",
+  "target": "## Install\nBuild it.\n\n## Usage\nRun it.",
+  "solution": ":4,5m0<CR>:5m2<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["ex", "move"]
+}

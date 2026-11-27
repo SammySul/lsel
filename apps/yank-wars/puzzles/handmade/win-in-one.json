@@ -1,0 +1,17 @@
+{
+  "id": "win-in-one",
+  "title": "Win in one",
+  "difficulty": "easy",
+  "description": "You are X.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "X|O|.\n-+-+-\n.|X|O\n-+-+-\nO|.|.",
+  "target": "X|O|.\n-+-+-\n.|X|O\n-+-+-\nO|.|X",
+  "solution": "G$rX",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace"]
+}

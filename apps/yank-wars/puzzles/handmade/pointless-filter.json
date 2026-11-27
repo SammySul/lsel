@@ -1,0 +1,17 @@
+{
+  "id": "pointless-filter",
+  "title": "Pointless filter",
+  "difficulty": "easy",
+  "description": "It keeps everything anyway.",
+  "language": "rust",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "let n = xs.iter().filter(|_| true).count();",
+  "target": "let n = xs.iter().count();",
+  "solution": "2f.d%",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "motion"]
+}

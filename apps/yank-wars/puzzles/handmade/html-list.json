@@ -1,0 +1,16 @@
+{
+  "id": "html-list",
+  "title": "HTML list",
+  "difficulty": "hard",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "apple\npear\nplum",
+  "target": "<ul>\n  <li>apple</li>\n  <li>pear</li>\n  <li>plum</li>\n</ul>",
+  "solution": ":%s/.*/  <lt>li>&<lt>\\/li><CR>ggO<lt>ul><Esc>Go<lt>/ul>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "open-line"]
+}

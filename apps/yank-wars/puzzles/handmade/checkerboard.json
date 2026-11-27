@@ -1,0 +1,16 @@
+{
+  "id": "checkerboard",
+  "title": "Checkerboard",
+  "difficulty": "medium",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "#.",
+  "target": "#.#.#.#.\n.#.#.#.#\n#.#.#.#.\n.#.#.#.#",
+  "solution": "3A#.<Esc>yypxA#<Esc>ykP",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["count", "yank-put"]
+}

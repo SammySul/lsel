@@ -1,0 +1,17 @@
+{
+  "id": "batman",
+  "title": "Batman",
+  "difficulty": "easy",
+  "description": "Sing the theme.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "Batman!",
+  "target": "na na na na na na na na Batman!",
+  "solution": "8Ina <Esc>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["count", "insert"]
+}

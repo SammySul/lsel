@@ -1,0 +1,17 @@
+{
+  "id": "check-all",
+  "title": "Check them all",
+  "difficulty": "easy",
+  "description": "Every task is done.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "- [ ] buy milk\n- [ ] call mom\n- [ ] fix bike",
+  "target": "- [x] buy milk\n- [x] call mom\n- [x] fix bike",
+  "solution": "4|<C-v>jjrx",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block"]
+}

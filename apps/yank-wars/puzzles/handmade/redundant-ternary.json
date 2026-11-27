@@ -1,0 +1,17 @@
+{
+  "id": "redundant-ternary",
+  "title": "Redundant ternary",
+  "difficulty": "easy",
+  "description": "The comparison is already a boolean.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const ok = count > 0 ? true : false;",
+  "target": "const ok = count > 0;",
+  "solution": "f?hdt;",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

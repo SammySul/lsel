@@ -1,0 +1,17 @@
+{
+  "id": "dev-deps",
+  "title": "Upgrade the dev tools",
+  "difficulty": "medium",
+  "description": "Loosen the pins on dev lines only.",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "flask==3.0.0\npytest==8.1.0  # dev\nrequests==2.31.0\nruff==0.4.0  # dev",
+  "target": "flask==3.0.0\npytest>=8.1.0  # dev\nrequests==2.31.0\nruff>=0.4.0  # dev",
+  "solution": ":g/dev/s/==/>=<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global", "substitute"]
+}

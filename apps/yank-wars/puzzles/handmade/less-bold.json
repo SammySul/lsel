@@ -1,0 +1,16 @@
+{
+  "id": "less-bold",
+  "title": "Less bold",
+  "difficulty": "easy",
+  "language": "text",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "This is **really** important.",
+  "target": "This is really important.",
+  "solution": "f*2x;.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat"]
+}

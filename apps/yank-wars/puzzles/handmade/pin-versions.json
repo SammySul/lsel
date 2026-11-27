@@ -1,0 +1,17 @@
+{
+  "id": "pin-versions",
+  "title": "Pin the versions",
+  "difficulty": "medium",
+  "description": "No caret ranges.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\n  \"dependencies\": {\n    \"react\": \"^18.3.1\",\n    \"vite\": \"^5.4.0\",\n    \"zod\": \"^3.23.8\"\n  }\n}",
+  "target": "{\n  \"dependencies\": {\n    \"react\": \"18.3.1\",\n    \"vite\": \"5.4.0\",\n    \"zod\": \"3.23.8\"\n  }\n}",
+  "solution": ":%s/\\^<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}
