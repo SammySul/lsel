@@ -1,5 +1,6 @@
 // The daily puzzle: which day it is, its puzzle, and the result a player sends the board.
 import * as v from "valibot";
+import schedule from "../../../puzzles/daily.json";
 import { Entry, LIMITS, Name } from "./protocol.ts";
 import { ROUND } from "./round.ts";
 
@@ -20,25 +21,19 @@ export function msUntilNextDay(ms: number): number {
   return DAILY.epoch + dayOf(ms) * DAILY.dayMs - ms;
 }
 
-const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
+/** The daily order, one puzzle id per day from day 1: append-only, so a deploy never moves a day that has begun. */
+export const SCHEDULE: readonly string[] = schedule;
 
-/**
- * Day `day`'s puzzle: a fixed stride through the easy and medium ones by id, so no puzzle comes
- * back before every other one has had its day. A deploy that changes the pool reshuffles the days ahead.
- */
-export function dailyPuzzle<P extends { readonly id: string; readonly difficulty: string }>(
+/** Day `day`'s puzzle from `pool`; past the schedule's end it starts over. None when the pool lacks it. */
+export function dailyPuzzle<P extends { readonly id: string }>(
   pool: Iterable<P>,
   day: number,
-): P {
-  const byId = [...pool]
-    .filter((p) => p.difficulty !== "hard")
-    .sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
-  const n = byId.length;
-  if (n === 0) throw new Error("no puzzles");
-  let stride = Math.max(1, Math.floor(n * 0.618));
-  while (gcd(stride, n) !== 1) stride++;
-  const at = (((day * stride) % n) + n) % n;
-  return byId[at] as P;
+  order: readonly string[] = SCHEDULE,
+): P | undefined {
+  if (order.length === 0) return undefined;
+  const id = order[(((day - 1) % order.length) + order.length) % order.length];
+  for (const p of pool) if (p.id === id) return p;
+  return undefined;
 }
 
 export const PlayerId = v.pipe(v.string(), v.regex(/^[0-9a-f]{32}$/, "not a player id"));

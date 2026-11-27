@@ -13,11 +13,11 @@ export interface Daily {
   readonly puzzle: Puzzle;
 }
 
-/** The daily at `now`, from `pool`: the same puzzle the server picks, for everyone; none without an easy or medium puzzle. */
+/** The daily at `now`, from `pool`: the same puzzle the server picks, for everyone; none when the pool lacks it. */
 export function dailyAt(pool: readonly Puzzle[], now: number): Daily | undefined {
-  if (!pool.some((p) => p.difficulty !== "hard")) return undefined;
   const day = dayOf(now);
-  return { day, puzzle: dailyPuzzle(pool, day) };
+  const puzzle = dailyPuzzle(pool, day);
+  return puzzle === undefined ? undefined : { day, puzzle };
 }
 
 /** Days in a row solved, up to today; a streak whose last day was yesterday is still alive. */

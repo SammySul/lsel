@@ -88,4 +88,5 @@ bun test engine/src/game/puzzles.test.ts
 ```
 
 Write the solution, run the test, then set the puzzle's entry in `PAR` to the
-proven length.
+proven length. An easy or medium puzzle also needs its day: `bun run daily`
+(from `apps/yank-wars`) appends every new one to `daily.json`.

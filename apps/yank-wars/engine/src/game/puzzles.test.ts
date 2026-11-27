@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { join } from "node:path";
-import { parsePuzzle, replay, verifyRun } from "../index.ts";
+import { parsePuzzle, replay, SCHEDULE, verifyRun } from "../index.ts";
 
 const DIR = join(import.meta.dir, "../../../puzzles/handmade");
 
@@ -539,6 +539,14 @@ test("easy puzzles stay short: par at most 10", () => {
     .filter((p) => p.difficulty === "easy" && p.par > 10)
     .map((p) => `${p.id} (par ${p.par})`);
   expect(long).toEqual([]);
+});
+
+test("every easy and medium puzzle has one day in the daily schedule, and nothing else has one (`bun run daily` appends)", () => {
+  const due = loaded
+    .map(({ json, id }) => parsePuzzle(json, id))
+    .filter((p) => p.difficulty !== "hard")
+    .map((p) => p.id);
+  expect([...SCHEDULE].sort()).toEqual(due.sort());
 });
 
 describe.each(loaded)("$file", ({ id, json }) => {

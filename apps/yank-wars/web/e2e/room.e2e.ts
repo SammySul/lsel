@@ -80,6 +80,7 @@ eachBrowser((browser) => {
     const a = await player();
     const day = dayOf(Date.now());
     const p = dailyPuzzle(PUZZLES.values(), day);
+    if (p === undefined) throw new Error(`no daily on day ${day}`);
     await a.page.goto(`${vite.base}/#/`, { waitUntil: "networkidle" });
     await a.page.locator(".table a.row").first().waitFor();
     await a.page.keyboard.press("d");

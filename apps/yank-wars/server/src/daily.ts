@@ -131,6 +131,7 @@ export function dailyRoutes(deps: DailyDeps): Routes {
     if (url.pathname !== "/api/daily") return undefined;
     const day = dayOf(now());
     const puzzle = dailyPuzzle(deps.puzzles.values(), day);
+    if (puzzle === undefined) return json({ error: "no daily today" }, 503);
     if (req.method === "GET") {
       const player = url.searchParams.get("player");
       return json(deps.board.board(day, puzzle.id, isPlayerId(player) ? player : null));

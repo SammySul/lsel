@@ -10,7 +10,12 @@ afterAll(() => replayer.close());
 
 const DAY = 5;
 const noon = DAILY.epoch + (DAY - 1) * DAILY.dayMs + DAILY.dayMs / 2;
-const puzzle = dailyPuzzle(PUZZLES.values(), DAY);
+const scheduled = (day: number) => {
+  const p = dailyPuzzle(PUZZLES.values(), day);
+  if (p === undefined) throw new Error(`no daily on day ${day}`);
+  return p;
+};
+const puzzle = scheduled(DAY);
 const player = (n: number) => n.toString(16).padStart(32, "0");
 
 function setup() {
@@ -108,11 +113,7 @@ describe("/api/daily", () => {
     await claim(1, "ann", puzzle.solution, 5_000);
     later(DAILY.dayMs / 2);
     const { body } = await call("GET");
-    expect([body.day, body.puzzle, body.players]).toEqual([
-      DAY + 1,
-      dailyPuzzle(PUZZLES.values(), DAY + 1).id,
-      0,
-    ]);
+    expect([body.day, body.puzzle, body.players]).toEqual([DAY + 1, scheduled(DAY + 1).id, 0]);
   });
 
   test("an address gets 30 runs a minute", async () => {

@@ -2,7 +2,7 @@
 import { describe, expect, test } from "bun:test";
 import * as v from "valibot";
 import { parseKeys } from "../input/keys.ts";
-import { DailyClaim, dailyPuzzle, dayOf, msUntilNextDay } from "./daily.ts";
+import { DailyClaim, dailyPuzzle, dayOf, msUntilNextDay, SCHEDULE } from "./daily.ts";
 
 const at = (iso: string) => Date.parse(iso);
 
@@ -22,26 +22,20 @@ describe("dayOf", () => {
 });
 
 describe("dailyPuzzle", () => {
-  const pool = ["e", "a", "d", "b", "f", "c"].map((id) => ({ id, difficulty: "easy" }));
+  const pool = ["a", "b", "c"].map((id) => ({ id }));
 
-  test("walks every puzzle once before any repeats, whatever order the pool comes in", () => {
-    const days = [1, 2, 3, 4, 5, 6, 7].map((d) => dailyPuzzle(pool, d).id);
-    expect(days).toEqual(["f", "e", "d", "c", "b", "a", "f"]);
-    expect(dailyPuzzle([...pool].reverse(), 3).id).toBe(dailyPuzzle(pool, 3).id);
+  test("day n is the schedule's nth puzzle, starting over past its end", () => {
+    const days = [1, 2, 3, 4, 7].map((d) => dailyPuzzle(pool, d, ["c", "a", "b"])?.id);
+    expect(days).toEqual(["c", "a", "b", "c", "c"]);
   });
 
-  test("never a hard puzzle; a pool of one is always that puzzle; none left throws", () => {
-    const hard = { id: "aa", difficulty: "hard" };
-    expect([1, 2, 3, 4, 5, 6].map((d) => dailyPuzzle([...pool, hard], d).id)).toEqual([
-      "f",
-      "e",
-      "d",
-      "c",
-      "b",
-      "a",
-    ]);
-    expect(dailyPuzzle([{ id: "x", difficulty: "medium" }], 42).id).toBe("x");
-    expect(() => dailyPuzzle([hard], 1)).toThrow("no puzzles");
+  test("none when the pool lacks the day's puzzle or nothing is scheduled", () => {
+    expect(dailyPuzzle(pool, 1, ["z"])).toBeUndefined();
+    expect(dailyPuzzle(pool, 1, [])).toBeUndefined();
+  });
+
+  test("the schedule starts on the day 1.5.2 shipped", () => {
+    expect(SCHEDULE.slice(0, 3)).toEqual(["one-import", "elif", "strip-tags"]);
   });
 });
 

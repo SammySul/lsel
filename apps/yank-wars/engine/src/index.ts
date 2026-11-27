@@ -9,6 +9,7 @@ export {
   type DailyBoard,
   DailyClaim,
   dailyPuzzle,
+  SCHEDULE,
   dayOf,
   isPlayerId,
   msUntilNextDay,

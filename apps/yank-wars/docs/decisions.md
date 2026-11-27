@@ -253,12 +253,14 @@ client says so.
 ## Daily (2026-11-27)
 
 **One puzzle a day for everyone**, midnight to midnight UTC, so a shared result
-always names the same puzzle. Day 1 is 2026-11-27. The puzzle is a fixed stride
-through the easy and medium puzzles sorted by id (`dailyPuzzle`; a daily is for fun, hard ones stay in the list), computed alike in the browser and
-the server: no schedule to keep, and no puzzle repeats before every other has
-had its day. A deploy that changes the pool reshuffles the days ahead, today's
-included; the board is kept per day and puzzle, so a changed puzzle starts a
-fresh board. _Rejected:_ a hand-scheduled list (ongoing work).
+always names the same puzzle. Day 1 is 2026-11-27. Day n is the nth id in
+`puzzles/daily.json` (`SCHEDULE`), read alike by the browser and the server;
+every easy and medium puzzle has one day (a daily is for fun, hard ones stay in
+the list), and past the end it starts over. The list is append-only, and `bun
+run daily` adds new puzzles in random order, so a deploy with more puzzles
+never moves a day that has begun. _Rejected:_ a stride through the pool sorted
+by id (shipped in 1.5.0): every new puzzle reshuffled every day ahead, today's
+included, and the 500-puzzle release moved day 1 mid-day.
 
 **The board before accounts.** A run counts once the server replays its log
 (the rooms' replay worker), so keys can't be faked; the time is the client's,

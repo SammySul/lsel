@@ -29,6 +29,10 @@ Shared rules, the stack, release and deploy come from lsel's `CLAUDE.md` and
 - Don't build ahead of the build order in `docs/decisions.md`: no GitHub
   login, ratings or ghosts before step 6.
 
+- **`puzzles/daily.json` is append-only**: day n is its nth id, so removing or
+  reordering an entry moves every later day, today's included. To retire a
+  puzzle, swap in a new one at the same place; `bun run daily` appends new ones.
+
 ## Workspace traps
 
 - Root scripts can't call member bins: the isolated linker puts `vite` and
