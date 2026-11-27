@@ -53,6 +53,8 @@ eachBrowser((browser) => {
         () => getComputedStyle(document.querySelector(".cm-editor") as Element).position,
       ),
     ).toBe("relative");
+    // the puzzle screen, where play happens, fits and holds still too
+    expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
     expect(await watch.take()).toEqual([]);
     await page.close();
   });

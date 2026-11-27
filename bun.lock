@@ -93,7 +93,7 @@
     },
     "apps/yank-wars": {
       "name": "yank-wars",
-      "version": "1.6.0",
+      "version": "1.6.1",
       "devDependencies": {
         "@sammysul/lsel": "workspace:*",
         "@types/bun": "catalog:",

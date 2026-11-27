@@ -95,8 +95,12 @@ function ready() {
     flex: 1;
     min-width: 0;
   }
+  /* one line each, cut short on a narrow window: the footer keeps its height */
   p {
     margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
   .chords {
     margin-top: 2px;

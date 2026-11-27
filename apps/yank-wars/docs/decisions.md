@@ -13,7 +13,9 @@ _Revisit_ the 30% after playtests, not before.
 
 **Split view + live diff.** Your buffer left, read-only target right, with
 unmatched lines highlighted in your buffer. The target pane is not a vim buffer,
-so it can't be yanked from.
+so it can't be yanked from. Below 720 px (the "needs a keyboard" width) the
+target sits under the buffer instead, so a narrowed window still fits without
+the page scrolling; long lines scroll inside each editor, never wrap.
 
 **Opponents' keystroke counts are visible live.** That visibility is where the
 grace-timer tension comes from.

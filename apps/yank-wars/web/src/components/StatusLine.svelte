@@ -74,6 +74,7 @@ const hint = $derived(
 <style>
   .status {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 4px;
     padding: 8px 16px;
     font-family: var(--font-mono);
@@ -112,10 +113,15 @@ const hint = $derived(
   .message.error {
     color: var(--error);
   }
+  /* a prompt wider than the line keeps its end, where the caret is, in view */
   .prompt {
+    display: flex;
+    justify-content: flex-end;
+    overflow: hidden;
     white-space: pre;
   }
   .caret {
+    flex: none;
     display: inline-block;
     width: 0.6em;
     height: 1.1em;
@@ -144,5 +150,10 @@ const hint = $derived(
   }
   .hint {
     color: var(--warning);
+  }
+  .hint,
+  .chords {
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 </style>

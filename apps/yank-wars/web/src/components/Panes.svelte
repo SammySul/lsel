@@ -1,4 +1,4 @@
-<!-- The two editors side by side: the player's buffer and the target. -->
+<!-- The two editors, the player's buffer and the target: side by side, or stacked on a narrow window. -->
 <script lang="ts">
 import { untrack } from "svelte";
 import type { RoundController } from "../lib/round.svelte.ts";
@@ -39,6 +39,15 @@ $effect(() => {
     gap: 12px;
     height: 100%;
     padding: 12px;
+  }
+  /* below MIN_WIDTH (lib/device.ts) the target goes under the buffer, each a full-width half */
+  @media (max-width: 719px) {
+    .panes {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-rows: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      padding: 8px;
+    }
   }
   .pane {
     position: relative;

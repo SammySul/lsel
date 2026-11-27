@@ -47,39 +47,43 @@ function keepFocus(e: MouseEvent) {
   </div>
 
   <div class="right">
-    {#if ctl.round.runs > 1}<span class="runs">run {ctl.round.runs}</span>{/if}
-    <span class="clock">
-      {duration(ctl.elapsed, "m:ss.t")}
-      {#if grace !== null && room !== undefined}
-        <span class="grace" title="The round ends when grace runs out">
-          grace {duration(grace, "m:ss")}
-          <span class="grace-bar"
-            ><span style:width="{(grace / Math.max(1, room.graceMax)) * 100}%"></span></span
-          >
-        </span>
-      {/if}
-    </span>
-    <button
-      onmousedown={keepFocus}
-      onclick={() => ctl.reset()}
-      disabled={!playing}
-      title={CHORD_LABELS.reset}>Reset <kbd>{CHORD_LABELS.reset}</kbd></button
-    >
-    <button
-      onmousedown={keepFocus}
-      onclick={() => ctl.forfeit()}
-      disabled={!playing}
-      title={CHORD_LABELS.forfeit}>Give up</button
-    >
-    <button
-      onmousedown={keepFocus}
-      onclick={() => {
-        ctl.toggleNumbers();
-        ctl.focus();
-      }}
-      aria-pressed={ctl.prefs.relativeNumbers}
-      title={CHORD_LABELS.numbers}>{ctl.prefs.relativeNumbers ? "Relative" : "Absolute"} numbers</button
-    >
+    <div class="time">
+      {#if ctl.round.runs > 1}<span class="runs">run {ctl.round.runs}</span>{/if}
+      <span class="clock">
+        {duration(ctl.elapsed, "m:ss.t")}
+        {#if grace !== null && room !== undefined}
+          <span class="grace" title="The round ends when grace runs out">
+            grace {duration(grace, "m:ss")}
+            <span class="grace-bar"
+              ><span style:width="{(grace / Math.max(1, room.graceMax)) * 100}%"></span></span
+            >
+          </span>
+        {/if}
+      </span>
+    </div>
+    <div class="actions">
+      <button
+        onmousedown={keepFocus}
+        onclick={() => ctl.reset()}
+        disabled={!playing}
+        title={CHORD_LABELS.reset}>Reset <kbd>{CHORD_LABELS.reset}</kbd></button
+      >
+      <button
+        onmousedown={keepFocus}
+        onclick={() => ctl.forfeit()}
+        disabled={!playing}
+        title={CHORD_LABELS.forfeit}>Give up</button
+      >
+      <button
+        onmousedown={keepFocus}
+        onclick={() => {
+          ctl.toggleNumbers();
+          ctl.focus();
+        }}
+        aria-pressed={ctl.prefs.relativeNumbers}
+        title={CHORD_LABELS.numbers}>{ctl.prefs.relativeNumbers ? "Relative" : "Absolute"} numbers</button
+      >
+    </div>
   </div>
 
   {#if them !== null}
@@ -108,7 +112,9 @@ function keepFocus(e: MouseEvent) {
     border-bottom: 1px solid var(--overlay);
   }
   .left,
-  .right {
+  .right,
+  .time,
+  .actions {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -116,6 +122,38 @@ function keepFocus(e: MouseEvent) {
   }
   .right {
     justify-content: flex-end;
+  }
+  /* below MIN_WIDTH (lib/device.ts) the bar stacks: title, then score and clock, then the buttons */
+  @media (max-width: 719px) {
+    .hud {
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-areas: "left left" "score time" "actions actions";
+      gap: 8px 12px;
+      padding: 8px 12px 12px;
+    }
+    .left {
+      grid-area: left;
+    }
+    .score {
+      grid-area: score;
+    }
+    .right {
+      display: contents;
+    }
+    .time {
+      grid-area: time;
+    }
+    .actions {
+      grid-area: actions;
+      display: grid;
+      grid-template-columns: auto auto minmax(0, 1fr);
+      gap: 4px;
+    }
+    .actions button {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
   .back {
     color: var(--subtle);
