@@ -1,9 +1,10 @@
 <!-- Compare fonts, from files or installed ones, on a sample text you type. -->
 <script lang="ts">
-import { Action, Empty, keys, List, Page } from "@sammysul/lsel";
+import { Action, keys, List, Page } from "@sammysul/lsel";
 import { untrack } from "svelte";
 import { version } from "../../package.json";
 import InstalledFonts from "./components/InstalledFonts.svelte";
+import Preview from "./components/Preview.svelte";
 import {
   addFile,
   fontName,
@@ -13,8 +14,7 @@ import {
   remove,
   type Stored,
 } from "./lib/fonts.ts";
-import { clampSize, prefs, SIZE } from "./lib/prefs.ts";
-import { SAMPLE } from "./lib/sample.ts";
+import { prefs } from "./lib/prefs.ts";
 
 /** `stored` is null when this browser's storage can't be opened. */
 const props: { stored: Stored | null } = $props();
@@ -33,15 +33,20 @@ let fonts: Font[] = $state([
   ...(stored?.loaded ?? []).map((name) => ({ name, kept: true, readable: true })),
   ...(stored?.failed ?? []).map((name) => ({ name, kept: true, readable: false })),
 ]);
-let text = $state(SAMPLE);
 let problems: string[] = $state(
   stored === null
     ? ["This browser's storage is not available, so fonts can't be kept."]
     : stored.removed.map((name) => `${name} held no font file, so it was removed.`),
 );
 let fileInput: HTMLInputElement | undefined = $state();
+let selected: string | undefined = $state();
+const current = $derived(fonts.find((f) => f.name === selected));
+// the installed fonts stand in for Your fonts while open: one fitted list on the screen
+let installing = $state(false);
 
-const shown = $derived(fonts.filter((f) => f.readable && !prefs.value.hidden.includes(f.name)));
+const shown = $derived(
+  fonts.filter((f) => f.readable && !prefs.value.hidden.includes(f.name)).map((f) => f.name),
+);
 
 function unhide(name: string) {
   prefs.value.hidden = prefs.value.hidden.filter((h) => h !== name);
@@ -105,18 +110,18 @@ function toggle(name: string) {
 }
 
 keys(() => [
-  { key: "-", label: "Smaller", run: () => (prefs.value.size = clampSize(prefs.value.size - 2)) },
-  {
-    key: ["=", "+"],
-    label: "Larger",
-    run: () => (prefs.value.size = clampSize(prefs.value.size + 2)),
-  },
+  ...(localFontsSupported()
+    ? [{ key: "i", label: "Installed fonts", run: () => (installing = !installing) }]
+    : []),
+  ...(localFontsSupported() && !installing
+    ? [{ key: "/", label: "Search installed fonts", run: () => (installing = true) }]
+    : []),
 ]);
 </script>
 
 <Page
   name="typ"
-  sub="Compare fonts side by side on your own text."
+  sub="Compare fonts side by side on your own text"
   {version}
   source="https://git.sammysul.com/SammySul/lsel/src/branch/main/apps/typ"
   width={1600}
@@ -124,20 +129,24 @@ keys(() => [
 
   <div class="layout">
     <aside aria-label="Fonts">
-      <Action label="Add font files" key="a" hint run={() => fileInput?.click()} />
-      <input
-        bind:this={fileInput}
-        class="file"
-        type="file"
-        accept=".ttf,.otf,.woff,.woff2"
-        multiple
-        tabindex="-1"
-        aria-label="Font files"
-        onchange={(e) => addFiles(e.currentTarget.files)}
-      />
-      {#if localFontsSupported()}
-        <InstalledFonts onpick={addInstalled} />
-      {/if}
+      <div class="add">
+        <Action label="Add font files" key="a" hint run={() => fileInput?.click()} />
+        <input
+          bind:this={fileInput}
+          class="file"
+          type="file"
+          accept=".ttf,.otf,.woff,.woff2"
+          multiple
+          tabindex="-1"
+          aria-label="Font files"
+          onchange={(e) => addFiles(e.currentTarget.files)}
+        />
+        {#if localFontsSupported()}
+          <button type="button" aria-pressed={installing} onclick={() => (installing = !installing)}
+            >Installed fonts <kbd>i</kbd></button
+          >
+        {/if}
+      </div>
 
       {#if problems.length > 0}
         <ul class="problems lsel-appear" role="alert">
@@ -145,62 +154,50 @@ keys(() => [
         </ul>
       {/if}
 
-      <List items={fonts} id={(f) => f.name} label="Your fonts" pageSize="fit">
-        {#snippet row(font)}
-          <div class="font">
-            {#if font.readable}
-              <label>
-                <input
-                  type="checkbox"
-                  checked={!prefs.value.hidden.includes(font.name)}
-                  onchange={() => toggle(font.name)}
-                />
-                <span class="name">{font.name}</span>
-                {#if !font.kept}<span class="tag">installed</span>{/if}
-              </label>
-            {:else}
-              <span class="unread">
-                <span class="name">{font.name}</span>
-                <span class="tag unreadable">can't be read</span>
-              </span>
+      {#if installing}
+        <InstalledFonts onpick={addInstalled} onclose={() => (installing = false)} />
+      {:else}
+        <List
+          items={fonts}
+          id={(f) => f.name}
+          bind:selected
+          label="Your fonts"
+          fit
+          actions={[
+            { key: "x", label: "Tick or untick", run: (f: Font) => f.readable && toggle(f.name) },
+            { key: "Delete", label: "Remove", run: (f: Font) => void drop(f) },
+          ]}
+        >
+          {#snippet row(font)}
+            <div class="font">
+              {#if font.readable}
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={!prefs.value.hidden.includes(font.name)}
+                    onchange={() => toggle(font.name)}
+                  />
+                  <span class="name">{font.name}</span>
+                </label>
+              {:else}
+                <span class="name unreadable">{font.name}</span>
+              {/if}
+              <button onclick={() => drop(font)} aria-label="Remove {font.name}">Remove</button>
+            </div>
+          {/snippet}
+          {#snippet empty()}<span class="empty">No fonts yet. Add some with <kbd>a</kbd>.</span>{/snippet}
+          {#snippet foot()}
+            {#if current?.readable === false}
+              <span class="unreadable">Can't be read</span>
+            {:else if current?.kept === false}
+              Installed
             {/if}
-            <button onclick={() => drop(font)} aria-label="Remove {font.name}">Remove</button>
-          </div>
-        {/snippet}
-        {#snippet empty()}<span class="empty">No fonts yet. Add some with <kbd>a</kbd>.</span>{/snippet}
-      </List>
+          {/snippet}
+        </List>
+      {/if}
     </aside>
 
-    <section class="preview" aria-label="Preview">
-      <div class="controls">
-        <label class="size">
-          Size
-          <input type="range" min={SIZE.min} max={SIZE.max} bind:value={prefs.value.size} />
-          <span class="px">{prefs.value.size} px</span>
-          <kbd>-</kbd><kbd>=</kbd>
-        </label>
-        <Action label="Reset text" key="r" disabled={text === SAMPLE} run={() => (text = SAMPLE)} />
-      </div>
-
-      {#if shown.length === 0}
-        <Empty>No fonts selected. Tick one in the list.</Empty>
-      {:else}
-        <div class="columns">
-          {#each shown as font (font.name)}
-            <div class="column lsel-appear">
-              <span class="label">{font.name}</span>
-              <textarea
-                bind:value={text}
-                spellcheck="false"
-                aria-label="Preview in {font.name}"
-                style:font-family={`"${font.name}", var(--font)`}
-                style:font-size={`${prefs.value.size}px`}
-              ></textarea>
-            </div>
-          {/each}
-        </div>
-      {/if}
-    </section>
+    <Preview names={shown} />
   </div>
 
 </Page>
@@ -208,19 +205,19 @@ keys(() => [
 <style>
   .layout {
     display: grid;
-    grid-template-columns: 260px minmax(0, 1fr);
+    grid-template-columns: 280px minmax(0, 1fr);
     gap: var(--space-5);
-  }
-  @media (max-width: 720px) {
-    .layout {
-      grid-template-columns: minmax(0, 1fr);
-    }
   }
   aside {
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
     min-width: 0;
+  }
+  .add {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
   }
   .file {
     display: none;
@@ -231,84 +228,47 @@ keys(() => [
     color: var(--error);
     list-style: none;
   }
-  /* as tall as a font's row, so the fitted count holds as the first font comes in */
+  /* as tall as a font's row, so the fitted count holds as the first font comes in; a block cuts its own line */
   .empty {
     display: block;
     min-height: var(--control-height);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     align-content: center;
   }
+  /* the name gives way, never the button */
   .font {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     gap: var(--space-2);
     align-items: center;
-    justify-content: space-between;
   }
-  .font label,
-  .unread {
+  .font label {
     display: flex;
     gap: var(--space-2);
     align-items: center;
     min-width: 0;
   }
-  .name,
-  .label,
-  .empty {
+  .name {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .tag {
-    flex: none;
-    color: var(--subtle);
-    font-size: var(--text-xs);
-  }
   .unreadable {
     color: var(--error);
   }
-  .preview {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-3);
-    min-width: 0;
-  }
-  .controls {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-3) var(--space-5);
-    align-items: center;
-  }
-  .size {
-    display: flex;
-    gap: var(--space-2);
-    align-items: center;
-    color: var(--subtle);
-  }
-  .px {
-    min-width: 6ch;
-    color: var(--text);
-    font-variant-numeric: tabular-nums;
-  }
-  .columns {
-    display: flex;
-    flex: 1;
-    gap: var(--space-3);
-    overflow-x: auto;
-  }
-  .column {
-    display: flex;
-    flex: 1 0 280px;
-    flex-direction: column;
-    gap: var(--space-1);
-    min-width: 0;
-  }
-  .label {
-    color: var(--subtle);
-    font-size: var(--text-xs);
-  }
-  /* a floor, not a size: the row's height comes from the fitted list beside it */
-  textarea {
-    flex: 1 1 0;
-    min-height: 10rem;
-    resize: none;
+  /* a phone: under the preview, Preview.svelte putting itself first, the two buttons on one line */
+  @media (max-width: 720px) {
+    .layout {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-3);
+    }
+    .add {
+      flex-direction: row;
+    }
+    .add > :global(*) {
+      flex: 1;
+    }
   }
 </style>

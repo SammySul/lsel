@@ -1,12 +1,8 @@
-// Fonts the user added, kept in this browser's IndexedDB. The database, store and record
-// shape are the ones the first typ used, so fonts saved back then still load.
+// Fonts the user added, kept in this browser's IndexedDB under the first typ's names, so its fonts still load.
 const DB_NAME = "FontsDB";
 const STORE = "fonts";
 
-/**
- * A stored font. New records keep `bytes`: WebKit's private mode refuses Blobs in IndexedDB.
- * `blob` and `fontBase64` (a `data:` URL) are from the first typ.
- */
+/** New records keep `bytes` (WebKit's private mode refuses Blobs); `blob` and `fontBase64` are the first typ's. */
 export interface StoredFont {
   fontName: string;
   bytes?: ArrayBuffer;
@@ -80,10 +76,7 @@ export interface Stored {
   removed: string[];
 }
 
-/**
- * Registers every stored font with the page and deletes the records that hold no font file.
- * A font the browser won't load is kept: the browser may only be blocking fonts for now.
- */
+/** Deletes the records with no font file; keeps one the browser won't load, which may only be blocking fonts for now. */
 export async function loadStored(): Promise<Stored> {
   const records = await run("readonly", (s) => s.getAll() as IDBRequest<StoredFont[]>);
   const loaded: string[] = [];
@@ -106,16 +99,12 @@ export async function loadStored(): Promise<Stored> {
   return { loaded, failed, removed };
 }
 
-/** The name a file is shown and stored under: its name without the extension. */
 export const fontName = (file: File) => file.name.replace(/\.[^/.]+$/, "");
 
 export class NotAFont extends Error {}
 
-/**
- * Registers a font file with the page, then stores it. Throws `NotAFont` when the browser
- * can't read it as a font, and the storage error when it is shown but could not be kept.
- */
-export async function addFile(file: File): Promise<string> {
+/** Throws `NotAFont` when the browser can't read it, and the storage error when it is shown but not kept. */
+export async function addFile(file: File): Promise<void> {
   const name = fontName(file);
   const bytes = await file.arrayBuffer();
   try {
@@ -124,7 +113,6 @@ export async function addFile(file: File): Promise<string> {
     throw new NotAFont(name);
   }
   await run("readwrite", (s) => s.put({ fontName: name, bytes } satisfies StoredFont));
-  return name;
 }
 
 export async function remove(name: string): Promise<void> {
@@ -134,16 +122,18 @@ export async function remove(name: string): Promise<void> {
 export const localFontsSupported = () => "queryLocalFonts" in window;
 
 let faces: LocalFace[] = [];
+let families: string[] | undefined;
 
-/** The installed font families, after the browser asks the user for permission. */
+/** The installed font families, after the browser asks the user for permission; asked once a visit. */
 export async function localFamilies(): Promise<string[]> {
+  if (families !== undefined) return families;
   const w = window as unknown as { queryLocalFonts(): Promise<LocalFace[]> };
   faces = await w.queryLocalFonts();
-  return [...new Set(faces.map((f) => f.family))].sort((a, b) => a.localeCompare(b));
+  families = [...new Set(faces.map((f) => f.family))].sort((a, b) => a.localeCompare(b));
+  return families;
 }
 
-// Loads the real bytes instead of naming the family in CSS, which browsers that shield
-// against fingerprinting (Brave) answer with a fallback font.
+// the real bytes: browsers that shield against fingerprinting (Brave) answer a CSS family name with a fallback
 export async function loadLocal(family: string): Promise<void> {
   const same = faces.filter((f) => f.family === family);
   const face = same.find((f) => f.style === "Regular") ?? same[0];

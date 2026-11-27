@@ -51,8 +51,8 @@ eachBrowser((browser, name) => {
       .evaluateAll((els) =>
         els.map((e) => [e.getAttribute("aria-label"), getComputedStyle(e).fontSize]),
       );
-  // the fitted list's rows at 1280×900, fillers included: as many with fonts as without
-  const ROWS = name === "firefox" ? 11 : 10;
+  // the fitted list's rows at 1280×900, fillers included (the pager's detail has its own line): as many with fonts as without
+  const ROWS = { chromium: 9, firefox: 10, webkit: 10 }[name] ?? 0;
   const rows = (page: Page) =>
     page.getByRole("list", { name: "Your fonts" }).locator(":scope > li").count();
   const reload = async (page: Page) => {
@@ -226,6 +226,9 @@ eachBrowser((browser, name) => {
   const focused = (page: Page) =>
     page.evaluate(() => document.activeElement?.getAttribute("aria-label"));
   const alerts = (page: Page) => page.getByRole("alert").locator("li").allTextContents();
+  // the selected font's detail, on the pager's line
+  const foot = async (page: Page) =>
+    (await page.locator(".pager .foot").textContent())?.trim() ?? null;
 
   test("a stored record with no font file in it is removed, with one message", async () => {
     const { page } = await open();
@@ -269,7 +272,9 @@ eachBrowser((browser, name) => {
     await reload(page);
     await page.getByLabel("Preview in Fine").waitFor();
     expect(await listed(page)).toEqual(["Fine", "Broken"]);
-    expect(await page.getByText("can't be read").count()).toBe(1);
+    expect(await foot(page)).toBe("");
+    await page.keyboard.press("j");
+    expect(await foot(page)).toBe("Can't be read");
     expect(await page.getByRole("checkbox").count()).toBe(1);
     expect(await page.getByRole("alert").count()).toBe(0);
     expect(await previews(page)).toEqual([["Preview in Fine", "16px"]]);
@@ -297,53 +302,186 @@ eachBrowser((browser, name) => {
     await reload(page);
     await page.getByLabel("Preview in Fine").waitFor();
     expect(await listed(page)).toEqual(["Fine", "Empty"]);
-    expect(await page.getByText("can't be read").count()).toBe(1);
+    await page.keyboard.press("j");
+    expect(await foot(page)).toBe("Can't be read");
   });
 
-  test("an installed font is found and added from the keyboard, or with one click", async () => {
+  // stands in for the Local Font Access API, which only Chromium has, so every browser gets the panel
+  const installed = (page: Page, families: string[]) =>
+    page.addInitScript(
+      ({ base64, families }) => {
+        const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+        const face = (family: string) => ({
+          family,
+          style: "Regular",
+          blob: async () => new Blob([bytes]),
+        });
+        Object.assign(window, { queryLocalFonts: async () => families.map(face) });
+      },
+      { base64: FONT.toString("base64"), families },
+    );
+  const lists = (page: Page) =>
+    page.getByRole("list").evaluateAll((els) => els.map((e) => e.getAttribute("aria-label")));
+  const current = (page: Page) =>
+    page
+      .locator('li[aria-current="true"]')
+      .evaluateAll((els) => els.map((e) => e.querySelector(".name, .family")?.textContent));
+
+  test("the installed fonts stand in for Your fonts while open, one list on the screen", async () => {
     const { page, problems } = await open();
-    await page.addInitScript((base64) => {
-      const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
-      const face = (family: string) => ({
-        family,
-        style: "Regular",
-        blob: async () => new Blob([bytes]),
-      });
-      Object.assign(window, {
-        queryLocalFonts: async () => [
-          face("Probe Sans"),
-          face("Probe Serif"),
-          face("Probe Mono"),
-          face("Other"),
-        ],
-      });
-    }, FONT.toString("base64"));
+    await installed(page, ["Probe Sans", "Probe Serif"]);
     await reload(page);
+    await page.locator('input[type="file"]').setInputFiles(fontFile("Alpha.woff2"));
+    await page.getByLabel("Preview in Alpha").waitFor();
+    // lselLayout counts what moved since the load: the fonts coming in are not this test's
+    await reload(page);
+    await page.getByLabel("Preview in Alpha").waitFor();
+    expect(await lists(page)).toEqual(["Your fonts"]);
 
     await page.keyboard.press("i");
-    const search = page.getByRole("searchbox", { name: "Search installed fonts" });
-    await search.waitFor();
+    await page.getByText("Probe Serif").waitFor();
+    expect(await lists(page)).toEqual(["Installed fonts"]);
+    expect(await focused(page)).toBe("Search installed fonts");
+    await page.keyboard.press("ArrowDown");
+    expect(await current(page)).toEqual(["Probe Serif"]);
+    expect(await foot(page)).toBe("2 of 2");
+    expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
+
+    // Esc clears the search, then swaps back
+    await page.getByRole("searchbox").fill("serif");
+    expect(await foot(page)).toBe("1 of 2");
     await page.keyboard.press("Escape");
+    expect(await foot(page)).toBe("2 of 2");
+    await page.keyboard.press("Escape");
+    expect(await lists(page)).toEqual(["Your fonts"]);
+    expect(await current(page)).toEqual(["Alpha"]);
+    expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
+
+    // in the search, i is typed; the button swaps back too
+    await page.keyboard.press("i");
+    await page.getByText("Probe Serif").waitFor();
+    await page.getByRole("button", { name: /^Installed fonts/ }).click();
+    expect(await lists(page)).toEqual(["Your fonts"]);
+    expect(await problems()).toEqual([]);
+  });
+
+  test("an installed font is found and added with Enter, or with one click", async () => {
+    const { page, problems } = await open();
+    await installed(page, ["Probe Sans", "Probe Serif", "Probe Mono", "Other"]);
+    await reload(page);
+
     await page.keyboard.press("/");
     expect(await focused(page)).toBe("Search installed fonts");
-    await search.fill("probe");
-    await page.getByRole("button", { name: "Probe Serif" }).click();
+    await page.getByRole("searchbox").fill("probe");
+    await page.getByRole("list", { name: "Installed fonts" }).getByText("Probe Serif").click();
     await page.getByLabel("Preview in Probe Serif").waitFor();
     expect(await focused(page)).toBe("Search installed fonts");
 
-    // Enter opens the highlighted row, the first, not the clicked one
+    // the click selected its row: the keys move on from there
+    await page.keyboard.press("ArrowUp");
+    await page.keyboard.press("ArrowUp");
     await page.keyboard.press("Enter");
     await page.getByLabel("Preview in Probe Mono").waitFor();
     await page.keyboard.press("ArrowDown");
     await page.keyboard.press("Enter");
     await page.getByLabel("Preview in Probe Sans").waitFor();
-    expect(await listed(page)).toEqual(["Probe Serif", "Probe Mono", "Probe Sans"]);
 
     await page.keyboard.press("Escape");
     await page.keyboard.press("Escape");
-    await page.keyboard.press("i");
-    await search.waitFor({ state: "detached" });
+    expect(await listed(page)).toEqual(["Probe Serif", "Probe Mono", "Probe Sans"]);
+    expect(await foot(page)).toBe("Installed");
     expect(await problems()).toEqual([]);
+  });
+
+  test("x ticks and unticks the selected font, Delete removes it", async () => {
+    const { page, problems } = await open();
+    await page
+      .locator('input[type="file"]')
+      .setInputFiles([fontFile("Alpha.woff2"), fontFile("Beta.woff2")]);
+    await page.getByLabel("Preview in Beta").waitFor();
+
+    await page.keyboard.press("x");
+    expect(await previews(page)).toEqual([["Preview in Beta", "16px"]]);
+    await page.keyboard.press("x");
+    expect(await previews(page)).toEqual([
+      ["Preview in Alpha", "16px"],
+      ["Preview in Beta", "16px"],
+    ]);
+
+    await page.keyboard.press("j");
+    await page.keyboard.press("Delete");
+    await page.getByLabel("Preview in Beta").waitFor({ state: "detached" });
+    expect(await listed(page)).toEqual(["Alpha"]);
+    expect(await stored(page)).toEqual(["Alpha"]);
+    expect(await current(page)).toEqual(["Alpha"]);
+    expect(await problems()).toEqual([]);
+  });
+
+  test("a row is never wider than its column, however long the name", async () => {
+    const { page } = await open();
+    const long = "An installed family whose name runs far past the sidebar's width";
+    await installed(page, [long]);
+    await reload(page);
+    await page.locator('input[type="file"]').setInputFiles(fontFile(`${long} too.woff2`));
+    await page.getByLabel(`Preview in ${long} too`).waitFor();
+    await page.keyboard.press("i");
+    await page.getByRole("list", { name: "Installed fonts" }).getByText(long).click();
+    await page.getByLabel(`Preview in ${long}`, { exact: true }).waitFor();
+    await page.keyboard.press("Escape");
+    await page.keyboard.press("G");
+    expect(await foot(page)).toBe("Installed");
+
+    const rowsFit = () =>
+      page
+        .getByRole("list", { name: "Your fonts" })
+        .locator(".font")
+        .evaluateAll((els) =>
+          els.map((el) => {
+            const li = (el.parentElement as HTMLElement).getBoundingClientRect();
+            const name = el.querySelector(".name") as HTMLElement;
+            const button = el.querySelector("button") as HTMLButtonElement;
+            return {
+              inside:
+                button.getBoundingClientRect().right <= li.right &&
+                el.scrollWidth <= el.clientWidth,
+              cut: name.scrollWidth > name.clientWidth,
+              button: button.textContent,
+              whole: button.scrollWidth <= button.clientWidth,
+              height: Math.round(li.height),
+            };
+          }),
+        );
+    const row = { inside: true, cut: true, button: "Remove", whole: true, height: 48 };
+    expect(await rowsFit()).toEqual([row, row]);
+    await page.setViewportSize({ width: 390, height: 844 });
+    expect(await rowsFit()).toEqual([row, row]);
+  });
+
+  test("columns past the window's edge are paged with [ and ]", async () => {
+    const { page } = await open();
+    const names = ["One", "Two", "Three", "Four", "Five"];
+    await page
+      .locator('input[type="file"]')
+      .setInputFiles(names.map((n) => fontFile(`${n}.woff2`)));
+    await page.getByLabel("Preview in Five").waitFor();
+    const columns = async () => (await previews(page)).map(([label]) => label);
+    // a font added shows: the last page
+    expect(await columns()).toEqual(["Preview in Three", "Preview in Four", "Preview in Five"]);
+    expect(await page.getByText("3–5 of 5").count()).toBe(1);
+    await page.keyboard.press("[");
+    expect(await columns()).toEqual(["Preview in One", "Preview in Two", "Preview in Three"]);
+    await page.keyboard.press("]");
+    expect(await columns()).toEqual(["Preview in Three", "Preview in Four", "Preview in Five"]);
+    await page.setViewportSize({ width: 390, height: 844 });
+    // the first column shown stays in view
+    await page.waitForFunction(() => document.querySelectorAll("textarea").length === 1);
+    expect(await columns()).toEqual(["Preview in Three"]);
+
+    // stored fonts come back in name order
+    await reload(page);
+    await page.getByLabel("Preview in Five").waitFor();
+    expect(await columns()).toEqual(["Preview in Five"]);
+    expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
   });
 
   test("installed fonts are offered only where the browser can read them", async () => {
