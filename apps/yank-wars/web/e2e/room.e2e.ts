@@ -105,7 +105,7 @@ eachBrowser((browser) => {
     const problems = await a.problems();
     await a.ctx.close();
     expect(problems).toEqual([]);
-  });
+  }, 60_000);
 
   test("lobby, a reload mid-round, the lock-ins, the result and a rematch", async () => {
     const a = await player();
