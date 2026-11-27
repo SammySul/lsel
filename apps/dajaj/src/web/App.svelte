@@ -44,80 +44,69 @@ function toggle(player: string) {
   width={1200}
   fill
 >
-  <div class="screen">
-    <section class="controls" aria-label="Choices">
-      <div class="players" role="group" aria-label="Players">
-        {#each available as player (player)}
-          <button aria-pressed={selected.includes(player)} onclick={() => toggle(player)}>{player}</button>
-        {/each}
-      </div>
-      <div class="row">
-        <Tabs items={VIEWS} bind:value={prefs.value.view} label="View" />
-        <label class="stat">
-          Stat
-          <select bind:value={prefs.value.stat} disabled={prefs.value.view === "table"}>
-            {#each STATS as s (s)}
-              <option value={s}>{STAT_UNITS[s].label}</option>
-            {/each}
-          </select>
-        </label>
-        <Action
-          label="Refresh"
-          key="r"
-          busy="Refreshing…"
-          disabled={selected.length === 0}
-          run={() => report.reload()}
-        />
-      </div>
-    </section>
+  <section class="controls" aria-label="Choices">
+    <div class="players" role="group" aria-label="Players">
+      {#each available as player (player)}
+        <button aria-pressed={selected.includes(player)} onclick={() => toggle(player)}>{player}</button>
+      {/each}
+    </div>
+    <div class="row">
+      <Tabs items={VIEWS} bind:value={prefs.value.view} label="View" />
+      <label class="stat">
+        Stat
+        <select bind:value={prefs.value.stat} disabled={prefs.value.view === "table"}>
+          {#each STATS as s (s)}
+            <option value={s}>{STAT_UNITS[s].label}</option>
+          {/each}
+        </select>
+      </label>
+      <Action
+        label="Refresh"
+        key="r"
+        busy="Refreshing…"
+        disabled={selected.length === 0}
+        run={() => report.reload()}
+      />
+    </div>
+  </section>
 
-    <section class="report" aria-label="Report">
-      <div class="lines">
-        <div class="line">
-          {#if roster.value === undefined}
-            <Status of={roster} waiting="Asking dajaj for the players…" />
-          {:else}
-            <!-- the Refresh button's r retries -->
-            <Status of={report} waiting="Asking PUBG…" retry={false} />
-          {/if}
-        </div>
-        <p class="line summary">
-          {#if shown}{plural(shown.report.matchCount, "match", "matches")} together since {when(new Date(shown.since))}.{/if}
-        </p>
-        <p class="line missing">
-          {#if missing > 0}{plural(missing, "match", "matches")} couldn't be loaded from PUBG.{/if}
-        </p>
-      </div>
+  <section class="report" aria-label="Report">
+    <div>
+      {#if roster.value === undefined}
+        <Status of={roster} waiting="Asking dajaj for the players…" />
+      {:else}
+        <!-- the Refresh button's r retries -->
+        <Status of={report} waiting="Asking PUBG…" retry={false} />
+      {/if}
+      <p class="line summary">
+        {#if shown}{plural(shown.report.matchCount, "match", "matches")} together since {when(new Date(shown.since))}.{/if}
+      </p>
+      <p class="line missing">
+        {#if missing > 0}{plural(missing, "match", "matches")} couldn't be loaded from PUBG.{/if}
+      </p>
+    </div>
 
-      <div class="frame">
-        {#if roster.value !== undefined && selected.length === 0}
-          <Empty>No players chosen. Choose one or more above.</Empty>
-        {:else if shown}
-          {#key prefs.value.view}
-            <div class="view lsel-appear">
-              {#if prefs.value.view === "table"}
-                <Table report={shown.report} />
-              {:else}
-                <Chart report={shown.report} view={prefs.value.view} stat={prefs.value.stat} />
-              {/if}
-            </div>
-          {/key}
-        {:else if report.value}
-          <Empty>No recent matches with all of them. Drop a player to see more.</Empty>
-        {/if}
-      </div>
-    </section>
-  </div>
+    <div class="frame">
+      {#if roster.value !== undefined && selected.length === 0}
+        <div class="empty"><Empty>No players chosen. Choose one or more above.</Empty></div>
+      {:else if shown}
+        {#key prefs.value.view}
+          <div class="view lsel-appear">
+            {#if prefs.value.view === "table"}
+              <Table report={shown.report} />
+            {:else}
+              <Chart report={shown.report} view={prefs.value.view} stat={prefs.value.stat} />
+            {/if}
+          </div>
+        {/key}
+      {:else if report.value}
+        <div class="empty"><Empty>No recent matches with all of them. Drop a player to see more.</Empty></div>
+      {/if}
+    </div>
+  </section>
 </Page>
 
 <style>
-  .screen {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    gap: var(--space-5);
-    min-height: 0;
-  }
   .controls {
     display: flex;
     flex-direction: column;
@@ -129,14 +118,15 @@ function toggle(player: string) {
     gap: var(--space-3) var(--space-5);
     align-items: center;
   }
-  /* one line kept from the start: players arrive later and scroll it, never grow it; the padding keeps focus outlines unclipped */
+  /* one line kept from the start: players arrive later and are cut at the edge, never wrap; the padding keeps focus outlines unclipped */
   .players {
+    box-sizing: content-box;
     display: flex;
     gap: var(--space-2);
-    min-height: calc(1lh + 4 * var(--space-1) + 2px);
+    min-height: var(--control-height);
     margin: calc(-1 * var(--space-1));
     padding: var(--space-1);
-    overflow-x: auto;
+    overflow: hidden;
     white-space: nowrap;
   }
   .players button {
@@ -158,9 +148,6 @@ function toggle(player: string) {
   .line {
     height: 1lh;
     margin: 0;
-  }
-  .line,
-  .line :global(p) {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -179,7 +166,7 @@ function toggle(player: string) {
     overflow: auto;
     border: var(--border);
   }
-  .frame > :global(.lsel-empty) {
+  .empty {
     padding: var(--space-4);
   }
   .view {

@@ -28,9 +28,9 @@ What changed on the way, and why:
   dates on the line chart's axis. English only (the Arabic translation went
   with Transloco); the doughnut/pie toggle is gone.
 - **The screen holds still** (lsel's Layout rules): the players arrive after the
-  page draws, so they keep a one-line row that scrolls sideways instead of
-  wrapping; the table or chart fills a frame that takes the height left, so a
-  report arriving never moves the footer.
+  page draws, so they keep a one-line row, a control high, cut at the edge
+  rather than wrapping or scrolling sideways; the table or chart fills a frame
+  that takes the height left, so a report arriving never moves the footer.
 - **Charts stay Chart.js**, recolored with the terminal palette; they animate
   to new values, except under reduced motion.
 
