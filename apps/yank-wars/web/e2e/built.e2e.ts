@@ -11,12 +11,15 @@ import {
   serveBuilt,
   watchPage,
 } from "@sammysul/lsel/testing";
+import { CSP } from "../../server/src/config.ts";
 import { PUZZLES, picker } from "../../server/src/puzzles.ts";
 import { type Conn, Rooms } from "../../server/src/rooms.ts";
-import { CSP } from "../../server/src/server.ts";
 
 const dist = join(import.meta.dir, "../dist");
-const url = serveBuilt(dist, undefined, { csp: CSP });
+// every page asks who's signed in: no one, and no GitHub app, as on a server without one
+const me = (_req: Request, url: URL) =>
+  url.pathname === "/api/me" ? Response.json({ account: null, github: false }) : undefined;
+const url = serveBuilt(dist, me, { csp: CSP });
 
 // The built app and the rooms on one origin, as in production; no claims, so no replays.
 const rooms = new Rooms({
@@ -26,7 +29,7 @@ const rooms = new Rooms({
   mismatch: () => {},
 });
 const socket = rooms.socket();
-const app = handler(dist, undefined, { csp: CSP });
+const app = handler(dist, me, { csp: CSP });
 const withRooms = Bun.serve<Conn>({
   port: 0,
   fetch: (req, srv) =>

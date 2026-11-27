@@ -35,18 +35,16 @@ $effect(() => {
 <style>
   .panes {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-3);
     height: 100%;
-    padding: 12px;
   }
   /* below MIN_WIDTH (lib/device.ts) the target goes under the buffer, each a full-width half */
   @media (max-width: 719px) {
     .panes {
       grid-template-columns: minmax(0, 1fr);
       grid-template-rows: repeat(2, minmax(0, 1fr));
-      gap: 8px;
-      padding: 8px;
+      gap: var(--space-2);
     }
   }
   .pane {
@@ -55,18 +53,18 @@ $effect(() => {
     grid-template-rows: auto 1fr;
     min-width: 0;
     min-height: 0;
-    border: 1px solid var(--overlay);
+    border: var(--border);
     overflow: hidden;
     background: var(--base);
   }
   .label {
     display: flex;
     justify-content: space-between;
-    padding: 4px 12px;
+    padding: var(--space-1) var(--space-3);
     font-size: var(--text-xs);
     color: var(--subtle);
     background: var(--raise);
-    border-bottom: 1px solid var(--overlay);
+    border-bottom: var(--border);
   }
   .editor-host {
     min-height: 0;

@@ -26,13 +26,13 @@ afterAll(() => {
   replayer.close();
 });
 
-async function server() {
+async function server({ withGitHub = true } = {}) {
   const routes = await api({
     accounts: new Database(":memory:", { create: true, strict: true }),
     board: new Board(":memory:"),
     origin: ORIGIN,
     secret: "a test secret, long enough for Better Auth",
-    github: { clientId: "id", clientSecret: "secret" },
+    github: withGitHub ? { clientId: "id", clientSecret: "secret" } : undefined,
     puzzles: PUZZLES,
     verify: (p, log) => replayer.verify(p, log),
     now: () => noon,
@@ -98,10 +98,23 @@ const best = (keys: number, ms: number) => ({ keys, ms });
 describe("accounts", () => {
   test("signed out, /api/me says so and refuses a sync; a guest is made on request", async () => {
     const a = (await server())();
-    expect(await a.me()).toEqual({ account: null });
+    expect(await a.me()).toEqual({ account: null, github: true });
     expect((await a.sync({ daily: [1] })).status).toBe(401);
     expect((await a.guest()).status).toBe(200);
-    expect(await a.me()).toEqual({ account: { name: "", login: null, best: {}, daily: [] } });
+    expect(await a.me()).toEqual({
+      account: { name: "", login: null, best: {}, daily: [] },
+      github: true,
+    });
+  });
+
+  test("without a GitHub app, /api/me says sign-in is guests only and a GitHub sign-in is refused", async () => {
+    const a = (await server({ withGitHub: false }))();
+    expect(await a.me()).toEqual({ account: null, github: false });
+    const start = await a.call("POST", "/api/auth/sign-in/social", {
+      provider: "github",
+      callbackURL: "/",
+    });
+    expect(start.status).toBe(404);
   });
 
   test("a sync keeps the better best per puzzle and every day of both sides; the name changes only when sent", async () => {
@@ -188,7 +201,7 @@ describe("accounts", () => {
     await a.github("hubot", 2);
     await a.sync({ daily: [3] });
     expect((await a.call("POST", "/api/auth/sign-out", {})).status).toBe(200);
-    expect(await a.me()).toEqual({ account: null });
+    expect(await a.me()).toEqual({ account: null, github: true });
     await a.github("hubot", 2);
     expect((await a.me()).account.daily).toEqual([3]);
   });

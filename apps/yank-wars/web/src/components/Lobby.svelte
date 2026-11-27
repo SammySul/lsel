@@ -1,8 +1,8 @@
 <!-- A room before a round: invite link, names and ready. -->
 <script lang="ts">
-import { Action, keys, Page, Swap } from "@sammysul/lsel";
+import { Action, Field, keys, Page, Swap } from "@sammysul/lsel";
 import { LIMITS } from "@yank-wars/engine";
-import { version } from "../../../package.json";
+import { PAGE } from "../lib/page.ts";
 import { prefs } from "../lib/prefs.svelte.ts";
 import type { RoomClient } from "../lib/room.svelte.ts";
 
@@ -34,13 +34,7 @@ keys(() => [
 ]);
 </script>
 
-<Page
-  name="Yank Wars"
-  sub="A room for two: the same puzzle, fewest keys wins."
-  {version}
-  source="https://git.sammysul.com/SammySul/lsel/src/branch/main/apps/yank-wars"
-  width={560}
->
+<Page {...PAGE} sub="A room for two: the same puzzle, fewest keys wins." width={560}>
   <section class="invite">
     <div class="row">
       <span class="label">Invite link</span>
@@ -57,23 +51,25 @@ keys(() => [
   </section>
 
   <form
-    class="name"
     onsubmit={(e) => {
       e.preventDefault();
       rename();
       (document.activeElement as HTMLElement | null)?.blur();
     }}
   >
-    <label for="room-name">Your name</label>
-    <input
-      id="room-name"
-      bind:value={name}
-      onblur={rename}
-      maxlength={LIMITS.nameLength}
-      placeholder="anonymous"
-      autocomplete="nickname"
-      spellcheck="false"
-    />
+    <Field label="Your name">
+      {#snippet children(control)}
+        <input
+          {...control}
+          bind:value={name}
+          onblur={rename}
+          maxlength={LIMITS.nameLength}
+          placeholder="anonymous"
+          autocomplete="nickname"
+          spellcheck="false"
+        />
+      {/snippet}
+    </Field>
   </form>
 
   <ul class="players">
@@ -116,10 +112,9 @@ keys(() => [
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 4px;
+    margin-bottom: var(--space-1);
   }
-  .label,
-  label {
+  .label {
     font-size: var(--text-xs);
     color: var(--subtle);
   }
@@ -128,14 +123,9 @@ keys(() => [
     user-select: all;
     overflow-wrap: anywhere;
   }
-  .name {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
   .players {
     display: grid;
-    gap: 6px;
+    gap: var(--space-2);
     margin: 0;
     padding: 0;
     list-style: none;
@@ -143,8 +133,8 @@ keys(() => [
   .players li {
     display: flex;
     justify-content: space-between;
-    padding: 8px 12px;
-    border: 1px solid var(--overlay);
+    padding: var(--space-2) var(--space-3);
+    border: var(--border);
   }
   .who {
     font-weight: 700;
@@ -165,7 +155,7 @@ keys(() => [
   }
   .actions {
     display: flex;
-    gap: 8px;
+    gap: var(--space-2);
   }
   .hint {
     margin: 0;

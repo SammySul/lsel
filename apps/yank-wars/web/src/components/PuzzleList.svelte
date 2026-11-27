@@ -1,12 +1,12 @@
 <!-- The puzzle list with filter, search and each puzzle's best. -->
 <script lang="ts">
-import { duration, go, keys, List, Page } from "@sammysul/lsel";
+import { Action, duration, go, keys, List, Page } from "@sammysul/lsel";
 import { DIFFICULTIES, type Difficulty } from "@yank-wars/engine";
 import { untrack } from "svelte";
-import { version } from "../../../package.json";
 import { account } from "../lib/account.svelte.ts";
 import { CHORD_LABELS } from "../lib/chords.ts";
 import { dailyAt, streakOf } from "../lib/daily.ts";
+import { PAGE, TAGLINE } from "../lib/page.ts";
 import { prefs } from "../lib/prefs.svelte.ts";
 import { markOf, progressOf } from "../lib/progress.ts";
 import { puzzleErrors, puzzles, quickPlay, visiblePuzzles } from "../lib/puzzles.ts";
@@ -56,13 +56,7 @@ keys(() =>
 );
 </script>
 
-<Page
-  name="Yank Wars"
-  sub="Vim golf against the clock. Fewest keys wins."
-  {version}
-  source="https://git.sammysul.com/SammySul/lsel/src/branch/main/apps/yank-wars"
-  width={760}
->
+<Page {...PAGE} sub={TAGLINE} width={760}>
   <div class="intro">
     <ol class="how">
       <li>Make your buffer match the target, using vim.</li>
@@ -84,10 +78,24 @@ keys(() =>
       {#if account.account?.login}
         <span class="aside account"
           >{account.account.name || account.account.login} on GitHub ·
-          <button class="link" onclick={() => void account.signOut()}>Sign out</button></span
+          <Action
+            label="Sign out"
+            busy="Signing out…"
+            failed="Sign-out failed"
+            run={() => account.signOut()}
+          /></span
         >
-      {:else}
-        <button class="account" onclick={() => void account.signIn()}>Sign in with GitHub</button>
+      {:else if account.github !== false}
+        <!-- its place is kept until the server says whether it offers GitHub -->
+        <span class="account" class:unknown={account.github === null}
+          ><Action
+            label="Sign in with GitHub"
+            busy="Signing in…"
+            failed="Sign-in failed"
+            disabled={account.github === null}
+            run={() => account.signIn()}
+          /></span
+        >
       {/if}
     </p>
     {#if progress.solved > 0}
@@ -144,23 +152,23 @@ keys(() =>
           label="Puzzles"
           onopen={(p) => go(`/p/${p.id}`)}
           hint
-          pageSize="fit"
+          fit
         >
           {#snippet head()}
             <div class="row heading">
-              <span>Puzzle</span><span>Language</span><span class="num">Par</span><span
-                >Difficulty</span
-              ><span class="num">Your best</span>
+              <span class="title">Puzzle</span><span class="wide">Language</span><span class="num"
+                >Par</span
+              ><span>Difficulty</span><span class="num wide">Your best</span>
             </div>
           {/snippet}
           {#snippet row(p)}
             {@const best = prefs.best[p.id]}
             <a class="row" href="#/p/{p.id}" onfocus={() => (selectedId = p.id)}>
               <span class="title">{p.title}</span>
-              <span class="lang">{p.language}</span>
+              <span class="lang wide">{p.language}</span>
               <span class="num">{p.par}</span>
               <span class="diff {p.difficulty}">{p.difficulty}</span>
-              <span class="num best" class:none={!best}>
+              <span class="num best wide" class:none={!best}>
                 {#if best}
                   {@const mark = markOf(best, p.par)}
                   <span class="mark {mark}" title={mark === "under" ? "under par" : mark === "par" ? "par" : ""}
@@ -203,15 +211,14 @@ keys(() =>
 <style>
   .how {
     margin: 0;
-    padding-left: 20px;
+    padding-left: var(--space-5);
     color: var(--subtle);
-    line-height: 1.6;
   }
   .start {
     display: flex;
     margin: 0;
     flex-wrap: wrap;
-    gap: 8px;
+    gap: var(--space-2);
     align-items: center;
   }
   .aside {
@@ -221,13 +228,8 @@ keys(() =>
   .account {
     margin-left: auto;
   }
-  .link {
-    padding: 0;
-    border: 0;
-    background: none;
-    color: var(--accent);
-    font: inherit;
-    cursor: pointer;
+  .unknown {
+    visibility: hidden;
   }
   .progress {
     margin: 0;
@@ -244,13 +246,13 @@ keys(() =>
   .filters {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px 16px;
+    gap: var(--space-2) var(--space-4);
     align-items: center;
     justify-content: space-between;
   }
   .chips {
     display: flex;
-    gap: 6px;
+    gap: var(--space-2);
   }
   .chip {
     text-transform: capitalize;
@@ -287,7 +289,7 @@ keys(() =>
     color: var(--error);
   }
   .tags {
-    margin-left: 8px;
+    margin-left: var(--space-2);
     font-size: var(--text-xs);
   }
   /* each group's parts sit closer than the page's sections, so the list gets the height */
@@ -310,10 +312,19 @@ keys(() =>
   }
   .row {
     display: grid;
-    grid-template-columns: 1fr 110px 50px 80px 130px;
-    gap: 12px;
+    grid-template-columns: minmax(0, 1fr) 110px 50px 80px 130px;
+    gap: var(--space-3);
     align-items: baseline;
     color: var(--text);
+  }
+  /* a phone keeps the title, par and difficulty */
+  @media (max-width: 599px) {
+    .row {
+      grid-template-columns: minmax(0, 1fr) 50px 80px;
+    }
+    .wide {
+      display: none;
+    }
   }
   .row:hover {
     text-decoration: none;
@@ -322,6 +333,11 @@ keys(() =>
     color: inherit;
   }
   .title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  a .title {
     font-weight: 700;
   }
   .lang {
@@ -351,6 +367,6 @@ keys(() =>
     color: var(--error);
   }
   .errors pre {
-    margin-top: 8px;
+    margin-top: var(--space-2);
   }
 </style>

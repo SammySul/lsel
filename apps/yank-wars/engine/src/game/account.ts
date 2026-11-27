@@ -51,7 +51,8 @@ export interface Account {
   readonly daily: readonly number[];
 }
 
-/** `GET /api/me`: the account, when signed in. */
+/** `GET /api/me`: the account, when signed in, and whether the server offers GitHub sign-in. */
 export interface Me {
   readonly account: Account | null;
+  readonly github: boolean;
 }

@@ -32,10 +32,10 @@ function keepFocus(e: MouseEvent) {
 }
 </script>
 
-<header class="hud">
+<section class="hud" aria-label="Round">
   <div class="left">
-    <a class="back" href="#/">← puzzles</a>
-    <h1>{ctl.puzzle.title}</h1>
+    <a class="back" href="#/">← Puzzles</a>
+    <h2>{ctl.puzzle.title}</h2>
     <span class="chip">{ctl.puzzle.language}</span>
     <span class="chip {ctl.puzzle.difficulty}">{ctl.puzzle.difficulty}</span>
   </div>
@@ -72,7 +72,7 @@ function keepFocus(e: MouseEvent) {
         onmousedown={keepFocus}
         onclick={() => ctl.forfeit()}
         disabled={!playing}
-        title={CHORD_LABELS.forfeit}>Give up</button
+        title={CHORD_LABELS.forfeit}>Give up <kbd>{CHORD_LABELS.forfeit}</kbd></button
       >
       <button
         onmousedown={keepFocus}
@@ -81,7 +81,8 @@ function keepFocus(e: MouseEvent) {
           ctl.focus();
         }}
         aria-pressed={ctl.prefs.relativeNumbers}
-        title={CHORD_LABELS.numbers}>{ctl.prefs.relativeNumbers ? "Relative" : "Absolute"} numbers</button
+        title={CHORD_LABELS.numbers}
+        >{ctl.prefs.relativeNumbers ? "Relative" : "Absolute"} numbers <kbd>{CHORD_LABELS.numbers}</kbd></button
       >
     </div>
   </div>
@@ -98,18 +99,19 @@ function keepFocus(e: MouseEvent) {
   <div class="cap" aria-hidden="true">
     <div class="fill" class:low={ctl.capLeft < 0.15} style:width="{ctl.capLeft * 100}%"></div>
   </div>
-</header>
+</section>
 
 <style>
   .hud {
     position: relative;
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
+    /* the score stays centered while the buttons fit beside it; the title gives way first */
+    grid-template-columns: minmax(0, 1fr) auto minmax(max-content, 1fr);
     align-items: center;
-    gap: 16px;
-    padding: 10px 16px 14px;
+    gap: var(--space-4);
+    padding: var(--space-2) var(--space-4) var(--space-3);
     background: var(--raise);
-    border-bottom: 1px solid var(--overlay);
+    border: var(--border);
   }
   .left,
   .right,
@@ -117,7 +119,7 @@ function keepFocus(e: MouseEvent) {
   .actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: var(--space-2);
     min-width: 0;
   }
   .right {
@@ -128,8 +130,8 @@ function keepFocus(e: MouseEvent) {
     .hud {
       grid-template-columns: minmax(0, 1fr) auto;
       grid-template-areas: "left left" "score time" "actions actions";
-      gap: 8px 12px;
-      padding: 8px 12px 12px;
+      gap: var(--space-2) var(--space-3);
+      padding: var(--space-2) var(--space-3) var(--space-3);
     }
     .left {
       grid-area: left;
@@ -147,31 +149,36 @@ function keepFocus(e: MouseEvent) {
       grid-area: actions;
       display: grid;
       grid-template-columns: auto auto minmax(0, 1fr);
-      gap: 4px;
+      gap: var(--space-1);
     }
     .actions button {
-      white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    /* the keys are listed under the title; a narrow bar keeps the buttons' words */
+    .actions kbd {
+      display: none;
+    }
+  }
+  .actions button,
+  .time {
+    white-space: nowrap;
   }
   .back {
     color: var(--subtle);
     font-size: var(--text-xs);
     white-space: nowrap;
   }
-  h1 {
-    margin: 0;
+  h2 {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
   .chip {
-    font-family: var(--font);
     font-size: var(--text-xs);
     color: var(--subtle);
-    border: 1px solid var(--overlay);
-    padding: 1px 8px;
+    border: var(--border);
+    padding: 0 var(--space-2);
   }
   .chip.easy {
     color: var(--success);
@@ -185,8 +192,7 @@ function keepFocus(e: MouseEvent) {
   .score {
     display: flex;
     align-items: baseline;
-    gap: 8px;
-    font-family: var(--font);
+    gap: var(--space-2);
     font-variant-numeric: tabular-nums;
   }
   .keys {
@@ -211,7 +217,6 @@ function keepFocus(e: MouseEvent) {
     font-size: var(--text-xs);
   }
   .clock {
-    font-family: var(--font);
     font-size: var(--text-lg);
     font-variant-numeric: tabular-nums;
     min-width: 6ch;
@@ -235,7 +240,7 @@ function keepFocus(e: MouseEvent) {
   .opponent {
     grid-column: 1 / -1;
     display: flex;
-    gap: 12px;
+    gap: var(--space-3);
     font-size: var(--text-sm);
     font-variant-numeric: tabular-nums;
     color: var(--subtle);

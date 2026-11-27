@@ -179,7 +179,9 @@ export function accountRoutes(deps: {
   auth: Auth;
   progress: Progress;
   board: Board;
-  now?: () => number;
+  /** whether a GitHub OAuth app is set, so the page offers sign-in */
+  github: boolean;
+  now?: (() => number) | undefined;
 }): Routes {
   const now = deps.now ?? Date.now;
   const allowed = rateLimiter(LIMITS.perAddress);
@@ -189,7 +191,7 @@ export function accountRoutes(deps: {
     const player = await playerOf(deps.auth, deps.progress, req);
     const mine = (p: Player) => deps.progress.account(p.id, p.login);
     if (req.method === "GET") {
-      return json({ account: player && mine(player) } satisfies Me);
+      return json({ account: player && mine(player), github: deps.github } satisfies Me);
     }
     if (req.method !== "PUT") return respond("method not allowed", 405, { Allow: "GET, PUT" });
     if (player === null) return json({ error: "not signed in" }, 401);

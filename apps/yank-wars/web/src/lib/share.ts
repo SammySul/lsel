@@ -1,6 +1,6 @@
 // The share line the result card copies.
 
-import { duration } from "@sammysul/lsel/format";
+import { duration } from "@sammysul/lsel";
 import type { Puzzle } from "@yank-wars/engine";
 
 /** What `y` on the result card copies: puzzle, score against par, time and a link back. */

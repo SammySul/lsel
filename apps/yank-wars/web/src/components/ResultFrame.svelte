@@ -36,34 +36,43 @@ onMount(() => card?.focus());
     tabindex="-1"
     bind:this={card}
   >
-    <h2 id="result-headline" class:ok>{headline}</h2>
-    <dl class="stats">{@render stats()}</dl>
-    {@render children()}
-    {#if import.meta.env.DEV && selfCheck !== "off"}
-      <p class="selfcheck {selfCheck}">DEV self-check: {selfCheck}</p>
-    {/if}
+    <div class="body">
+      <h2 id="result-headline" class:ok>{headline}</h2>
+      <dl class="stats">{@render stats()}</dl>
+      {@render children()}
+      {#if import.meta.env.DEV && selfCheck !== "off"}
+        <p class="selfcheck {selfCheck}">DEV self-check: {selfCheck}</p>
+      {/if}
+    </div>
     <div class="actions">{@render actions()}</div>
   </div>
 </div>
 
 <style>
+  /* flex, not grid: the card's max-height resolves against the round's height, not a row sized to the card */
   .backdrop {
     position: absolute;
     inset: 0;
-    display: grid;
-    place-items: center;
-    padding: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
+  /* the actions stay at the card's foot; what doesn't fit above them scrolls */
   .card {
+    display: flex;
+    flex-direction: column;
     width: min(560px, 100%);
     max-height: 100%;
-    overflow: auto;
-    padding: 20px 24px;
     background: var(--base);
-    border: 1px solid var(--overlay);
+    border: var(--border);
+  }
+  .body {
+    min-height: 0;
+    overflow: auto;
+    padding: var(--space-4) var(--space-4) 0;
   }
   h2 {
-    margin: 0 0 12px;
+    margin: 0 0 var(--space-3);
     color: var(--warning);
   }
   h2.ok {
@@ -72,18 +81,15 @@ onMount(() => card?.focus());
   .stats {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-    gap: 8px 16px;
-    margin: 0 0 16px;
+    gap: var(--space-2) var(--space-4);
+    margin: 0 0 var(--space-4);
   }
   .stats :global(dt) {
     font-size: var(--text-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
     color: var(--subtle);
   }
   .stats :global(dd) {
     margin: 0;
-    font-family: var(--font);
     font-variant-numeric: tabular-nums;
   }
   .card :global(.label),
@@ -95,14 +101,13 @@ onMount(() => card?.focus());
     cursor: pointer;
   }
   .card :global(pre) {
-    margin: 0 0 12px;
+    margin: 0 0 var(--space-3);
     user-select: text;
   }
   .card :global(details pre) {
-    margin-top: 6px;
+    margin-top: var(--space-2);
   }
   .selfcheck {
-    font-family: var(--font);
     font-size: var(--text-xs);
   }
   .selfcheck.ok {
@@ -116,8 +121,11 @@ onMount(() => card?.focus());
   }
   .actions {
     display: flex;
-    gap: 8px;
+    flex: none;
+    flex-wrap: wrap;
+    gap: var(--space-2);
     justify-content: flex-end;
-    margin-top: 16px;
+    padding: var(--space-3) var(--space-4) var(--space-4);
+    border-top: var(--border);
   }
 </style>

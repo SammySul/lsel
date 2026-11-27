@@ -24,7 +24,7 @@ Shared rules, the stack, release and deploy come from lsel's `CLAUDE.md` and
 - **Run its scripts from `apps/yank-wars`**, not a subdirectory: `bun test`
   elsewhere runs without the happy-dom preload.
 - **The CSP allows inline styles**, unlike lsel's: CodeMirror injects `<style>`
-  elements. `CSP` in `server/src/server.ts` goes to `serve()`;
+  elements. `CSP` in `server/src/config.ts` goes to `serve()`;
   `e2e/built.e2e.ts` fails if CodeMirror goes unstyled.
 - Don't build ahead of the build order in `docs/decisions.md`: no ratings or
   ghosts before step 6.

@@ -1,6 +1,7 @@
 // One round's state in the browser: keys, clock, claims and the result, solo or in a room.
 
 import {
+  type Best,
   type BlockedReason,
   createRound,
   currentRun,
@@ -30,7 +31,7 @@ import { linesOffOf } from "../editor/diff.ts";
 import { createPlayerView, type PlayerView } from "../editor/playerView.ts";
 import { createTargetView, type TargetView } from "../editor/targetView.ts";
 import { FORFEIT_KEY, NUMBERS_KEY, READY_KEYS, RESET_KEY } from "./chords.ts";
-import type { Best, Prefs } from "./prefs.svelte.ts";
+import type { Prefs } from "./prefs.svelte.ts";
 
 export type SelfCheck = "off" | "pending" | "ok" | "mismatch";
 

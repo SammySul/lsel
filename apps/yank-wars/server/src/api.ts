@@ -15,7 +15,7 @@ export interface ApiOptions {
   github?: GitHub | undefined;
   puzzles: ReadonlyMap<string, Puzzle>;
   verify: (puzzle: Puzzle, log: KeyLog) => Promise<Verdict>;
-  now?: () => number;
+  now?: (() => number) | undefined;
 }
 
 export async function api(o: ApiOptions): Promise<Routes> {
@@ -30,12 +30,12 @@ export async function api(o: ApiOptions): Promise<Routes> {
       o.board.reassign(from, to, progress.name(to, login) || "anonymous");
     },
   });
-  const now = o.now === undefined ? {} : { now: o.now };
   const account = accountRoutes({
     auth,
     progress,
     board: o.board,
-    ...now,
+    github: o.github !== undefined,
+    now: o.now,
   });
   const daily = dailyRoutes({
     board: o.board,
@@ -43,7 +43,7 @@ export async function api(o: ApiOptions): Promise<Routes> {
     verify: o.verify,
     player: (req) => playerOf(auth, progress, req),
     solved: (id, day) => progress.merge(id, { daily: [day] }),
-    ...now,
+    now: o.now,
   });
   return async (req, url) => (await account(req, url)) ?? daily(req, url);
 }

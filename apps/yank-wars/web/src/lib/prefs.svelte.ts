@@ -1,16 +1,9 @@
 // What the browser remembers: bests, dailies solved, line numbers, the list filter and the player's name; an account keeps bests, dailies and name across devices.
 
 import type { Store } from "@sammysul/lsel";
-import { type Account, DIFFICULTIES, type Difficulty, LIMITS } from "@yank-wars/engine";
+import { type Account, Best, DIFFICULTIES, type Difficulty, LIMITS } from "@yank-wars/engine";
 import * as v from "valibot";
 import type { PuzzleFilter } from "./filter.ts";
-
-const BestSchema = v.object({
-  keys: v.pipe(v.number(), v.integer(), v.minValue(0)),
-  ms: v.pipe(v.number(), v.finite(), v.minValue(0)),
-});
-
-export type Best = Readonly<v.InferOutput<typeof BestSchema>>;
 
 /** The list filter's lasting part; the search text stays per visit. */
 interface StoredFilter {
@@ -18,7 +11,7 @@ interface StoredFilter {
   readonly unsolved: boolean;
 }
 
-/** Field by field: a bad value falls back on its own, and a bad best is dropped. */
+/** Field by field: a bad value falls back on its own, and a best the account would refuse is dropped. */
 export const Stored = v.object({
   relativeNumbers: v.fallback(v.boolean(), true),
   name: v.fallback(v.pipe(v.string(), v.maxLength(LIMITS.nameLength)), ""),
@@ -27,7 +20,7 @@ export const Stored = v.object({
       v.record(v.string(), v.unknown()),
       v.transform(
         (all) =>
-          Object.fromEntries(Object.entries(all).filter(([, b]) => v.is(BestSchema, b))) as Record<
+          Object.fromEntries(Object.entries(all).filter(([, b]) => v.is(Best, b))) as Record<
             string,
             Best
           >,
@@ -35,8 +28,6 @@ export const Stored = v.object({
     ),
     {},
   ),
-  /** whether this browser has an account, so the server is asked who on load; a visitor who never played isn't */
-  signedIn: v.fallback(v.boolean(), false),
   /** the days whose daily was solved, oldest first */
   daily: v.fallback(v.array(v.pipe(v.number(), v.integer())), []),
   filter: v.fallback(
@@ -88,7 +79,6 @@ export class Prefs {
   best = $state.raw<Readonly<Record<string, Best>>>({});
   daily = $state.raw<readonly number[]>([]);
   #listener: ((change: Change) => void) | undefined;
-  #signedIn = false;
   #lasting = $state.raw<StoredFilter>({ difficulty: null, unsolved: false });
   #query = $state("");
   readonly #storage: Store | undefined;
@@ -100,7 +90,6 @@ export class Prefs {
     this.#name = stored.name;
     this.best = stored.best;
     this.daily = stored.daily;
-    this.#signedIn = stored.signedIn;
     this.#lasting = stored.filter;
   }
 
@@ -147,17 +136,6 @@ export class Prefs {
       s.name = name;
     });
     this.#listener?.("name");
-  }
-
-  get signedIn(): boolean {
-    return this.#signedIn;
-  }
-
-  set signedIn(on: boolean) {
-    this.#signedIn = on;
-    this.#update((s) => {
-      s.signedIn = on;
-    });
   }
 
   /** Hears every change made on this device, but not what `adopt` brings in. */
@@ -207,7 +185,6 @@ export class Prefs {
       name: this.#name,
       best: { ...this.best },
       daily: [...this.daily],
-      signedIn: this.#signedIn,
       filter: this.#lasting,
     };
   }

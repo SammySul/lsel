@@ -22,7 +22,7 @@ import { observe } from "@yank-wars/engine/oracle/observe";
 import type { Observed } from "@yank-wars/engine/oracle/types";
 import type { BrowserContext, Page } from "playwright-core";
 import type { RoundProbeState } from "../src/dev/roundProbe.ts";
-import { startVite, typeKeys, VITE, type Vite } from "./lib.ts";
+import { cardButtons, startVite, typeKeys, VITE, type Vite } from "./lib.ts";
 
 const PUZZLES_DIR = join(import.meta.dir, "../../puzzles/handmade");
 const puzzles: Puzzle[] = readdirSync(PUZZLES_DIR)
@@ -80,16 +80,29 @@ const PARITY_RUNS = [
   "jwi<Del>y<Esc>j0.",
 ];
 
+// Every page asks who's signed in: no one, and no GitHub app. The list's account and the daily have room.e2e's server.
+const me = Bun.serve({
+  hostname: "127.0.0.1",
+  port: 0,
+  fetch: (req) =>
+    new URL(req.url).pathname === "/api/me"
+      ? Response.json({ account: null, github: false })
+      : new Response("not here", { status: 404 }),
+});
+
 let vite: Vite;
 beforeAll(async () => {
-  vite = await startVite();
+  vite = await startVite(undefined, { YW_ROOMS: `http://127.0.0.1:${me.port}` });
   // Warm vite's dependency optimizer once, so no test sees its reload.
   const b = await launch("chromium");
   const p = await b.newPage();
   for (let i = 0; i < 2; i++) await p.goto(`${vite.base}/#/`, { waitUntil: "networkidle" });
   await b.close();
 }, 60_000);
-afterAll(() => vite?.stop());
+afterAll(() => {
+  vite?.stop();
+  me.stop(true);
+});
 
 async function probe(page: Page): Promise<RoundProbeState> {
   const s = await page.evaluate(() => window.__ywRound?.state() ?? null);
@@ -203,7 +216,7 @@ eachBrowser((browser, name) => {
     const second = listOrder[1] as Puzzle;
     await waitRound(page, second.id);
     expect(await hash(page)).toBe(`#/p/${second.id}`);
-    expect(await text(page, ".hud h1")).toBe(second.title);
+    expect(await text(page, ".hud h2")).toBe(second.title);
     expect(await visible(page, ".study")).toBe(true);
     await done(ctx, problems);
   });
@@ -404,7 +417,7 @@ eachBrowser((browser, name) => {
     const css = P("css-comment");
     await openRound(a, indent.id);
     await a.keyboard.press("Control+Shift+L");
-    expect(await text(a, ".hud button[aria-pressed]")).toBe("Absolute numbers");
+    expect(await text(a, ".hud button[aria-pressed]")).toBe("Absolute numbers Ctrl+Shift+L");
     await a.keyboard.press("Space");
     await typeKeys(a, indent.solution);
     await cardShown(a);
@@ -428,7 +441,7 @@ eachBrowser((browser, name) => {
       String(css.solution.length),
     ]);
     await openRound(a, indent.id);
-    expect(await text(a, ".hud button[aria-pressed]")).toBe("Absolute numbers");
+    expect(await text(a, ".hud button[aria-pressed]")).toBe("Absolute numbers Ctrl+Shift+L");
     expect(await gutter(a)).toEqual(["1", "2", "3", "4", "5"]);
     expect(await bProblems()).toEqual([]);
     await done(ctx, problems);
@@ -461,6 +474,22 @@ eachBrowser((browser, name) => {
     await typeKeys(page, p.solution);
     await cardShown(page);
     expect((await card(page)).headline).toBe("Locked in");
+    await done(ctx, problems);
+  });
+
+  test("the result card's buttons stay in view on a laptop and a phone", async () => {
+    const { ctx, page, problems } = await fresh();
+    await playToLockIn(page, P("indent-body"));
+    const shown = [
+      "Share y: shown",
+      "Next Enter: shown",
+      "Retry r: shown",
+      "Play a friend f: shown",
+      "Puzzles Esc: shown",
+    ];
+    expect(await cardButtons(page)).toEqual(shown);
+    await page.setViewportSize({ width: 390, height: 844 });
+    expect(await cardButtons(page)).toEqual(shown);
     await done(ctx, problems);
   });
 
@@ -624,7 +653,7 @@ eachBrowser((browser, name) => {
     await page.locator(".table a.row").first().waitFor();
     await page.keyboard.press("1");
     await page.keyboard.press("p");
-    await page.locator(".hud h1").waitFor();
+    await page.locator(".hud h2").waitFor();
     const id = (await hash(page)).replace("#/p/", "");
     expect([P(id).difficulty, id === (listOrder[0] as Puzzle).id]).toEqual(["easy", false]);
     await done(ctx, problems);
@@ -736,7 +765,7 @@ eachBrowser((browser, name) => {
     expect(await gutter(page)).toEqual(["1", "2", "1", "2", "3"]);
     await page.keyboard.press("Control+Shift+L");
     expect(await gutter(page)).toEqual(["1", "2", "3", "4", "5"]);
-    expect(await text(page, ".hud button[aria-pressed]")).toBe("Absolute numbers");
+    expect(await text(page, ".hud button[aria-pressed]")).toBe("Absolute numbers Ctrl+Shift+L");
     await page.keyboard.press("Control+Shift+L");
     expect(await gutter(page)).toEqual(["1", "2", "1", "2", "3"]);
     expect((await probe(page)).log).toEqual(["j"]);
@@ -853,7 +882,7 @@ eachBrowser((browser, name) => {
     const { ctx, page, problems } = await fresh();
     await openRound(page, "indent-body");
     await page.keyboard.press("Space");
-    await page.locator(".hud h1").click();
+    await page.locator(".hud h2").click();
     await page.locator(".focus-hint").waitFor({ state: "visible" });
     await typeKeys(page, "x");
     expect((await probe(page)).log).toEqual([]);

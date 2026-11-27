@@ -2,7 +2,7 @@
 <script lang="ts">
 import { go, keys, Page, route } from "@sammysul/lsel";
 import { onDestroy, untrack } from "svelte";
-import { version } from "../../../package.json";
+import { PAGE } from "../lib/page.ts";
 import { prefs } from "../lib/prefs.svelte.ts";
 import { findPuzzle } from "../lib/puzzles.ts";
 import { RoomClient } from "../lib/room.svelte.ts";
@@ -51,13 +51,7 @@ keys(() => (gone === null ? [] : [{ key: "Escape", label: "Puzzles", hint: true,
 </script>
 
 {#if gone !== null || view === null}
-  <Page
-    name="Yank Wars"
-    sub="A room for two."
-    {version}
-    source="https://git.sammysul.com/SammySul/lsel/src/branch/main/apps/yank-wars"
-    width={560}
-  >
+  <Page {...PAGE} sub="A room for two." width={560}>
     {#if gone !== null}
       <p class="gone" role="alert">{gone}</p>
       <p><a href="#/" onclick={leave}>Back to the puzzles</a></p>
@@ -72,7 +66,9 @@ keys(() => (gone === null ? [] : [{ key: "Escape", label: "Puzzles", hint: true,
     <Round ctl={room.ctl} {room} onList={leave} />
   {/key}
 {:else}
-  <div class="alone"><RoomResult {room} onLeave={leave} /></div>
+  <Page {...PAGE} width={1600} fill>
+    <div class="alone"><RoomResult {room} onLeave={leave} /></div>
+  </Page>
 {/if}
 
 {#if room.connection.kind === "reconnecting"}
@@ -81,22 +77,22 @@ keys(() => (gone === null ? [] : [{ key: "Escape", label: "Puzzles", hint: true,
 
 <style>
   .gone {
-    color: var(--warning);
+    color: var(--error);
   }
   .joining {
     color: var(--subtle);
   }
   .alone {
     position: relative;
-    height: 100%;
+    flex: 1;
   }
   .reconnecting {
     position: fixed;
-    top: 12px;
+    top: var(--space-3);
     left: 50%;
     transform: translateX(-50%);
     margin: 0;
-    padding: 6px 14px;
+    padding: var(--space-2) var(--space-3);
     background: var(--raise);
     border: 1px solid var(--warning);
     color: var(--warning);

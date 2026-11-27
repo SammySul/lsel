@@ -12,7 +12,7 @@ import { PUZZLES, picker } from "../../server/src/puzzles.ts";
 import { Replayer } from "../../server/src/replay.ts";
 import { type Conn, type Mismatch, Rooms } from "../../server/src/rooms.ts";
 import type { RoundProbeState } from "../src/dev/roundProbe.ts";
-import { startVite, typeKeys, VITE, type Vite } from "./lib.ts";
+import { cardButtons, startVite, typeKeys, VITE, type Vite } from "./lib.ts";
 
 const replayer = new Replayer();
 const mismatches: Mismatch[] = [];
@@ -80,8 +80,9 @@ async function texts(page: Page, selector: string): Promise<string[]> {
 }
 
 async function rename(page: Page, name: string): Promise<void> {
-  await page.locator("#room-name").fill(name);
-  await page.locator("#room-name").press("Enter");
+  const field = page.getByRole("textbox", { name: "Your name" });
+  await field.fill(name);
+  await field.press("Enter");
 }
 
 let players = 0;
@@ -124,20 +125,32 @@ eachBrowser((browser) => {
     await a.page.goto(`${vite.base}/#/`, { waitUntil: "networkidle" });
     await a.page.locator(".table a.row").first().waitFor();
     await a.page.keyboard.press("d");
-    await a.page.locator(".hud h1").waitFor();
-    expect(await texts(a.page, ".hud h1")).toEqual([p.title]);
+    await a.page.locator(".hud h2").waitFor();
+    expect(await texts(a.page, ".hud h2")).toEqual([p.title]);
     await a.page.keyboard.press("Space");
     await typeKeys(a.page, p.solution);
     const you = a.page.locator('section[aria-label="Today\'s board"] li.you');
     await you.waitFor();
     expect(await you.locator(".name").textContent()).toBe("anonymous (you)");
     expect(await you.locator(".num").first().textContent()).toBe(`${p.solution.length} keys`);
+    // the daily's card is the tallest: its buttons still show, on a laptop and a phone
+    const daily = [
+      "Share y: shown",
+      "Next Enter: shown",
+      "Retry r: shown",
+      "Play a friend f: shown",
+      "Puzzles Esc: shown",
+    ];
+    expect(await cardButtons(a.page)).toEqual(daily);
+    await a.page.setViewportSize({ width: 390, height: 844 });
+    expect(await cardButtons(a.page)).toEqual(daily);
+    await a.page.setViewportSize({ width: 1280, height: 800 });
     const name = a.page.getByRole("textbox", { name: "Name on the board" });
     await name.fill("ada");
     await name.press("Enter");
     await a.page.locator("li.you .name", { hasText: "ada (you)" }).waitFor();
     await a.page.goto(`${vite.base}/#/`, { waitUntil: "networkidle" });
-    expect(await texts(a.page, ".start > button, .start > .aside")).toEqual([
+    expect(await texts(a.page, ".start > button, .start > .aside, .start > .account")).toEqual([
       "Quick play p",
       `Daily #${day} ✓ d`,
       "Play a friend f",
@@ -155,11 +168,12 @@ eachBrowser((browser) => {
     const day = dayOf(Date.now());
     const p = dailyPuzzle(PUZZLES.values(), day);
     if (p === undefined) throw new Error(`no daily on day ${day}`);
-    const start = (page: Page) => texts(page, ".start > button, .start > .aside");
+    const start = (page: Page) =>
+      texts(page, ".start > button, .start > .aside, .start > .account");
 
     const a = await player(login);
     await a.page.goto(`${vite.base}/#/daily`, { waitUntil: "networkidle" });
-    await a.page.locator(".hud h1").waitFor();
+    await a.page.locator(".hud h2").waitFor();
     await a.page.keyboard.press("Space");
     await typeKeys(a.page, p.solution);
     await a.page.locator("li.you .name", { hasText: "anonymous (you)" }).waitFor();
@@ -254,6 +268,11 @@ eachBrowser((browser) => {
     await b.page.locator(".card h2").waitFor();
     expect(await texts(a.page, ".card h2, .card .series")).toEqual(["bob wins", "0–1"]);
     expect(await texts(b.page, ".card h2, .card .series")).toEqual(["You win", "1–0"]);
+    const result = ["Rematch r: shown", "Leave Esc: shown"];
+    expect(await cardButtons(a.page)).toEqual(result);
+    await a.page.setViewportSize({ width: 390, height: 844 });
+    expect(await cardButtons(a.page)).toEqual(result);
+    await a.page.setViewportSize({ width: 1280, height: 800 });
     expect(mismatches).toEqual([]);
 
     await a.page.keyboard.press("r");

@@ -149,7 +149,7 @@ export interface DailyDeps {
   solved: (player: string, day: number) => void;
   puzzles: ReadonlyMap<string, Puzzle>;
   verify: (puzzle: Puzzle, log: KeyLog) => Promise<Verdict>;
-  now?: () => number;
+  now?: (() => number) | undefined;
 }
 
 /** `/api/daily`: GET today's board (with the asker's rank, when signed in), POST a locked-in run. */

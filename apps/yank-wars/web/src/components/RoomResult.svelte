@@ -99,10 +99,10 @@ keys(() => [
   }
   .notation .label {
     display: block;
-    margin-bottom: 4px;
+    margin-bottom: var(--space-1);
   }
   .rematch {
-    min-height: 1.4em;
+    min-height: 1lh;
     color: var(--subtle);
   }
 </style>

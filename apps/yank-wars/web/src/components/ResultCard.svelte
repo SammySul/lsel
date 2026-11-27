@@ -146,7 +146,7 @@ keys(() => [
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 4px;
+    margin-bottom: var(--space-1);
   }
   .source {
     font-size: var(--text-xs);

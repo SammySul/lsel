@@ -283,7 +283,9 @@ live in `accounts.sqlite` in the state directory, migrated at start.
 **A guest is made on first use of the server**: the first daily run sends
 `/api/auth/sign-in/anonymous`. Browsing and solo play make no rows. Signing in
 with GitHub links the guest (`onLinkAccount`): its progress and board runs
-move to the account, the better run of a day both played wins.
+move to the account, the better run of a day both played wins. Every page
+asks `GET /api/me` on load, which also says whether the server has a GitHub
+app, so a server without one shows no sign-in button (2026-11-27).
 
 **What follows the account: the board name, each puzzle's best and the days
 solved.** A sync sends one device's side; the server keeps the better best of
@@ -313,6 +315,9 @@ handmade puzzles. The daily puzzle with its board: done 2026-11-27 (`v1.5.0`)
 4. Rooms (step 2 parts 2 and 3): part 2 done 2026-11-26 (invite links, grace
 timer, round cap, reconnect, replay with mismatch logging); part 3: accounts
 (guests and GitHub sign-in) done 2026-11-27 (`v1.6.0`); next: rooms named by
-the account, upstream PRs for the core patch
+the account; a consistent snapshot of the SQLite files before restic copies
+them nightly (`VACUUM INTO` or a `-predump` in `squares`: neither has one yet,
+and restic copies files as they are); storing rejected lock-ins and finished
+rounds (no table yet); the upstream PRs for the core patch
 5. Matchmaking queue with daily/solo fallback
 6. Only if people rematch: ratings (Glicko-2 / OpenSkill), ghosts

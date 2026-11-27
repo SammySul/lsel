@@ -1,7 +1,6 @@
 // How a best compares to par, and the list's solved count.
 
-import type { Puzzle } from "@yank-wars/engine";
-import type { Best } from "./prefs.svelte.ts";
+import type { Best, Puzzle } from "@yank-wars/engine";
 
 export type Mark = "under" | "par" | "over";
 

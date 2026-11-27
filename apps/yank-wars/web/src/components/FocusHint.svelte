@@ -20,8 +20,8 @@ let { ctl }: { ctl: RoundController } = $props();
     cursor: pointer;
   }
   span {
-    padding: 8px 16px;
-    border: 1px solid var(--overlay);
+    padding: var(--space-2) var(--space-4);
+    border: var(--border);
     background: var(--raise);
     color: var(--text);
   }

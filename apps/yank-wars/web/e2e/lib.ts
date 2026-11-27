@@ -95,3 +95,23 @@ export async function typeKeys(page: Page, notation: string | readonly VimKey[])
   const keys = typeof notation === "string" ? parseKeys(notation) : notation;
   for (const k of keys) await page.keyboard.press(playwrightKey(k));
 }
+
+/** The result card's buttons, each `shown` when all of it is inside both the card and the window. */
+export async function cardButtons(page: Page): Promise<string[]> {
+  await page.evaluate(
+    () => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))),
+  );
+  return page.evaluate(() => {
+    const card = document.querySelector(".card")?.getBoundingClientRect();
+    if (card === undefined) return ["no card"];
+    return [...document.querySelectorAll(".card .actions button")].map((b) => {
+      const r = b.getBoundingClientRect();
+      const shown =
+        r.top >= Math.max(0, card.top) &&
+        r.left >= Math.max(0, card.left) &&
+        r.bottom <= Math.min(innerHeight, card.bottom) &&
+        r.right <= Math.min(innerWidth, card.right);
+      return `${(b.textContent ?? "").replace(/\s+/g, " ").trim()}: ${shown ? "shown" : "cut off"}`;
+    });
+  });
+}

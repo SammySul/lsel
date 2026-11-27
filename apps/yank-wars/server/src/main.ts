@@ -3,13 +3,12 @@
 import { Database } from "bun:sqlite";
 import { serve } from "@sammysul/lsel/server";
 import { api } from "./api.ts";
+import { CSP, ENV, github, PORT } from "./config.ts";
 import { Board } from "./daily.ts";
-import { ENV, github } from "./env.ts";
 import { mismatchLog } from "./mismatches.ts";
 import { PUZZLES, picker } from "./puzzles.ts";
 import { Replayer } from "./replay.ts";
 import { Rooms } from "./rooms.ts";
-import { CSP } from "./server.ts";
 
 const replayer = new Replayer();
 const verify = replayer.verify.bind(replayer);
@@ -24,7 +23,7 @@ const rooms = new Rooms({
 serve({
   name: "yank-wars",
   prefix: "YW",
-  port: 7300,
+  port: PORT,
   csp: CSP,
   extra: ENV,
   routes: (config) => {

@@ -1,10 +1,10 @@
 <!-- The daily's board on the result card: sends a locked-in run, then shows the top ten and your rank. -->
 <script lang="ts">
-import { duration } from "@sammysul/lsel";
-import { LIMITS } from "@yank-wars/engine";
+import { duration, Field, resource, Status } from "@sammysul/lsel";
+import { type DailyBoard, LIMITS } from "@yank-wars/engine";
 import { untrack } from "svelte";
 import { account } from "../lib/account.svelte.ts";
-import { type BoardAnswer, type Daily, fetchBoard, sendRun, streakOf } from "../lib/daily.ts";
+import { type Daily, fetchBoard, sendRun, streakOf } from "../lib/daily.ts";
 import type { RoundController } from "../lib/round.svelte.ts";
 
 let { daily, ctl }: { daily: Daily; ctl: RoundController } = $props();
@@ -13,41 +13,44 @@ let { daily, ctl }: { daily: Daily; ctl: RoundController } = $props();
 const { prefs } = untrack(() => ctl);
 const day = untrack(() => daily.day);
 const locked = untrack(() => ctl.phase === "locked");
-let answer = $state<BoardAnswer | undefined>();
+const claim = untrack(() => ({ day, log: [...ctl.round.log], ms: Math.round(ctl.elapsed) }));
 let name = $state(untrack(() => prefs.name));
+// a locked-in run goes on the board once; every later load only reads it
+let sent = $state(!locked);
 
-// the first run on the board makes this browser a guest account, unless it's signed in already
-async function send(): Promise<void> {
-  if (!(await account.ensure())) {
-    answer = { ok: false, error: "the board is unreachable" };
-    return;
+if (locked) prefs.solvedDaily(day);
+
+async function load(signal: AbortSignal): Promise<DailyBoard> {
+  try {
+    if (sent) return await fetchBoard(signal);
+    // the first run on the board makes this browser a guest account, unless it's signed in already
+    if (!(await account.ensure())) throw new Error("the board could not be reached");
+    const board = await sendRun(claim);
+    sent = true;
+    return board;
+  } catch (e) {
+    const why = e instanceof Error ? e.message : String(e);
+    throw new Error(`${locked ? "Not on the board" : "No board"}: ${why}`);
   }
-  answer = await sendRun({ day, log: [...ctl.round.log], ms: Math.round(ctl.elapsed) });
 }
 
-if (locked) {
-  prefs.solvedDaily(day);
-  void send();
-} else {
-  void fetchBoard().then((a) => {
-    answer = a;
-  });
-}
+// untracked: the account it reads before its first await must not send the run again
+const board = resource((signal) => untrack(() => load(signal)));
 
 // the account takes the name, and the board shows it on every run of the player's
 async function rename(): Promise<void> {
   const n = name.trim();
   if (n === prefs.name) return;
   prefs.name = n;
-  if (!locked) return;
-  answer = undefined;
   await account.settled();
-  answer = await fetchBoard();
+  await board.reload();
 }
 
 const streak = $derived(streakOf(prefs.daily, day));
 const rows = $derived(
-  answer?.ok === true ? [...answer.board.top, ...(answer.board.you ? [answer.board.you] : [])] : [],
+  board.value === undefined
+    ? []
+    : [...board.value.top, ...(board.value.you ? [board.value.you] : [])],
 );
 </script>
 
@@ -56,53 +59,56 @@ const rows = $derived(
     <strong>Daily #{day}</strong>
     {#if streak > 0}<span class="streak">{streak}-day streak</span>{/if}
   </p>
-  {#if answer === undefined}
-    <p class="note">{locked ? "Checking your run…" : "Loading today's board…"}</p>
-  {:else if !answer.ok}
-    <p class="note error">{locked ? "Not on the board" : "No board"}: {answer.error}.</p>
-  {:else if rows.length === 0}
-    <p class="note">No runs yet today.</p>
-  {:else}
-    <ol>
-      {#each rows as e (e.rank)}
-        <li class:you={e.you}>
-          <span class="rank">{e.rank}</span>
-          <span class="name">{e.name}{e.you ? " (you)" : ""}</span>
-          <span class="num">{e.keys} keys</span>
-          <span class="num">{duration(e.ms, "m:ss.t")}</span>
-        </li>
-      {/each}
-    </ol>
-    <p class="note">
-      {answer.board.players}
-      {answer.board.players === 1 ? "player" : "players"} today · a new puzzle at midnight UTC
-    </p>
+  {#if board.value !== undefined}
+    {#if rows.length === 0}
+      <p class="note">No runs yet today.</p>
+    {:else}
+      <ol>
+        {#each rows as e (e.rank)}
+          <li class:you={e.you}>
+            <span class="rank">{e.rank}</span>
+            <span class="name">{e.name}{e.you ? " (you)" : ""}</span>
+            <span class="num">{e.keys} keys</span>
+            <span class="num">{duration(e.ms, "m:ss.t")}</span>
+          </li>
+        {/each}
+      </ol>
+      <p class="note">
+        {board.value.players}
+        {board.value.players === 1 ? "player" : "players"} today · a new puzzle at midnight UTC
+      </p>
+    {/if}
   {/if}
+  <Status of={board} waiting={sent ? "Asking for today's board…" : "Checking your run…"} retry={false} />
   {#if locked}
-    <label class="rename">
-      Name on the board
-      <input
-        bind:value={name}
-        maxlength={LIMITS.nameLength}
-        placeholder="anonymous"
-        spellcheck="false"
-        autocomplete="off"
-        onchange={() => void rename()}
-      />
-    </label>
+    <div class="rename">
+      <Field label="Name on the board">
+        {#snippet children(control)}
+          <input
+            {...control}
+            bind:value={name}
+            maxlength={LIMITS.nameLength}
+            placeholder="anonymous"
+            spellcheck="false"
+            autocomplete="off"
+            onchange={() => void rename()}
+          />
+        {/snippet}
+      </Field>
+    </div>
   {/if}
 </section>
 
 <style>
   .board {
-    margin: 12px 0;
-    padding: 12px;
+    margin: var(--space-3) 0;
+    padding: var(--space-3);
     border: var(--border);
   }
   .title {
     display: flex;
     justify-content: space-between;
-    margin: 0 0 8px;
+    margin: 0 0 var(--space-2);
   }
   .streak {
     color: var(--success);
@@ -116,7 +122,7 @@ const rows = $derived(
   li {
     display: grid;
     grid-template-columns: 2em 1fr 6em 5em;
-    gap: 8px;
+    gap: var(--space-2);
     font-variant-numeric: tabular-nums;
   }
   .you {
@@ -132,22 +138,11 @@ const rows = $derived(
     white-space: nowrap;
   }
   .note {
-    margin: 8px 0 0;
+    margin: var(--space-2) 0 0;
     color: var(--subtle);
     font-size: var(--text-xs);
-  }
-  .error {
-    color: var(--warning);
   }
   .rename {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    margin-top: 8px;
-    color: var(--subtle);
-    font-size: var(--text-xs);
-  }
-  .rename input {
-    flex: 1;
+    margin-top: var(--space-2);
   }
 </style>

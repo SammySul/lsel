@@ -1,7 +1,6 @@
 <!-- The line under the editors: mode, pending keys, prompt and messages, as vim's would show them. -->
 <script lang="ts">
 import type { BlockedReason, VimMode } from "@yank-wars/engine";
-import { CHORD_LABELS } from "../lib/chords.ts";
 import type { RoundController } from "../lib/round.svelte.ts";
 
 let { ctl }: { ctl: RoundController } = $props();
@@ -63,11 +62,6 @@ const hint = $derived(
   </div>
   <div class="line sub">
     <span class="hint">{hint ?? ""}</span>
-    <span class="spacer"></span>
-    <span class="chords">
-      <kbd>{CHORD_LABELS.reset}</kbd> reset · <kbd>{CHORD_LABELS.forfeit}</kbd> give up ·
-      <kbd>{CHORD_LABELS.numbers}</kbd> numbers
-    </span>
   </div>
 </footer>
 
@@ -75,16 +69,15 @@ const hint = $derived(
   .status {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: 4px;
-    padding: 8px 16px;
+    gap: var(--space-1);
     font-family: var(--font-mono);
     font-size: var(--text-sm);
   }
   .line {
     display: flex;
     align-items: center;
-    gap: 12px;
-    min-height: 1.6em;
+    gap: var(--space-3);
+    min-height: 1lh;
     white-space: nowrap;
   }
   .spacer {
@@ -149,11 +142,8 @@ const hint = $derived(
     color: var(--subtle);
   }
   .hint {
-    color: var(--warning);
-  }
-  .hint,
-  .chords {
     overflow: hidden;
     text-overflow: ellipsis;
+    color: var(--warning);
   }
 </style>

@@ -1,5 +1,5 @@
 // Today's daily: its number and puzzle, the streak, the share line, and the board's two calls.
-import { duration } from "@sammysul/lsel/format";
+import { duration, getJson } from "@sammysul/lsel";
 import {
   type DailyBoard,
   type DailyClaim,
@@ -47,27 +47,27 @@ export function dailyShareText(
   ].join("\n");
 }
 
-export type BoardAnswer = { ok: true; board: DailyBoard } | { ok: false; error: string };
+const WHO = "the board";
 
-async function answer(res: Promise<Response>): Promise<BoardAnswer> {
+/** Today's board, with the asker's rank when signed in. */
+export const fetchBoard = (signal: AbortSignal): Promise<DailyBoard> =>
+  getJson<DailyBoard>("/api/daily", signal, WHO);
+
+/** Puts a locked-in run on the board, which answers as `fetchBoard` does; fails with the server's reason. */
+export async function sendRun(claim: DailyClaim): Promise<DailyBoard> {
+  let res: Response;
   try {
-    const r = await res;
-    const body: unknown = await r.json();
-    if (r.ok) return { ok: true, board: body as DailyBoard };
-    const error = (body as { error?: unknown }).error;
-    return { ok: false, error: typeof error === "string" ? error : `error ${r.status}` };
-  } catch {
-    return { ok: false, error: "the board is unreachable" };
-  }
-}
-
-export const fetchBoard = (): Promise<BoardAnswer> => answer(fetch("/api/daily"));
-
-export const sendRun = (claim: DailyClaim): Promise<BoardAnswer> =>
-  answer(
-    fetch("/api/daily", {
+    res = await fetch("/api/daily", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(claim),
-    }),
-  );
+    });
+  } catch {
+    throw new Error(`${WHO} could not be reached`);
+  }
+  const body = (await res.json().catch(() => ({}))) as { error?: unknown };
+  if (!res.ok) {
+    throw new Error(typeof body.error === "string" ? body.error : `${WHO} answered ${res.status}`);
+  }
+  return body as DailyBoard;
+}

@@ -57,9 +57,10 @@ function ready() {
     inset: 0;
     display: flex;
     align-items: center;
-    gap: 16px;
-    padding: 8px 16px;
+    gap: var(--space-4);
+    padding: 0 var(--space-4);
     background: var(--raise);
+    border: var(--border);
   }
   .ring {
     position: relative;
@@ -88,7 +89,6 @@ function ready() {
     inset: 0;
     display: grid;
     place-items: center;
-    font-family: var(--font);
     font-weight: 700;
   }
   .text {
@@ -103,7 +103,6 @@ function ready() {
     text-overflow: ellipsis;
   }
   .chords {
-    margin-top: 2px;
     font-size: var(--text-xs);
     color: var(--subtle);
   }

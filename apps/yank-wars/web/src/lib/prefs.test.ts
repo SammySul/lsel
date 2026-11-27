@@ -72,13 +72,18 @@ test("a throwing storage leaves the tab its own bests", () => {
   });
 });
 
-test("unreadable stored values fall back field by field, and bad bests are dropped", () => {
+test("unreadable stored values fall back field by field, and bests the account would refuse are dropped", () => {
   expect(
     v.parse(Stored, {
       relativeNumbers: "no",
       name: "x".repeat(25),
-      best: { a: { keys: 3, ms: 10 }, b: { keys: -1, ms: 10 }, c: { keys: 1.5, ms: 1 }, d: "x" },
-      signedIn: "yes",
+      best: {
+        a: { keys: 3, ms: 10 },
+        b: { keys: -1, ms: 10 },
+        c: { keys: 1.5, ms: 1 },
+        d: "x",
+        e: { keys: 0, ms: 10 },
+      },
       daily: [1, "2"],
       filter: { difficulty: "expert", unsolved: true },
     }),
@@ -86,7 +91,6 @@ test("unreadable stored values fall back field by field, and bad bests are dropp
     relativeNumbers: true,
     name: "",
     best: { a: { keys: 3, ms: 10 } },
-    signedIn: false,
     daily: [],
     filter: { difficulty: null, unsolved: true },
   });
@@ -94,7 +98,6 @@ test("unreadable stored values fall back field by field, and bad bests are dropp
     relativeNumbers: false,
     name: "ada",
     best: {},
-    signedIn: false,
     daily: [],
     filter: { difficulty: null, unsolved: false },
   });
