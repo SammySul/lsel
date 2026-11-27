@@ -37,6 +37,11 @@
         lsel-station.dir = "apps/lsel-station";
         # sammysul.com: what the others are and where they run
         sammysul.dir = "apps/sammysul";
+        grab = {
+          dir = "apps/grab";
+          # its tests read the zips back with unzip
+          checkInputs = [ pkgs.unzip ];
+        };
         yank-wars = {
           dir = "apps/yank-wars";
           prefix = "YW";
@@ -214,6 +219,8 @@
               pkgs.shellcheck
               # yank-wars' oracle replays its cases in real vim
               pkgs.vim
+              # grab's tests read its zips back
+              pkgs.unzip
             ];
             # playwright-core in the catalog must equal this driver's version
             PLAYWRIGHT_BROWSERS_PATH = pkgs.playwright-driver.browsers;

@@ -193,6 +193,8 @@ export function serve<E extends v.ObjectEntries, T = undefined>(opts: {
   extra?: E;
   port?: number;
   csp?: string;
+  /** Seconds a request may go without a byte before Bun drops it (10 by default, 255 at most): an API that waits on a slow upstream. */
+  idleTimeout?: number;
   routes?: (config: Config<E>) => Routes;
   socket?: (config: Config<E>) => Socket<T>;
 }) {
@@ -205,7 +207,11 @@ export function serve<E extends v.ObjectEntries, T = undefined>(opts: {
   }
   const http = handler(config.staticDir, opts.routes?.(config), { csp: opts.csp });
   const socket = opts.socket?.(config);
-  const at = { hostname: config.host, port: config.port };
+  const at = {
+    hostname: config.host,
+    port: config.port,
+    ...(opts.idleTimeout === undefined ? {} : { idleTimeout: opts.idleTimeout }),
+  };
   const server =
     socket === undefined
       ? Bun.serve({ ...at, fetch: http })
