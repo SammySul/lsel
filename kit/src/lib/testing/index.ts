@@ -167,14 +167,16 @@ const settle = (page: Page) =>
     Bun.sleep(250),
   ]);
 
-/** The recorded shifts since the last call, cleared; throws when watchPage() didn't record them. */
-const takeShifts = (page: Page) =>
-  page.evaluate(() => {
-    const log = (window as unknown as { lselShifts?: ShiftLog }).lselShifts;
-    if (log === undefined) return null;
+/** The recorded shifts since the last call, cleared. */
+async function takeShifts(page: Page): Promise<Shift[]> {
+  // watchPage()'s init script can lose the race with goto on a busy machine: installed now, its buffered observer still sees every shift since load
+  await page.evaluate(recordShifts);
+  return page.evaluate(() => {
+    const log = (window as unknown as { lselShifts: ShiftLog }).lselShifts;
     log.flush();
     return log.shifts.splice(0);
   });
+}
 
 const how = (from: Rect, to: Rect) => {
   const parts: string[] = [];
@@ -194,7 +196,6 @@ export async function lselLayout(page: Page): Promise<{ scrolls: string[]; shift
   await page.evaluate(() => document.fonts.ready);
   await settle(page);
   const shifts = await takeShifts(page);
-  if (shifts === null) throw new Error("lselLayout needs watchPage(page) called before goto");
   // a move the user asked for (a key, a click) is theirs; DESIGN.md forbids only what moves by itself
   const shifted = shifts
     .filter((e) => !e.hadRecentInput)
