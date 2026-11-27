@@ -12,7 +12,7 @@ theme/             palette.nix, tokens.nix and the contrast test
 nix/               the workspace builders, bun2nix's patch, the release script
 kit/               @sammysul/lsel: tokens.css and fonts, components, keys, states,
                    formats, the server, test helpers, the shared tsconfig, lsel-check
-apps/              typ, dajaj, lsel-station, yank-wars, sammysul (the sammysul.com page)
+apps/              typ, dajaj, lsel-station, yank-wars, grab, sammysul (the sammysul.com page)
 templates/web/     the starting point for a new app: a Svelte page served by Bun
 patches/           `bun patch` patches, for the whole workspace
 ```

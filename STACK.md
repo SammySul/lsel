@@ -42,7 +42,9 @@ CI builds and tests like the apps. A new app is a copy of it in `apps/<name>/`
 ## Code
 
 How an app's code is laid out, so the next one reads like the last. Each names
-the file that shows it; copy that shape rather than inventing one.
+the file that shows it; copy that shape rather than inventing one. `templates/web`
+starts with it: `config.ts`, `api.ts`, `main.ts`, `src/shared/` and a
+`resource()` view with its `Status`.
 
 - **Server files**: `main.ts` starts `serve()` and only wires;
   `config.ts` holds the port and the environment's Valibot schema; `api.ts`

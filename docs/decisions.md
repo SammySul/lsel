@@ -75,6 +75,27 @@ recreation of the title face, committed with its license note in
 `theme/fonts/`. _Rejected:_ the exact `#C0000F` (3:1, so links couldn't be
 red).
 
+## App screens fit the window and hold still
+
+Rules that came from fixing one app (yank-wars' list that fits the window,
+buttons that stopped resizing) lived only in commits and kit code, so the next
+app (grab) broke them without knowing. They are now written (`DESIGN.md`,
+Layout) and checked: `lselLayout()` in every app's browser tests fails on a
+page that scrolls at 1280×800 or 390×844, or on anything that moves by itself.
+What it found everywhere was the kit's: fonts swapping in after the first
+paint (now `font-display: optional` and `start()`, which mounts once they
+are in, capped at 500 ms), `Status` and an empty `List` taking no height
+until they had something to say, and `List` drawn at ten rows before it
+fitted. A move the user caused (a key, a click) is allowed; Chromium marks
+those. _Rejected:_ checking only for scrolling (the jumps were the complaint),
+and `font-display: block` (a slow font still moves the text, only later).
+
+## Motion is even
+
+One aggressive ease-out curve made every change lurch, and the loading bar
+looped off the right edge and snapped back. Changes now ease in and out,
+appearing content settles in, and the bar glides edge to edge and back.
+
 ## Deploys follow the tags
 
 Each app's updater on `twelve` builds the newest `<name>-v*` tag and restarts

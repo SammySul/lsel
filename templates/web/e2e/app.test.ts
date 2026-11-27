@@ -11,8 +11,12 @@ import {
   watchPage,
 } from "@sammysul/lsel/testing";
 import { name as project } from "../package.json";
+import { api } from "../src/server/api.ts";
 
-const url = serveBuilt(join(import.meta.dir, "../dist"));
+const url = serveBuilt(
+  join(import.meta.dir, "../dist"),
+  api(() => new Date("2026-11-27T14:05:00Z")),
+);
 
 eachBrowser((browser) => {
   test("the page renders in lsel's look under the strict CSP, with a quiet console", async () => {
@@ -20,6 +24,10 @@ eachBrowser((browser) => {
     const watch = watchPage(page);
     await page.goto(url(), { waitUntil: "networkidle" });
     expect(await page.getByRole("heading", { level: 1 }).textContent()).toBe(project);
+    await page.getByText("Hello from the server").waitFor();
+    expect(await page.locator(".answer").textContent()).toMatch(
+      /^Hello from the server, Nov 27, \d{1,2}:05 [AP]M\.$/,
+    );
     expect(await lselLook(page)).toEqual(LSEL_LOOK);
     expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
     expect(await watch.take()).toEqual([]);

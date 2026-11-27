@@ -80,3 +80,33 @@ test("a line marked lsel-allow, or the line under the mark, is let through, and 
   });
   expect(await check(root)).toEqual([]);
 });
+
+test("an app mounts through start(), and browser tests that check the look check the layout too", async () => {
+  const root = project({
+    ...CONFIGS,
+    "src/web/main.ts":
+      '// Mounts the app.\nimport { mount } from "svelte";\nimport App from "./App.svelte";\nmount(App, { target: document.body });\n',
+    "e2e/app.test.ts": "expect(await lselLook(page)).toEqual(LSEL_LOOK);\n",
+  });
+  expect(await check(root)).toEqual([
+    {
+      file: "src/web/main.ts",
+      line: 4,
+      message: "start() from @sammysul/lsel mounts the app, once its fonts are in",
+    },
+    {
+      file: "e2e/app.test.ts",
+      line: 1,
+      message: "check lselLayout() beside lselLook(): the page fits the window and holds still",
+    },
+  ]);
+  writeFileSync(
+    join(root, "e2e/app.test.ts"),
+    "expect(await lselLook(page)).toEqual(LSEL_LOOK);\nexpect(await lselLayout(page)).toEqual(LSEL_LAYOUT);\n",
+  );
+  writeFileSync(
+    join(root, "src/web/main.ts"),
+    '// Mounts the app.\nimport { start } from "@sammysul/lsel";\nimport App from "./App.svelte";\nawait start(App);\n',
+  );
+  expect(await check(root)).toEqual([]);
+});

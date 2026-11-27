@@ -12,3 +12,5 @@ result-*
 *.local
 *.sqlite
 *.sqlite-*
+# agent worktrees: whole checkouts, each with a biome.json that breaks the root `biome check`
+.claude/worktrees/

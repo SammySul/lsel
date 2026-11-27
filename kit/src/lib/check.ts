@@ -63,6 +63,11 @@ const RULES: readonly Rule[] = [
     pattern: /<main[\s>]/,
     message: "Page draws the page's main",
   },
+  {
+    in: [".ts"],
+    pattern: /\bmount\(\s*App\b/,
+    message: "start() from @sammysul/lsel mounts the app, once its fonts are in",
+  },
 ];
 
 // A longer file usually does several jobs; one that shouldn't be split says why under its header.
@@ -107,8 +112,16 @@ async function configFindings(root: string): Promise<Finding[]> {
 
 export async function check(root: string): Promise<Finding[]> {
   const out = await configFindings(root);
+  // browser tests that check the look check the layout too (DESIGN.md, Layout)
+  let looks: string | undefined;
+  let layout = false;
   for await (const path of files(root)) {
     const file = relative(root, path);
+    if (isTest(file) && /\.(ts|js)$/.test(file)) {
+      const text = await readFile(path, "utf8");
+      if (looks === undefined && text.includes("lselLook(")) looks = file;
+      if (text.includes("lselLayout(")) layout = true;
+    }
     if (file.endsWith("tokens.css")) {
       out.push({
         file,
@@ -139,6 +152,13 @@ export async function check(root: string): Promise<Finding[]> {
       for (const r of rules) {
         if (r.pattern.test(text)) out.push({ file, line: i + 1, message: r.message });
       }
+    });
+  }
+  if (looks !== undefined && !layout) {
+    out.push({
+      file: looks,
+      line: 1,
+      message: "check lselLayout() beside lselLook(): the page fits the window and holds still",
     });
   }
   return out;
