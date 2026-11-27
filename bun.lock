@@ -42,7 +42,7 @@
     },
     "apps/lsel-station": {
       "name": "lsel-station",
-      "version": "0.6.0",
+      "version": "0.6.1",
       "dependencies": {
         "@sammysul/lsel": "workspace:*",
         "svelte": "catalog:",

@@ -11,7 +11,14 @@ import { DEPARTMENT_IDS, DEPARTMENTS, type DepartmentId } from "../content/depar
 import { ITEM_IDS, ITEMS, type ItemId } from "../content/items.ts";
 import { type SaveDocument, toDocument } from "../save/document.ts";
 import { HOME, mapOf } from "../sim/map.ts";
-import { departmentLevel, departmentOpen, ownedSectors, room, working } from "../sim/rules.ts";
+import {
+  departmentLevel,
+  departmentOpen,
+  holdSize,
+  ownedSectors,
+  room,
+  working,
+} from "../sim/rules.ts";
 import { newGame } from "../sim/state.ts";
 import { startGame } from "./game.svelte.ts";
 import { createSound } from "./sound/sound.svelte.ts";
@@ -175,9 +182,13 @@ keys(() => [
   {#snippet actions()}
     <ul class="stock">
       {#each stock as id (id)}
+        {@const n = game.snapshot.items[id] ?? 0}
         <li>
           <span class="dim">{ITEMS[id].name}</span>
-          {count(game.snapshot.items[id] ?? 0)}{#if room(game.snapshot, id) === 0}{" "}<span class="note">full</span>{/if}
+          <span class="slot" data-widest={count(Math.max(holdSize(game.snapshot), n))}><span>{count(n)}</span></span>
+          {#if id !== "credits"}
+            <span class="slot full" data-widest="full">{#if room(game.snapshot, id) === 0}<span class="note">full</span>{/if}</span>
+          {/if}
         </li>
       {/each}
     </ul>
@@ -374,6 +385,22 @@ keys(() => [
   .stock,
   .saved {
     font-variant-numeric: tabular-nums;
+  }
+  /* a count is as wide as the most the Hold takes, its "full" there from the start: timers grow them (DESIGN.md, Layout) */
+  .slot {
+    display: inline-grid;
+    justify-items: end;
+  }
+  .slot.full {
+    justify-items: start;
+  }
+  .slot > span,
+  .slot::after {
+    grid-area: 1 / 1;
+  }
+  .slot::after {
+    content: attr(data-widest);
+    visibility: hidden;
   }
   /* centered, a label that changes by itself would move sideways */
   .saved :global(.lsel-swap) {

@@ -147,6 +147,36 @@ eachBrowser((browser) => {
   );
 
   test(
+    "the top bar holds still on a phone while a count grows from 1 to 500 and the Hold fills",
+    async () => {
+      const page = await browser().newPage({ viewport: { width: 390, height: 844 } });
+      const problems = await open(page);
+      const boxes = () =>
+        page
+          .locator(".lsel-page > .top > header button, .stock li")
+          .evaluateAll((all) =>
+            all.map((e) => [e.getBoundingClientRect().x, e.getBoundingClientRect().y]),
+          );
+      await page.keyboard.press("Enter");
+      await seconds(page, 3);
+      expect(await texts(page, ".stock li")).toEqual(["Iron ore 1"]);
+      const first = await boxes();
+      expect(first.length).toBe(5);
+
+      await seconds(page, 33);
+      expect(await texts(page, ".stock li")).toEqual(["Iron ore 12"]);
+      expect(await boxes()).toEqual(first);
+      // a gap this long is caught up on behind a progress bar, with no timer to wait on
+      await seconds(page, 2 * 60 * 60);
+      await page.locator(".stock .note").waitFor();
+      expect(await texts(page, ".stock li")).toEqual(["Iron ore 500 full"]);
+      expect(await boxes()).toEqual(first);
+      expect(await problems()).toEqual([]);
+    },
+    TIMEOUT,
+  );
+
+  test(
     "ore is refined until it runs out, a Habitat is built from plate and water, and Ines joins",
     async () => {
       const page = await browser().newPage({ viewport: { width: 1280, height: 800 } });
