@@ -73,7 +73,10 @@ const pages = $derived(Math.max(1, Math.ceil(items.length / size)));
 const page = $derived(Math.floor(index / size));
 const start = $derived(page * size);
 const visible = $derived(items.slice(start, start + size));
-const fillers = $derived(pageSize === undefined ? 0 : size - visible.length);
+// an empty fitted list keeps its height: the empty line takes one row, fillers the rest
+const fillers = $derived(
+  pageSize === undefined ? 0 : size - visible.length - (items.length === 0 ? 1 : 0),
+);
 
 const rows: HTMLElement[] = $state([]);
 let list: HTMLUListElement | undefined = $state();
@@ -105,6 +108,8 @@ $effect(() => {
   const observer = new ResizeObserver(later);
   observer.observe(page);
   addEventListener("resize", later);
+  // once now, before the first paint: a list drawn at the default size and then fitted jumps
+  fit();
   return () => {
     cancelAnimationFrame(frame);
     observer.disconnect();
@@ -181,11 +186,12 @@ keys(() =>
 );
 </script>
 
-{#if items.length === 0}
+{#if items.length === 0 && pageSize === undefined}
   <Empty>{@render empty()}</Empty>
 {:else}
   {#if head}<div class="head" aria-hidden="true">{@render head()}</div>{/if}
   <ul class="lsel-list" aria-label={label} bind:this={list}>
+    {#if items.length === 0}<li class="filler"><Empty>{@render empty()}</Empty></li>{/if}
     {#each visible as item, i (id(item))}
       <!-- the keys above are the keyboard way in; a click is the pointer's -->
       <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->

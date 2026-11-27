@@ -54,6 +54,8 @@ const NAMES: Record<string, string> = {
   ArrowRight: "→",
   ArrowUp: "↑",
   Escape: "Esc",
+  PageDown: "PgDn",
+  PageUp: "PgUp",
 };
 
 export const keyName = (key: string) => NAMES[key] ?? key;

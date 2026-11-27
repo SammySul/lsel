@@ -2,13 +2,14 @@
 palette:
 let
   base16 = import ./base16.nix palette;
+  # font-display optional, not swap: a font that arrives after the first paint would move every line it sets (DESIGN.md, Layout)
   face = family: file: weight: ''
     @font-face {
       font-family: "${family}";
       src: url("./${file}.woff2") format("woff2");
       font-weight: ${toString weight};
       font-style: normal;
-      font-display: swap;
+      font-display: optional;
     }
   '';
   # Each line carries its own indent: Nix doesn't re-indent an interpolated block.
@@ -69,9 +70,10 @@ in
 
     --border: 1px solid var(--overlay);
     --focus: 2px solid var(--accent);
-    --ease: cubic-bezier(0.2, 0, 0, 1);
+    --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    --ease-in: cubic-bezier(0, 0, 0.2, 1);
     --motion-fast: 150ms;
-    --motion: 200ms;
+    --motion: 180ms;
     --motion-slow: 300ms;
   }
 
@@ -80,6 +82,11 @@ in
   *::after {
     box-sizing: border-box;
     border-radius: 0;
+  }
+
+  /* a reading page (the one kind that scrolls) keeps room for its scrollbar, so one appearing never shifts it sideways */
+  html:has(main[data-lsel-reading]) {
+    scrollbar-gutter: stable;
   }
 
   html,
@@ -236,7 +243,7 @@ in
 
   /* Content that appears or swaps; re-key the element in Svelte to replay it. */
   .lsel-appear {
-    animation: lsel-appear var(--motion) var(--ease) both;
+    animation: lsel-appear var(--motion) var(--ease-in) both;
   }
 
   @media (prefers-reduced-motion: reduce) {

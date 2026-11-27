@@ -1,7 +1,7 @@
-// Mounts the playground.
+// Mounts the playground once its fonts are in.
 
 import "../src/lib/assets/tokens.css";
-import { mount } from "svelte";
+import { start } from "../src/lib/index.ts";
 import App from "./App.svelte";
 
-mount(App, { target: document.body });
+await start(App, document.body);

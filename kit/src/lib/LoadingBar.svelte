@@ -31,18 +31,19 @@ $effect(() => {
   .shown {
     opacity: 1;
   }
+  /* a short segment gliding edge to edge and back: it never jumps, and it reads as waiting, not progress */
   .segment {
-    width: 30%;
+    width: 20%;
     height: 100%;
     background: var(--accent);
-    animation: lsel-loading 1.2s var(--ease) infinite;
+    animation: lsel-loading 1.6s var(--ease) infinite alternate;
   }
   @keyframes lsel-loading {
     from {
-      transform: translateX(-100%);
+      transform: translateX(0);
     }
     to {
-      transform: translateX(333%);
+      transform: translateX(400%);
     }
   }
   @media (prefers-reduced-motion: reduce) {

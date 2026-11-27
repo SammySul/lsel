@@ -104,6 +104,112 @@ export async function lselLook(page: Page): Promise<{ background: string; font: 
   }));
 }
 
+/** The windows an app screen must fit without the page scrolling: a laptop and a phone. */
+export const LAYOUT_SIZES = [
+  { width: 1280, height: 800 },
+  { width: 390, height: 844 },
+] as const;
+
+/** What `lselLayout()` reads on a screen that keeps DESIGN.md's layout rules. */
+export const LSEL_LAYOUT: { scrolls: string[]; shifted: string[] } = { scrolls: [], shifted: [] };
+
+/**
+ * Two frames: a fitted List or Grid settles one frame after the window changes. Waited for from
+ * here, with a cap: a test that stopped the page's clock (page.clock) stops its frames too.
+ */
+const settle = (page: Page) =>
+  Promise.race([
+    page.evaluate(
+      () => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))),
+    ),
+    Bun.sleep(250),
+  ]);
+
+/**
+ * DESIGN.md's layout rules, read off the page: `scrolls` names each of LAYOUT_SIZES where the page
+ * scrolls (sideways always counts; down only on an app screen, not a `reading` Page), and `shifted`
+ * names what moved by itself (not right after a key or click) since the page loaded or the last call (Chromium reports layout
+ * shifts; other engines report none). Hands back the window it found.
+ */
+export async function lselLayout(page: Page): Promise<{ scrolls: string[]; shifted: string[] }> {
+  await page.evaluate(() => document.fonts.ready);
+  await settle(page);
+  const shifted = await page.evaluate(() => {
+    const seen = (window as { lselLayoutSeen?: number }).lselLayoutSeen ?? 0;
+    const name = (n: Node | null | undefined): string => {
+      if (!(n instanceof Element))
+        return n?.parentElement ? `text in ${name(n.parentElement)}` : "text";
+      const label = n.getAttribute("aria-label");
+      const cls = typeof n.className === "string" ? n.className.trim().split(/\s+/)[0] : "";
+      const text = n.textContent?.trim() ?? "";
+      const said = text !== "" && text.length <= 24 ? ` "${text}"` : "";
+      return `${n.localName}${cls ? `.${cls}` : ""}${label ? `[${label}]` : ""}${said}`;
+    };
+    type Rect = { x: number; y: number; width: number; height: number };
+    const how = (from: Rect, to: Rect) => {
+      const parts: string[] = [];
+      const dy = Math.round(to.y - from.y);
+      const dx = Math.round(to.x - from.x);
+      const dh = Math.round(to.height - from.height);
+      const dw = Math.round(to.width - from.width);
+      if (dy !== 0) parts.push(`${dy > 0 ? "down" : "up"} ${Math.abs(dy)}px`);
+      if (dx !== 0) parts.push(`${dx > 0 ? "right" : "left"} ${Math.abs(dx)}px`);
+      if (dh !== 0) parts.push(`${dh > 0 ? "taller" : "shorter"} ${Math.abs(dh)}px`);
+      if (dw !== 0) parts.push(`${dw > 0 ? "wider" : "narrower"} ${Math.abs(dw)}px`);
+      return parts.join(", ");
+    };
+    if (!PerformanceObserver.supportedEntryTypes.includes("layout-shift")) return [];
+    // buffered entries are handed over at once, so no timer (which page.clock may have stopped) is needed
+    const observer = new PerformanceObserver(() => undefined);
+    observer.observe({ type: "layout-shift", buffered: true });
+    type Shift = PerformanceEntry & {
+      hadRecentInput: boolean;
+      sources?: { node?: Node | null; previousRect: Rect; currentRect: Rect }[];
+    };
+    const entries = observer.takeRecords() as Shift[];
+    observer.disconnect();
+    // a move the user asked for (a key, a click) is theirs; DESIGN.md forbids only what moves by itself
+    return entries
+      .slice(seen)
+      .filter((e) => !e.hadRecentInput)
+      .flatMap((e) =>
+        (e.sources ?? []).flatMap((source) => {
+          const moved = how(source.previousRect, source.currentRect);
+          // under a pixel every way: text redrawn in place, nothing anyone sees move
+          return moved === "" ? [] : [`${name(source.node)} ${moved}`];
+        }),
+      );
+  });
+  const found = page.viewportSize();
+  const scrolls: string[] = [];
+  for (const size of LAYOUT_SIZES) {
+    await page.setViewportSize(size);
+    await settle(page);
+    const over = await page.evaluate(() => {
+      const root = document.documentElement;
+      const reading = document.querySelector("main[data-lsel-reading]") !== null;
+      return {
+        down: !reading && root.scrollHeight > root.clientHeight,
+        sideways: root.scrollWidth > root.clientWidth,
+      };
+    });
+    const at = `${size.width}×${size.height}`;
+    if (over.down) scrolls.push(`${at} down`);
+    if (over.sideways) scrolls.push(`${at} sideways`);
+  }
+  if (found !== null) await page.setViewportSize(found);
+  await settle(page);
+  // the resizing above moved things; the next call counts from here (by count: page.clock fakes the time)
+  await page.evaluate(() => {
+    if (!PerformanceObserver.supportedEntryTypes.includes("layout-shift")) return;
+    const observer = new PerformanceObserver(() => undefined);
+    observer.observe({ type: "layout-shift", buffered: true });
+    (window as { lselLayoutSeen?: number }).lselLayoutSeen = observer.takeRecords().length;
+    observer.disconnect();
+  });
+  return { scrolls, shifted: [...new Set(shifted)] };
+}
+
 /** Call at a test file's top level; the result gives the address once the file's tests run. */
 export function serveBuilt(
   dist: string,

@@ -5,6 +5,7 @@ import {
   Action,
   Empty,
   Field,
+  Grid,
   keys,
   List,
   Page,
@@ -19,13 +20,14 @@ const say = (text: string) => {
   said = text;
 };
 
-type View = "list" | "states" | "form" | "pages" | "fit";
+type View = "list" | "states" | "form" | "pages" | "fit" | "grid";
 const VIEWS = [
   { id: "list", label: "List" },
   { id: "states", label: "States" },
   { id: "form", label: "Form" },
   { id: "pages", label: "Pages" },
   { id: "fit", label: "Fit" },
+  { id: "grid", label: "Grid" },
 ] as const;
 
 // more rows than a page, the last page short
@@ -132,6 +134,13 @@ let nameError: string | null = $state(null);
         {#snippet empty()}No items.{/snippet}
       </List>
     </section>
+  {:else if view === "grid"}
+    <section aria-label="Grid" class="grid-box">
+      <Grid items={ITEMS} id={(item) => item} label="Tiles" min={120} hint>
+        {#snippet tile(item)}<span class="tile">{item}</span>{/snippet}
+        {#snippet empty()}No tiles.{/snippet}
+      </Grid>
+    </section>
   {:else if view === "states"}
     <section aria-label="States">
       <div class="modes" role="group" aria-label="Mode">
@@ -167,6 +176,14 @@ let nameError: string | null = $state(null);
 </Page>
 
 <style>
+  /* a Grid fills the height it is given */
+  .grid-box {
+    height: min(420px, 40vh);
+  }
+  .tile {
+    display: block;
+    padding: var(--space-2);
+  }
   section {
     display: flex;
     flex-direction: column;

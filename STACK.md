@@ -35,6 +35,36 @@ CI builds and tests like the apps. A new app is a copy of it in `apps/<name>/`
   with a TTL; merge identical requests already in flight.
 - **Show upstream failures**: a rate limit or outage is a message on screen,
   never an empty table.
+- **A slow upstream answers in parts**: the API returns what it has within a
+  second or two with how much is still coming, and the page asks again until
+  nothing is (grab's `snapshot()` and `pending`).
+
+## Code
+
+How an app's code is laid out, so the next one reads like the last. Each names
+the file that shows it; copy that shape rather than inventing one.
+
+- **Server files**: `main.ts` starts `serve()` and only wires;
+  `config.ts` holds the port and the environment's Valibot schema; `api.ts`
+  is the routes, taking its upstream as a dependency; one client per upstream
+  (`pubg.ts`, `instagram.ts`). dajaj's `src/server/`.
+- **An upstream's failures** are one error class with a `kind`, mapped to an
+  HTTP status in one table, its message written for the screen (`PubgError`
+  and `STATUS` in dajaj's `pubg.ts` and `api.ts`).
+- **A fake upstream for tests**, in the upstream's real shape, served or
+  injected as `fetch` (`fakePubg.ts`, `fakeInstagram.ts`): unit and browser
+  tests run against it, never the real one. Nothing `main.ts` imports may
+  import it.
+- **The web app**: `main.ts` calls the kit's `start(App)`; data comes through
+  `resource()` with a `Status` per view; a view that shows one thing (a
+  profile, a puzzle) is keyed on it, so the last answer never stands in for
+  another's (grab's `ProfileView`). Saved choices live in one `prefs.ts`
+  with `persisted()` (dajaj's).
+- **Shared types** between server and page sit in `src/shared/`; the page
+  never imports from `src/server/`.
+- **Tests** call the code as its users do and assert literal values; a test
+  that would pass with every import returning `undefined` is deleted. Every
+  app's browser tests check `lselLook()` and `lselLayout()`.
 
 ## Release
 

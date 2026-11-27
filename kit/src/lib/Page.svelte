@@ -23,6 +23,8 @@ interface Props {
   width?: number;
   /** Fills the window, children taking the height left: a game or an editor. */
   fill?: boolean;
+  /** A page read top to bottom (sammysul), the one kind that may scroll down (DESIGN.md, Layout). */
+  reading?: boolean;
   actions?: Snippet;
   children: Snippet;
 }
@@ -35,6 +37,7 @@ let {
   license = "MIT",
   width = 960,
   fill = false,
+  reading = false,
   actions,
   children,
 }: Props = $props();
@@ -59,7 +62,7 @@ const hints = $derived(
   <meta name="theme-color" content={palette.base} />
 </svelte:head>
 
-<main class="lsel-page" class:fill style:max-width="{width}px">
+<main class="lsel-page" class:fill data-lsel-reading={reading || undefined} style:max-width="{width}px">
   <div class="top">
     <header>
       <div class="title">
@@ -70,6 +73,7 @@ const hints = $derived(
         {#if actions}{@render actions()}{/if}
         <button
           type="button"
+          class="keys"
           aria-pressed={hintsShown.value}
           aria-controls="lsel-hints"
           onclick={toggleHints}>Keys <kbd>K</kbd></button
@@ -145,11 +149,21 @@ const hints = $derived(
     grid-template-rows: 1fr;
     opacity: 1;
   }
+  /* one line, cut short: keys that arrive with a loaded view never push the page down */
   .hints p {
     min-height: 0;
     margin: 0;
     overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     transition: padding-top var(--motion) var(--ease);
+  }
+  /* a touch screen has no keys to list: its height goes to the page instead */
+  @media (pointer: coarse) {
+    .hints,
+    .keys {
+      display: none;
+    }
   }
   .hints.shown p {
     padding-top: var(--space-3);

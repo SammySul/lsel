@@ -14,8 +14,10 @@ import { version } from "../package.json";
 import { palette } from "../src/lib/assets/palette.ts";
 import {
   browsers,
+  LSEL_LAYOUT,
   LSEL_LOOK,
   launch,
+  lselLayout,
   lselLook,
   serveBuilt,
   watchPage,
@@ -54,6 +56,7 @@ for (const name of browsers()) {
     test("lsel's look under the strict CSP, with a quiet console", async () => {
       const { page, problems } = await open();
       expect(await lselLook(page)).toEqual(LSEL_LOOK);
+      expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
       const themeColors = await page
         .locator('meta[name="theme-color"]')
         .evaluateAll((metas) =>
@@ -180,6 +183,56 @@ for (const name of browsers()) {
       expect(await problems()).toEqual([]);
     });
 
+    test("a grid fits whole rows in its box, keeps its height on every page, and moves by tile, row and page", async () => {
+      const { page, problems } = await open();
+      await page.setViewportSize({ width: 1000, height: 900 });
+      await page.keyboard.press("6");
+      const grid = page.getByRole("list", { name: "Tiles" });
+      await grid.waitFor();
+      const state = async () => {
+        const cols = await grid.evaluate(
+          (ul) => getComputedStyle(ul).gridTemplateColumns.split(" ").length,
+        );
+        return {
+          cols,
+          tiles: await grid.locator("li").count(),
+          current: await grid.locator('li[aria-current="true"]').textContent(),
+          pager: await page.locator(".lsel-grid .pager > span").textContent(),
+          height: Math.round((await page.locator(".lsel-grid").boundingBox())?.height ?? 0),
+        };
+      };
+      const first = await state();
+      const perPage = first.tiles;
+      const pages = Math.ceil(23 / perPage);
+      expect(perPage % first.cols).toBe(0);
+      expect(perPage).toBeLessThan(23);
+      expect([first.current, first.pager, first.height]).toEqual([
+        "Item 1",
+        `Page 1 of ${pages}`,
+        first.height,
+      ]);
+      await page.keyboard.press("l");
+      expect((await state()).current).toBe("Item 2");
+      await page.keyboard.press("j");
+      expect((await state()).current).toBe(`Item ${2 + first.cols}`);
+      await page.keyboard.press("PageDown");
+      const second = await state();
+      expect([second.current, second.pager, second.height]).toEqual([
+        `Item ${2 + first.cols + perPage}`,
+        `Page 2 of ${pages}`,
+        first.height,
+      ]);
+      await page.keyboard.press("G");
+      const last = await state();
+      expect([last.current, last.tiles, last.height]).toEqual([
+        "Item 23",
+        23 - perPage * (pages - 1),
+        first.height,
+      ]);
+      expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
+      expect(await problems()).toEqual([]);
+    });
+
     test("in a search box keys type, arrows still move, and Esc clears then leaves", async () => {
       const { page, problems } = await open();
       await page.keyboard.press("G");
@@ -241,6 +294,7 @@ for (const name of browsers()) {
         "Show form",
         "Show pages",
         "Show fit",
+        "Show grid",
         "Next",
         "Previous",
         "First",

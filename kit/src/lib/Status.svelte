@@ -36,10 +36,14 @@ keys(() =>
 </div>
 
 <style>
+  /* one line kept from the start, the waiting text and the error taking turns on it (DESIGN.md, Layout) */
   .lsel-status {
+    display: grid;
     color: var(--subtle);
   }
   p {
+    grid-area: 1 / 1;
+    min-height: 1lh;
     margin: 0;
   }
   .error {

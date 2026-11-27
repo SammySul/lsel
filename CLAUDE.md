@@ -33,6 +33,11 @@ describes, fix or delete the note.
   `github-mirror` for GitHub (all SammySul repos, administration and contents),
   `forgejo` for Forgejo (repository read/write).
 - **Specs are deleted once built**; `docs/decisions.md` keeps the why.
+- **Read `DESIGN.md` before UI work and `STACK.md` before code**, then copy
+  the files they point to. A change that sets a convention (a fix that every
+  app should follow) updates them in the same commit, with a check where one
+  can catch it (`lsel-check`, `lselLayout()`); a rule only in a commit message
+  is lost. A screen or piece the kit lacks is asked for, not built in an app.
 - **When Sammy has to act** (a login, `sudo`, a dashboard), one step per
   message, then wait.
 - **US spelling and a 12-hour clock**; metric units and Celsius are the only

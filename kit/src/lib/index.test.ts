@@ -7,6 +7,7 @@ test("the package root loads in bun test and exports exactly its API", () => {
     "Action",
     "Empty",
     "Field",
+    "Grid",
     "List",
     "Page",
     "Status",
@@ -25,6 +26,7 @@ test("the package root loads in bun test and exports exactly its API", () => {
     "reducedMotion",
     "resource",
     "route",
+    "start",
     "when",
   ]);
 });

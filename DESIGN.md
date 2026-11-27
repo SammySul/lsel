@@ -3,8 +3,10 @@
 One look for everything, taken from the terminal: dark, square, quiet.
 The values live in `theme/` and reach every app as `tokens.css` in
 `@sammysul/lsel`; use the variables, never the hex values. The package's
-components (`Page`, `Tabs`, `List`, `Status`, `Empty`, `Action`,
-`Field`) are these rules in code: use them rather than rebuilding them.
+components (`Page`, `Tabs`, `List`, `Grid`, `Status`, `Empty`, `Action`,
+`Field`) are these rules in code: use them rather than rebuilding them. A
+screen the kit has no piece for gets one added to the kit, asked for first,
+never one built inside an app.
 
 ## Palette
 
@@ -57,6 +59,34 @@ the interface around it still uses these variables.
   a gap to the window; the app sets only its `max-width` and padding.
 - Spacing on a 4px grid: `--space-1` … `--space-7` (4, 8, 12, 16, 24, 32, 48).
 
+## Layout
+
+An app screen fits the window and holds still. `lselLayout()` checks both in
+every app's browser tests, at 1280×800 and 390×844 (`LAYOUT_SIZES`).
+
+- **The page never scrolls.** What can grow (rows, tiles) goes in a fitted
+  `List` or `Grid` (`pageSize="fit"`): it takes the height left and pages with
+  `h`/`l`, so the page never grows. A screen with one working area (a game, an
+  editor) is a `Page fill`. A page read top to bottom (sammysul) is a
+  `Page reading`, the one kind that may scroll down; nothing scrolls sideways.
+- **Nothing moves by itself.** What arrives later (loading, polling, a timer)
+  takes space kept for it from the start; only the user's own key or click may
+  move things (folding the key hints, an error under a submitted field).
+  - A line that may appear (waiting, a count, a warning) has its place from the
+    start, empty until then.
+  - Controls that load later (players, filters) keep their row; a label that
+    changes keeps its widest width (`Swap`, `Action`).
+  - A list or grid keeps its height through loading, filtering and paging,
+    fillers included; an empty one says so in its place.
+  - Inside a fitted frame, text stays on one line, cut with an ellipsis: a wrap
+    would change the row count. Secondary detail goes in the pager row (`foot`).
+- **The list or grid gets the height.** Related controls group with
+  `--space-3`, sections with the page's gap; prose that would wrap on a phone
+  is cut short instead.
+- `tokens.css` does its part: fonts load with `font-display: optional` (a late
+  font would move every line it sets), and the page keeps room for a scrollbar
+  (`scrollbar-gutter: stable`), so one appearing never shifts it sideways.
+
 ## Elements
 
 `tokens.css` styles buttons (outlined on `--base`; a pressed toggle has an
@@ -74,10 +104,12 @@ button).
   `K` or the Keys button folds them away, remembered per app.
 - Focus is always visible: `--focus`, a 2px accent outline.
 - Nothing only works on hover or with a mouse.
-- **Motion is subtle and on by default**, one curve (`--ease`): controls ease
-  their color and border changes (`--motion-fast`, 150 ms, set by
-  `tokens.css`); content that appears or swaps fades in (`.lsel-appear`,
-  `--motion`, 200 ms); charts animate to new values (`--motion-slow`, 300 ms).
+- **Motion is subtle and on by default**, and even: `--ease` (ease-in-out)
+  for what changes, `--ease-in` (settling in) for what appears, never a lurch.
+  Controls ease their color and border changes (`--motion-fast`, 150 ms, set
+  by `tokens.css`); content that appears or swaps fades in (`.lsel-appear`,
+  `--motion`, 180 ms); charts animate to new values (`--motion-slow`, 300 ms).
+  The loading bar glides edge to edge and back, 1.6 s each way.
   Nothing moves for decoration, except inside a game's scene (lsel-station's
   stars). `prefers-reduced-motion` stops all of it: the CSS through
   `tokens.css`, anything driven from JavaScript (Chart.js, the Web Animations
