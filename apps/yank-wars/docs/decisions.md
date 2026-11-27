@@ -250,6 +250,26 @@ into a fresh buffer; a dropped socket retries for the 15 s the seat is held and
 resends what the server missed. Rooms are in memory: a deploy ends them, and the
 client says so.
 
+## Daily (2026-11-27)
+
+**One puzzle a day for everyone**, midnight to midnight UTC, so a shared result
+always names the same puzzle. Day 1 is 2026-11-27. The puzzle is a fixed stride
+through the easy and medium puzzles sorted by id (`dailyPuzzle`; a daily is for fun, hard ones stay in the list), computed alike in the browser and
+the server: no schedule to keep, and no puzzle repeats before every other has
+had its day. A deploy that changes the pool reshuffles the days ahead, today's
+included; the board is kept per day and puzzle, so a changed puzzle starts a
+fresh board. _Rejected:_ a hand-scheduled list (ongoing work).
+
+**The board before accounts.** A run counts once the server replays its log
+(the rooms' replay worker), so keys can't be faked; the time is the client's,
+checked only against the round cap, and breaks ties. A player is a random id in
+prefs, with the name they type on the card; one row per player and day keeps
+their best. Runs live in `daily.sqlite` in the state directory. Accounts (part
+3) will replace the id and make names trustworthy.
+
+**Streaks stay in the browser** (the days solved, in prefs), and the share line
+carries one.
+
 ## Project
 
 Lives in lsel under `apps/yank-wars` (since 2026-11-21), MIT; release and
@@ -258,7 +278,7 @@ deploy are lsel's (`STACK.md`).
 ## Build order
 
 0–3. Done (2026-11-17, `v1.0.0`): the solo game live at `yankwars.app`, ~50
-handmade puzzles. The daily puzzle page comes after v1
+handmade puzzles. The daily puzzle with its board: done 2026-11-27 (`v1.5.0`)
 4. Rooms (step 2 parts 2 and 3): part 2 done 2026-11-26 (invite links, grace
 timer, round cap, reconnect, replay with mismatch logging); part 3 next: Better
 Auth anonymous sessions on `bun:sqlite`, upstream PRs for the core patch

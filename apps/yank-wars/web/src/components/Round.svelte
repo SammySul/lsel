@@ -2,6 +2,7 @@
 <script lang="ts">
 import type { Puzzle } from "@yank-wars/engine";
 import { onDestroy, untrack } from "svelte";
+import type { Daily } from "../lib/daily.ts";
 import { prefs } from "../lib/prefs.svelte.ts";
 import type { RoomClient } from "../lib/room.svelte.ts";
 import { isOver, RoundController } from "../lib/round.svelte.ts";
@@ -15,7 +16,15 @@ import StudyOverlay from "./StudyOverlay.svelte";
 
 /** Solo: a puzzle, and the round is this component's. In a room: the room's round. */
 type Props =
-  | { puzzle: Puzzle; onNext(): void; onRetry(): void; onList(): void; room?: never; ctl?: never }
+  | {
+      puzzle: Puzzle;
+      daily?: Daily | undefined;
+      onNext(): void;
+      onRetry(): void;
+      onList(): void;
+      room?: never;
+      ctl?: never;
+    }
   | { room: RoomClient; ctl: RoundController; onList(): void; puzzle?: never };
 
 let props: Props = $props();
@@ -60,7 +69,13 @@ onDestroy(() => {
         </p>
       {/if}
     {:else if ctl.showResult && props.puzzle !== undefined}
-      <ResultCard {ctl} onNext={props.onNext} onRetry={props.onRetry} onList={props.onList} />
+      <ResultCard
+        {ctl}
+        daily={props.daily}
+        onNext={props.onNext}
+        onRetry={props.onRetry}
+        onList={props.onList}
+      />
     {/if}
   </div>
   <div class="footer">

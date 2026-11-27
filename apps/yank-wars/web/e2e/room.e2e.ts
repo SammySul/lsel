@@ -1,9 +1,10 @@
-// Two players in a room, each in their own browser context, against an in-process room server. Env: BROWSERS.
+// Two players in a room, and the daily board, each player in their own browser context, against an in-process server. Env: BROWSERS.
 import { afterAll, beforeAll, expect, test } from "bun:test";
 import { upgrade } from "@sammysul/lsel/server";
 import { eachBrowser, launch, watchPage } from "@sammysul/lsel/testing";
-import type { Puzzle } from "@yank-wars/engine";
+import { dailyPuzzle, dayOf, type Puzzle } from "@yank-wars/engine";
 import type { Page } from "playwright-core";
+import { Board, dailyRoutes } from "../../server/src/daily.ts";
 import { PUZZLES, picker } from "../../server/src/puzzles.ts";
 import { Replayer } from "../../server/src/replay.ts";
 import { type Conn, type Mismatch, Rooms } from "../../server/src/rooms.ts";
@@ -20,10 +21,12 @@ const rooms = new Rooms({
   mismatch: (m) => mismatches.push(m),
 });
 const socket = rooms.socket();
+const board = new Board(":memory:");
+const daily = dailyRoutes({ board, puzzles: PUZZLES, verify: (p, log) => replayer.verify(p, log) });
 const server = Bun.serve<Conn>({
   hostname: "127.0.0.1",
   port: 0,
-  fetch: (req, srv) => upgrade(socket, req, srv),
+  fetch: async (req, srv) => (await daily(req, new URL(req.url))) ?? upgrade(socket, req, srv),
   websocket: socket.handler,
 });
 
@@ -38,6 +41,7 @@ beforeAll(async () => {
 afterAll(() => {
   vite?.stop();
   rooms.close();
+  board.close();
   replayer.close();
   server.stop(true);
 });
@@ -71,6 +75,37 @@ eachBrowser((browser) => {
     const watch = watchPage(page, { ignore: VITE });
     return { ctx, page, problems: watch.take };
   }
+
+  test("the daily: a solved run goes on the board under the name typed there, and the list counts the streak", async () => {
+    const a = await player();
+    const day = dayOf(Date.now());
+    const p = dailyPuzzle(PUZZLES.values(), day);
+    await a.page.goto(`${vite.base}/#/`, { waitUntil: "networkidle" });
+    await a.page.locator(".table a.row").first().waitFor();
+    await a.page.keyboard.press("d");
+    await a.page.locator(".hud h1").waitFor();
+    expect(await texts(a.page, ".hud h1")).toEqual([p.title]);
+    await a.page.keyboard.press("Space");
+    await typeKeys(a.page, p.solution);
+    const you = a.page.locator('section[aria-label="Today\'s board"] li.you');
+    await you.waitFor();
+    expect(await you.locator(".name").textContent()).toBe("anonymous (you)");
+    expect(await you.locator(".num").first().textContent()).toBe(`${p.solution.length} keys`);
+    const name = a.page.getByRole("textbox", { name: "Name on the board" });
+    await name.fill("ada");
+    await name.press("Enter");
+    await a.page.locator("li.you .name", { hasText: "ada (you)" }).waitFor();
+    await a.page.goto(`${vite.base}/#/`, { waitUntil: "networkidle" });
+    expect(await texts(a.page, ".start button, .start .aside")).toEqual([
+      "Quick play p",
+      `Daily #${day} ✓ d`,
+      "Play a friend f",
+      "1-day streak",
+    ]);
+    const problems = await a.problems();
+    await a.ctx.close();
+    expect(problems).toEqual([]);
+  });
 
   test("lobby, a reload mid-round, the lock-ins, the result and a rematch", async () => {
     const a = await player();

@@ -1,15 +1,18 @@
-// Plays one room round against a built server: bun server/smoke.ts <the yank-wars package's out path>
-// Proves what only the compiled binary can: the embedded replay worker and puzzles.
-import { readFileSync } from "node:fs";
+// Plays one room round and posts one daily run against a built server: bun server/smoke.ts <out path>
+// Proves what only the compiled binary can: the embedded replay worker, puzzles and SQLite.
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { PROTOCOL, parseKeys, type ServerFrame } from "@yank-wars/engine";
+import { type DailyBoard, PROTOCOL, parseKeys, type ServerFrame } from "@yank-wars/engine";
 
 const out = process.argv[2];
 if (out === undefined) throw new Error("usage: bun server/smoke.ts <out path>");
 const port = 20_000 + Math.floor(Math.random() * 20_000);
+// the state directory: the daily board's database and the mismatch log land here
+const state = mkdtempSync(join(tmpdir(), "yank-wars-smoke-"));
 const proc = Bun.spawn([join(out, "bin/yank-wars")], {
   env: { ...process.env, YW_PORT: String(port) },
-  cwd: process.env.TMPDIR ?? "/tmp",
+  cwd: state,
   stdout: "pipe",
   stderr: "inherit",
 });
@@ -74,10 +77,7 @@ try {
   send(b.ws, { t: "lobby", ready: true });
   const study = (await a.next("state")) as Extract<ServerFrame, { t: "state" }>;
   const id = study.state.puzzleId as string;
-  const json = JSON.parse(
-    readFileSync(join(import.meta.dir, `../puzzles/handmade/${id}.json`), "utf8"),
-  ) as { solution: string };
-  const keys = parseKeys(json.solution);
+  const keys = solutionOf(id);
   send(a.ws, { t: "ready" });
   send(b.ws, { t: "ready" });
   await b.next("state", (f) => f.t === "state" && f.state.phase === "playing");
@@ -89,7 +89,35 @@ try {
     throw new Error(`verdict ${JSON.stringify(verdict)}, expected ${JSON.stringify(want)}`);
   }
   console.log(`smoke: ${id} verified in the built server (${keys.length} keys)`);
+
+  const base = `http://127.0.0.1:${port}/api/daily`;
+  const today = (await (await fetch(base)).json()) as DailyBoard;
+  const run = solutionOf(today.puzzle);
+  const posted = await fetch(base, {
+    method: "POST",
+    body: JSON.stringify({
+      day: today.day,
+      player: "f".repeat(32),
+      name: "smoke",
+      log: run,
+      ms: 1,
+    }),
+  });
+  const board = (await posted.json()) as DailyBoard;
+  const top = board.top[0];
+  if (posted.status !== 200 || top?.name !== "smoke" || top.keys !== run.length) {
+    throw new Error(`daily ${posted.status} ${JSON.stringify(board)}`);
+  }
+  console.log(`smoke: daily #${today.day} (${today.puzzle}) on the built server's board`);
 } finally {
   clearTimeout(giveUp);
   proc.kill();
+  rmSync(state, { recursive: true, force: true });
+}
+
+function solutionOf(id: string) {
+  const json = JSON.parse(
+    readFileSync(join(import.meta.dir, `../puzzles/handmade/${id}.json`), "utf8"),
+  ) as { solution: string };
+  return parseKeys(json.solution);
 }

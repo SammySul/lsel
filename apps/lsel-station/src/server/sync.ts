@@ -1,10 +1,10 @@
 // The sync service's HTTP routes: read and write a save by its id.
 
 import { isAbsolute } from "node:path";
-import { json, type Routes, respond } from "@sammysul/lsel/server";
+import { json, type Routes, rateLimiter, respond } from "@sammysul/lsel/server";
 import * as v from "valibot";
 import { keyId } from "../save/key.ts";
-import { LIMITS, rateLimiter, type Saves } from "./saves.ts";
+import { LIMITS, type Saves } from "./saves.ts";
 
 const DB = "an absolute path to the saves database";
 

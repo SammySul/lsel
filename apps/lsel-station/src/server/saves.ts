@@ -92,18 +92,3 @@ export function openSaves(path: string) {
 
 /** The service's limits: a save's size, and requests per minute for one save and for one address. */
 export const LIMITS = { bytes: MAX_SAVE_BYTES * 2, perSave: 30, perAddress: 120 } as const;
-
-/** Counts requests per key in fixed one-minute windows. */
-export function rateLimiter(limit: number) {
-  const windows = new Map<string, { start: number; count: number }>();
-  return (key: string, now: number): boolean => {
-    const window = windows.get(key);
-    if (window === undefined || now - window.start >= 60_000) {
-      if (windows.size > 10_000) windows.clear();
-      windows.set(key, { start: now, count: 1 });
-      return true;
-    }
-    window.count++;
-    return window.count <= limit;
-  };
-}

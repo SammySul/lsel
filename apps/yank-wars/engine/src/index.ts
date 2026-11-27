@@ -3,6 +3,18 @@
 export type { Extension, Text } from "@codemirror/state";
 export type { EditorView } from "@codemirror/view";
 export { feedKey, type KeyResult } from "./feedKey.ts";
+export {
+  type BoardEntry,
+  DAILY,
+  type DailyBoard,
+  DailyClaim,
+  dailyPuzzle,
+  dayOf,
+  isPlayerId,
+  msUntilNextDay,
+  PlayerId,
+  parseDailyClaim,
+} from "./game/daily.ts";
 export { currentRun, type KeyLog, type LogEntry, RESET, scoreOf } from "./game/log.ts";
 export {
   type ClientFrame,

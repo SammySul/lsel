@@ -12,7 +12,7 @@ export const LIMITS = {
   framesPerSecond: 60,
 } as const;
 
-const Entry = v.custom<LogEntry>(
+export const Entry = v.custom<LogEntry>(
   (e) => typeof e === "string" && (e === RESET || isVimKey(e)),
   "not a key or reset marker",
 );
@@ -21,7 +21,7 @@ const Index = v.pipe(v.number(), v.integer(), v.minValue(0), v.maxValue(LIMITS.l
 const RoomId = v.pipe(v.string(), v.regex(/^[a-z2-7]{10}$/, "not a room id"));
 const SeatToken = v.pipe(v.string(), v.regex(/^[0-9a-f]{32}$/, "not a seat token"));
 
-const Name = v.pipe(v.string(), v.trim(), v.maxLength(LIMITS.nameLength));
+export const Name = v.pipe(v.string(), v.trim(), v.maxLength(LIMITS.nameLength));
 
 const frame = <T extends string, E extends v.ObjectEntries>(t: T, entries: E) =>
   v.strictObject({ v: v.literal(PROTOCOL), t: v.literal(t), ...entries });

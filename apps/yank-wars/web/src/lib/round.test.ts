@@ -282,6 +282,8 @@ test("lock-in: input stops, self-check ok, best recorded, card after the pulse",
     relativeNumbers: true,
     name: "",
     best: { "round-flow": { keys: 2, ms: 2_500 } },
+    player: "",
+    daily: [],
     filter: { difficulty: null, unsolved: false },
   });
   r.press("x");

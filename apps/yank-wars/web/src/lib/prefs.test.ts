@@ -78,18 +78,43 @@ test("unreadable stored values fall back field by field, and bad bests are dropp
       relativeNumbers: "no",
       name: "x".repeat(25),
       best: { a: { keys: 3, ms: 10 }, b: { keys: -1, ms: 10 }, c: { keys: 1.5, ms: 1 }, d: "x" },
+      player: "ABC",
+      daily: [1, "2"],
       filter: { difficulty: "expert", unsolved: true },
     }),
   ).toEqual({
     relativeNumbers: true,
     name: "",
     best: { a: { keys: 3, ms: 10 } },
+    player: "",
+    daily: [],
     filter: { difficulty: null, unsolved: true },
   });
   expect(v.parse(Stored, { relativeNumbers: false, name: "ada" })).toEqual({
     relativeNumbers: false,
     name: "ada",
     best: {},
+    player: "",
+    daily: [],
     filter: { difficulty: null, unsolved: false },
   });
+});
+
+test("the player id is made once and kept, whichever tab asks first", () => {
+  const storage = memoryStorage();
+  const tabA = new Prefs(storage);
+  const tabB = new Prefs(storage);
+  const id = tabA.player;
+  expect(id).toMatch(/^[0-9a-f]{32}$/);
+  expect([tabA.player, tabB.player, new Prefs(storage).player]).toEqual([id, id, id]);
+});
+
+test("solved dailies from two tabs add up, in order, once each", () => {
+  const storage = memoryStorage();
+  const tabA = new Prefs(storage);
+  const tabB = new Prefs(storage);
+  tabA.solvedDaily(3);
+  tabB.solvedDaily(1);
+  tabB.solvedDaily(3);
+  expect(new Prefs(storage).daily).toEqual([1, 3]);
 });

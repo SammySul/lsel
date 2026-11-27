@@ -3,7 +3,15 @@ import { mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import * as v from "valibot";
-import { handler, json, parseEnv, type Routes, type Socket, upgrade } from "./index.ts";
+import {
+  handler,
+  json,
+  parseEnv,
+  type Routes,
+  rateLimiter,
+  type Socket,
+  upgrade,
+} from "./index.ts";
 
 let web: string;
 beforeAll(() => {
@@ -210,5 +218,18 @@ describe("sockets", () => {
     expect([refused.status, await refused.text()]).toEqual([400, "who are you"]);
     const plain = await fetch(`http://${server.hostname}:${server.port}/ws?name=ada`);
     expect([plain.status, await plain.text()]).toEqual([426, "expected a WebSocket upgrade"]);
+  });
+});
+
+describe("rateLimiter", () => {
+  test("allows `limit` requests per key in a minute, then refuses until the minute is over", () => {
+    const allowed = rateLimiter(2);
+    expect([allowed("a", 0), allowed("a", 1), allowed("a", 2), allowed("b", 3)]).toEqual([
+      true,
+      true,
+      false,
+      true,
+    ]);
+    expect([allowed("a", 59_999), allowed("a", 60_000)]).toEqual([false, true]);
   });
 });

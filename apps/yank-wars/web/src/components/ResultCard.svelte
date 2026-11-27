@@ -2,9 +2,11 @@
 <script lang="ts">
 import { Action, duration, go, keys } from "@sammysul/lsel";
 import { formatKeys } from "@yank-wars/engine";
+import { type Daily, dailyShareText, streakOf } from "../lib/daily.ts";
 import { quickPlay } from "../lib/puzzles.ts";
 import type { RoundController } from "../lib/round.svelte.ts";
 import { shareText } from "../lib/share.ts";
+import DailyBoard from "./DailyBoard.svelte";
 import ResultFrame, { fresh } from "./ResultFrame.svelte";
 
 interface Props {
@@ -12,9 +14,22 @@ interface Props {
   onNext(): void;
   onRetry(): void;
   onList(): void;
+  /** set when this was the daily: the card shows its board */
+  daily?: Daily | undefined;
 }
 
-let { ctl, onNext, onRetry, onList }: Props = $props();
+let { ctl, onNext, onRetry, onList, daily }: Props = $props();
+
+const share = () =>
+  daily === undefined
+    ? shareText(puzzle, ctl.keys, ctl.elapsed, location.origin)
+    : dailyShareText(
+        daily,
+        ctl.keys,
+        ctl.elapsed,
+        streakOf(ctl.prefs.daily, daily.day),
+        location.origin,
+      );
 
 let showSolution = $state(false);
 
@@ -70,6 +85,8 @@ keys(() => [
     </div>
   {/snippet}
 
+  {#if daily !== undefined}<DailyBoard {daily} {ctl} />{/if}
+
   <div class="notation">
     <div class="row">
       <span class="label">{locked ? "Your solution" : "Final run"}</span>
@@ -99,10 +116,7 @@ keys(() => [
           key="y"
           done="Copied"
           failed="Copy failed"
-          run={() =>
-            navigator.clipboard.writeText(
-              shareText(puzzle, ctl.keys, ctl.elapsed, location.origin),
-            )}
+          run={() => navigator.clipboard.writeText(share())}
         />
       </span>
     {/if}

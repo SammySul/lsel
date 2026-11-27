@@ -36,6 +36,21 @@ export const json = (body: unknown, status = 200) =>
     "Cache-Control": "no-store",
   });
 
+/** Counts requests per key in fixed one-minute windows. */
+export function rateLimiter(limit: number) {
+  const windows = new Map<string, { start: number; count: number }>();
+  return (key: string, now: number): boolean => {
+    const window = windows.get(key);
+    if (window === undefined || now - window.start >= 60_000) {
+      if (windows.size > 10_000) windows.clear();
+      windows.set(key, { start: now, count: 1 });
+      return true;
+    }
+    window.count++;
+    return window.count <= limit;
+  };
+}
+
 /** Null when `pathname` would leave `root`. */
 function resolveStatic(root: string, pathname: string): string | null {
   let decoded: string;

@@ -5,6 +5,7 @@ import { DIFFICULTIES, type Difficulty } from "@yank-wars/engine";
 import { untrack } from "svelte";
 import { version } from "../../../package.json";
 import { CHORD_LABELS } from "../lib/chords.ts";
+import { dailyAt, streakOf } from "../lib/daily.ts";
 import { prefs } from "../lib/prefs.svelte.ts";
 import { markOf, progressOf } from "../lib/progress.ts";
 import { puzzleErrors, puzzles, quickPlay, visiblePuzzles } from "../lib/puzzles.ts";
@@ -22,6 +23,9 @@ const progress = $derived(progressOf(puzzles, prefs.best));
 let selectedId = $state(untrack(() => selected));
 const current = $derived(shown.find((p) => p.id === selectedId) ?? shown[0]);
 let search: HTMLInputElement | undefined = $state();
+const daily = dailyAt(puzzles, Date.now());
+const solvedToday = $derived(daily !== undefined && prefs.daily.includes(daily.day));
+const streak = $derived(daily === undefined ? 0 : streakOf(prefs.daily, daily.day));
 
 function setDifficulty(d: Difficulty | null) {
   prefs.filter = { ...filter, difficulty: filter.difficulty === d ? null : d };
@@ -36,6 +40,7 @@ keys(() =>
     ? []
     : [
         { key: "p", label: "Quick play", hint: true, run: quickPlay },
+        { key: "d", label: "Daily", hint: true, run: () => go("/daily") },
         { key: "/", label: "Search", hint: true, run: () => search?.focus() },
         {
           key: ["1", "2", "3"],
@@ -68,8 +73,13 @@ keys(() =>
     </ol>
     <p class="start">
       <button onclick={quickPlay} disabled={shown.length === 0}>Quick play <kbd>p</kbd></button>
-      a random unsolved puzzle, or <a href="#/r">play a friend</a> <kbd>f</kbd>: a room for two, the
-      same puzzle.
+      {#if daily !== undefined}
+        <button onclick={() => go("/daily")}
+          >Daily #{daily.day}{solvedToday ? " ✓" : ""} <kbd>d</kbd></button
+        >
+      {/if}
+      <button onclick={() => go("/r")}>Play a friend <kbd>f</kbd></button>
+      {#if streak > 0}<span class="aside">{streak}-day streak</span>{/if}
     </p>
     {#if progress.solved > 0}
       <p class="progress">
@@ -189,10 +199,14 @@ keys(() =>
     line-height: 1.6;
   }
   .start {
+    display: flex;
     margin: 0;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
   }
-  .start button {
-    margin-right: 4px;
+  .aside {
+    color: var(--subtle);
   }
   .progress {
     margin: 0;

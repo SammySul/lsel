@@ -1,7 +1,7 @@
-// What the browser remembers: bests, line numbers, the list filter and the player's name.
+// What the browser remembers: bests, dailies solved, line numbers, the list filter and the player's name.
 
 import type { Store } from "@sammysul/lsel";
-import { DIFFICULTIES, type Difficulty, LIMITS } from "@yank-wars/engine";
+import { DIFFICULTIES, type Difficulty, LIMITS, PlayerId } from "@yank-wars/engine";
 import * as v from "valibot";
 import type { PuzzleFilter } from "./filter.ts";
 
@@ -35,6 +35,10 @@ export const Stored = v.object({
     ),
     {},
   ),
+  /** the daily board's id for this browser: made on first run, never shown */
+  player: v.fallback(v.union([PlayerId, v.literal("")]), ""),
+  /** the days whose daily was solved, oldest first */
+  daily: v.fallback(v.array(v.pipe(v.number(), v.integer())), []),
   filter: v.fallback(
     v.object({
       difficulty: v.fallback(v.nullable(v.picklist(DIFFICULTIES)), null),
@@ -67,6 +71,14 @@ function read(storage: Store | undefined): Stored | undefined {
   return r.success ? r.output : undefined;
 }
 
+// a year of dailies is plenty for any streak worth showing
+const DAILY_KEPT = 400;
+
+function newPlayerId(): string {
+  const bytes = crypto.getRandomValues(new Uint8Array(16));
+  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
+}
+
 // Same order as a match: fewer keys wins, then the faster finish.
 function isBetter(a: Best, b: Best): boolean {
   return a.keys < b.keys || (a.keys === b.keys && a.ms < b.ms);
@@ -76,6 +88,8 @@ export class Prefs {
   #relativeNumbers = $state(true);
   #name = $state("");
   best = $state.raw<Readonly<Record<string, Best>>>({});
+  daily = $state.raw<readonly number[]>([]);
+  #player = "";
   #lasting = $state.raw<StoredFilter>({ difficulty: null, unsolved: false });
   #query = $state("");
   readonly #storage: Store | undefined;
@@ -86,6 +100,8 @@ export class Prefs {
     this.#relativeNumbers = stored.relativeNumbers;
     this.#name = stored.name;
     this.best = stored.best;
+    this.daily = stored.daily;
+    this.#player = stored.player;
     this.#lasting = stored.filter;
   }
 
@@ -132,6 +148,25 @@ export class Prefs {
     });
   }
 
+  /** This browser's id on the daily board, made and stored the first time it's asked for. */
+  get player(): string {
+    if (this.#player === "") {
+      const id = newPlayerId();
+      this.#update((s) => {
+        if (s.player === "") s.player = id;
+      });
+    }
+    return this.#player;
+  }
+
+  /** Marks `day`'s daily solved. */
+  solvedDaily(day: number): void {
+    if (this.daily.includes(day)) return;
+    this.#update((s) => {
+      s.daily = [...new Set([...s.daily, day])].sort((a, b) => a - b).slice(-DAILY_KEPT);
+    });
+  }
+
   /** Stores `run` if it beats the best for `id` in any tab; returns whether it did. */
   recordBest(id: string, run: Best): boolean {
     let better = false;
@@ -148,6 +183,8 @@ export class Prefs {
       relativeNumbers: this.#relativeNumbers,
       name: this.#name,
       best: { ...this.best },
+      player: this.#player,
+      daily: [...this.daily],
       filter: this.#lasting,
     };
   }
@@ -159,11 +196,15 @@ export class Prefs {
       const theirs = next.best[id];
       if (theirs === undefined || isBetter(b, theirs)) next.best[id] = b;
     }
+    if (next.player === "") next.player = this.#player;
+    next.daily = [...new Set([...next.daily, ...this.daily])].sort((a, b) => a - b);
     change(next);
     try {
       this.#storage?.setItem(KEY, JSON.stringify(next));
     } catch {}
     this.best = next.best;
+    this.daily = next.daily;
+    this.#player = next.player;
   }
 }
 
