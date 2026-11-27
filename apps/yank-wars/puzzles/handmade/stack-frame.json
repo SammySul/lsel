@@ -1,0 +1,17 @@
+{
+  "id": "stack-frame",
+  "title": "Jump to the frame",
+  "difficulty": "hard",
+  "description": "Keep file and line.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "File \"app.py\", line 3, in run",
+  "target": "app.py:3",
+  "solution": ":s/File \"\\(.*\\)\", line \\(\\d\\+\\).*/\\1:\\2/<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

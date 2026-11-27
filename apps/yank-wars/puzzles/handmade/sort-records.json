@@ -1,0 +1,17 @@
+{
+  "id": "sort-records",
+  "title": "Sort the records",
+  "difficulty": "medium",
+  "description": "Ascending by id.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\"id\": 3}\n{\"id\": 1}\n{\"id\": 2}",
+  "target": "{\"id\": 1}\n{\"id\": 2}\n{\"id\": 3}",
+  "solution": ":sor n<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["sort"]
+}

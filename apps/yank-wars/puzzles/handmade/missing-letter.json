@@ -1,0 +1,17 @@
+{
+  "id": "missing-letter",
+  "title": "Missing letter",
+  "difficulty": "easy",
+  "description": "Mississippi has two p.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "Mississipi",
+  "target": "Mississippi",
+  "solution": "$ip",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

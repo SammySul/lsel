@@ -1,0 +1,17 @@
+{
+  "id": "not-not",
+  "title": "Not not",
+  "difficulty": "easy",
+  "description": "Cancel the double negation.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "if (!!ready) {\n  go();\n}",
+  "target": "if (ready) {\n  go();\n}",
+  "solution": "f!2x",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "find"]
+}

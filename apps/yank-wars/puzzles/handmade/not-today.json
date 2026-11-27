@@ -1,0 +1,17 @@
+{
+  "id": "not-today",
+  "title": "Not today",
+  "difficulty": "easy",
+  "description": "Cut the last word.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "buy milk today",
+  "target": "buy milk",
+  "solution": "$daw",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["text-object"]
+}

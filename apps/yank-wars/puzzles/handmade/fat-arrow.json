@@ -1,0 +1,17 @@
+{
+  "id": "fat-arrow",
+  "title": "Fat arrow",
+  "difficulty": "easy",
+  "description": "A thin arrow becomes a fat one.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "a -> b",
+  "target": "a => b",
+  "solution": "f-r=",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace", "find"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "warn-not-log",
+  "title": "Warn, don't log",
+  "difficulty": "easy",
+  "description": "A louder console method.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "catch (err) {\n  console.log(err);\n}",
+  "target": "catch (err) {\n  console.warn(err);\n}",
+  "solution": "jf.lcwwarn",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change"]
+}

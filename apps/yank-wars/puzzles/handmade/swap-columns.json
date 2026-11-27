@@ -1,0 +1,17 @@
+{
+  "id": "swap-columns",
+  "title": "Swap the columns",
+  "difficulty": "medium",
+  "description": "Number second, letter first.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "1 a\n2 b\n3 c",
+  "target": "a 1\nb 2\nc 3",
+  "solution": ":%s/\\(.\\) \\(.\\)/\\2 \\1/<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

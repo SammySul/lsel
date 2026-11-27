@@ -1,0 +1,17 @@
+{
+  "id": "pointer-receiver",
+  "title": "Pointer receiver",
+  "difficulty": "easy",
+  "description": "Add the star.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "type Config struct{}\n\nfunc (c Config) Name() string {\n\treturn \"cfg\"\n}",
+  "target": "type Config struct{}\n\nfunc (c *Config) Name() string {\n\treturn \"cfg\"\n}",
+  "solution": "2jfCi*",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["find", "insert"]
+}

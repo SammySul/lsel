@@ -1,0 +1,17 @@
+{
+  "id": "any-to-string",
+  "title": "Say what it is",
+  "difficulty": "easy",
+  "description": "Replace any.",
+  "language": "typescript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "type Id = any;",
+  "target": "type Id = string;",
+  "solution": "$bcwstring",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "float-right",
+  "title": "Float right",
+  "difficulty": "easy",
+  "description": "Left becomes right.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".nav {\n  float: left;\n}",
+  "target": ".nav {\n  float: right;\n}",
+  "solution": "j$bcwright",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "cut-middle",
+  "title": "Cut the middle",
+  "difficulty": "easy",
+  "description": "Lines two and three go.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "intro\ndraft\nnotes\noutro",
+  "target": "intro\noutro",
+  "solution": ":2,3d<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["ex", "delete"]
+}

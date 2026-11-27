@@ -1,0 +1,17 @@
+{
+  "id": "margin-shorthand",
+  "title": "Shorthand margin",
+  "difficulty": "easy",
+  "description": "One value for all sides.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".box {\n  margin: 10px 10px 10px 10px;\n}",
+  "target": ".box {\n  margin: 10px;\n}",
+  "solution": "jf:2f<Space>dt;",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "find"]
+}

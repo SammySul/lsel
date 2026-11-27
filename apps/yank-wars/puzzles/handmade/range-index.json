@@ -1,0 +1,17 @@
+{
+  "id": "range-index",
+  "title": "Index only",
+  "difficulty": "easy",
+  "description": "Drop the blank.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "for i, _ := range xs {\n\tprintln(i)\n}",
+  "target": "for i := range xs {\n\tprintln(i)\n}",
+  "solution": "f,3x",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "count"]
+}

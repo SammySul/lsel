@@ -1,0 +1,17 @@
+{
+  "id": "async-arrow",
+  "title": "Async arrow",
+  "difficulty": "easy",
+  "description": "Make the arrow async.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const load = () => fetch(url);",
+  "target": "const load = async () => fetch(url);",
+  "solution": "f(iasync<Space>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

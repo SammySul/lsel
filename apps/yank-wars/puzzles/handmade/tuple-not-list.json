@@ -1,0 +1,17 @@
+{
+  "id": "tuple-not-list",
+  "title": "Tuple, not list",
+  "difficulty": "easy",
+  "description": "Swap the brackets.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "x = [1, 2]",
+  "target": "x = (1, 2)",
+  "solution": "f[r(f]r)",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace", "match"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "triple-it",
+  "title": "Triple it",
+  "difficulty": "easy",
+  "description": "Two becomes three.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "f = lambda x: x * 2",
+  "target": "f = lambda x: x * 3",
+  "solution": "$r3",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace"]
+}

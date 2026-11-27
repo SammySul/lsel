@@ -1,0 +1,17 @@
+{
+  "id": "aside",
+  "title": "Aside, please",
+  "difficulty": "easy",
+  "description": "Remove the parentheses and what is in them.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "call me (maybe) now",
+  "target": "call me now",
+  "solution": "f(da(x",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "match"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "non-null",
+  "title": "It is there",
+  "difficulty": "easy",
+  "description": "A bang after each maybe.",
+  "language": "typescript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const user = find();\nconst n = user.name.length;",
+  "target": "const user = find();\nconst n = user!.name!.length;",
+  "solution": "jf.i!<Esc>l;.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert", "repeat"]
+}

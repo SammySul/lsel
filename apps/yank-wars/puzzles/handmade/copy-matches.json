@@ -1,0 +1,17 @@
+{
+  "id": "copy-matches",
+  "title": "Copy the matches",
+  "difficulty": "medium",
+  "description": "Matching lines go to the end too.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "apple\nbread\napricot\ncheese",
+  "target": "apple\nbread\napricot\ncheese\napple\napricot",
+  "solution": ":g/ap/t$<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global", "ex"]
+}

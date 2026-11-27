@@ -1,0 +1,17 @@
+{
+  "id": "await-them-all",
+  "title": "Await them all",
+  "difficulty": "medium",
+  "description": "Every fetch needs an await.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const a = fetch(x);\nconst b = fetch(y);\nconst c = fetch(z);",
+  "target": "const a = await fetch(x);\nconst b = await fetch(y);\nconst c = await fetch(z);",
+  "solution": ":%s/= /= await /<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

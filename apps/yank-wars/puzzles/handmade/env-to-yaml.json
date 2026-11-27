@@ -1,0 +1,17 @@
+{
+  "id": "env-to-yaml",
+  "title": "Env to yaml",
+  "difficulty": "hard",
+  "description": "export A=1 becomes A: 1.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "export A=1\nexport B=2\nexport C=3",
+  "target": "A: 1\nB: 2\nC: 3",
+  "solution": ":%s/export \\(\\w\\)=\\(.*\\)/\\1: \\2/<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

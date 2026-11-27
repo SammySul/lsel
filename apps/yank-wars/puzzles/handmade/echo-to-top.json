@@ -1,0 +1,17 @@
+{
+  "id": "echo-to-top",
+  "title": "Echo to the top",
+  "difficulty": "medium",
+  "description": "Copy line two to the top.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "one\ntwo\nthree",
+  "target": "two\none\ntwo\nthree",
+  "solution": ":2t0<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["ex"]
+}

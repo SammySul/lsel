@@ -1,0 +1,17 @@
+{
+  "id": "number-not-string",
+  "title": "Number, not string",
+  "difficulty": "easy",
+  "description": "Unquote the port.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\n  \"port\": \"8080\"\n}",
+  "target": "{\n  \"port\": 8080\n}",
+  "solution": "jf:f\"x$x",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "find"]
+}

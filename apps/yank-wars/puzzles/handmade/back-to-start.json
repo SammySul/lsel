@@ -1,0 +1,17 @@
+{
+  "id": "back-to-start",
+  "title": "Back to the start",
+  "difficulty": "easy",
+  "description": "End where you began.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "start\nmiddle\nend",
+  "target": "start\nmiddle\nend\nstart",
+  "solution": "yyGp",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["yank-put"]
+}

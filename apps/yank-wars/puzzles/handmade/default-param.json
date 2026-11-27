@@ -1,0 +1,17 @@
+{
+  "id": "default-param",
+  "title": "Default parameter",
+  "difficulty": "easy",
+  "description": "Page one unless told otherwise.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "function page(n) {\n  return list.slice(n * 10);\n}",
+  "target": "function page(n = 1) {\n  return list.slice(n * 10);\n}",
+  "solution": "f)i<Space>=<Space>1",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

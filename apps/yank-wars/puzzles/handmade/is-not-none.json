@@ -1,0 +1,17 @@
+{
+  "id": "is-not-none",
+  "title": "Is not None",
+  "difficulty": "easy",
+  "description": "Spell the comparison out.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "if x != None:\n    use(x)",
+  "target": "if x is not None:\n    use(x)",
+  "solution": "f!cwis not",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change"]
+}

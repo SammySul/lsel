@@ -1,0 +1,17 @@
+{
+  "id": "close-heading",
+  "title": "Close the heading",
+  "difficulty": "easy",
+  "description": "The tag never ends.",
+  "language": "jsx",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "<h1>Welcome",
+  "target": "<h1>Welcome</h1>",
+  "solution": "A<lt>/h1>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

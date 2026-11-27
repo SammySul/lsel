@@ -1,0 +1,17 @@
+{
+  "id": "gerunds",
+  "title": "Gerunds",
+  "difficulty": "easy",
+  "description": "Add ing to both.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "walk jump",
+  "target": "walking jumping",
+  "solution": "eaing<Esc>we.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["repeat", "word"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "count-down",
+  "title": "Count down",
+  "difficulty": "easy",
+  "description": "Plus becomes minus.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "while n > 0:\n    n += 1",
+  "target": "while n > 0:\n    n -= 1",
+  "solution": "jf+r-",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace", "find"]
+}

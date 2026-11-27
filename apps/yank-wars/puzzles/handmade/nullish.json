@@ -1,0 +1,17 @@
+{
+  "id": "nullish",
+  "title": "Nullish default",
+  "difficulty": "easy",
+  "description": "Only null and undefined fall back.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const n = a || 5;",
+  "target": "const n = a ?? 5;",
+  "solution": "f|cw??",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change"]
+}

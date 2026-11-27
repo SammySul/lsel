@@ -1,0 +1,17 @@
+{
+  "id": "drop-last-key",
+  "title": "Drop the last key",
+  "difficulty": "easy",
+  "description": "And the comma before it.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\n  \"a\": 1,\n  \"b\": 2\n}",
+  "target": "{\n  \"a\": 1\n}",
+  "solution": "j$xjdd",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete"]
+}

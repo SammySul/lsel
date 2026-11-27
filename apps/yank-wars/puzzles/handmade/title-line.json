@@ -1,0 +1,17 @@
+{
+  "id": "title-line",
+  "title": "Title line",
+  "difficulty": "easy",
+  "description": "Two capitals.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "the end",
+  "target": "The End",
+  "solution": "~w~",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["case"]
+}

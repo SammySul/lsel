@@ -1,0 +1,17 @@
+{
+  "id": "wrap-in-ul",
+  "title": "Wrap in a list",
+  "difficulty": "medium",
+  "description": "A ul around the items.",
+  "language": "jsx",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "<Item />\n<Item />\n<Item />",
+  "target": "<ul>\n  <Item />\n  <Item />\n  <Item />\n</ul>",
+  "solution": ">GO<lt>ul><Esc>Go<lt>/ul>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["indent", "open-line"]
+}

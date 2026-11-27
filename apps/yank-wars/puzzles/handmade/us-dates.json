@@ -1,0 +1,17 @@
+{
+  "id": "us-dates",
+  "title": "US dates",
+  "difficulty": "hard",
+  "description": "Year-month-day to month/day/year.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "2024-06-15",
+  "target": "06/15/2024",
+  "solution": ":s#\\(\\d\\+\\)-\\(\\d\\+\\)-\\(\\d\\+\\)#\\2/\\3/\\1#<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "slug",
+  "title": "Slug it",
+  "difficulty": "easy",
+  "description": "Spaces become dashes.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "my new post",
+  "target": "my-new-post",
+  "solution": "f<Space>r-;.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace", "repeat"]
+}

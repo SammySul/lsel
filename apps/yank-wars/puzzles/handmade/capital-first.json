@@ -1,0 +1,17 @@
+{
+  "id": "capital-first",
+  "title": "Capital first letters",
+  "difficulty": "easy",
+  "description": "Once per line.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "ada\nbob\ncy",
+  "target": "Ada\nBob\nCy",
+  "solution": "gUlj.j.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["case", "repeat"]
+}

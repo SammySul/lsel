@@ -1,0 +1,17 @@
+{
+  "id": "heavier-rule",
+  "title": "Heavier rule",
+  "difficulty": "easy",
+  "description": "Dashes become equals.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "Chapter 1\n---------",
+  "target": "Chapter 1\n=========",
+  "solution": "j9r=",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace", "count"]
+}

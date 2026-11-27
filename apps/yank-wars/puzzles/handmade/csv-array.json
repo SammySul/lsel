@@ -1,0 +1,17 @@
+{
+  "id": "csv-array",
+  "title": "Words to array",
+  "difficulty": "hard",
+  "description": "Quote, space, bracket.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "red,green,blue",
+  "target": "[\"red\", \"green\", \"blue\"]",
+  "solution": ":s/\\w\\+/\"&\"/g<CR>:s/,/, /g<CR>I[<Esc>A]",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "insert"]
+}

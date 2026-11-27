@@ -1,0 +1,17 @@
+{
+  "id": "arrow-callbacks",
+  "title": "Arrow callbacks",
+  "difficulty": "medium",
+  "description": "function becomes an arrow.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "xs.map(function (x) {\n  return x * 2;\n});\nys.map(function (y) {\n  return y + 1;\n});",
+  "target": "xs.map((x) => {\n  return x * 2;\n});\nys.map((y) => {\n  return y + 1;\n});",
+  "solution": ":%s/function (\\(\\w\\)) /(\\1) => /<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "destructure",
+  "title": "Destructure it",
+  "difficulty": "hard",
+  "description": "Three consts become one.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "const a = obj.a;\nconst b = obj.b;\nconst c = obj.c;",
+  "target": "const { a, b, c } = obj;",
+  "solution": ":%s/const \\(\\w\\).*/\\1,/<CR>gg3J$xIconst { <Esc>A } = obj;",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "join"]
+}

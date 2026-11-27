@@ -1,0 +1,17 @@
+{
+  "id": "def-macro",
+  "title": "A def for each",
+  "difficulty": "hard",
+  "description": "Record once, run twice.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "alpha\nbeta\ngamma",
+  "target": "def alpha():\n    pass\ndef beta():\n    pass\ndef gamma():\n    pass",
+  "solution": "qqIdef <Esc>A():<CR><Space><Space><Space><Space>pass<Esc>jq2@q",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["macro", "insert"]
+}

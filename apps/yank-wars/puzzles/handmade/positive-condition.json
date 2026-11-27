@@ -1,0 +1,17 @@
+{
+  "id": "positive-condition",
+  "title": "Positive condition",
+  "difficulty": "easy",
+  "description": "Drop the not.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "if not done:\n    wait()",
+  "target": "if done:\n    wait()",
+  "solution": "wdw",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "word"]
+}

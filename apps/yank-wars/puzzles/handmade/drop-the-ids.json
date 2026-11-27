@@ -1,0 +1,17 @@
+{
+  "id": "drop-the-ids",
+  "title": "Drop the id column",
+  "difficulty": "medium",
+  "description": "A block of digits goes.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "10 ada\n20 bob\n30 cy",
+  "target": "ada\nbob\ncy",
+  "solution": "<C-v>2j2ld",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block", "delete"]
+}

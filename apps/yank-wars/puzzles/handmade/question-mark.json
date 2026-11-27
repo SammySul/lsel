@@ -1,0 +1,17 @@
+{
+  "id": "question-mark",
+  "title": "Question mark",
+  "difficulty": "medium",
+  "description": "Propagate, don't unwrap.",
+  "language": "rust",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "fn load() -> Result<()> {\n    let a = read().unwrap();\n    let b = parse().unwrap();\n    Ok(())\n}",
+  "target": "fn load() -> Result<()> {\n    let a = read()?;\n    let b = parse()?;\n    Ok(())\n}",
+  "solution": ":%s/\\.unwrap()/?/<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

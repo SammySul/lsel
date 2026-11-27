@@ -1,0 +1,17 @@
+{
+  "id": "flip-the-check",
+  "title": "Flip the check",
+  "difficulty": "easy",
+  "description": "Log on success.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "if err != nil {\n\tlog.Println(\"ok\")\n}",
+  "target": "if err == nil {\n\tlog.Println(\"ok\")\n}",
+  "solution": "f!r=",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace", "find"]
+}

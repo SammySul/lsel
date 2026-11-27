@@ -1,0 +1,17 @@
+{
+  "id": "on-click",
+  "title": "Camel-case onClick",
+  "difficulty": "easy",
+  "description": "React wants a capital C.",
+  "language": "jsx",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "return <button onclick={go}>Go</button>;",
+  "target": "return <button onClick={go}>Go</button>;",
+  "solution": "fc~",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["case", "find"]
+}

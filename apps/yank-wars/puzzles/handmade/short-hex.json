@@ -1,0 +1,17 @@
+{
+  "id": "short-hex",
+  "title": "Short hex",
+  "difficulty": "easy",
+  "description": "White in three digits.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "a {\n  color: #ffffff;\n}",
+  "target": "a {\n  color: #fff;\n}",
+  "solution": "jf#3l3x",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "count"]
+}

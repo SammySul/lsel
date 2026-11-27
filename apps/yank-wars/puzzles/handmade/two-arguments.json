@@ -1,0 +1,17 @@
+{
+  "id": "two-arguments",
+  "title": "Two arguments",
+  "difficulty": "easy",
+  "description": "The third one is too many.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "print(a, b, c)",
+  "target": "print(a, b)",
+  "solution": "f,;dt)",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "find"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "fill-the-alias",
+  "title": "Fill in the alias",
+  "difficulty": "medium",
+  "description": "Reuse the name.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "name = ada\nalias = TBD",
+  "target": "name = ada\nalias = ada",
+  "solution": "wwyiwjfTciw<C-r>0",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["registers", "text-object"]
+}

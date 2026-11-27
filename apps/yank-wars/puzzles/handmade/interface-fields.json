@@ -1,0 +1,17 @@
+{
+  "id": "interface-fields",
+  "title": "Typed fields",
+  "difficulty": "medium",
+  "description": "Every field is a string.",
+  "language": "typescript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "name\nage\nemail",
+  "target": "name: string;\nage: string;\nemail: string;",
+  "solution": "<C-v>2j$A:<Space>string;<Esc>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block"]
+}

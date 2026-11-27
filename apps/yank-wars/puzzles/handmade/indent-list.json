@@ -1,0 +1,17 @@
+{
+  "id": "indent-list",
+  "title": "Indent the list",
+  "difficulty": "easy",
+  "description": "Two spaces, three lines.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "- a\n- b\n- c",
+  "target": "  - a\n  - b\n  - c",
+  "solution": "3>>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["indent", "count"]
+}

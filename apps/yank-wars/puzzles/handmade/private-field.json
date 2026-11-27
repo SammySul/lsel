@@ -1,0 +1,17 @@
+{
+  "id": "private-field",
+  "title": "Private field",
+  "difficulty": "easy",
+  "description": "Hide the counter.",
+  "language": "typescript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "class Counter {\n  count = 0;\n}",
+  "target": "class Counter {\n  private count = 0;\n}",
+  "solution": "jIprivate<Space>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

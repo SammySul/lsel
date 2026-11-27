@@ -1,0 +1,17 @@
+{
+  "id": "scope-selectors",
+  "title": "Scope the selectors",
+  "difficulty": "medium",
+  "description": "Prefix every rule.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".title {}\n.body {}\n.footer {}",
+  "target": ".app .title {}\n.app .body {}\n.app .footer {}",
+  "solution": ":%s/^/.app /<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

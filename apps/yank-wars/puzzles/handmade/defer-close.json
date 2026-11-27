@@ -1,0 +1,17 @@
+{
+  "id": "defer-close",
+  "title": "Defer the close",
+  "difficulty": "easy",
+  "description": "Close it when we leave.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "func read(name string) {\n\tf, _ := os.Open(name)\n\tf.Close()\n\trun(f)\n}",
+  "target": "func read(name string) {\n\tf, _ := os.Open(name)\n\tdefer f.Close()\n\trun(f)\n}",
+  "solution": "jjIdefer<Space>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

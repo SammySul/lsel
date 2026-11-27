@@ -1,0 +1,17 @@
+{
+  "id": "ids-not-classes",
+  "title": "Ids, not classes",
+  "difficulty": "easy",
+  "description": "Dots become hashes.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".menu, .tabs {\n  margin: 0;\n}",
+  "target": "#menu, #tabs {\n  margin: 0;\n}",
+  "solution": "r#f.r#",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace", "find"]
+}

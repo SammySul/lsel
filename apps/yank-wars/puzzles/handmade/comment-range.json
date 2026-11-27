@@ -1,0 +1,17 @@
+{
+  "id": "comment-range",
+  "title": "Comment a range",
+  "difficulty": "medium",
+  "description": "Lines two to four.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "func main() {\n\tx := load()\n\ty := parse(x)\n\tz := run(y)\n\tprintln(z)\n}",
+  "target": "func main() {\n\t// x := load()\n\t// y := parse(x)\n\t// z := run(y)\n\tprintln(z)\n}",
+  "solution": ":2,4norm I// <CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["ex", "normal"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "int-input",
+  "title": "Number, not text",
+  "difficulty": "easy",
+  "description": "Wrap input in int().",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "age = input(\"age? \")",
+  "target": "age = int(input(\"age? \"))",
+  "solution": "wwiint(<Esc>A)",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

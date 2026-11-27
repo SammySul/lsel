@@ -1,0 +1,17 @@
+{
+  "id": "height-not-width",
+  "title": "Height, not width",
+  "difficulty": "easy",
+  "description": "Wrong property.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".box {\n  width: 50%;\n}",
+  "target": ".box {\n  height: 50%;\n}",
+  "solution": "jwcwheight",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change"]
+}

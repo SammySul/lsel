@@ -1,0 +1,17 @@
+{
+  "id": "mark-the-tests",
+  "title": "Mark the tests",
+  "difficulty": "medium",
+  "description": "A test attribute above each fn.",
+  "language": "rust",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "fn adds() {}\nfn subs() {}",
+  "target": "#[test]\nfn adds() {}\n#[test]\nfn subs() {}",
+  "solution": "O#[test]<Esc>2j.",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["open-line", "repeat"]
+}

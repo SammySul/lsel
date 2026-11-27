@@ -1,0 +1,17 @@
+{
+  "id": "snake-key",
+  "title": "Snake case the key",
+  "difficulty": "easy",
+  "description": "firstName to first_name.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\n  \"firstName\": \"Ada\"\n}",
+  "target": "{\n  \"first_name\": \"Ada\"\n}",
+  "solution": "jfNs_n",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "find"]
+}

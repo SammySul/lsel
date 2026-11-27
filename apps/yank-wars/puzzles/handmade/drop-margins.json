@@ -1,0 +1,17 @@
+{
+  "id": "drop-margins",
+  "title": "Drop the margins",
+  "difficulty": "medium",
+  "description": "Delete every margin line.",
+  "language": "css",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": ".a {\n  margin: 0;\n  color: red;\n}\n.b {\n  margin: 4px;\n  color: blue;\n}",
+  "target": ".a {\n  color: red;\n}\n.b {\n  color: blue;\n}",
+  "solution": ":g/margin/d<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["global"]
+}

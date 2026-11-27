@@ -1,0 +1,17 @@
+{
+  "id": "rename-prefix",
+  "title": "Rename the prefix",
+  "difficulty": "medium",
+  "description": "old_ becomes new_.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "old_a = 1\nold_b = 2\nold_c = 3",
+  "target": "new_a = 1\nnew_b = 2\nnew_c = 3",
+  "solution": "<C-v>2jllcnew<Esc>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["visual-block", "change"]
+}

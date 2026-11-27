@@ -1,0 +1,17 @@
+{
+  "id": "short-declaration",
+  "title": "Short declaration",
+  "difficulty": "easy",
+  "description": "var becomes :=.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "func main() {\n\tvar count int = 0\n\tprintln(count)\n}",
+  "target": "func main() {\n\tcount := 0\n\tprintln(count)\n}",
+  "solution": "jwdwwdwi:",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "insert"]
+}

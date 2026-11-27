@@ -1,0 +1,17 @@
+{
+  "id": "slice-not-array",
+  "title": "Slice, not array",
+  "difficulty": "easy",
+  "description": "Drop the length.",
+  "language": "go",
+  "tabSize": 4,
+  "indentUnit": "\t",
+  "start": "func main() {\n\tnums := [3]int{1, 2, 3}\n\tprintln(len(nums))\n}",
+  "target": "func main() {\n\tnums := []int{1, 2, 3}\n\tprintln(len(nums))\n}",
+  "solution": "jf3x",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "find"]
+}

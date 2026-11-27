@@ -1,0 +1,17 @@
+{
+  "id": "return-tuple",
+  "title": "Parenthesize the tuple",
+  "difficulty": "easy",
+  "description": "Return a tuple, in parens.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "def pair(a, b):\n    return a, b",
+  "target": "def pair(a, b):\n    return (a, b)",
+  "solution": "jwwi(<Esc>A)",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert"]
+}

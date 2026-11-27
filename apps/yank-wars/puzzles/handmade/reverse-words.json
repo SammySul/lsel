@@ -1,0 +1,17 @@
+{
+  "id": "reverse-words",
+  "title": "Reverse the words",
+  "difficulty": "hard",
+  "description": "Three words, backwards.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "one two three",
+  "target": "three two one",
+  "solution": ":s/\\(\\w*\\) \\(\\w*\\) \\(\\w*\\)/\\3 \\2 \\1/<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "regex"]
+}

@@ -1,0 +1,17 @@
+{
+  "id": "cross-off",
+  "title": "Cross it off",
+  "difficulty": "easy",
+  "description": "Milk is done.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "milk, eggs, bread",
+  "target": "eggs, bread",
+  "solution": "df<Space>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "find"]
+}

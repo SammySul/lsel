@@ -1,0 +1,17 @@
+{
+  "id": "and-list",
+  "title": "And the last one",
+  "difficulty": "easy",
+  "description": "Swap the final comma for and.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "red, green, blue",
+  "target": "red, green and blue",
+  "solution": "2f,s<Space>and",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute", "count"]
+}

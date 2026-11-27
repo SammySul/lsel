@@ -1,0 +1,17 @@
+{
+  "id": "flush-left",
+  "title": "Flush left",
+  "difficulty": "medium",
+  "description": "Strip the leading spaces.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "  one\n    two\n three",
+  "target": "one\ntwo\nthree",
+  "solution": ":%s/^\\s\\+//<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

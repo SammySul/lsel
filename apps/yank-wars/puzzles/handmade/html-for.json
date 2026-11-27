@@ -1,0 +1,17 @@
+{
+  "id": "html-for",
+  "title": "htmlFor",
+  "difficulty": "easy",
+  "description": "for is a JavaScript keyword.",
+  "language": "jsx",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "<label for=\"name\">Name</label>",
+  "target": "<label htmlFor=\"name\">Name</label>",
+  "solution": "ffihtml<Esc>l~",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert", "case"]
+}

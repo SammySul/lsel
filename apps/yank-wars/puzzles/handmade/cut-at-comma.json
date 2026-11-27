@@ -1,0 +1,17 @@
+{
+  "id": "cut-at-comma",
+  "title": "Cut at the comma",
+  "difficulty": "easy",
+  "description": "Keep the first half.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "keep this, drop that",
+  "target": "keep this",
+  "solution": "f,D",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "find"]
+}

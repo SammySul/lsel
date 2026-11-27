@@ -1,0 +1,17 @@
+{
+  "id": "double-quotes",
+  "title": "Double quotes only",
+  "difficulty": "easy",
+  "description": "JSON has no single quotes.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{'a': 1}",
+  "target": "{\"a\": 1}",
+  "solution": "f'r\";r\"",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["replace", "find"]
+}

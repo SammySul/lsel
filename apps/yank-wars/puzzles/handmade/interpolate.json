@@ -1,0 +1,17 @@
+{
+  "id": "interpolate",
+  "title": "Interpolate the name",
+  "difficulty": "easy",
+  "description": "Braces around the variable.",
+  "language": "jsx",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "return <p>Hello name</p>;",
+  "target": "return <p>Hello {name}</p>;",
+  "solution": "fHwi{<Esc>ea}",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["insert", "find"]
+}

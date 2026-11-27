@@ -1,0 +1,17 @@
+{
+  "id": "assign-fields",
+  "title": "Assign the fields",
+  "difficulty": "medium",
+  "description": "self.x = x for each.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "name\nage",
+  "target": "self.name = name\nself.age = age",
+  "solution": ":%s/.*/self.& = &/<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

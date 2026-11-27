@@ -1,0 +1,17 @@
+{
+  "id": "is-none",
+  "title": "Is None",
+  "difficulty": "easy",
+  "description": "Compare identity, not equality.",
+  "language": "python",
+  "tabSize": 4,
+  "indentUnit": "    ",
+  "start": "if x == None:\n    skip()",
+  "target": "if x is None:\n    skip()",
+  "solution": "f=cwis",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["change"]
+}

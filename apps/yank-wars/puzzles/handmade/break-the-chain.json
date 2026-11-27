@@ -1,0 +1,17 @@
+{
+  "id": "break-the-chain",
+  "title": "Break the chain",
+  "difficulty": "medium",
+  "description": "One call per line.",
+  "language": "javascript",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "fetch(url).then(parse).then(show);",
+  "target": "fetch(url)\n  .then(parse)\n  .then(show);",
+  "solution": ":s/)\\./)\\r  ./g<CR>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["substitute"]
+}

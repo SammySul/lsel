@@ -1,0 +1,17 @@
+{
+  "id": "game-over",
+  "title": "Game over",
+  "difficulty": "easy",
+  "description": "Down to zero lives.",
+  "language": "text",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "Lives: 3",
+  "target": "Lives: 0",
+  "solution": "$3<C-x>",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["increment", "count"]
+}

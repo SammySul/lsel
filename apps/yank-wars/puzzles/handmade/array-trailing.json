@@ -1,0 +1,17 @@
+{
+  "id": "array-trailing",
+  "title": "Trailing comma in a list",
+  "difficulty": "easy",
+  "description": "JSON forbids it.",
+  "language": "json",
+  "tabSize": 2,
+  "indentUnit": "  ",
+  "start": "{\n  \"tags\": [\"a\", \"b\",]\n}",
+  "target": "{\n  \"tags\": [\"a\", \"b\"]\n}",
+  "solution": "jf]hx",
+  "source": {
+    "kind": "original",
+    "author": "yank-wars"
+  },
+  "tags": ["delete", "find"]
+}
