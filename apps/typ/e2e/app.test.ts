@@ -2,7 +2,15 @@
 import { afterEach, expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { eachBrowser, LSEL_LOOK, lselLook, serveBuilt, watchPage } from "@sammysul/lsel/testing";
+import {
+  eachBrowser,
+  LSEL_LAYOUT,
+  LSEL_LOOK,
+  lselLayout,
+  lselLook,
+  serveBuilt,
+  watchPage,
+} from "@sammysul/lsel/testing";
 import type { BrowserContext, Page } from "playwright-core";
 
 const url = serveBuilt(join(import.meta.dir, "../dist"));
@@ -47,6 +55,7 @@ eachBrowser((browser, name) => {
   test("lsel's look, under the strict CSP", async () => {
     const { page, problems } = await open();
     expect(await lselLook(page)).toEqual(LSEL_LOOK);
+    expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
     expect(await problems()).toEqual([]);
   });
 

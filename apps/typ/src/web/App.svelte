@@ -1,20 +1,19 @@
 <!-- Compare fonts, from files or installed ones, on a sample text you type. -->
 <script lang="ts">
-import { Action, Empty, keys, Page } from "@sammysul/lsel";
-import { onMount } from "svelte";
+import { Action, Empty, keys, List, Page } from "@sammysul/lsel";
 import { version } from "../../package.json";
 import InstalledFonts from "./components/InstalledFonts.svelte";
 import {
   addFile,
   fontName,
   loadLocal,
-  loadStored,
   localFontsSupported,
   NotAFont,
   remove,
 } from "./lib/fonts.ts";
 import { clampSize, prefs, SIZE } from "./lib/prefs.ts";
 import { SAMPLE } from "./lib/sample.ts";
+import { stored } from "./lib/stored.ts";
 
 interface Font {
   name: string;
@@ -24,27 +23,19 @@ interface Font {
   readable: boolean;
 }
 
-let fonts: Font[] = $state([]);
+let fonts: Font[] = $state([
+  ...(stored?.loaded ?? []).map((name) => ({ name, kept: true, readable: true })),
+  ...(stored?.failed ?? []).map((name) => ({ name, kept: true, readable: false })),
+]);
 let text = $state(SAMPLE);
-let ready = $state(false);
-let problems: string[] = $state([]);
+let problems: string[] = $state(
+  stored === null
+    ? ["This browser's storage is not available, so fonts can't be kept."]
+    : stored.removed.map((name) => `${name} held no font file, so it was removed.`),
+);
 let fileInput: HTMLInputElement | undefined = $state();
 
 const shown = $derived(fonts.filter((f) => f.readable && !prefs.value.hidden.includes(f.name)));
-
-onMount(async () => {
-  try {
-    const { loaded, failed, removed } = await loadStored();
-    fonts = [
-      ...loaded.map((name) => ({ name, kept: true, readable: true })),
-      ...failed.map((name) => ({ name, kept: true, readable: false })),
-    ];
-    problems = removed.map((name) => `${name} held no font file, so it was removed.`);
-  } catch {
-    problems = ["This browser's storage is not available, so fonts can't be kept."];
-  }
-  ready = true;
-});
 
 function unhide(name: string) {
   prefs.value.hidden = prefs.value.hidden.filter((h) => h !== name);
@@ -148,12 +139,10 @@ keys(() => [
         </ul>
       {/if}
 
-      {#if ready && fonts.length === 0}
-        <Empty>No fonts yet. Add font files with <kbd>a</kbd>; they stay in this browser.</Empty>
-      {:else}
-        <ul class="fonts" aria-label="Your fonts">
-          {#each fonts as font (font.name)}
-            <li class="lsel-appear">
+      <div class="fonts">
+        <List items={fonts} id={(f) => f.name} label="Your fonts" pageSize="fit">
+          {#snippet row(font)}
+            <div class="font">
               {#if font.readable}
                 <label>
                   <input
@@ -165,16 +154,17 @@ keys(() => [
                   {#if !font.kept}<span class="tag">installed</span>{/if}
                 </label>
               {:else}
-                <span class="font">
+                <span class="unread">
                   <span class="name">{font.name}</span>
                   <span class="tag unreadable">can't be read</span>
                 </span>
               {/if}
               <button onclick={() => drop(font)} aria-label="Remove {font.name}">Remove</button>
-            </li>
-          {/each}
-        </ul>
-      {/if}
+            </div>
+          {/snippet}
+          {#snippet empty()}No fonts yet. Add font files with <kbd>a</kbd>; they stay in this browser.{/snippet}
+        </List>
+      </div>
     </aside>
 
     <section class="preview" aria-label="Preview">
@@ -189,7 +179,7 @@ keys(() => [
       </div>
 
       {#if shown.length === 0}
-        {#if ready}<Empty>No fonts selected. Tick one in the list.</Empty>{/if}
+        <Empty>No fonts selected. Tick one in the list.</Empty>
       {:else}
         <div class="columns">
           {#each shown as font (font.name)}
@@ -212,11 +202,11 @@ keys(() => [
 </Page>
 
 <style>
+  /* the fonts list fills the window (a fitted List); the preview stretches to its height */
   .layout {
     display: grid;
     grid-template-columns: 260px minmax(0, 1fr);
     gap: var(--space-5);
-    align-items: start;
   }
   @media (max-width: 720px) {
     .layout {
@@ -227,44 +217,47 @@ keys(() => [
     display: flex;
     flex-direction: column;
     gap: var(--space-3);
+    min-width: 0;
   }
   .file {
     display: none;
   }
-  .fonts,
   .problems {
     margin: 0;
     padding: 0;
+    color: var(--error);
     list-style: none;
   }
-  .fonts li {
+  /* every row as tall as the tallest, fillers too, so the fitted count holds as fonts come and go */
+  .fonts :global(.lsel-list) {
+    display: grid;
+    grid-auto-rows: 1fr;
+  }
+  .font {
     display: flex;
     gap: var(--space-2);
     align-items: center;
     justify-content: space-between;
-    padding: var(--space-1) 0;
-    border-bottom: var(--border);
   }
-  .fonts label,
-  .font {
+  .font label,
+  .unread {
     display: flex;
     gap: var(--space-2);
     align-items: center;
     min-width: 0;
   }
-  .name {
+  .name,
+  .label {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
   .tag {
+    flex: none;
     color: var(--subtle);
     font-size: var(--text-xs);
   }
   .unreadable {
-    color: var(--error);
-  }
-  .problems {
     color: var(--error);
   }
   .preview {
@@ -292,6 +285,7 @@ keys(() => [
   }
   .columns {
     display: flex;
+    flex: 1;
     gap: var(--space-3);
     overflow-x: auto;
   }
@@ -300,13 +294,16 @@ keys(() => [
     flex: 1 0 280px;
     flex-direction: column;
     gap: var(--space-1);
+    min-width: 0;
   }
   .label {
     color: var(--subtle);
     font-size: var(--text-xs);
   }
+  /* a floor, not a size: the row's height comes from the fitted list beside it */
   textarea {
-    height: 70vh;
-    resize: vertical;
+    flex: 1 1 0;
+    min-height: 10rem;
+    resize: none;
   }
 </style>
