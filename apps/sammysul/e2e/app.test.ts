@@ -42,6 +42,23 @@ eachBrowser((browser) => {
     await page.close();
   });
 
+  test("on a phone every project is two lines, its description cut to one, and the list fills the window", async () => {
+    const page = await browser().newPage({ viewport: { width: 390, height: 844 } });
+    await page.goto(url());
+    const rows = page.locator('ul[aria-label="Projects"] li');
+    await rows.first().waitFor();
+    // a name and a description, 21 each, with the row's padding and border: 59, fillers too
+    expect(
+      await rows.evaluateAll((all) =>
+        all.map((li) => Math.round(li.getBoundingClientRect().height)),
+      ),
+    ).toEqual(Array(9).fill(59));
+    expect(await page.locator(".what").first().getAttribute("title")).toBe(
+      "Compare fonts side by side on your own text, in your browser",
+    );
+    await page.close();
+  });
+
   test("j selects the next project and Enter opens it", async () => {
     const page = await browser().newPage();
     await page.route("https://yankwars.app/**", (route) =>
