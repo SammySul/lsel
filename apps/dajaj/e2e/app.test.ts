@@ -2,7 +2,15 @@
 import { Database } from "bun:sqlite";
 import { afterAll, afterEach, expect, test } from "bun:test";
 import { join } from "node:path";
-import { eachBrowser, LSEL_LOOK, lselLook, serveBuilt, watchPage } from "@sammysul/lsel/testing";
+import {
+  eachBrowser,
+  LSEL_LAYOUT,
+  LSEL_LOOK,
+  lselLayout,
+  lselLook,
+  serveBuilt,
+  watchPage,
+} from "@sammysul/lsel/testing";
 import type { BrowserContext, Page } from "playwright-core";
 import { api } from "../src/server/api.ts";
 import { fakePubg, WORLD } from "../src/server/fakePubg.ts";
@@ -88,6 +96,7 @@ eachBrowser((browser) => {
   test("lsel's look, under the strict CSP", async () => {
     const { ctx, page, problems } = await open();
     expect(await lselLook(page)).toEqual(LSEL_LOOK);
+    expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
     expect(await problems()).toEqual([]);
     await ctx.close();
   });
@@ -133,6 +142,7 @@ eachBrowser((browser) => {
     ] as const) {
       await page.keyboard.press(key);
       await page.locator(`.chart[data-view="${view}"] canvas`).waitFor();
+      expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
       expect(await pressed(page, "View")).toEqual([
         `${view[0]?.toUpperCase()}${view.slice(1)} ${key}`,
       ]);
@@ -193,8 +203,11 @@ eachBrowser((browser) => {
       "No recent matches with all of them. Drop a player to see more.",
     );
     expect(await missing.isVisible()).toBe(true);
+    expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
     await page.getByRole("button", { name: "Lurker" }).click();
-    await page.locator(".summary").waitFor();
+    await page.waitForFunction(() =>
+      document.querySelector(".summary")?.textContent?.startsWith("3 "),
+    );
     expect(await summary(page)).toBe("3 matches together since Nov 10, 8:05 PM.");
     expect(await missing.count()).toBe(0);
     await page.getByRole("button", { name: "AntennaTower" }).click();

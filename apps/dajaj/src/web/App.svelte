@@ -42,73 +42,105 @@ function toggle(player: string) {
   {version}
   source="https://git.sammysul.com/SammySul/lsel/src/branch/main/apps/dajaj"
   width={1200}
+  fill
 >
-  <section class="controls" aria-label="Choices">
-    <div class="group" role="group" aria-label="Players">
-      {#each available as player (player)}
-        <button aria-pressed={selected.includes(player)} onclick={() => toggle(player)}>{player}</button>
-      {/each}
-    </div>
-    <Tabs items={VIEWS} bind:value={prefs.value.view} label="View" />
-    <label class="stat">
-      Stat
-      <select bind:value={prefs.value.stat} disabled={prefs.value.view === "table"}>
-        {#each STATS as s (s)}
-          <option value={s}>{STAT_UNITS[s].label}</option>
+  <div class="screen">
+    <section class="controls" aria-label="Choices">
+      <div class="players" role="group" aria-label="Players">
+        {#each available as player (player)}
+          <button aria-pressed={selected.includes(player)} onclick={() => toggle(player)}>{player}</button>
         {/each}
-      </select>
-    </label>
-    <Action
-      label="Refresh"
-      key="r"
-      busy="Refreshing…"
-      disabled={selected.length === 0}
-      run={() => report.reload()}
-    />
-  </section>
+      </div>
+      <div class="row">
+        <Tabs items={VIEWS} bind:value={prefs.value.view} label="View" />
+        <label class="stat">
+          Stat
+          <select bind:value={prefs.value.stat} disabled={prefs.value.view === "table"}>
+            {#each STATS as s (s)}
+              <option value={s}>{STAT_UNITS[s].label}</option>
+            {/each}
+          </select>
+        </label>
+        <Action
+          label="Refresh"
+          key="r"
+          busy="Refreshing…"
+          disabled={selected.length === 0}
+          run={() => report.reload()}
+        />
+      </div>
+    </section>
 
-  {#if roster.value === undefined}
-    <Status of={roster} waiting="Asking dajaj for the players…" />
-  {:else}
-    <div class="lines">
-      <!-- the Refresh button's r retries -->
-      <Status of={report} waiting="Asking PUBG…" retry={false} />
-      {#if selected.length === 0}
-        <Empty>No players chosen. Choose one or more above.</Empty>
-      {:else if shown}
-        <p class="summary">{plural(shown.report.matchCount, "match", "matches")} together since {when(new Date(shown.since))}.</p>
-      {:else if report.value}
-        <Empty>No recent matches with all of them. Drop a player to see more.</Empty>
-      {/if}
-      {#if missing > 0}
-        <p class="missing">{plural(missing, "match", "matches")} couldn't be loaded from PUBG.</p>
-      {/if}
-    </div>
-    {#if shown}
-      {#key prefs.value.view}
-        <div class="lsel-appear">
-          {#if prefs.value.view === "table"}
-            <Table report={shown.report} />
+    <section class="report" aria-label="Report">
+      <div class="lines">
+        <div class="line">
+          {#if roster.value === undefined}
+            <Status of={roster} waiting="Asking dajaj for the players…" />
           {:else}
-            <Chart report={shown.report} view={prefs.value.view} stat={prefs.value.stat} />
+            <!-- the Refresh button's r retries -->
+            <Status of={report} waiting="Asking PUBG…" retry={false} />
           {/if}
         </div>
-      {/key}
-    {/if}
-  {/if}
+        <p class="line summary">
+          {#if shown}{plural(shown.report.matchCount, "match", "matches")} together since {when(new Date(shown.since))}.{/if}
+        </p>
+        <p class="line missing">
+          {#if missing > 0}{plural(missing, "match", "matches")} couldn't be loaded from PUBG.{/if}
+        </p>
+      </div>
+
+      <div class="frame">
+        {#if roster.value !== undefined && selected.length === 0}
+          <Empty>No players chosen. Choose one or more above.</Empty>
+        {:else if shown}
+          {#key prefs.value.view}
+            <div class="view lsel-appear">
+              {#if prefs.value.view === "table"}
+                <Table report={shown.report} />
+              {:else}
+                <Chart report={shown.report} view={prefs.value.view} stat={prefs.value.stat} />
+              {/if}
+            </div>
+          {/key}
+        {:else if report.value}
+          <Empty>No recent matches with all of them. Drop a player to see more.</Empty>
+        {/if}
+      </div>
+    </section>
+  </div>
 </Page>
 
 <style>
+  .screen {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--space-5);
+    min-height: 0;
+  }
   .controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .row {
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-3) var(--space-5);
     align-items: center;
   }
-  .group {
+  /* one line kept from the start: players arrive later and scroll it, never grow it; the padding keeps focus outlines unclipped */
+  .players {
     display: flex;
-    flex-wrap: wrap;
     gap: var(--space-2);
+    min-height: calc(1lh + 4 * var(--space-1) + 2px);
+    margin: calc(-1 * var(--space-1));
+    padding: var(--space-1);
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  .players button {
+    flex: none;
   }
   .stat {
     display: flex;
@@ -116,12 +148,42 @@ function toggle(player: string) {
     align-items: center;
     color: var(--subtle);
   }
-  .missing {
+  .report {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--space-3);
+    min-height: 0;
+  }
+  .line {
+    height: 1lh;
     margin: 0;
+  }
+  .line,
+  .line :global(p) {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .missing {
     color: var(--warning);
   }
   .summary {
-    margin: 0;
     color: var(--subtle);
+  }
+  .frame {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    min-height: 0;
+    overflow: auto;
+    border: var(--border);
+  }
+  .frame > :global(.lsel-empty) {
+    padding: var(--space-4);
+  }
+  .view {
+    flex: 1;
+    min-height: 0;
   }
 </style>

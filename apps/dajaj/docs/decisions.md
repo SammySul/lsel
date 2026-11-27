@@ -27,6 +27,10 @@ What changed on the way, and why:
 - **Units people read**: distances in km, time survived as h:mm, US 12-hour
   dates on the line chart's axis. English only (the Arabic translation went
   with Transloco); the doughnut/pie toggle is gone.
+- **The screen holds still** (lsel's Layout rules): the players arrive after the
+  page draws, so they keep a one-line row that scrolls sideways instead of
+  wrapping; the table or chart fills a frame that takes the height left, so a
+  report arriving never moves the footer.
 - **Charts stay Chart.js**, recolored with the terminal palette; they animate
   to new values, except under reduced motion.
 

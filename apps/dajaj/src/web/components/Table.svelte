@@ -10,35 +10,29 @@ interface Props {
 let { report }: Props = $props();
 </script>
 
-<div class="scroll">
-  <table>
-    <thead>
+<table>
+  <thead>
+    <tr>
+      <th class="name" scope="col">Player</th>
+      {#each STATS as s (s)}
+        <th scope="col">{STAT_UNITS[s].label}</th>
+      {/each}
+    </tr>
+  </thead>
+  <tbody>
+    {#each report.players as player (player)}
+      {@const totals = report.totals[player]}
       <tr>
-        <th class="name" scope="col">Player</th>
+        <th class="name" scope="row">{player}</th>
         {#each STATS as s (s)}
-          <th scope="col">{STAT_UNITS[s].label}</th>
+          <td>{totals ? STAT_UNITS[s].text(totals[s]) : "–"}</td>
         {/each}
       </tr>
-    </thead>
-    <tbody>
-      {#each report.players as player (player)}
-        {@const totals = report.totals[player]}
-        <tr>
-          <th class="name" scope="row">{player}</th>
-          {#each STATS as s (s)}
-            <td>{totals ? STAT_UNITS[s].text(totals[s]) : "–"}</td>
-          {/each}
-        </tr>
-      {/each}
-    </tbody>
-  </table>
-</div>
+    {/each}
+  </tbody>
+</table>
 
 <style>
-  .scroll {
-    overflow-x: auto;
-    border: var(--border);
-  }
   th,
   td {
     text-align: right;

@@ -146,8 +146,7 @@ $effect(() => {
 <style>
   .chart {
     position: relative;
-    height: min(60vh, 520px);
-    border: var(--border);
+    height: 100%;
     padding: var(--space-4);
   }
 </style>
