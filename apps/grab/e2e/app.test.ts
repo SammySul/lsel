@@ -18,38 +18,22 @@ import { fakeInstagram, WORLD } from "../src/server/fakeInstagram.ts";
 import { Instagram } from "../src/server/instagram.ts";
 
 const DIST = join(import.meta.dir, "../dist");
-const fake = fakeInstagram(WORLD);
-const url = serveBuilt(
-  DIST,
-  api({ instagram: new Instagram({ fetch: fake.fetch, gap: 0, retryWait: 0 }), fetch: fake.fetch }),
-);
-// its own cache, so a refusal isn't hidden by a profile another test loaded
-const moody = fakeInstagram(WORLD);
-const moodyUrl = serveBuilt(
-  DIST,
-  api({
-    instagram: new Instagram({ fetch: moody.fetch, gap: 0, retryWait: 0 }),
-    fetch: moody.fetch,
-  }),
-);
-const throttled = fakeInstagram(WORLD);
-const throttledUrl = serveBuilt(
-  DIST,
-  api({
-    instagram: new Instagram({ fetch: throttled.fetch, gap: 0, retryWait: 0 }),
-    fetch: throttled.fetch,
-  }),
-);
 
+/** grab's server on the built app with its own fake Instagram and cache, so no test's profile hides another's refusal. */
+function server({ gap = 0 } = {}) {
+  const fake = fakeInstagram(WORLD);
+  const url = serveBuilt(
+    DIST,
+    api({ instagram: new Instagram({ fetch: fake.fetch, gap, retryWait: 0 }) }),
+  );
+  return { fake, url };
+}
+
+const { url } = server();
+const { fake: moody, url: moodyUrl } = server();
+const { fake: throttled, url: throttledUrl } = server();
 // slow enough that the first answer comes before the posts are all in
-const slow = fakeInstagram(WORLD);
-const slowUrl = serveBuilt(
-  DIST,
-  api({
-    instagram: new Instagram({ fetch: slow.fetch, gap: 300, retryWait: 0 }),
-    fetch: slow.fetch,
-  }),
-);
+const { url: slowUrl } = server({ gap: 300 });
 
 afterEach(() => {
   moody.state.fail = undefined;
@@ -59,12 +43,14 @@ afterEach(() => {
 eachBrowser((browser) => {
   async function open(
     hash = "",
-    at = url,
+    { at = url, phone = false } = {},
   ): Promise<{ ctx: BrowserContext; page: Page; problems: () => Promise<string[]> }> {
     const ctx = await browser().newContext({
       timezoneId: "UTC",
       acceptDownloads: true,
-      viewport: { width: 1280, height: 800 },
+      ...(phone
+        ? { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true }
+        : { viewport: { width: 1280, height: 800 } }),
     });
     const page = await ctx.newPage();
     const watch = watchPage(page);
@@ -240,7 +226,7 @@ eachBrowser((browser) => {
 
   test("a rate limit is a message with r to retry, and r brings the profile", async () => {
     moody.state.fail = 429;
-    const { ctx, page } = await open("#/nat.geo", moodyUrl);
+    const { ctx, page } = await open("#/nat.geo", { at: moodyUrl });
     const alert = page.getByRole("alert");
     await alert.waitFor();
     expect((await alert.textContent())?.replace(/\s+/g, " ").trim()).toBe(
@@ -255,7 +241,7 @@ eachBrowser((browser) => {
 
   test("cut short by Instagram's rate limit: what came, a line saying so, and r loads the rest", async () => {
     throttled.state.limitAfter = 3;
-    const { ctx, page, problems } = await open("#/nat.geo", throttledUrl);
+    const { ctx, page, problems } = await open("#/nat.geo", { at: throttledUrl });
     const line = page.locator(".pager .warning");
     await line.waitFor();
     expect(await foot(page)).toBe(
@@ -273,7 +259,7 @@ eachBrowser((browser) => {
   });
 
   test("a slow profile shows its first posts at once and the rest as they come", async () => {
-    const { ctx, page, problems } = await open("#/nat.geo", slowUrl);
+    const { ctx, page, problems } = await open("#/nat.geo", { at: slowUrl });
     const progress = page.getByText(/^Loaded \d of the newest 8 posts/);
     await progress.waitFor();
     expect(await progress.textContent()).toMatch(
@@ -290,15 +276,7 @@ eachBrowser((browser) => {
   }, 20_000);
 
   test("on a phone a tap opens the file in the grid's place, and Esc goes back", async () => {
-    const ctx = await browser().newContext({
-      viewport: { width: 390, height: 844 },
-      timezoneId: "UTC",
-      hasTouch: true,
-      isMobile: true,
-    });
-    const page = await ctx.newPage();
-    const watch = watchPage(page);
-    await page.goto(`${url()}#/nat.geo`, { waitUntil: "networkidle" });
+    const { ctx, page, problems } = await open("#/nat.geo", { phone: true });
     await tiles(page).first().waitFor();
     const shown = () =>
       Promise.all([
@@ -314,7 +292,7 @@ eachBrowser((browser) => {
     expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
     await page.keyboard.press("Escape");
     expect(await shown()).toEqual([true, false]);
-    expect(await watch.take()).toEqual([]);
+    expect(await problems()).toEqual([]);
     await ctx.close();
   });
 

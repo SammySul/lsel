@@ -28,14 +28,19 @@
   dozen requests, and refusals turned out to be chance, not a block: every
   page refused once loaded on its second try.
 - **The page fills in as posts arrive**: a cold profile took 26 to 51 s live,
-  too long for a blank screen. The server answers within 1.5 s with what has
-  loaded and how many are pending, and the page asks again every 2 s. A zip
-  uses what has loaded, waiting for the rest only if it names a file that
-  hasn't.
+  too long for a blank screen. Once the profile embed and page are in, the
+  server answers within 1.5 s with what has loaded and how many are pending,
+  and the page asks again every 2 s. A zip uses what has loaded, waiting for
+  the rest only if it names a file that hasn't, and never starts a load: that
+  would get around the limit per visitor.
 - **A rate limit cuts a profile short instead of failing it**: when a post is
   refused three times, what loaded is shown with a line saying how many
   didn't, and `r` loads the rest. Only a profile refused from its first post
-  is an error.
-- **Caching**: a whole profile for 10 minutes, a post for an hour (its CDN
-  addresses expire after days); a cut-short profile isn't kept, so a retry asks
-  only for the posts it lacks. Identical requests in flight are merged.
+  is an error. A refused profile page leaves the embed's six, cut short the
+  same way; a page that lists no posts leaves them as they are.
+- **Caching**: a profile for 10 minutes, a post for an hour (its CDN addresses
+  expire after days). A cut-short profile is kept too: dropping it when its load
+  ended let a page poll arriving after start a fresh, charged load against an
+  Instagram that was refusing. `r` asks with `?retry`, which drops it and
+  counts as a new profile; its posts are still cached, so only the missing ones
+  are asked for. Identical requests in flight are merged.

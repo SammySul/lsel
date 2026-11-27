@@ -1,19 +1,29 @@
 // Reads Instagram's public pages: the profile page's post list and the JSON inside its embeds.
 
 import * as v from "valibot";
-import type { Media, Post } from "../shared/types.ts";
+import type { Head, Media, Post } from "../shared/types.ts";
 
-export type Failure = "not-found" | "rate-limited" | "login" | "unavailable" | "unexpected";
+export type InstagramFailure =
+  | "not-found"
+  | "rate-limited"
+  | "login"
+  | "unavailable"
+  | "unexpected"
+  | "expired"
+  | "not-cdn";
 
 export class InstagramError extends Error {
   constructor(
-    readonly kind: Failure,
+    readonly kind: InstagramFailure,
     message: string,
   ) {
     super(message);
     this.name = "InstagramError";
   }
 }
+
+export const noProfile = (username: string) =>
+  new InstagramError("not-found", `Instagram has no public profile called ${username}`);
 
 /** The JSON an embed page hands its initializer, as a string inside a script: `"contextJSON":"{\"context\":…}"`. */
 export function contextJson(html: string): unknown {
@@ -51,7 +61,6 @@ const PostEmbed = v.looseObject({
     shortcode_media: v.looseObject({
       ...Item,
       shortcode: v.string(),
-      taken_at_timestamp: v.optional(v.number()),
       edge_media_to_caption: v.optional(
         v.looseObject({
           edges: v.array(v.looseObject({ node: v.looseObject({ text: v.string() }) })),
@@ -132,7 +141,7 @@ function decode(text: string): string {
  * A single photo's embed is plain HTML (its contextJSON is null): the image's srcset, uncropped
  * sizes first, then square crops whose offsets give the height; no crop means a square photo.
  */
-function parsePhotoEmbed(html: string, code: string): Post | null {
+function parsePhotoEmbed(html: string, code: string): EmbeddedPost | null {
   const img = /<img class="EmbeddedMediaImage"[^>]*\ssrcset="([^"]*)"/.exec(html);
   if (img === null) return null;
   const sizes = [...decode(img[1] as string).matchAll(/(https:\/\/\S+)\s+(\d+)w/g)].map((m) => ({
@@ -156,8 +165,6 @@ function parsePhotoEmbed(html: string, code: string): Post | null {
     /<div class="Caption">([\s\S]*?)<div class="CaptionComments">/.exec(html)?.[1] ?? "";
   return {
     code,
-    kind: "image",
-    takenAt: null,
     caption: decode(
       caption
         .replace(/<a class="CaptionUsername"[\s\S]*?<\/a>/, "")
@@ -178,7 +185,10 @@ function parsePhotoEmbed(html: string, code: string): Post | null {
   };
 }
 
-export function parsePost(html: string, code: string): Post {
+/** A post as its embed has it: never with its date, which only the profile embed gives. */
+export type EmbeddedPost = Omit<Post, "takenAt">;
+
+export function parsePost(html: string, code: string): EmbeddedPost {
   const json = contextJson(html);
   if (json === undefined) {
     const photo = parsePhotoEmbed(html, code);
@@ -190,29 +200,19 @@ export function parsePost(html: string, code: string): Post {
   const items = children.length > 0 ? children : [node];
   return {
     code: node.shortcode,
-    kind: children.length > 0 ? "carousel" : node.is_video ? "video" : "image",
-    takenAt: node.taken_at_timestamp === undefined ? null : node.taken_at_timestamp * 1000,
     caption: node.edge_media_to_caption?.edges[0]?.node.text ?? "",
     media: items.map((item, i) => mediaOf(node.shortcode, i + 1, item)),
   };
 }
 
-export interface ProfileHead {
-  username: string;
-  fullName: string;
-  verified: boolean;
-  followers: number;
-  postCount: number;
-  picture: Media;
+export interface ProfileHead extends Head {
   /** The newest six, with when they were posted. */
   recent: { code: string; takenAt: number | null }[];
 }
 
 export function parseProfileEmbed(html: string, username: string): ProfileHead {
   const json = contextJson(html);
-  if (json === undefined) {
-    throw new InstagramError("not-found", `Instagram has no public profile called ${username}`);
-  }
+  if (json === undefined) throw noProfile(username);
   const c = parse(ProfileEmbed, json, "profile embed").context;
   const size = Number(/s(\d+)x\d+/.exec(c.profile_pic_url)?.[1] ?? 150);
   return {

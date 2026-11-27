@@ -1,21 +1,32 @@
 <!-- One profile: who it is, its files as a fitted grid beside the current one, and the zip of the ticked ones. -->
 <script lang="ts">
-import { Action, count, duration, Grid, keys, plural, resource, Status } from "@sammysul/lsel";
+import { Action, count, Grid, keys, plural, resource, Status } from "@sammysul/lsel";
 import { untrack } from "svelte";
 import { SvelteSet } from "svelte/reactivity";
 import { download, fetchProfile, mediaUrl, zipUrl } from "../lib/api.ts";
-import { describe, type Entry, entries } from "../lib/entries.ts";
+import { badge, describe, type Entry, entries } from "../lib/entries.ts";
 import Preview from "./Preview.svelte";
 
 let { username, onfound }: { username: string; onfound: (username: string) => void } = $props();
 
 // made once per username: App keys this component on it, so no answer outlives its profile
-const profile = resource((signal) => fetchProfile(username, signal));
+let retry = false;
+const profile = resource((signal) => {
+  // r's request alone: a poll that retried would drop the profile r just loaded
+  const again = retry;
+  retry = false;
+  return fetchProfile(username, signal, again);
+});
 export const reload = () => profile.reload();
+const loadRest = () => {
+  retry = true;
+  void profile.reload();
+};
 
 const shown = $derived(profile.value);
+const found = $derived(shown?.username);
 $effect(() => {
-  const name = shown?.username;
+  const name = found;
   // untracked: what onfound reads (the remembered list) must not re-run this
   if (name !== undefined) untrack(() => onfound(name));
 });
@@ -56,17 +67,16 @@ keys(() => [
   ...(viewing ? [{ key: "Escape", label: "Back to the files", run: () => (viewing = false) }] : []),
   // after an error the status line's own r retries
   ...(shown?.limited && profile.error === null
-    ? [{ key: "r", label: "Load the rest", hint: true, run: () => void profile.reload() }]
+    ? [{ key: "r", label: "Load the rest", hint: true, run: loadRest }]
     : []),
 ]);
 </script>
 
-<div class="view">
-  <Status of={profile} waiting="Asking Instagram for {username}…" />
+<Status of={profile} waiting="Asking Instagram for {username}…" />
 
-  {#if shown !== undefined && entry !== undefined}
-    <div class="lsel-appear profile">
-      <div class="top">
+{#if shown !== undefined && entry !== undefined}
+  <div class="lsel-appear profile">
+    <div class="top">
       <header class="who">
         <img src={mediaUrl(shown.picture.thumb)} alt="" width="40" height="40" />
         <div class="names">
@@ -96,66 +106,57 @@ keys(() => [
         />
         <span class="count">{count(selected.size)} of {plural(items.length, "file", "files")} ticked</span>
       </div>
-      </div>
-
-      <div class="split" class:viewing>
-        <div class="files">
-          <Grid
-            {items}
-            id={(e: Entry) => e.media.id}
-            bind:selected={current}
-            label="Files"
-            hint
-            openOnClick
-            onopen={() => (viewing = true)}
-            actions={[{ key: "x", label: "Tick for the zip", run: (e: Entry) => toggle(e.media.id) }]}
-          >
-            {#snippet tile(e: Entry)}
-              <img class="thumb" src={mediaUrl(e.media.thumb)} alt="" loading="lazy" />
-              <input
-                type="checkbox"
-                class="pick"
-                aria-label="Tick {describe(e)} for the zip"
-                checked={selected.has(e.media.id)}
-                onchange={() => toggle(e.media.id)}
-              />
-              {#if e.media.kind === "video" || e.of > 1}
-                <span class="badge">
-                  {#if e.media.kind === "video"}Video{#if e.media.duration !== null}{" "}{duration(e.media.duration * 1000, "m:ss")}{/if}{/if}{#if e.media.kind === "video" && e.of > 1}{" · "}{/if}{#if e.of > 1}{e.index}/{e.of}{/if}
-                </span>
-              {/if}
-            {/snippet}
-            {#snippet empty()}No public posts. The account may be private or have none yet; its picture is all there is.{/snippet}
-            {#snippet foot()}
-              {#if shown.limited}
-                <span class="warning">Instagram is limiting this server: {plural(shown.missing, "post", "posts")} didn't load. <kbd>r</kbd> loads the rest.</span>
-              {:else if shown.pending > 0}
-                <!-- a post a second keeps under Instagram's rate limit, so a first look takes a while -->
-                <span role="status">Loaded {count(shown.posts.length)} of the newest {plural(listed, "post", "posts")}, about one a second</span>
-              {:else if shown.missing > 0}
-                <span class="warning">{plural(shown.missing, "post", "posts")} couldn't be loaded from Instagram</span>
-              {:else if listed === 0}
-                No public posts: the account may be private or have none yet
-              {:else}
-                The newest {count(listed)}: all Instagram shows without a login
-              {/if}
-            {/snippet}
-          </Grid>
-        </div>
-        <Preview {entry} username={shown.username} onback={() => (viewing = false)} />
-      </div>
     </div>
-  {/if}
-</div>
+
+    <div class="split" class:viewing>
+      <div class="files">
+        <Grid
+          {items}
+          id={(e: Entry) => e.media.id}
+          bind:selected={current}
+          label="Files"
+          hint
+          openOnClick
+          onopen={() => (viewing = true)}
+          actions={[{ key: "x", label: "Tick for the zip", run: (e: Entry) => toggle(e.media.id) }]}
+        >
+          {#snippet tile(e: Entry)}
+            <img class="thumb" src={mediaUrl(e.media.thumb)} alt="" loading="lazy" />
+            <input
+              type="checkbox"
+              class="pick"
+              aria-label="Tick {describe(e)} for the zip"
+              checked={selected.has(e.media.id)}
+              onchange={() => toggle(e.media.id)}
+            />
+            {@const corner = badge(e)}
+            {#if corner !== null}
+              <span class="badge">{corner}</span>
+            {/if}
+          {/snippet}
+          {#snippet empty()}No files.{/snippet}
+          {#snippet foot()}
+            {#if shown.limited}
+              <span class="warning">Instagram is limiting this server: {plural(shown.missing, "post", "posts")} didn't load. <kbd>r</kbd> loads the rest.</span>
+            {:else if shown.pending > 0}
+              <!-- a post a second keeps under Instagram's rate limit, so a first look takes a while -->
+              <span role="status">Loaded {count(shown.posts.length)} of the newest {plural(listed, "post", "posts")}, about one a second</span>
+            {:else if shown.missing > 0}
+              <span class="warning">{plural(shown.missing, "post", "posts")} couldn't be loaded from Instagram</span>
+            {:else if listed === 0}
+              No public posts: the account may be private or have none yet
+            {:else}
+              The newest {count(listed)}: all Instagram shows without a login
+            {/if}
+          {/snippet}
+        </Grid>
+      </div>
+      <Preview {entry} username={shown.username} onback={() => (viewing = false)} />
+    </div>
+  </div>
+{/if}
 
 <style>
-  .view {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    gap: var(--space-3);
-    min-height: 0;
-  }
   .profile {
     display: flex;
     flex: 1;
@@ -184,9 +185,6 @@ keys(() => [
   }
   .names {
     min-width: 0;
-  }
-  h2 {
-    font-size: var(--text-md);
   }
   .line,
   h2 {

@@ -54,11 +54,13 @@ function node(code: string, n: number, item: FakeItem) {
   };
 }
 
-/** The script the embed pages hand their initializer, slashes escaped as Instagram does. */
-function embedPage(isProfileEmbed: boolean, context: unknown): string {
-  const literal = JSON.stringify(JSON.stringify(context)).replaceAll("/", "\\/");
-  return `<!DOCTYPE html><html><head><title>Instagram</title></head><body><script>requireLazy(["ServerJS"],function(ServerJS){(new ServerJS()).handle({"require":[["PolarisEmbedSimple","init",[],[{"isRichEmbed":${!isProfileEmbed},"isProfileEmbed":${isProfileEmbed},"contextJSON":${literal}}]],["NavigationMetrics","setPage",[],[{"page":"XPolarisEmbedController"}]]]});});</script></body></html>`;
-}
+/** An embed page whose script hands its initializer `literal`, a JS string literal of the context's JSON. */
+export const embedShell = (isProfileEmbed: boolean, literal: string): string =>
+  `<!DOCTYPE html><html><head><title>Instagram</title></head><body><script>requireLazy(["ServerJS"],function(ServerJS){(new ServerJS()).handle({"require":[["PolarisEmbedSimple","init",[],[{"isRichEmbed":${!isProfileEmbed},"isProfileEmbed":${isProfileEmbed},"contextJSON":${literal}}]],["NavigationMetrics","setPage",[],[{"page":"XPolarisEmbedController"}]]]});});</script></body></html>`;
+
+/** An embed page for `context`, slashes escaped as Instagram does. */
+export const embedPage = (isProfileEmbed: boolean, context: unknown): string =>
+  embedShell(isProfileEmbed, JSON.stringify(JSON.stringify(context)).replaceAll("/", "\\/"));
 
 const escapeHtml = (text: string) =>
   text
@@ -157,15 +159,14 @@ const NOT_FOUND =
   "<!DOCTYPE html><html><head><title>Page Not Found &bull; Instagram</title></head></html>";
 
 /**
- * `calls` lists every path asked for; `fail` forces a status, `login` a redirect, `expired` the CDN's 403,
+ * `calls` lists every path asked for; `fail` forces a status, `expired` the CDN's 403,
  * `limitAfter` lets that many more post embeds through and then redirects as Instagram's rate limit does;
- * `refuse` redirects only the next that many requests for a page.
+ * `refuse` redirects the next that many requests for a page (Infinity: every one).
  */
 export function fakeInstagram(world: FakeWorld) {
   const state = {
     calls: [] as string[],
     fail: undefined as number | undefined,
-    login: false,
     expired: false,
     limitAfter: undefined as number | undefined,
     refuse: 0,
@@ -190,7 +191,6 @@ export function fakeInstagram(world: FakeWorld) {
       });
     }
     const login = { Location: "https://www.instagram.com/accounts/login/" };
-    if (state.login) return html("", 302, login);
     if (state.refuse > 0) {
       state.refuse--;
       return html("", 302, { Location: `${login.Location}?is_from_rle` });

@@ -1,16 +1,20 @@
-// Instagram's public pages as a logged-out browser sees them, cached: a profile for 10 minutes, a post for an hour.
+// Instagram's public pages and CDN as a logged-out browser sees them, cached: a profile for 10 minutes, a post for an hour.
 
-import type { Post, Profile } from "../shared/types.ts";
+import type { Profile } from "../shared/types.ts";
 import {
+  type EmbeddedPost,
   InstagramError,
+  noProfile,
   type ProfileHead,
   parsePost,
   parseProfileEmbed,
   profileCodes,
 } from "./parse.ts";
 
-export type Fetch = (url: string, init: RequestInit) => Promise<Response>;
+type Fetch = (url: string, init: RequestInit) => Promise<Response>;
+type Sleep = (ms: number) => Promise<void>;
 
+const BASE = "https://www.instagram.com";
 const MINUTE = 60_000;
 const PROFILE_TTL = 10 * MINUTE;
 const POST_TTL = 60 * MINUTE;
@@ -21,8 +25,9 @@ const RETRY_WAIT = 5000;
 const ATTEMPTS = 3;
 // long enough for a profile whose posts are cached to come back whole in one answer
 const SNAPSHOT_WAIT = 1500;
+const PAGE_LISTS = 12;
 
-export const BROWSER = {
+const BROWSER = {
   "User-Agent":
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
   "Accept-Language": "en-US,en;q=0.9",
@@ -40,24 +45,36 @@ const NAVIGATION = {
 };
 
 export interface InstagramOptions {
-  baseUrl?: string;
   fetch?: Fetch;
   now?: () => number;
+  sleep?: Sleep;
   /** Milliseconds between the starts of two requests. */
   gap?: number;
   /** Milliseconds before asking again for a page the rate limit refused. */
   retryWait?: number;
 }
 
+/** Only Instagram's CDN, so the proxy can't be pointed anywhere else. */
+export function cdnUrl(raw: string): URL | null {
+  let url: URL;
+  try {
+    url = new URL(raw);
+  } catch {
+    return null;
+  }
+  const ours = /(^|\.)(cdninstagram\.com|fbcdn\.net)$/.test(url.hostname);
+  return url.protocol === "https:" && url.port === "" && ours ? url : null;
+}
+
 /** Runs what it is handed one at a time, each starting at least `gap` ms after the one before. */
-function paced(gap: number) {
+function paced(gap: number, now: () => number, sleep: Sleep) {
   let queue: Promise<unknown> = Promise.resolve();
   let last = Number.NEGATIVE_INFINITY;
   return <T>(run: () => Promise<T>): Promise<T> => {
     const next = queue.then(async () => {
-      const wait = last + gap - Date.now();
-      if (wait > 0) await Bun.sleep(wait);
-      last = Date.now();
+      const wait = last + gap - now();
+      if (wait > 0) await sleep(wait);
+      last = now();
       return run();
     });
     queue = next.catch(() => undefined);
@@ -65,39 +82,33 @@ function paced(gap: number) {
   };
 }
 
-/** What a profile's load has so far; it grows as the posts come in. */
-interface Progress {
-  head?: ProfileHead;
+/** The profile and the posts to ask for; `unlisted` counts those the refused profile page would have added. */
+interface Listing {
+  head: ProfileHead;
   codes: string[];
-  posts: Post[];
-  tried: number;
-  limited: boolean;
+  unlisted: number;
 }
 
+/** One profile's loading; it grows as the posts come in. */
 interface Load {
-  progress: Progress;
-  /** Settles once the profile and its post list are in. */
-  ready: Promise<void>;
+  list: Promise<Listing>;
+  posts: EmbeddedPost[];
+  tried: number;
+  limited: boolean;
   finished: Promise<Profile>;
 }
 
 /** The profile from what has loaded; `done` counts every post not loaded as missing, not pending. */
-function assemble(load: Progress, done = false): Profile {
-  const head = load.head;
-  if (head === undefined) throw new Error("assemble before the profile was read");
-  const dates = new Map(head.recent.map((r) => [r.code, r.takenAt]));
-  const tried = done ? load.codes.length : load.tried;
+function assemble({ head, codes, unlisted }: Listing, load: Load, done = false): Profile {
+  const { recent, ...who } = head;
+  const dates = new Map(recent.map((r) => [r.code, r.takenAt]));
+  const tried = done ? codes.length : load.tried;
   return {
-    username: head.username,
-    fullName: head.fullName,
-    verified: head.verified,
-    followers: head.followers,
-    postCount: head.postCount,
-    picture: head.picture,
-    posts: load.posts.map((p) => ({ ...p, takenAt: p.takenAt ?? dates.get(p.code) ?? null })),
-    missing: tried - load.posts.length,
-    pending: load.codes.length - tried,
-    limited: load.limited,
+    ...who,
+    posts: load.posts.map((p) => ({ ...p, takenAt: dates.get(p.code) ?? null })),
+    missing: tried - load.posts.length + unlisted,
+    pending: codes.length - tried,
+    limited: load.limited || unlisted > 0,
   };
 }
 
@@ -115,25 +126,28 @@ class Cache<T> {
     for (const [k, e] of this.#entries) if (this.now() - e.at >= this.ttl) this.#entries.delete(k);
     this.#entries.set(key, { at: this.now(), value });
   }
+  delete(key: string): void {
+    this.#entries.delete(key);
+  }
 }
 
 export class Instagram {
-  readonly #base: string;
   readonly #fetch: Fetch;
+  readonly #sleep: Sleep;
   readonly #profiles: Cache<Profile>;
-  readonly #posts: Cache<Post>;
-  readonly #inflight = new Map<string, Promise<unknown>>();
+  readonly #posts: Cache<EmbeddedPost>;
+  readonly #posting = new Map<string, Promise<EmbeddedPost>>();
   readonly #loads = new Map<string, Load>();
   readonly #pace: ReturnType<typeof paced>;
   readonly #retryWait: number;
 
   constructor(opts: InstagramOptions = {}) {
-    this.#base = opts.baseUrl ?? "https://www.instagram.com";
     this.#fetch = opts.fetch ?? ((url, init) => fetch(url, init));
+    this.#sleep = opts.sleep ?? ((ms) => Bun.sleep(ms));
     const now = opts.now ?? Date.now;
     this.#profiles = new Cache(PROFILE_TTL, now);
     this.#posts = new Cache(POST_TTL, now);
-    this.#pace = paced(opts.gap ?? GAP);
+    this.#pace = paced(opts.gap ?? GAP, now, this.#sleep);
     this.#retryWait = opts.retryWait ?? RETRY_WAIT;
   }
 
@@ -156,101 +170,131 @@ export class Instagram {
     const hit = this.#profiles.get(username);
     if (hit !== undefined) return hit;
     const load = this.#load(username);
-    await load.ready;
+    const listing = await load.list;
     const done = await Promise.race([
       load.finished.then(() => true),
-      Bun.sleep(wait).then(() => false),
+      this.#sleep(wait).then(() => false),
     ]);
-    return done ? load.finished : assemble(load.progress);
+    return done ? load.finished : assemble(listing, load);
+  }
+
+  /** A cached or loading profile, never starting a load: as far as it has loaded, and whole once in. */
+  peek(username: string): { now: Promise<Profile>; whole: Promise<Profile> } | undefined {
+    const hit = this.#profiles.get(username);
+    if (hit !== undefined) return { now: Promise.resolve(hit), whole: Promise.resolve(hit) };
+    const load = this.#loads.get(username);
+    if (load === undefined) return undefined;
+    return { now: load.list.then((listing) => assemble(listing, load)), whole: load.finished };
+  }
+
+  /** Drops a cut-short profile, so the next snapshot loads it again; its posts come from their own cache. */
+  forgetLimited(username: string): void {
+    if (this.#profiles.get(username)?.limited) this.#profiles.delete(username);
+  }
+
+  /** A file on Instagram's CDN, from `range` on when given; a refusal is an InstagramError. */
+  async file(src: string, range?: string): Promise<Response> {
+    const url = cdnUrl(src);
+    if (url === null) throw new InstagramError("not-cdn", "not an Instagram CDN address");
+    let res: Response;
+    try {
+      res = await this.#fetch(url.href, {
+        headers: range === undefined ? BROWSER : { ...BROWSER, Range: range },
+      });
+    } catch {
+      throw new InstagramError("unavailable", "Instagram's CDN could not be reached");
+    }
+    // a CDN address carries its own expiry, and an expired one answers 403
+    if (res.status === 403) {
+      throw new InstagramError(
+        "expired",
+        "Instagram's link to this file has expired; reload the profile",
+      );
+    }
+    if (!res.ok) throw new InstagramError("unavailable", `Instagram's CDN answered ${res.status}`);
+    const type = res.headers.get("Content-Type") ?? "";
+    if (!/^(image|video)\//.test(type)) {
+      throw new InstagramError("unexpected", `Instagram's CDN sent ${type}`);
+    }
+    return res;
   }
 
   #load(username: string): Load {
     const running = this.#loads.get(username);
     if (running !== undefined) return running;
-    const ready = Promise.withResolvers<void>();
-    const load: Progress = { codes: [], posts: [], tried: 0, limited: false };
-    const finished = (async () => {
+    const list = this.#list(username);
+    const load: Load = {
+      list,
+      posts: [],
+      tried: 0,
+      limited: false,
+      finished: list.then((listing) => this.#fill(username, listing, load)),
+    };
+    this.#loads.set(username, load);
+    const end = () => this.#loads.delete(username);
+    load.finished.then(end, end);
+    return load;
+  }
+
+  /** Asks for each post in turn; a cut-short profile is cached too, so a poll after it ends isn't a new load. */
+  async #fill(username: string, listing: Listing, load: Load): Promise<Profile> {
+    for (const code of listing.codes) {
       try {
-        const head = await this.#head(username);
-        load.codes = await this.#codes(head);
-        load.head = head;
-        ready.resolve();
-        for (const code of load.codes) {
-          try {
-            load.posts.push(await this.post(code));
-          } catch (e) {
-            if (!(e instanceof InstagramError)) throw e;
-            console.error(`instagram post ${code} ${e.kind}: ${e.message}`);
-            // refused again and again: going on would only stretch the block
-            if (e.kind === "login" || e.kind === "rate-limited") {
-              load.limited = true;
-              // nothing loaded is an outage to report, not an empty profile
-              if (load.posts.length === 0) throw e;
-              break;
-            }
-          } finally {
-            load.tried++;
-          }
-        }
-        const profile = assemble(load, true);
-        // a cut-short profile isn't kept, so a retry asks only for the posts it lacks
-        if (!load.limited) this.#profiles.set(username, profile);
-        return profile;
+        load.posts.push(await this.#post(code));
       } catch (e) {
-        ready.reject(e);
-        throw e;
+        if (!(e instanceof InstagramError)) throw e;
+        console.error(`instagram post ${code} ${e.kind}: ${e.message}`);
+        // refused again and again: going on would only stretch the block
+        if (e.kind === "login" || e.kind === "rate-limited") {
+          load.limited = true;
+          // nothing loaded is an outage to report, not an empty profile
+          if (load.posts.length === 0) throw e;
+          break;
+        }
       } finally {
-        this.#loads.delete(username);
+        load.tried++;
       }
-    })();
-    // whoever reads only one of the two still sees the failure; the other mustn't go unhandled
-    ready.promise.catch(() => undefined);
-    finished.catch(() => undefined);
-    const entry = { progress: load, ready: ready.promise, finished };
-    this.#loads.set(username, entry);
-    return entry;
+    }
+    const profile = assemble(listing, load, true);
+    this.#profiles.set(username, profile);
+    return profile;
   }
 
-  async #head(username: string): Promise<ProfileHead> {
+  /** The profile page lists twelve; if it lists none, or is refused, the embed's six stand in. */
+  async #list(username: string): Promise<Listing> {
     const embed = await this.#page(`/${username}/embed/`).catch((e: unknown) => {
-      if (e instanceof InstagramError && e.kind === "not-found") {
-        throw new InstagramError("not-found", `Instagram has no public profile called ${username}`);
-      }
-      throw e;
+      throw e instanceof InstagramError && e.kind === "not-found" ? noProfile(username) : e;
     });
-    return parseProfileEmbed(embed, username);
+    const head = parseProfileEmbed(embed, username);
+    if (head.postCount === 0) return { head, codes: [], unlisted: 0 };
+    const embedded = head.recent.map((r) => r.code);
+    let listed: string[];
+    try {
+      listed = profileCodes(await this.#page(`/${head.username}/`), head.username);
+    } catch (e) {
+      const refused =
+        e instanceof InstagramError && (e.kind === "login" || e.kind === "rate-limited");
+      if (!refused || embedded.length === 0) throw e;
+      const unlisted = Math.max(0, Math.min(PAGE_LISTS, head.postCount) - embedded.length);
+      return { head, codes: embedded, unlisted };
+    }
+    return { head, codes: listed.length > 0 ? listed : embedded, unlisted: 0 };
   }
 
-  post(code: string): Promise<Post> {
+  #post(code: string): Promise<EmbeddedPost> {
     const hit = this.#posts.get(code);
     if (hit !== undefined) return Promise.resolve(hit);
-    return this.#once(`post:${code}`, async () => {
-      const html = await this.#page(`/p/${code}/embed/captioned/`);
-      const post = parsePost(html, code);
-      this.#posts.set(code, post);
-      return post;
-    });
-  }
-
-  /** The profile page lists twelve; if it shows none, the embed's six. */
-  async #codes(head: ProfileHead): Promise<string[]> {
-    if (head.postCount === 0) return [];
-    const embedded = head.recent.map((r) => r.code);
-    try {
-      const listed = profileCodes(await this.#page(`/${head.username}/`), head.username);
-      return listed.length > 0 ? listed : embedded;
-    } catch (e) {
-      if (e instanceof InstagramError && embedded.length > 0) return embedded;
-      throw e;
-    }
-  }
-
-  #once<T>(key: string, run: () => Promise<T>): Promise<T> {
-    const running = this.#inflight.get(key);
-    if (running !== undefined) return running as Promise<T>;
-    const p = run().finally(() => this.#inflight.delete(key));
-    this.#inflight.set(key, p);
-    return p;
+    const running = this.#posting.get(code);
+    if (running !== undefined) return running;
+    const post = this.#page(`/p/${code}/embed/captioned/`)
+      .then((html) => {
+        const parsed = parsePost(html, code);
+        this.#posts.set(code, parsed);
+        return parsed;
+      })
+      .finally(() => this.#posting.delete(code));
+    this.#posting.set(code, post);
+    return post;
   }
 
   /** A page, asked for again after a pause when the rate limit refuses it. */
@@ -260,7 +304,7 @@ export class Instagram {
         return await this.#get(path);
       } catch (e) {
         if (!(e instanceof InstagramError && e.kind === "login") || attempt === ATTEMPTS) throw e;
-        await Bun.sleep(this.#retryWait);
+        await this.#sleep(this.#retryWait);
       }
     }
   }
@@ -269,7 +313,7 @@ export class Instagram {
     let res: Response;
     try {
       res = await this.#pace(() =>
-        this.#fetch(`${this.#base}${path}`, { headers: NAVIGATION, redirect: "manual" }),
+        this.#fetch(`${BASE}${path}`, { headers: NAVIGATION, redirect: "manual" }),
       );
     } catch (e) {
       throw new InstagramError(

@@ -3,10 +3,10 @@
 import { Empty, Field, go, keys, Page, persisted, route } from "@sammysul/lsel";
 import * as v from "valibot";
 import { version } from "../../package.json";
-import { toUsername, USERNAME } from "../shared/types.ts";
+import { safeDecode, toUsername, USERNAME } from "../shared/types.ts";
 import ProfileView from "./components/ProfileView.svelte";
 
-const username = $derived(toUsername(decodeURIComponent(route.path.slice(1))));
+const username = $derived(toUsername(safeDecode(route.path.slice(1)) ?? ""));
 
 let input = $state("");
 let invalid = $state<string | null>(null);
@@ -58,22 +58,24 @@ keys(() => [
   fill
 >
   <form class="lookup" onsubmit={submit}>
-    <Field label="Username" error={invalid}>
-      {#snippet children(control)}
-        <input
-          {...control}
-          type="search"
-          bind:this={field}
-          bind:value={input}
-          placeholder="natgeo"
-          autocomplete="off"
-          autocapitalize="off"
-          spellcheck="false"
-        />
-      {/snippet}
-    </Field>
+    <div class="name">
+      <Field label="Username" error={invalid}>
+        {#snippet children(control)}
+          <input
+            {...control}
+            type="search"
+            bind:this={field}
+            bind:value={input}
+            placeholder="natgeo"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+          />
+        {/snippet}
+      </Field>
+    </div>
     <button type="submit">Look up <kbd>Enter</kbd></button>
-    <!-- always a line high, so the first profile remembered never moves the page -->
+    <!-- always a button high, so the first profile remembered never moves the page -->
     <nav class="recent" aria-label="Recent profiles">
       {#each recent.value as name, i (name)}
         <button type="button" aria-pressed={name === username} onclick={() => go(`/${name}`)}
@@ -101,24 +103,26 @@ keys(() => [
     gap: var(--space-2);
     align-items: end;
   }
-  .lookup :global(.lsel-field) {
+  .name {
     flex: 1 1 240px;
     max-width: 360px;
   }
+  /* the padding keeps focus outlines unclipped; the margin takes it back, so the row stays where it was */
   .recent {
+    box-sizing: content-box;
     display: flex;
     flex: 1 1 100%;
     gap: var(--space-2);
     align-items: center;
     min-width: 0;
+    min-height: var(--control-height);
+    margin: calc(-1 * var(--space-1));
+    padding: var(--space-1);
     overflow: hidden;
     white-space: nowrap;
   }
-  /* a button's box without its border, so the line is as high before the first profile as after */
   .none {
     overflow: hidden;
-    padding: var(--space-1) 0;
-    border: 1px solid transparent;
     color: var(--subtle);
     text-overflow: ellipsis;
   }
@@ -126,7 +130,6 @@ keys(() => [
   @media (min-width: 801px) {
     .recent {
       flex-basis: 0;
-      min-height: 0;
     }
   }
 </style>

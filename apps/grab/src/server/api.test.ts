@@ -3,15 +3,15 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { rateLimiter } from "@sammysul/lsel/server";
-import { api, cdnUrl } from "./api.ts";
+import { api } from "./api.ts";
 import { cdn, fakeInstagram, fileBytes, WORLD } from "./fakeInstagram.ts";
 import { Instagram } from "./instagram.ts";
 
-function setup() {
+function setup(allow?: (visitor: string, now: number) => boolean) {
   const fake = fakeInstagram(WORLD);
   const routes = api({
     instagram: new Instagram({ fetch: fake.fetch, gap: 0, retryWait: 0 }),
-    fetch: fake.fetch,
+    ...(allow === undefined ? {} : { allow }),
   });
   const get = async (path: string, headers: Record<string, string> = {}) => {
     const url = new URL(`http://grab.test${path}`);
@@ -37,21 +37,41 @@ test("a profile by any spelling people paste; a bad one says why", async () => {
     404,
     { error: "Instagram has no public profile called ghost" },
   ]);
+  expect(await body(await get("/api/profile/%E0"))).toEqual([
+    400,
+    { error: "%E0 isn't an Instagram username: letters, numbers, . and _" },
+  ]);
+  expect(await body(await get("/api/zip/%E0?ids=picture"))).toEqual([
+    400,
+    { error: "%E0 isn't an Instagram username: letters, numbers, . and _" },
+  ]);
 });
 
-test("cdnUrl takes only https on Instagram's CDN hosts", () => {
-  expect(
-    [
-      "https://scontent-fra5-1.cdninstagram.com/v/a.jpg",
-      "https://video.xx.fbcdn.net/v/a.mp4",
-      "http://scontent.cdninstagram.com/a.jpg",
-      "https://cdninstagram.com.evil.test/a.jpg",
-      "https://evilcdninstagram.com/a.jpg",
-      "https://scontent.cdninstagram.com:8443/a.jpg",
-      "file:///etc/passwd",
-      "not a url",
-    ].map((u) => cdnUrl(u) !== null),
-  ).toEqual([true, true, false, false, false, false, false, false]);
+test("a cut-short profile stays for the page's polls; ?retry loads the rest, counted as a new profile", async () => {
+  let asked = 0;
+  const { fake, get } = setup(() => {
+    asked++;
+    return true;
+  });
+  fake.state.limitAfter = 3;
+  const cut = await (await get("/api/profile/nat.geo")).json();
+  expect([cut.posts.length, cut.missing, cut.limited, asked]).toEqual([3, 5, true, 1]);
+  const calls = fake.state.calls.length;
+  const polled = await (await get("/api/profile/nat.geo")).json();
+  expect([polled.posts.length, polled.limited, asked, fake.state.calls.length - calls]).toEqual([
+    3,
+    true,
+    1,
+    0,
+  ]);
+  fake.state.limitAfter = undefined;
+  const whole = await (await get("/api/profile/nat.geo?retry")).json();
+  expect([whole.posts.length, whole.missing, whole.limited, asked]).toEqual([8, 0, false, 2]);
+  expect(fake.state.calls.slice(calls)).toEqual([
+    "/nat.geo/embed/",
+    "/nat.geo/",
+    ...["Photo4", "Photo5", "Photo6", "Photo7", "Photo8"].map((c) => `/p/${c}/embed/captioned/`),
+  ]);
 });
 
 test("media comes through with its type, as an attachment when named, and in ranges", async () => {
@@ -93,6 +113,7 @@ test("the proxy refuses other hosts and bad names, and says when a link expired"
 
 test("a zip of the chosen files, named for download; what the CDN refuses is listed inside", async () => {
   const { fake, get } = setup();
+  await get("/api/profile/nat.geo");
   const res = await get("/api/zip/nat.geo?ids=picture,Car-ousel2.3,Photo4.1");
   expect([res.status, res.headers.get("content-disposition")]).toEqual([
     200,
@@ -118,16 +139,22 @@ test("a zip of the chosen files, named for download; what the CDN refuses is lis
   const broken = await get("/api/zip/nat.geo?ids=Photo4.1");
   writeFileSync(path, new Uint8Array(await broken.arrayBuffer()));
   expect(Bun.spawnSync(["unzip", "-p", path, "MISSING.txt"]).stdout.toString()).toBe(
-    "Instagram didn't send these:\n2026-11-24 Photo4/nat.geo_Photo4_1.jpg: Instagram's CDN answered 403\n",
+    "Instagram didn't send these:\n2026-11-24 Photo4/nat.geo_Photo4_1.jpg: Instagram's link to this file has expired; reload the profile\n",
   );
 });
 
-test("a zip of nothing, or of a file the profile doesn't have, is refused", async () => {
-  const { get } = setup();
+test("a zip of nothing, of a profile not loaded, or of a file the profile doesn't have, is refused", async () => {
+  const { fake, get } = setup();
   expect(await body(await get("/api/zip/nat.geo"))).toEqual([
     400,
     { error: "choose at least one file" },
   ]);
+  expect(await body(await get("/api/zip/nat.geo?ids=picture"))).toEqual([
+    409,
+    { error: "Reload the profile first" },
+  ]);
+  expect(fake.state.calls).toEqual([]);
+  await get("/api/profile/nat.geo");
   expect(await body(await get("/api/zip/nat.geo?ids=Photo4.1,Nope.1"))).toEqual([
     400,
     { error: "not in nat.geo's recent posts: Nope.1" },
@@ -135,17 +162,9 @@ test("a zip of nothing, or of a file the profile doesn't have, is refused", asyn
 });
 
 test("a visitor may start only so many new profiles a minute; a cached one and another visitor still get through", async () => {
-  const fake = fakeInstagram(WORLD);
-  const routes = api({
-    instagram: new Instagram({ fetch: fake.fetch, gap: 0, retryWait: 0 }),
-    fetch: fake.fetch,
-    allow: rateLimiter(2),
-  });
-  const status = async (username: string, ip: string) => {
-    const url = new URL(`http://grab.test/api/profile/${username}`);
-    const res = await routes(new Request(url, { headers: { "cf-connecting-ip": ip } }), url);
-    return res?.status;
-  };
+  const { get } = setup(rateLimiter(2));
+  const status = async (username: string, ip: string) =>
+    (await get(`/api/profile/${username}`, { "cf-connecting-ip": ip })).status;
   expect([
     await status("nat.geo", "203.0.113.7"),
     await status("quiet", "203.0.113.7"),
@@ -153,4 +172,14 @@ test("a visitor may start only so many new profiles a minute; a cached one and a
     await status("nat.geo", "203.0.113.7"),
     await status("patchy", "198.51.100.2"),
   ]).toEqual([200, 200, 429, 200, 200]);
+});
+
+test("a retry the visitor's limit refuses keeps the cut-short profile for the next poll", async () => {
+  let left = 1;
+  const { fake, get } = setup(() => left-- > 0);
+  fake.state.limitAfter = 3;
+  await get("/api/profile/nat.geo");
+  const refused = await get("/api/profile/nat.geo?retry");
+  const kept = await (await get("/api/profile/nat.geo")).json();
+  expect([refused.status, kept.posts.length, kept.limited]).toEqual([429, 3, true]);
 });

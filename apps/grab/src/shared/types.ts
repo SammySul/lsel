@@ -16,22 +16,25 @@ export interface Media {
 
 export interface Post {
   code: string;
-  kind: "image" | "video" | "carousel";
-  /** Unix ms; Instagram gives it anonymously for the newest six only. */
+  /** Unix ms; Instagram gives it anonymously for the newest six only, in the profile embed. */
   takenAt: number | null;
   caption: string;
   media: Media[];
 }
 
-export interface Profile {
+/** Who a profile is, from its embed. */
+export interface Head {
   username: string;
   fullName: string;
   verified: boolean;
   followers: number;
   postCount: number;
   picture: Media;
+}
+
+export interface Profile extends Head {
   posts: Post[];
-  /** Posts the profile lists whose embed couldn't be read. */
+  /** Posts that didn't load: an embed that couldn't be read, or one never asked for after a rate limit. */
   missing: number;
   /** Posts still being asked for: the page asks again until none are. */
   pending: number;
@@ -50,6 +53,15 @@ export function toUsername(input: string): string | null {
     .replace(/[/?#].*$/, "")
     .toLowerCase();
   return USERNAME.test(s) ? s : null;
+}
+
+/** A percent-decoded address part; null when its escapes are malformed (`%E0`). */
+export function safeDecode(part: string): string | null {
+  try {
+    return decodeURIComponent(part);
+  } catch {
+    return null;
+  }
 }
 
 /** The name a file downloads under: `natgeo_DgOT_LDGtxo_2.jpg`, `natgeo_picture.jpg`. */

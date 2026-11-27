@@ -1,9 +1,9 @@
 <!-- The current file as large as its column allows, what it is, its own download and its post on Instagram. -->
 <script lang="ts">
-import { Action, duration, keys, when } from "@sammysul/lsel";
+import { Action, keys, when } from "@sammysul/lsel";
 import { fileName } from "../../shared/types.ts";
 import { download, mediaUrl } from "../lib/api.ts";
-import type { Entry } from "../lib/entries.ts";
+import { type Entry, kindLabel, runtime } from "../lib/entries.ts";
 
 let { entry, username, onback }: { entry: Entry; username: string; onback: () => void } = $props();
 
@@ -16,9 +16,9 @@ const link = $derived(
 );
 const facts = $derived(
   [
-    entry.post === null ? "Profile picture" : media.kind === "video" ? "Video" : "Photo",
+    kindLabel(entry),
     `${media.width} × ${media.height}`,
-    media.duration === null ? null : duration(media.duration * 1000, "m:ss"),
+    runtime(media),
     entry.of > 1 ? `${entry.index} of ${entry.of}` : null,
     entry.post?.takenAt ? when(entry.post.takenAt) : null,
   ].filter((f) => f !== null),

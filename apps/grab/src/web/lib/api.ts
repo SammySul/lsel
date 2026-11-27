@@ -2,10 +2,16 @@
 
 import type { Profile } from "../../shared/types.ts";
 
-export async function fetchProfile(username: string, signal: AbortSignal): Promise<Profile> {
+/** With `retry`, a profile Instagram's rate limit cut short is loaded again rather than served from the cache. */
+export async function fetchProfile(
+  username: string,
+  signal: AbortSignal,
+  retry = false,
+): Promise<Profile> {
   let res: Response;
   try {
-    res = await fetch(`/api/profile/${encodeURIComponent(username)}`, { signal });
+    const query = retry ? "?retry" : "";
+    res = await fetch(`/api/profile/${encodeURIComponent(username)}${query}`, { signal });
   } catch (e) {
     if (signal.aborted) throw e;
     throw new Error("grab's server could not be reached");

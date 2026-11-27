@@ -17,8 +17,14 @@ traps. The why behind the design: `docs/decisions.md`.
   usually loads 5 s later. Dozens in a few minutes block every page for about
   10 minutes. Keep `GAP` and the retries in `instagram.ts`, and probe
   sparingly while developing: the block hits the whole IP, the app with it.
-- A cold profile takes 20 to 50 s, so `main.ts` raises Bun's 10 s idle timeout
-  and the page polls `snapshot()` while posts are `pending`.
+- **Requests outlast Bun's 10 s idle timeout**, so `main.ts` raises it: a first
+  answer waits for the profile embed and page, each retried after 5 s when
+  refused, and a zip naming a post not yet in waits for the whole profile.
+- **A cut-short profile is cached like a whole one**: the page's polls land
+  after its load ends, and finding nothing they would each start a new load,
+  charged to the visitor. `?retry` (the page's `r`) is what drops it.
+- **`/api/zip` never starts a load** (`peek`, not `snapshot`): it would skip
+  `allow()`, so a zip for a profile not cached or loading is a 409.
 - **A profile embed without `contextJSON` reads as "no public profile"**: a
   markup change at Instagram would show up as that, not as an error.
 - `src/server/fakeInstagram.ts` is for tests only: nothing `main.ts` imports may

@@ -1,9 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { cdn, fakeInstagram, WORLD } from "./fakeInstagram.ts";
+import { cdn, embedPage, embedShell, fakeInstagram, WORLD } from "./fakeInstagram.ts";
 import { contextJson, parsePost, parseProfileEmbed, profileCodes } from "./parse.ts";
 
-const page = (literal: string) =>
-  `<script>(new ServerJS()).handle({"require":[["PolarisEmbedSimple","init",[],[{"isProfileEmbed":false,"contextJSON":${literal}}]],["NavigationMetrics","setPage",[],[{"page":"x"}]]]});</script>`;
+const page = (literal: string) => embedShell(false, literal);
 
 describe("contextJson", () => {
   test("reads the JSON inside the string, with escaped quotes, slashes and unicode", () => {
@@ -42,7 +41,7 @@ const node = (n: number, extra: object = {}) => ({
   ...extra,
 });
 const postPage = (media: object) =>
-  page(JSON.stringify(JSON.stringify({ context: {}, gql_data: { shortcode_media: media } })));
+  embedPage(false, { context: {}, gql_data: { shortcode_media: media } });
 
 describe("parsePost", () => {
   test("a carousel: each child, its full file, a 480 px thumb, a video's file and length", () => {
@@ -59,8 +58,6 @@ describe("parsePost", () => {
     });
     expect(parsePost(html, "Car-ousel2")).toEqual({
       code: "Car-ousel2",
-      kind: "carousel",
-      takenAt: null,
       caption: "Two\nlines",
       media: [
         {
@@ -90,8 +87,7 @@ describe("parsePost", () => {
       postPage({ shortcode: "Blocked1", ...node(1, { is_video: true }) }),
       "Blocked1",
     );
-    expect([post.kind, post.caption, post.media[0]?.kind, post.media[0]?.src]).toEqual([
-      "video",
+    expect([post.caption, post.media[0]?.kind, post.media[0]?.src]).toEqual([
       "",
       "image",
       cdn("c_1.jpg"),
@@ -109,23 +105,17 @@ describe("parsePost", () => {
 });
 
 test("parseProfileEmbed: the picture's size comes from its address; dates are in ms", () => {
-  const html = page(
-    JSON.stringify(
-      JSON.stringify({
-        context: {
-          username: "nat.geo",
-          full_name: "National Geo",
-          is_verified: true,
-          profile_pic_url: "https://a.cdninstagram.com/p.jpg?stp=dst-jpg_s150x150_tt6",
-          followers_count: 5,
-          posts_count: 800,
-          graphql_media: [
-            { shortcode_media: { shortcode: "A", taken_at_timestamp: 1_795_705_200 } },
-          ],
-        },
-      }),
-    ),
-  );
+  const html = embedPage(true, {
+    context: {
+      username: "nat.geo",
+      full_name: "National Geo",
+      is_verified: true,
+      profile_pic_url: "https://a.cdninstagram.com/p.jpg?stp=dst-jpg_s150x150_tt6",
+      followers_count: 5,
+      posts_count: 800,
+      graphql_media: [{ shortcode_media: { shortcode: "A", taken_at_timestamp: 1_795_705_200 } }],
+    },
+  });
   const head = parseProfileEmbed(html, "nat.geo");
   expect([head.picture.width, head.recent, head.postCount, head.verified]).toEqual([
     150,
@@ -146,8 +136,6 @@ describe("a single photo's embed, which is HTML", () => {
   test("the largest whole size, a 480 px thumb, the height from a crop, the caption unescaped", async () => {
     expect(parsePost(await embed("Photo4"), "Photo4")).toEqual({
       code: "Photo4",
-      kind: "image",
-      takenAt: null,
       caption: "Ducks & geese\nat <dawn>",
       media: [
         {

@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
 import { fakeInstagram, WORLD } from "./fakeInstagram.ts";
-import { Instagram } from "./instagram.ts";
+import { cdnUrl, Instagram } from "./instagram.ts";
 
 function setup() {
   const fake = fakeInstagram(WORLD);
@@ -20,15 +20,15 @@ test("a profile: the page's twelve in grid order, each post's files, dates from 
     800,
     0,
   ]);
-  expect(p.posts.map((x) => [x.code, x.kind, x.media.length, x.takenAt])).toEqual([
-    ["Pin_ned-1", "image", 1, 1_792_249_200_000],
-    ["Car-ousel2", "carousel", 3, 1_795_705_200_000],
-    ["Reel_3", "video", 1, 1_795_618_800_000],
-    ["Photo4", "image", 1, 1_795_532_400_000],
-    ["Photo5", "image", 1, 1_795_446_000_000],
-    ["Photo6", "image", 1, 1_795_359_600_000],
-    ["Photo7", "image", 1, null],
-    ["Photo8", "image", 1, null],
+  expect(p.posts.map((x) => [x.code, x.media.length, x.takenAt])).toEqual([
+    ["Pin_ned-1", 1, 1_792_249_200_000],
+    ["Car-ousel2", 3, 1_795_705_200_000],
+    ["Reel_3", 1, 1_795_618_800_000],
+    ["Photo4", 1, 1_795_532_400_000],
+    ["Photo5", 1, 1_795_446_000_000],
+    ["Photo6", 1, 1_795_359_600_000],
+    ["Photo7", 1, null],
+    ["Photo8", 1, null],
   ]);
   expect(p.posts[1]?.media.map((m) => [m.id, m.kind, m.width])).toEqual([
     ["Car-ousel2.1", "image", 1080],
@@ -73,16 +73,16 @@ test("Instagram's refusals each say what happened", async () => {
     "rate-limited: Instagram is rate limiting; try again in a few minutes",
   );
   fake.state.fail = undefined;
-  fake.state.login = true;
+  fake.state.refuse = Number.POSITIVE_INFINITY;
   expect(await failure("nat.geo")).toBe(
     "login: Instagram wants a login from this server for now; try again in a few minutes",
   );
-  fake.state.login = false;
+  fake.state.refuse = 0;
   fake.state.fail = 503;
   expect(await failure("nat.geo")).toBe("unavailable: Instagram answered 503");
 });
 
-test("a rate limit stops the loading: what came is shown, flagged, not kept, and a retry asks only for the rest", async () => {
+test("a rate limit stops the loading: what came is shown, flagged and kept until a retry, which asks only for the rest", async () => {
   const { fake, ig } = setup();
   fake.state.limitAfter = 3;
   const cut = await ig.profile("nat.geo");
@@ -99,6 +99,9 @@ test("a rate limit stops the loading: what came is shown, flagged, not kept, and
   ]);
   fake.state.limitAfter = undefined;
   fake.state.calls.length = 0;
+  expect((await ig.profile("nat.geo")).limited).toBe(true);
+  expect(fake.state.calls).toEqual([]);
+  ig.forgetLimited("nat.geo");
   const whole = await ig.profile("nat.geo");
   expect([whole.posts.length, whole.missing, whole.limited]).toEqual([8, 0, false]);
   expect(fake.state.calls).toEqual([
@@ -118,24 +121,38 @@ test("refused from the first post, the profile is an error, not an empty one", a
   ]);
 });
 
-test("requests go one at a time, each at least the gap after the one before", async () => {
+test("requests go one at a time, each the gap after the one before, two profiles' loads included", async () => {
   const fake = fakeInstagram(WORLD);
-  const starts: number[] = [];
+  let clock = 0;
+  const starts: [number, string][] = [];
   let open = 0;
   let most = 0;
   const ig = new Instagram({
     gap: 40,
+    now: () => clock,
+    sleep: async (ms) => {
+      clock += ms;
+    },
     fetch: async (url, init) => {
-      starts.push(performance.now());
+      starts.push([clock, new URL(url).pathname]);
       most = Math.max(most, ++open);
-      await Bun.sleep(5);
+      await Bun.sleep(1);
+      clock += 5;
       open--;
       return fake.fetch(url, init);
     },
   });
-  await ig.profile("patchy");
-  const gaps = starts.slice(1).map((t, i) => t - (starts[i] as number));
-  expect([starts.length, most, gaps.every((g) => g >= 39)]).toEqual([4, 1, true]);
+  await Promise.all([ig.profile("patchy"), ig.profile("quiet")]);
+  expect([starts, most]).toEqual([
+    [
+      [0, "/patchy/embed/"],
+      [40, "/quiet/embed/"],
+      [80, "/patchy/"],
+      [120, "/p/Fine1/embed/captioned/"],
+      [160, "/p/Gone2/embed/captioned/"],
+    ],
+    1,
+  ]);
 });
 
 test("a page the rate limit refuses once or twice is asked for again and loads", async () => {
@@ -163,4 +180,74 @@ test("a snapshot comes back with the posts in so far and how many are pending, t
   expect([whole.posts.length, whole.pending, whole.missing]).toEqual([8, 0, 0]);
   // the same load: nothing was asked for twice
   expect(fake.state.calls.length).toBe(10);
+});
+
+test("a poll after a cut-short load has ended gets that profile back without asking Instagram again", async () => {
+  const fake = fakeInstagram(WORLD);
+  const ig = new Instagram({ fetch: fake.fetch, gap: 5, retryWait: 0 });
+  fake.state.limitAfter = 2;
+  const first = await ig.snapshot("nat.geo", 0);
+  expect([first.pending > 0, first.limited]).toEqual([true, false]);
+  await ig.peek("nat.geo")?.whole;
+  const calls = fake.state.calls.length;
+  const after = await ig.snapshot("nat.geo", 0);
+  expect([after.posts.length, after.missing, after.pending, after.limited]).toEqual([
+    2,
+    6,
+    0,
+    true,
+  ]);
+  expect([ig.known("nat.geo"), fake.state.calls.length - calls]).toEqual([true, 0]);
+});
+
+test("a refused profile page leaves the embed's six, cut short; a page that lists none, the six as they are", async () => {
+  const fake = fakeInstagram(WORLD);
+  // without its navigation headers the profile page redirects to the login, as the rate limit does
+  const refused = new Instagram({
+    fetch: (url, init) => fake.fetch(url, url.endsWith("/nat.geo/") ? {} : init),
+    gap: 0,
+    retryWait: 0,
+  });
+  const cut = await refused.profile("nat.geo");
+  expect([cut.posts.map((p) => p.code), cut.missing, cut.pending, cut.limited]).toEqual([
+    ["Pin_ned-1", "Car-ousel2", "Reel_3", "Photo4", "Photo5", "Photo6"],
+    6,
+    0,
+    true,
+  ]);
+  const empty = new Instagram({
+    fetch: (url, init) =>
+      url.endsWith("/nat.geo/")
+        ? Promise.resolve(new Response("<html></html>"))
+        : fake.fetch(url, init),
+    gap: 0,
+    retryWait: 0,
+  });
+  const six = await empty.profile("nat.geo");
+  expect([six.posts.length, six.missing, six.limited]).toEqual([6, 0, false]);
+});
+
+test("peek never starts a load", async () => {
+  const { fake, ig } = setup();
+  expect(ig.peek("nat.geo")).toBeUndefined();
+  await Bun.sleep(5);
+  expect([ig.known("nat.geo"), fake.state.calls]).toEqual([false, []]);
+  const loading = ig.snapshot("nat.geo", 0);
+  expect((await ig.peek("nat.geo")?.now)?.fullName).toBe("National Geo");
+  await loading;
+});
+
+test("cdnUrl takes only https on Instagram's CDN hosts", () => {
+  expect(
+    [
+      "https://scontent-fra5-1.cdninstagram.com/v/a.jpg",
+      "https://video.xx.fbcdn.net/v/a.mp4",
+      "http://scontent.cdninstagram.com/a.jpg",
+      "https://cdninstagram.com.evil.test/a.jpg",
+      "https://evilcdninstagram.com/a.jpg",
+      "https://scontent.cdninstagram.com:8443/a.jpg",
+      "file:///etc/passwd",
+      "not a url",
+    ].map((u) => cdnUrl(u) !== null),
+  ).toEqual([true, true, false, false, false, false, false, false]);
 });

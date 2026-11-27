@@ -9,7 +9,7 @@ import { Instagram } from "./instagram.ts";
 serve({
   name,
   port: PORT,
-  // a first look at a profile paces a dozen requests to Instagram, retrying refused ones
+  // a first answer waits for the embed and profile page, each retried after 5 s, and a zip may wait for every post
   idleTimeout: 255,
   routes: () => api({ instagram: new Instagram() }),
 });
