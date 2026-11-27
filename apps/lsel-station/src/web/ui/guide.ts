@@ -1,6 +1,6 @@
 // The help panel's lines, with numbers read from the rules.
 
-import { percent } from "@sammysul/lsel/format";
+import { percent } from "@sammysul/lsel";
 import { HOLD_SIZES } from "../../content/modules.ts";
 import { MASTERY_STEPS, POOL_CHECKPOINTS, POOL_SHARE } from "../../sim/mastery.ts";
 

@@ -100,12 +100,17 @@ eachBrowser((browser) => {
       expect(await texts(page, ".saved")).toEqual(["Not saved yet"]);
       await page.keyboard.press("Enter");
       await context.clock.fastForward(30_000);
-      expect(await texts(page, ".stock li")).toEqual(["Iron ore 10"]);
+      expect(await texts(page, ".stock li")).toEqual([
+        "Credits 0",
+        "Iron ore 10",
+        "Ice 0",
+        "Rations 0",
+      ]);
       expect((await texts(page, ".saved"))[0]).toMatch(/^Saved \d{1,2}:\d\d (AM|PM)$/);
       await page.reload();
       await mounted(page);
       expect([await texts(page, ".stock li"), await texts(page, ".crew li")]).toEqual([
-        ["Iron ore 10"],
+        ["Credits 0", "Iron ore 10", "Ice 0", "Rations 0"],
         ["Ana Petrov everything +3% › Mining"],
       ]);
       expect(await problems()).toEqual([]);
@@ -132,7 +137,12 @@ eachBrowser((browser) => {
         ["2:00:00"],
         ["Mining level 1 to 17", "Made 500 iron ore", "The Hold is full of iron ore"],
       ]);
-      expect(await texts(again, ".stock li")).toEqual(["Iron ore 500 full"]);
+      expect(await texts(again, ".stock li")).toEqual([
+        "Credits 0",
+        "Iron ore 500 full",
+        "Ice 0",
+        "Rations 0",
+      ]);
       await again.keyboard.press("Escape");
       expect([await panel.count(), await problems()]).toEqual([0, []]);
       await context.close();

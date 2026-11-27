@@ -49,7 +49,6 @@ async function join(): Promise<void> {
     {/snippet}
   </Field>
   <div class="line">
-    <span></span>
     <Action
       label="Copy"
       done="Copied"
@@ -74,7 +73,7 @@ async function join(): Promise<void> {
   {#if candidate?.ok}
     {@const doc = candidate.doc}
     <div class="line">
-      <span>Played {span(playedMs(doc))}, saved {when(doc.savedAt)}.</span>
+      <span class="grow">Played {span(playedMs(doc))}, saved {when(doc.savedAt)}.</span>
       <button type="button" onclick={() => load(doc)}>Replace this game</button>
     </div>
   {/if}
@@ -86,7 +85,6 @@ async function join(): Promise<void> {
       open the save.
     </p>
     <div class="line">
-      <span></span>
       <Action label="Turn on sync" busy="Turning on…" run={sync.enable} />
     </div>
     <Field label="Or link this device with the key from another" error={joinError}>
@@ -95,7 +93,6 @@ async function join(): Promise<void> {
       {/snippet}
     </Field>
     <div class="line">
-      <span></span>
       <Action
         label="Link this device"
         busy="Linking…"
@@ -161,9 +158,12 @@ async function join(): Promise<void> {
   }
   .line {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     align-items: baseline;
     gap: var(--space-3);
+  }
+  .grow {
+    margin-right: auto;
   }
   .dim {
     color: var(--subtle);

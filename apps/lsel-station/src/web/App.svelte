@@ -145,12 +145,9 @@ const WIDEST_COUNT = [count(HOLD_SIZES.at(-1) ?? 0)];
 const WIDEST_CREDITS = [count(999_999)];
 const FULL = ["full"];
 
-// the top bar has credits once there are any, then follows the view: what this department works with
-const stock = $derived(
-  ITEM_IDS.filter(
-    (id) => (id === "credits" || touched.has(id)) && game.snapshot.items[id] !== undefined,
-  ),
-);
+// credits, then what this view works with, all from the start at 0: nothing arrives later and pushes the rest
+const stock = $derived(ITEM_IDS.filter((id) => id === "credits" || touched.has(id)));
+const views: View[] = $derived([...open, "map"]);
 
 // go() sets the view before the address, so the next key press already acts on the new view
 const select = (to: View) => go(`/${to}`);
@@ -179,18 +176,6 @@ keys(() => [
 
 <Page name="Lsel" {version} source="https://git.sammysul.com/SammySul/lsel/src/branch/main/apps/lsel-station" width={1600} fill>
   {#snippet actions()}
-    <ul class="stock">
-      {#each stock as id (id)}
-        {@const n = game.snapshot.items[id] ?? 0}
-        <li>
-          <span class="dim">{ITEMS[id].name}</span>
-          <Swap text={count(n)} options={id === "credits" ? WIDEST_CREDITS : WIDEST_COUNT} align="end" />
-          {#if id !== "credits"}
-            <span class="note"><Swap text={room(game.snapshot, id) === 0 ? "full" : ""} options={FULL} align="start" /></span>
-          {/if}
-        </li>
-      {/each}
-    </ul>
     <span class="saved dim" aria-live="polite">
       <Swap text={savedLabel} options={SAVED_LABELS} align="start" />
     </span>
@@ -204,6 +189,19 @@ keys(() => [
       Guide <kbd>h</kbd>
     </button>
   {/snippet}
+
+  <ul class="stock" aria-label="Stock">
+    {#each stock as id (id)}
+      {@const n = game.snapshot.items[id] ?? 0}
+      <li>
+        <span class="dim">{ITEMS[id].name}</span>
+        <Swap text={count(n)} options={id === "credits" ? WIDEST_CREDITS : WIDEST_COUNT} align="end" />
+        {#if id !== "credits"}
+          <span class="note"><Swap text={room(game.snapshot, id) === 0 ? "full" : ""} options={FULL} align="start" /></span>
+        {/if}
+      </li>
+    {/each}
+  </ul>
 
   <div class="game">
     <nav aria-label="Departments">
@@ -224,6 +222,21 @@ keys(() => [
         <span><kbd>m</kbd> Map</span>
         <span>{ownedSectors(game.snapshot).length}</span>
       </button>
+      <!-- a phone's one control in place of the buttons, so the panel keeps its height however many are open -->
+      <select
+        aria-label="Department"
+        onchange={(event) => {
+          const to = views.find((v) => v === event.currentTarget.value);
+          if (to !== undefined) select(to);
+        }}
+      >
+        {#each open as id (id)}
+          <option value={id} selected={id === view}>
+            {DEPARTMENTS[id].name} · Lv {departmentLevel(game.snapshot, id)}{working(game.snapshot, id) ? " · running" : ""}
+          </option>
+        {/each}
+        <option value="map" selected={view === "map"}>Map · {ownedSectors(game.snapshot).length} yours</option>
+      </select>
     </nav>
 
     <div class="middle">
@@ -269,7 +282,6 @@ keys(() => [
             {/each}
           </ul>
           <div class="line">
-            <span></span>
             <button type="button" onclick={game.dismissSummary}>Done <kbd>Esc</kbd></button>
           </div>
         </aside>
@@ -369,17 +381,24 @@ keys(() => [
 </Page>
 
 <style>
+  /* one line each, cut short: a wrap would take the game's height */
   .stock,
   .crew {
+    flex: none;
     list-style: none;
     margin: 0;
     padding: 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--space-1) var(--space-5);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .crew {
-    margin-top: var(--space-4);
+  .stock li,
+  .crew li {
+    display: inline;
+  }
+  .stock li + li,
+  .crew li + li {
+    margin-left: var(--space-5);
   }
   .stock,
   .saved {
@@ -396,6 +415,7 @@ keys(() => [
     flex: 1;
     display: grid;
     grid-template-columns: 240px minmax(300px, 400px) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr);
     min-height: 0;
     border: var(--border);
   }
@@ -405,6 +425,11 @@ keys(() => [
     gap: var(--space-2);
     padding: var(--space-4);
     border-right: var(--border);
+    min-height: 0;
+    overflow-y: auto;
+  }
+  nav select {
+    display: none;
   }
   nav button {
     display: flex;
@@ -461,7 +486,7 @@ keys(() => [
   }
   .panel .line {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-end;
     gap: var(--space-3);
   }
   .note {
@@ -503,6 +528,16 @@ keys(() => [
     .middle {
       border-right: 0;
       border-top: var(--border);
+    }
+    nav {
+      padding: var(--space-3);
+    }
+    nav button {
+      display: none;
+    }
+    nav select {
+      display: block;
+      width: 100%;
     }
   }
 </style>

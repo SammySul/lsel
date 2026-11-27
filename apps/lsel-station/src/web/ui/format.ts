@@ -1,6 +1,6 @@
 // How the game writes durations and amounts.
 
-import { count } from "@sammysul/lsel/format";
+import { count } from "@sammysul/lsel";
 import { ITEMS, type Stack } from "../../content/items.ts";
 
 /** 3000 as "3.0 s". */

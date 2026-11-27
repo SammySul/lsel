@@ -141,7 +141,8 @@ eachBrowser((browser) => {
     async () => {
       const page = await browser().newPage();
       const problems = await open(page);
-      const read = () => texts(page, ".stock", "section > header", ".facts span >> nth=0", ".crew");
+      const read = () =>
+        texts(page, ".stock li >> nth=1", "section > header", ".facts span >> nth=0", ".crew");
       const idle = "Ana Petrov everything +3% › idle";
       const mining = "Ana Petrov everything +3% › Mining";
       expect(await texts(page, "nav button")).toEqual([
@@ -150,11 +151,11 @@ eachBrowser((browser) => {
         "7 Construction 1",
         "m Map 1",
       ]);
-      expect(await read()).toEqual(["", "Mining Lv 1", "xp 0 / 60", idle]);
+      expect(await read()).toEqual(["Iron ore 0", "Mining Lv 1", "xp 0 / 60", idle]);
 
       await page.keyboard.press("Enter");
       await page.clock.fastForward(2800);
-      expect(await read()).toEqual(["", "Mining Lv 1", "xp 0 / 60", mining]);
+      expect(await read()).toEqual(["Iron ore 0", "Mining Lv 1", "xp 0 / 60", mining]);
       await page.clock.fastForward(200);
       expect(await read()).toEqual(["Iron ore 1", "Mining Lv 1", "xp 5 / 60", mining]);
       await page.clock.fastForward(33_000);
@@ -169,23 +170,39 @@ eachBrowser((browser) => {
   );
 
   test(
-    "the top bar holds still on a phone while a count grows from 1 to 500 and the Hold fills",
+    "the top bar holds still on a phone while a count grows from 0 to 500 and the Hold fills",
     async () => {
       const page = await browser().newPage({ viewport: { width: 390, height: 844 } });
       const problems = await open(page);
+      const first = await topBar(page);
+      expect(first.length).toBe(8);
       await page.keyboard.press("Enter");
       await seconds(page, 3);
-      expect(await texts(page, ".stock li")).toEqual(["Iron ore 1"]);
-      const first = await topBar(page);
-      expect(first.length).toBe(5);
+      expect(await texts(page, ".stock li")).toEqual([
+        "Credits 0",
+        "Iron ore 1",
+        "Ice 0",
+        "Rations 0",
+      ]);
+      expect(await topBar(page)).toEqual(first);
 
       await seconds(page, 33);
-      expect(await texts(page, ".stock li")).toEqual(["Iron ore 12"]);
+      expect(await texts(page, ".stock li")).toEqual([
+        "Credits 0",
+        "Iron ore 12",
+        "Ice 0",
+        "Rations 0",
+      ]);
       expect(await topBar(page)).toEqual(first);
       // a gap this long is caught up on behind a progress bar, with no timer to wait on
       await seconds(page, 2 * 60 * 60);
       await page.locator(".stock li", { hasText: "full" }).waitFor();
-      expect(await texts(page, ".stock li")).toEqual(["Iron ore 500 full"]);
+      expect(await texts(page, ".stock li")).toEqual([
+        "Credits 0",
+        "Iron ore 500 full",
+        "Ice 0",
+        "Rations 0",
+      ]);
       expect(await topBar(page)).toEqual(first);
       expect(await problems()).toEqual([]);
     },
@@ -208,16 +225,30 @@ eachBrowser((browser) => {
       const hold = page.locator("section li", {
         has: page.locator(".line >> nth=0", { hasText: /^Hold I(?!I)/ }),
       });
-      expect(await texts(page, ".stock li")).toEqual(["Credits 5", "Iron plate 15", "Water 10"]);
+      const rest = [
+        "Basic parts 0",
+        "Rations 0",
+        "Claim beacons 0",
+        "Depot kits 0",
+        "Relay kits 0",
+        "Copper wire 0",
+        "Glass 0",
+      ];
+      expect(await texts(page, ".stock li")).toEqual([
+        "Credits 5",
+        "Iron plate 15",
+        "Water 10",
+        ...rest,
+      ]);
       const first = await topBar(page);
-      expect(first.length).toBe(7);
+      expect(first.length).toBe(14);
 
       await hold.getByRole("button", { name: /Assign/ }).click();
       await seconds(page, 10 * 60);
       await page.getByRole("progressbar").waitFor({ state: "detached" });
       expect([await hold.count(), await texts(page, ".stock li", ".crew")]).toEqual([
         0,
-        ["Credits 5", "Iron plate 0", "Water 0", "Ana Petrov everything +3% › idle"],
+        ["Credits 5", "Iron plate 0", "Water 0", ...rest, "Ana Petrov everything +3% › idle"],
       ]);
       expect(await topBar(page)).toEqual(first);
 
@@ -226,6 +257,7 @@ eachBrowser((browser) => {
         "Credits 999,999",
         "Iron plate 15",
         "Water 10",
+        ...rest,
       ]);
       expect([await topBar(rich), await problems(), await richProblems()]).toEqual([first, [], []]);
     },
@@ -419,7 +451,7 @@ eachBrowser((browser) => {
       await seconds(page, 300);
       expect([
         (await texts(page, "[aria-label=Beds] li"))[0],
-        (await texts(page, ".stock li")).at(0),
+        (await texts(page, ".stock li")).find((t) => t.startsWith("Algae")),
       ]).toEqual(["Bed 1, empty Plant algae for 2 water b", "Algae 4"]);
       expect(await problems()).toEqual([]);
     },
@@ -593,7 +625,7 @@ eachBrowser((browser) => {
       const before = await scene(page);
       await page.clock.fastForward(4000);
       const after = await scene(page);
-      expect(await texts(page, ".stock")).toEqual(["Iron ore 1"]);
+      expect(await texts(page, ".stock li >> nth=1")).toEqual(["Iron ore 1"]);
       expect([before.colors.includes(PALETTE.beam), after.sum]).toEqual([true, before.sum]);
     },
     TIMEOUT,
@@ -618,7 +650,7 @@ eachBrowser((browser) => {
 
       // ten more bars and a level-up, caught up in one jump: silence
       await page.clock.fastForward(33_000);
-      expect(await texts(page, ".stock")).toEqual(["Iron ore 12"]);
+      expect(await texts(page, ".stock li >> nth=1")).toEqual(["Iron ore 12"]);
       expect((await audio(page)).shots).toEqual([106, 114]);
 
       await page.keyboard.press("s");
