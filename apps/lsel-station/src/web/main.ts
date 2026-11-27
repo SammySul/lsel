@@ -1,14 +1,15 @@
 // Mounts the game, read-only when another tab already runs it.
 
-import { mount } from "svelte";
+import { start } from "@sammysul/lsel";
+import type { Component } from "svelte";
 import App from "./App.svelte";
 import "@sammysul/lsel/tokens.css";
 
-const target = document.getElementById("app");
-if (target === null) throw new Error("index.html has no #app element");
 const LOCK = "lsel-station.game";
 
-const run = (readOnly: boolean) => mount(App, { target, props: { readOnly } });
+// start() mounts without props, so the tab's role is bound in here
+const run = (readOnly: boolean) =>
+  start(((internals, props) => App(internals, { ...props, readOnly })) satisfies Component);
 
 // leaving lets go of the lock at once, so a waiting tab takes over; a page back from the bfcache starts over
 const leaving = new AbortController();
@@ -21,12 +22,12 @@ const untilLeaving = () =>
 const ignore = () => {};
 
 // one tab runs the game; any other shows it read-only, and takes over with the save when the first closes
-if (navigator.locks === undefined) run(false);
+if (navigator.locks === undefined) void run(false);
 else {
   navigator.locks
     .request(LOCK, { ifAvailable: true }, (lock) => {
       if (lock === null) {
-        run(true);
+        void run(true);
         navigator.locks
           .request(LOCK, { signal: leaving.signal }, () => {
             location.reload();
@@ -35,7 +36,7 @@ else {
           .catch(ignore);
         return;
       }
-      run(false);
+      void run(false);
       return untilLeaving();
     })
     .catch(ignore);

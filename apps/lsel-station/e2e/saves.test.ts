@@ -13,6 +13,9 @@ const TIMEOUT = 30_000;
 // noon on a fixed day, so the saved times are the same in every run
 const NOON = Date.UTC(2026, 10, 18, 12);
 
+/** The save status as shown, without the widest labels the Swap keeps hidden beside it. */
+const SAVED = ".saved .lsel-swap > :not([aria-hidden])";
+
 const address = serveBuilt(join(import.meta.dir, "../dist"), syncRoutes(openSaves(":memory:")));
 
 /** The synced save's revision, as the service holds it now. */
@@ -93,11 +96,11 @@ eachBrowser((browser) => {
     async () => {
       const context = await stopped(browser(), 60_000);
       const { page, problems } = await open(context, "?seed=7");
-      expect(await texts(page, ".saved")).toEqual(["Not saved yet"]);
+      expect(await texts(page, SAVED)).toEqual(["Not saved yet"]);
       await page.keyboard.press("Enter");
       await context.clock.fastForward(30_000);
       expect(await texts(page, ".stock li")).toEqual(["Iron ore 10"]);
-      expect((await texts(page, ".saved"))[0]).toMatch(/^Saved \d{1,2}:\d\d (AM|PM)$/);
+      expect((await texts(page, SAVED))[0]).toMatch(/^Saved \d{1,2}:\d\d (AM|PM)$/);
       await page.reload({ waitUntil: "networkidle" });
       expect([await texts(page, ".stock li"), await texts(page, ".crew li")]).toEqual([
         ["Iron ore 10"],
@@ -197,7 +200,7 @@ eachBrowser((browser) => {
       await first.keyboard.press("Enter");
       const { page: second, problems } = await open(context);
       expect([
-        await texts(second, ".saved"),
+        await texts(second, SAVED),
         await texts(second, "[aria-label='Read only'] p"),
       ]).toEqual([
         ["Read only"],
@@ -226,7 +229,7 @@ eachBrowser((browser) => {
     async () => {
       const now = Date.now();
       const { context: first, page, key } = await syncedDevice(now);
-      expect([key, await texts(page, ".saved")]).toEqual([
+      expect([key, await texts(page, SAVED)]).toEqual([
         expect.stringMatching(/^[A-Za-z0-9_-]{32}$/),
         [expect.stringMatching(/^Saved .+, synced$/)],
       ]);
@@ -291,7 +294,7 @@ eachBrowser((browser) => {
       // back on the first device, whose own save has not moved since it synced
       await first.clock.setSystemTime(now + 5 * 60_000);
       const { page: again, problems: later } = await open(first);
-      await again.getByText(/, synced$/).waitFor();
+      await again.locator(SAVED, { hasText: /, synced$/ }).waitFor();
       expect([
         await texts(again, ".crew li"),
         await again.getByRole("complementary", { name: "Choose a save" }).count(),

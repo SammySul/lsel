@@ -2,7 +2,15 @@
 
 import { expect, test } from "bun:test";
 import { join } from "node:path";
-import { eachBrowser, LSEL_LOOK, lselLook, serveBuilt, watchPage } from "@sammysul/lsel/testing";
+import {
+  eachBrowser,
+  LSEL_LAYOUT,
+  LSEL_LOOK,
+  lselLayout,
+  lselLook,
+  serveBuilt,
+  watchPage,
+} from "@sammysul/lsel/testing";
 import type { Page } from "playwright-core";
 import { openSaves } from "../src/server/saves.ts";
 import { syncRoutes } from "../src/server/sync.ts";
@@ -100,6 +108,7 @@ eachBrowser((browser) => {
       const problems = await open(page);
       expect(await page.getByRole("heading", { level: 1 }).textContent()).toBe("Lsel");
       expect(await lselLook(page)).toEqual(LSEL_LOOK);
+      expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
       expect(await problems()).toEqual([]);
     },
     TIMEOUT,

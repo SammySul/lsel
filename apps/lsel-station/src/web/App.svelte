@@ -1,7 +1,7 @@
 <!-- The game screen: scene, departments, map, save and help panels. -->
 <!-- lsel-allow: not split yet; split it the next time lsel-station is worked on -->
 <script lang="ts">
-import { clock, count, go, keys, Page, percent, route, when } from "@sammysul/lsel";
+import { clock, count, go, keys, Page, percent, route, Swap, when } from "@sammysul/lsel";
 import { onDestroy, untrack } from "svelte";
 import { version } from "../../package.json";
 import { ACTION_IDS, ACTIONS } from "../content/actions.ts";
@@ -16,7 +16,7 @@ import { newGame } from "../sim/state.ts";
 import { startGame } from "./game.svelte.ts";
 import { createSound } from "./sound/sound.svelte.ts";
 import { loadSave, writeSave } from "./storage.ts";
-import { createSync } from "./sync.svelte.ts";
+import { createSync, type SyncStatus } from "./sync.svelte.ts";
 import Department from "./ui/Department.svelte";
 import { span } from "./ui/format.ts";
 import { GUIDE } from "./ui/guide.ts";
@@ -58,6 +58,28 @@ function replace(doc: SaveDocument): void {
 }
 
 const sync = createSync({ latest: () => latest, replace });
+const SYNC_NOTES: Record<SyncStatus["kind"], string> = {
+  off: "",
+  syncing: "",
+  synced: ", synced",
+  failed: ", sync failed",
+  conflict: ", sync waiting",
+};
+const savedLabel = $derived(
+  readOnly
+    ? "Read only"
+    : savedAt === null
+      ? "Not saved yet"
+      : `Saved ${clock(savedAt)}${SYNC_NOTES[sync.status.kind]}`,
+);
+// every label at its widest: with tabular figures, no time is wider than 12:00
+const SAVED_LABELS = [
+  "Read only",
+  "Not saved yet",
+  ...["AM", "PM"].flatMap((half) =>
+    Object.values(SYNC_NOTES).map((note) => `Saved 12:00 ${half}${note}`),
+  ),
+];
 const game = startGame({
   state: initial,
   savedAt: saved?.savedAt ?? null,
@@ -160,19 +182,7 @@ keys(() => [
       {/each}
     </ul>
     <span class="saved dim" aria-live="polite">
-      {#if readOnly}
-        Read only
-      {:else if savedAt === null}
-        Not saved yet
-      {:else}
-        Saved {clock(savedAt)}{sync.status.kind === "synced"
-          ? ", synced"
-          : sync.status.kind === "failed"
-            ? ", sync failed"
-            : sync.status.kind === "conflict"
-              ? ", sync waiting"
-              : ""}
-      {/if}
+      <Swap text={savedLabel} options={SAVED_LABELS} />
     </span>
     <button type="button" aria-pressed={savesOpen} onclick={() => (savesOpen = !savesOpen)}>
       Saves <kbd>o</kbd>
@@ -361,8 +371,13 @@ keys(() => [
   .crew {
     margin-top: var(--space-4);
   }
-  .stock {
+  .stock,
+  .saved {
     font-variant-numeric: tabular-nums;
+  }
+  /* centered, a label that changes by itself would move sideways */
+  .saved :global(.lsel-swap) {
+    justify-items: start;
   }
   .dim {
     color: var(--subtle);
