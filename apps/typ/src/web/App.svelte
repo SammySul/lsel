@@ -1,6 +1,7 @@
 <!-- Compare fonts, from files or installed ones, on a sample text you type. -->
 <script lang="ts">
 import { Action, Empty, keys, List, Page } from "@sammysul/lsel";
+import { untrack } from "svelte";
 import { version } from "../../package.json";
 import InstalledFonts from "./components/InstalledFonts.svelte";
 import {
@@ -10,10 +11,15 @@ import {
   localFontsSupported,
   NotAFont,
   remove,
+  type Stored,
 } from "./lib/fonts.ts";
 import { clampSize, prefs, SIZE } from "./lib/prefs.ts";
 import { SAMPLE } from "./lib/sample.ts";
-import { stored } from "./lib/stored.ts";
+
+/** `stored` is null when this browser's storage can't be opened. */
+const props: { stored: Stored | null } = $props();
+// read once: from here on the list is the app's own
+const stored = untrack(() => props.stored);
 
 interface Font {
   name: string;
@@ -139,32 +145,30 @@ keys(() => [
         </ul>
       {/if}
 
-      <div class="fonts">
-        <List items={fonts} id={(f) => f.name} label="Your fonts" pageSize="fit">
-          {#snippet row(font)}
-            <div class="font">
-              {#if font.readable}
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={!prefs.value.hidden.includes(font.name)}
-                    onchange={() => toggle(font.name)}
-                  />
-                  <span class="name">{font.name}</span>
-                  {#if !font.kept}<span class="tag">installed</span>{/if}
-                </label>
-              {:else}
-                <span class="unread">
-                  <span class="name">{font.name}</span>
-                  <span class="tag unreadable">can't be read</span>
-                </span>
-              {/if}
-              <button onclick={() => drop(font)} aria-label="Remove {font.name}">Remove</button>
-            </div>
-          {/snippet}
-          {#snippet empty()}No fonts yet. Add font files with <kbd>a</kbd>; they stay in this browser.{/snippet}
-        </List>
-      </div>
+      <List items={fonts} id={(f) => f.name} label="Your fonts" pageSize="fit">
+        {#snippet row(font)}
+          <div class="font">
+            {#if font.readable}
+              <label>
+                <input
+                  type="checkbox"
+                  checked={!prefs.value.hidden.includes(font.name)}
+                  onchange={() => toggle(font.name)}
+                />
+                <span class="name">{font.name}</span>
+                {#if !font.kept}<span class="tag">installed</span>{/if}
+              </label>
+            {:else}
+              <span class="unread">
+                <span class="name">{font.name}</span>
+                <span class="tag unreadable">can't be read</span>
+              </span>
+            {/if}
+            <button onclick={() => drop(font)} aria-label="Remove {font.name}">Remove</button>
+          </div>
+        {/snippet}
+        {#snippet empty()}<span class="empty">No fonts yet. Add some with <kbd>a</kbd>.</span>{/snippet}
+      </List>
     </aside>
 
     <section class="preview" aria-label="Preview">
@@ -202,7 +206,6 @@ keys(() => [
 </Page>
 
 <style>
-  /* the fonts list fills the window (a fitted List); the preview stretches to its height */
   .layout {
     display: grid;
     grid-template-columns: 260px minmax(0, 1fr);
@@ -228,10 +231,11 @@ keys(() => [
     color: var(--error);
     list-style: none;
   }
-  /* every row as tall as the tallest, fillers too, so the fitted count holds as fonts come and go */
-  .fonts :global(.lsel-list) {
-    display: grid;
-    grid-auto-rows: 1fr;
+  /* as tall as a font's row, so the fitted count holds as the first font comes in */
+  .empty {
+    display: block;
+    min-height: var(--control-height);
+    align-content: center;
   }
   .font {
     display: flex;
@@ -247,7 +251,8 @@ keys(() => [
     min-width: 0;
   }
   .name,
-  .label {
+  .label,
+  .empty {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

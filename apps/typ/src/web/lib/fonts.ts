@@ -73,15 +73,18 @@ async function payload(r: StoredFont): Promise<ArrayBuffer | undefined> {
   }
 }
 
+/** The stored fonts by outcome: registered, kept though the browser won't load them, deleted as empty. */
+export interface Stored {
+  loaded: string[];
+  failed: string[];
+  removed: string[];
+}
+
 /**
  * Registers every stored font with the page and deletes the records that hold no font file.
  * A font the browser won't load is kept: the browser may only be blocking fonts for now.
  */
-export async function loadStored(): Promise<{
-  loaded: string[];
-  failed: string[];
-  removed: string[];
-}> {
+export async function loadStored(): Promise<Stored> {
   const records = await run("readonly", (s) => s.getAll() as IDBRequest<StoredFont[]>);
   const loaded: string[] = [];
   const failed: string[] = [];

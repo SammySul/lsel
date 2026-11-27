@@ -47,6 +47,10 @@ eachBrowser((browser, name) => {
       .evaluateAll((els) =>
         els.map((e) => [e.getAttribute("aria-label"), getComputedStyle(e).fontSize]),
       );
+  // the fitted list's rows at 1280×900, fillers included: as many with fonts as without
+  const ROWS = name === "firefox" ? 11 : 10;
+  const rows = (page: Page) =>
+    page.getByRole("list", { name: "Your fonts" }).locator(":scope > li").count();
   const reload = async (page: Page) => {
     await page.reload({ waitUntil: "networkidle" });
     await page.getByText("typ", { exact: true }).first().waitFor();
@@ -62,10 +66,12 @@ eachBrowser((browser, name) => {
   test("a font file is kept across reloads, previewed in its own face, and removed for good", async () => {
     const { page, problems } = await open();
     await expect(page.getByText("No fonts yet.").isVisible()).resolves.toBe(true);
+    expect(await rows(page)).toBe(ROWS);
 
     await page.locator('input[type="file"]').setInputFiles(fontFile("Probe Mono.woff2"));
     await page.getByLabel("Preview in Probe Mono").waitFor();
     expect(await listed(page)).toEqual(["Probe Mono"]);
+    expect(await rows(page)).toBe(ROWS);
     const face = await page.getByLabel("Preview in Probe Mono").evaluate((el) => ({
       family: getComputedStyle(el).fontFamily,
       loaded: document.fonts.check('16px "Probe Mono"'),
@@ -77,6 +83,7 @@ eachBrowser((browser, name) => {
     await reload(page);
     await page.getByLabel("Preview in Probe Mono").waitFor();
     expect(await listed(page)).toEqual(["Probe Mono"]);
+    expect(await lselLayout(page)).toEqual(LSEL_LAYOUT);
 
     await page.getByRole("button", { name: "Remove Probe Mono" }).click();
     await page.getByText("No fonts yet.").waitFor();
