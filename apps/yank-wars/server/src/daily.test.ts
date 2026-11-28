@@ -1,7 +1,11 @@
 // The daily board's routes against a real replay: runs verified, ranked, kept per player and day.
+import { Database } from "bun:sqlite";
 import { afterAll, describe, expect, test } from "bun:test";
+import { mkdtempSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { DAILY, dailyPuzzle, type KeyLog, parseKeys } from "@yank-wars/engine";
-import { Board, dailyRoutes } from "./daily.ts";
+import { dailyRoutes, openBoard } from "./daily.ts";
 import { PUZZLES } from "./puzzles.ts";
 import { Replayer } from "./replay.ts";
 
@@ -24,7 +28,7 @@ const as = (who: number, name = "") => ({ "x-player": player(who), "x-name": nam
 function setup() {
   let clock = noon;
   let address = "1.2.3.4";
-  const board = new Board(":memory:");
+  const board = openBoard(":memory:");
   const solved: [string, number][] = [];
   const routes = dailyRoutes({
     board,
@@ -80,9 +84,9 @@ describe("/api/daily", () => {
       puzzle: puzzle.id,
       players: 3,
       top: [
-        { rank: 1, name: "cy", keys: par.length, ms: 12_000, you: false },
-        { rank: 2, name: "Ann B", keys: par.length, ms: 15_000, you: false },
-        { rank: 3, name: "bo", keys: par.length, ms: 20_000, you: true },
+        { rank: 1, name: "cy", score: par.length, ms: 12_000, you: false },
+        { rank: 2, name: "Ann B", score: par.length, ms: 15_000, you: false },
+        { rank: 3, name: "bo", score: par.length, ms: 20_000, you: true },
       ],
       you: null,
     });
@@ -107,7 +111,7 @@ describe("/api/daily", () => {
     const { body } = await call("GET", undefined, as(11));
     expect([body.top.length, body.you]).toEqual([
       10,
-      { rank: 11, name: "p11", keys: puzzle.solution.length, ms: 11_000, you: true },
+      { rank: 11, name: "p11", score: puzzle.solution.length, ms: 11_000, you: true },
     ]);
   });
 
@@ -131,7 +135,7 @@ describe("/api/daily", () => {
     expect(solved).toEqual([[player(1), DAY]]);
     const { body } = await call("GET");
     expect(body.top).toEqual([
-      { rank: 1, name: "anonymous", keys: puzzle.solution.length, ms: 1_000, you: false },
+      { rank: 1, name: "anonymous", score: puzzle.solution.length, ms: 1_000, you: false },
     ]);
   });
 
@@ -145,44 +149,18 @@ describe("/api/daily", () => {
   });
 });
 
-describe("Board", () => {
-  const run = (player: string, day: number, keys: number, ms: number, name = player) => ({
-    day,
-    puzzle: "p",
-    player,
-    name,
-    keys,
-    ms,
-    at: day,
-  });
-  const rows = (board: Board, day: number) =>
-    board.board(day, "p", null).top.map((e) => `${e.name} ${e.keys}/${e.ms}`);
-
-  test("a guest's runs join the account, keeping the better run of a day both played", () => {
-    const board = new Board(":memory:");
-    board.record(run("acct", 1, 9, 5_000));
-    board.record(run("guest", 1, 7, 8_000));
-    board.record(run("acct", 2, 6, 1_000));
-    board.record(run("guest", 2, 6, 2_000));
-    board.record(run("guest", 3, 4, 3_000));
-    board.record(run("bob", 3, 5, 1_000));
-    board.reassign("guest", "acct", "ada");
-    expect([rows(board, 1), rows(board, 2), rows(board, 3)]).toEqual([
-      ["ada 7/8000"],
-      ["ada 6/1000"],
-      ["ada 4/3000", "bob 5/1000"],
+describe("openBoard", () => {
+  test("a board from before lsel's keeps its runs, keys read as the score", () => {
+    const path = join(mkdtempSync(join(tmpdir(), "board-")), "daily.sqlite");
+    const old = new Database(path, { create: true, strict: true });
+    old.run(`CREATE TABLE runs (day INTEGER NOT NULL, player TEXT NOT NULL, puzzle TEXT NOT NULL,
+      name TEXT NOT NULL, keys INTEGER NOT NULL, ms INTEGER NOT NULL, at INTEGER NOT NULL,
+      PRIMARY KEY (day, player))`);
+    old.run("INSERT INTO runs VALUES (5, 'p1', 'swap', 'ann', 12, 9000, 1)");
+    old.close();
+    expect(openBoard(path).board(5, "swap", null).top).toEqual([
+      { rank: 1, name: "ann", score: 12, ms: 9_000, you: false },
     ]);
-  });
-
-  test("a rename shows on every run of the player's, and nobody else's", () => {
-    const board = new Board(":memory:");
-    board.record(run("acct", 1, 9, 5_000));
-    board.record(run("acct", 2, 9, 5_000));
-    board.record(run("bob", 2, 8, 5_000));
-    board.rename("acct", "ada");
-    expect([rows(board, 1), rows(board, 2)]).toEqual([
-      ["ada 9/5000"],
-      ["bob 8/5000", "ada 9/5000"],
-    ]);
+    expect(openBoard(path).board(5, "swap", null).players).toBe(1);
   });
 });

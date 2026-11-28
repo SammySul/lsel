@@ -1,13 +1,8 @@
 // The signed-in account: a guest made on first use of the server, GitHub sign-in, and the sync of bests, dailies and name.
 
+import { signInAsGuest, signInWithGitHub, signOut } from "@sammysul/lsel";
 import type { Account, AccountSync, Me } from "@yank-wars/engine";
 import { prefs as appPrefs, type Change, type Prefs } from "./prefs.svelte.ts";
-
-const json = (body: unknown): RequestInit => ({
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify(body),
-});
 
 export class AccountStore {
   account = $state.raw<Account | null>(null);
@@ -48,7 +43,7 @@ export class AccountStore {
   async ensure(): Promise<boolean> {
     if (this.account !== null) return true;
     try {
-      await fetch("/api/auth/sign-in/anonymous", json({}));
+      await signInAsGuest();
     } catch {
       return false;
     }
@@ -57,15 +52,8 @@ export class AccountStore {
   }
 
   /** Off to GitHub, and back on this page signed in, this device's progress joined to the account; throws when the server refuses. */
-  async signIn(): Promise<void> {
-    const res = await fetch(
-      "/api/auth/sign-in/social",
-      json({ provider: "github", callbackURL: location.href }),
-    );
-    if (!res.ok) throw new Error(`GitHub sign-in refused (${res.status})`);
-    const { url } = (await res.json()) as { url?: string };
-    if (url === undefined) throw new Error("no GitHub page to sign in on");
-    location.assign(url);
+  signIn(): Promise<void> {
+    return signInWithGitHub(location.href);
   }
 
   /** Resolves once the latest change has reached the server, or failed to. */
@@ -75,8 +63,7 @@ export class AccountStore {
 
   /** Signed out here, the progress staying on this device too; throws, still signed in, when the server refuses. */
   async signOut(): Promise<void> {
-    const res = await fetch("/api/auth/sign-out", json({}));
-    if (!res.ok) throw new Error(`sign-out refused (${res.status})`);
+    await signOut();
     this.account = null;
   }
 
@@ -89,7 +76,11 @@ export class AccountStore {
     if (change !== "name" && change !== "best") body.daily = [...p.daily];
     if (change === "name" || (change === "all+name" && p.name !== "")) body.name = p.name;
     try {
-      const res = await fetch("/api/me", { ...json(body), method: "PUT" });
+      const res = await fetch("/api/me", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
       if (!res.ok) return;
       const account = (await res.json()) as Account;
       this.account = account;

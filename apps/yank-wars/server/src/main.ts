@@ -4,7 +4,7 @@ import { Database } from "bun:sqlite";
 import { serve } from "@sammysul/lsel/server";
 import { api } from "./api.ts";
 import { CSP, ENV, github, PORT } from "./config.ts";
-import { Board } from "./daily.ts";
+import { openBoard } from "./daily.ts";
 import { mismatchLog } from "./mismatches.ts";
 import { PUZZLES, picker } from "./puzzles.ts";
 import { Replayer } from "./replay.ts";
@@ -31,7 +31,7 @@ serve({
     const ready = api({
       // in the service's state directory, like the mismatch log
       accounts: new Database("accounts.sqlite", { create: true, strict: true }),
-      board: new Board("daily.sqlite"),
+      board: openBoard("daily.sqlite"),
       origin: config.YW_ORIGIN,
       secret: config.YW_AUTH_SECRET,
       github: github(config),

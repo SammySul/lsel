@@ -2,6 +2,7 @@
 
 export { default as Action } from "./Action.svelte";
 export { begin } from "./activity.svelte.ts";
+export { signInAsGuest, signInWithGitHub, signOut } from "./auth.ts";
 export { default as Empty } from "./Empty.svelte";
 export { default as Field } from "./Field.svelte";
 export * from "./format.ts";

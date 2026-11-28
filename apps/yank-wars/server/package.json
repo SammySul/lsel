@@ -7,7 +7,6 @@
   "dependencies": {
     "@sammysul/lsel": "workspace:*",
     "@yank-wars/engine": "workspace:*",
-    "better-auth": "1.7.28",
     "happy-dom": "21.0.4",
     "valibot": "catalog:"
   }

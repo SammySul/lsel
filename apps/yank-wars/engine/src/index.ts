@@ -12,9 +12,7 @@ export {
   parseAccountSync,
 } from "./game/account.ts";
 export {
-  type BoardEntry,
   DAILY,
-  type DailyBoard,
   DailyClaim,
   dailyPuzzle,
   dayOf,

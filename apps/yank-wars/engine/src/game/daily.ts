@@ -1,4 +1,5 @@
 // The daily puzzle: which day it is, its puzzle, and the result a player sends the board.
+import { calendar, scheduled } from "@sammysul/lsel/daily";
 import * as v from "valibot";
 import schedule from "../../../puzzles/daily.json";
 import { Entry, LIMITS } from "./protocol.ts";
@@ -8,18 +9,15 @@ export const DAILY = {
   /** day 1 starts here; a day runs midnight to midnight UTC, so everyone has the same puzzle */
   epoch: Date.UTC(2026, 10, 27),
   dayMs: 86_400_000,
-  boardSize: 10,
 } as const;
 
+const days = calendar(DAILY.epoch);
+
 /** The daily's number at `ms`: 1 on the first day. */
-export function dayOf(ms: number): number {
-  return Math.floor((ms - DAILY.epoch) / DAILY.dayMs) + 1;
-}
+export const dayOf = days.dayOf;
 
 /** How long until the next daily starts. */
-export function msUntilNextDay(ms: number): number {
-  return DAILY.epoch + dayOf(ms) * DAILY.dayMs - ms;
-}
+export const msUntilNextDay = days.msUntilNextDay;
 
 /** The daily order, one puzzle id per day from day 1: append-only, so a deploy never moves a day that has begun. */
 export const SCHEDULE: readonly string[] = schedule;
@@ -30,10 +28,7 @@ export function dailyPuzzle<P extends { readonly id: string }>(
   day: number,
   order: readonly string[] = SCHEDULE,
 ): P | undefined {
-  if (order.length === 0) return undefined;
-  const id = order[(((day - 1) % order.length) + order.length) % order.length];
-  for (const p of pool) if (p.id === id) return p;
-  return undefined;
+  return scheduled(pool, day, order);
 }
 
 /** A locked-in daily run, sent signed in: the server replays `log` against the day's puzzle before it counts. */
@@ -48,21 +43,4 @@ export type DailyClaim = v.InferOutput<typeof DailyClaim>;
 export function parseDailyClaim(raw: unknown): DailyClaim | null {
   const r = v.safeParse(DailyClaim, raw);
   return r.success ? r.output : null;
-}
-
-export interface BoardEntry {
-  readonly rank: number;
-  readonly name: string;
-  readonly keys: number;
-  readonly ms: number;
-  readonly you: boolean;
-}
-
-/** The day's board: the top runs and, when the asker has one outside them, theirs. */
-export interface DailyBoard {
-  readonly day: number;
-  readonly puzzle: string;
-  readonly players: number;
-  readonly top: readonly BoardEntry[];
-  readonly you: BoardEntry | null;
 }

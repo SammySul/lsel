@@ -1,7 +1,7 @@
 // The server's settings: its port, the CSP it adds to lsel's, and the environment beside serve()'s host, port and static directory.
 
+import type { GitHub } from "@sammysul/lsel/server/accounts";
 import * as v from "valibot";
-import type { GitHub } from "./accounts.ts";
 
 export const PORT = 7300;
 

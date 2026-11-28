@@ -1,18 +1,10 @@
-// The daily board: verified runs in SQLite, served on /api/daily.
+// The daily board: verified runs on lsel's board, served on /api/daily.
 
 import { Database } from "bun:sqlite";
 import { json, type Routes, rateLimiter, respond } from "@sammysul/lsel/server";
-import {
-  type BoardEntry,
-  DAILY,
-  type DailyBoard,
-  dailyPuzzle,
-  dayOf,
-  type KeyLog,
-  type Puzzle,
-  parseDailyClaim,
-} from "@yank-wars/engine";
-import type { Player } from "./accounts.ts";
+import type { Player } from "@sammysul/lsel/server/accounts";
+import { Board } from "@sammysul/lsel/server/board";
+import { dailyPuzzle, dayOf, type KeyLog, type Puzzle, parseDailyClaim } from "@yank-wars/engine";
 import type { Verdict } from "./replay.ts";
 
 const LIMITS = {
@@ -22,124 +14,15 @@ const LIMITS = {
   perAddress: 30,
 } as const;
 
-interface Row {
-  player: string;
-  name: string;
-  keys: number;
-  ms: number;
+/** The board in `path`, fewest keys first; a board from before lsel's kept keys as `keys`, renamed once. */
+export function openBoard(path: string): Board {
+  const db = new Database(path, { create: true, strict: true });
+  const columns = db.query<{ name: string }, []>("PRAGMA table_info(runs)").all();
+  if (columns.some((c) => c.name === "keys"))
+    db.run("ALTER TABLE runs RENAME COLUMN keys TO score");
+  db.close();
+  return new Board(path, { better: "lower" });
 }
-
-export interface Run extends Row {
-  day: number;
-  puzzle: string;
-  at: number;
-}
-
-/** Each player's best run per day: fewer keys, then the faster time, then whoever got there first. */
-export class Board {
-  readonly #db: Database;
-
-  constructor(path: string) {
-    this.#db = new Database(path, { create: true, strict: true });
-    this.#db.run("PRAGMA journal_mode = WAL");
-    this.#db.run(`CREATE TABLE IF NOT EXISTS runs (
-      day INTEGER NOT NULL,
-      player TEXT NOT NULL,
-      puzzle TEXT NOT NULL,
-      name TEXT NOT NULL,
-      keys INTEGER NOT NULL,
-      ms INTEGER NOT NULL,
-      at INTEGER NOT NULL,
-      PRIMARY KEY (day, player)
-    )`);
-  }
-
-  /** Keeps `run` if it beats the player's run of the day (or that was another puzzle); the name always updates. */
-  record(run: Run): void {
-    this.#db
-      .query(
-        `INSERT INTO runs (day, player, puzzle, name, keys, ms, at)
-         VALUES ($day, $player, $puzzle, $name, $keys, $ms, $at)
-         ON CONFLICT (day, player) DO UPDATE SET
-           name = excluded.name,
-           puzzle = CASE WHEN ${BETTER} THEN excluded.puzzle ELSE puzzle END,
-           keys = CASE WHEN ${BETTER} THEN excluded.keys ELSE keys END,
-           ms = CASE WHEN ${BETTER} THEN excluded.ms ELSE ms END,
-           at = CASE WHEN ${BETTER} THEN excluded.at ELSE at END`,
-      )
-      .run({ ...run });
-  }
-
-  board(day: number, puzzle: string, player: string | null): DailyBoard {
-    const entry = (r: Row, rank: number): BoardEntry => ({
-      rank,
-      name: r.name,
-      keys: r.keys,
-      ms: r.ms,
-      you: r.player === player,
-    });
-    const top = this.#db
-      .query<Row, [number, string, number]>(
-        `SELECT player, name, keys, ms FROM runs WHERE day = ? AND puzzle = ?
-         ORDER BY keys, ms, at LIMIT ?`,
-      )
-      .all(day, puzzle, DAILY.boardSize)
-      .map((r, i) => entry(r, i + 1));
-    const players =
-      this.#db
-        .query<{ n: number }, [number, string]>(
-          "SELECT count(*) AS n FROM runs WHERE day = ? AND puzzle = ?",
-        )
-        .get(day, puzzle)?.n ?? 0;
-    let you: BoardEntry | null = null;
-    if (player !== null && !top.some((e) => e.you)) {
-      const mine = this.#db
-        .query<Row & { at: number; ahead: number }, [number, string, string]>(
-          `SELECT me.player, me.name, me.keys, me.ms, me.at,
-             (SELECT count(*) FROM runs r WHERE r.day = me.day AND r.puzzle = me.puzzle AND
-               (r.keys < me.keys OR (r.keys = me.keys AND (r.ms < me.ms OR (r.ms = me.ms AND r.at < me.at))))
-             ) AS ahead
-           FROM runs me WHERE me.day = ? AND me.puzzle = ? AND me.player = ?`,
-        )
-        .get(day, puzzle, player);
-      if (mine !== null) you = entry(mine, mine.ahead + 1);
-    }
-    return { day, puzzle, players, top, you };
-  }
-
-  /** A new board name shows on every run of the player's. */
-  rename(player: string, name: string): void {
-    this.#db.query("UPDATE runs SET name = ? WHERE player = ?").run(name, player);
-  }
-
-  /** A guest's runs join the account it signed in to, keeping the better run of any day both played. */
-  reassign(from: string, to: string, name: string): void {
-    this.#db.transaction(() => {
-      // WHERE true: SQLite's upsert after a SELECT needs it to parse ON CONFLICT
-      this.#db
-        .query(
-          `INSERT INTO runs (day, player, puzzle, name, keys, ms, at)
-           SELECT day, ?2, puzzle, name, keys, ms, at FROM runs WHERE player = ?1 AND true
-           ON CONFLICT (day, player) DO UPDATE SET
-             puzzle = CASE WHEN ${BETTER} THEN excluded.puzzle ELSE puzzle END,
-             keys = CASE WHEN ${BETTER} THEN excluded.keys ELSE keys END,
-             ms = CASE WHEN ${BETTER} THEN excluded.ms ELSE ms END,
-             at = CASE WHEN ${BETTER} THEN excluded.at ELSE at END`,
-        )
-        .run(from, to);
-      this.#db.query("DELETE FROM runs WHERE player = ?").run(from);
-      this.rename(to, name);
-    })();
-  }
-
-  close(): void {
-    this.#db.close();
-  }
-}
-
-// the new run beats the stored one, or the stored one was on a puzzle the day no longer has
-const BETTER = `(excluded.puzzle <> puzzle OR excluded.keys < keys OR
-  (excluded.keys = keys AND excluded.ms < ms))`;
 
 export interface DailyDeps {
   board: Board;
@@ -192,7 +75,7 @@ export function dailyRoutes(deps: DailyDeps): Routes {
       puzzle: puzzle.id,
       player: player.id,
       name: player.name === "" ? "anonymous" : player.name,
-      keys: verdict.score,
+      score: verdict.score,
       ms: claim.ms,
       at: now(),
     });

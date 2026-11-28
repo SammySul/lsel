@@ -2,12 +2,12 @@
 import { Database } from "bun:sqlite";
 import { afterAll, beforeAll, expect, test } from "bun:test";
 import { type Routes, upgrade } from "@sammysul/lsel/server";
+import { fakeGitHub } from "@sammysul/lsel/server/fake-github";
 import { eachBrowser, launch, watchPage } from "@sammysul/lsel/testing";
 import { dailyPuzzle, dayOf, type Puzzle } from "@yank-wars/engine";
 import type { Page } from "playwright-core";
 import { api } from "../../server/src/api.ts";
-import { Board } from "../../server/src/daily.ts";
-import { fakeGitHub } from "../../server/src/fakeGitHub.ts";
+import { openBoard } from "../../server/src/daily.ts";
 import { PUZZLES, picker } from "../../server/src/puzzles.ts";
 import { Replayer } from "../../server/src/replay.ts";
 import { type Conn, type Mismatch, Rooms } from "../../server/src/rooms.ts";
@@ -24,7 +24,7 @@ const rooms = new Rooms({
   mismatch: (m) => mismatches.push(m),
 });
 const socket = rooms.socket();
-const board = new Board(":memory:");
+const board = openBoard(":memory:");
 const github = fakeGitHub();
 // /api needs Vite's address, which players use and GitHub sends them back to: made once Vite is up
 let apiRoutes: Routes | undefined;

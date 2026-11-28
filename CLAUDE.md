@@ -84,6 +84,9 @@ describes, fix or delete the note.
 - **CI runs browser tests only for the members a push changed**
   (`nix/touched.sh`): a new shared path the apps' tests depend on goes in its
   every-member list, or a change there is never browser-tested.
+- **Better Auth limits sign-ins per address** (`cf-connecting-ip`): a test with
+  several browsers or devices gives each its own address, or the third sign-in
+  in 10 s gets a 429.
 - **The CSP is `default-src 'self'` with no inline styles**: an inline `<style>`
   in `index.html` or a `style` attribute string breaks the page. Svelte's
   `style:` directive and anything set through the DOM is allowed. An app that

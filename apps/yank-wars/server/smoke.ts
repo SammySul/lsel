@@ -3,7 +3,8 @@
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { type DailyBoard, PROTOCOL, parseKeys, type ServerFrame } from "@yank-wars/engine";
+import type { DayBoard } from "@sammysul/lsel/daily";
+import { PROTOCOL, parseKeys, type ServerFrame } from "@yank-wars/engine";
 
 const out = process.argv[2];
 if (out === undefined) throw new Error("usage: bun server/smoke.ts <out path>");
@@ -113,16 +114,16 @@ try {
     body: JSON.stringify({ name: "smoke" }),
   });
   if (named.status !== 200) throw new Error(`rename ${named.status} ${await named.text()}`);
-  const today = (await (await fetch(`${origin}/api/daily`)).json()) as DailyBoard;
+  const today = (await (await fetch(`${origin}/api/daily`)).json()) as DayBoard;
   const run = solutionOf(today.puzzle);
   const posted = await fetch(`${origin}/api/daily`, {
     method: "POST",
     headers: as,
     body: JSON.stringify({ day: today.day, log: run, ms: 1 }),
   });
-  const board = (await posted.json()) as DailyBoard;
+  const board = (await posted.json()) as DayBoard;
   const top = board.top[0];
-  if (posted.status !== 200 || top?.name !== "smoke" || !top.you || top.keys !== run.length) {
+  if (posted.status !== 200 || top?.name !== "smoke" || !top.you || top.score !== run.length) {
     throw new Error(`daily ${posted.status} ${JSON.stringify(board)}`);
   }
   console.log(`smoke: a guest's daily #${today.day} (${today.puzzle}) on the built server's board`);

@@ -1,6 +1,7 @@
 # lsel-touched: a --filter per member whose browser tests a CI run needs, from the diff since main's last green browsers job.
 everything=(./kit ./templates/web)
-for dir in apps/*/; do everything+=("./${dir%/}"); done
+# a folder without a package.json (a spec before its app) is no member
+for dir in apps/*/; do if [ -f "$dir/package.json" ]; then everything+=("./${dir%/}"); fi; done
 
 api="$GITHUB_SERVER_URL/api/v1/repos/$GITHUB_REPOSITORY/actions/tasks?limit=50"
 base=$(curl -fsS -H "Authorization: token $TOKEN" "$api" |

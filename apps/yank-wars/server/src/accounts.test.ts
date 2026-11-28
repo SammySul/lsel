@@ -1,10 +1,10 @@
 // Accounts through /api as the server wires it: real Better Auth on SQLite, a real replay, and GitHub's three OAuth URLs faked.
 import { Database } from "bun:sqlite";
 import { afterAll, beforeAll, describe, expect, test } from "bun:test";
+import { type FakeGitHub, fakeGitHub } from "@sammysul/lsel/server/fake-github";
 import { DAILY, dailyPuzzle, type KeyLog, parseKeys } from "@yank-wars/engine";
 import { api } from "./api.ts";
-import { Board } from "./daily.ts";
-import { type FakeGitHub, fakeGitHub } from "./fakeGitHub.ts";
+import { openBoard } from "./daily.ts";
 import { PUZZLES } from "./puzzles.ts";
 import { Replayer } from "./replay.ts";
 
@@ -29,7 +29,7 @@ afterAll(() => {
 async function server({ withGitHub = true } = {}) {
   const routes = await api({
     accounts: new Database(":memory:", { create: true, strict: true }),
-    board: new Board(":memory:"),
+    board: openBoard(":memory:"),
     origin: ORIGIN,
     secret: "a test secret, long enough for Better Auth",
     github: withGitHub ? { clientId: "id", clientSecret: "secret" } : undefined,
@@ -154,7 +154,7 @@ describe("accounts", () => {
     const board = await a.board();
     expect([board.players, board.top]).toEqual([
       1,
-      [{ rank: 1, name: "ada", keys: today.solution.length, ms: 4_000, you: true }],
+      [{ rank: 1, name: "ada", score: today.solution.length, ms: 4_000, you: true }],
     ]);
   });
 
@@ -182,7 +182,7 @@ describe("accounts", () => {
     const board = await b.board();
     expect([board.players, board.top]).toEqual([
       1,
-      [{ rank: 1, name: "ada", keys: today.solution.length, ms: 6_000, you: true }],
+      [{ rank: 1, name: "ada", score: today.solution.length, ms: 6_000, you: true }],
     ]);
   });
 

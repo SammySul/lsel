@@ -30,9 +30,6 @@ Shared rules, the stack, release and deploy come from lsel's `CLAUDE.md` and
   ghosts before step 6.
 - **The server won't start without `YW_AUTH_SECRET`** (32+ characters), on
   twelve or locally: `YW_AUTH_SECRET=$(openssl rand -hex 32) bun server/src/main.ts`.
-- **Better Auth limits sign-ins per address** (`cf-connecting-ip`): a test with
-  several browsers or devices gives each its own address, or the third sign-in
-  in 10 s gets a 429.
 
 - **`puzzles/daily.json` is append-only**: day n is its nth id, so removing or
   reordering an entry moves every later day, today's included. To retire a

@@ -17,6 +17,10 @@
       "default": "./src/lib/index.ts"
     },
     "./server": "./src/lib/server/index.ts",
+    "./server/accounts": "./src/lib/server/accounts.ts",
+    "./server/board": "./src/lib/server/board.ts",
+    "./server/fake-github": "./src/lib/server/fakeGitHub.ts",
+    "./daily": "./src/lib/daily.ts",
     "./vite": "./src/lib/vite.ts",
     "./testing": "./src/lib/testing/index.ts",
     "./testing/preload": "./src/lib/testing/preload.ts",
@@ -32,6 +36,7 @@
     "test:e2e": "bun test ./e2e"
   },
   "dependencies": {
+    "better-auth": "catalog:",
     "svelte": "catalog:",
     "valibot": "catalog:"
   },

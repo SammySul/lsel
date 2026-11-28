@@ -1,7 +1,8 @@
 <!-- The daily's board on the result card: sends a locked-in run, then shows the top ten and your rank. -->
 <script lang="ts">
 import { duration, Field, resource, Status } from "@sammysul/lsel";
-import { type DailyBoard, LIMITS } from "@yank-wars/engine";
+import type { DayBoard } from "@sammysul/lsel/daily";
+import { LIMITS } from "@yank-wars/engine";
 import { untrack } from "svelte";
 import { account } from "../lib/account.svelte.ts";
 import { type Daily, fetchBoard, sendRun, streakOf } from "../lib/daily.ts";
@@ -20,7 +21,7 @@ let sent = $state(!locked);
 
 if (locked) prefs.solvedDaily(day);
 
-async function load(signal: AbortSignal): Promise<DailyBoard> {
+async function load(signal: AbortSignal): Promise<DayBoard> {
   try {
     if (sent) return await fetchBoard(signal);
     // the first run on the board makes this browser a guest account, unless it's signed in already
@@ -68,7 +69,7 @@ const rows = $derived(
           <li class:you={e.you}>
             <span class="rank">{e.rank}</span>
             <span class="name">{e.name}{e.you ? " (you)" : ""}</span>
-            <span class="num">{e.keys} keys</span>
+            <span class="num">{e.score} keys</span>
             <span class="num">{duration(e.ms, "m:ss.t")}</span>
           </li>
         {/each}

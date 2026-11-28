@@ -143,3 +143,14 @@ would redeploy all of `twelve`, and a broken network config could cut off the
 fix), deploy-rs or colmena (CI would need ssh into `twelve`),
 `system.autoUpgrade` with an updated input (an uncommitted lock that the next
 `deploy twelve` rolls back).
+
+## Accounts and dailies in the kit
+
+antenna is the second app with guests, GitHub sign-in, board names, a daily
+calendar and a daily board, so they moved from yank-wars into the kit
+(`server/accounts`, `server/board`, `daily`). What only one app keeps stays
+in it: yank-wars' bests and days solved, synced through its own `/api/me`.
+The board ranks one score either way (`better: "lower"` for keystrokes,
+`"higher"` for points); yank-wars' `keys` column was renamed to `score` in
+place on its first start. _Rejected:_ a shared `/api/me` with a sync per app
+(antenna keeps its progress on the server, so it has nothing to sync).

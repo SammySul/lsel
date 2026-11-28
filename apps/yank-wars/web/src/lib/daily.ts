@@ -1,12 +1,7 @@
 // Today's daily: its number and puzzle, the streak, the share line, and the board's two calls.
 import { duration, getJson } from "@sammysul/lsel";
-import {
-  type DailyBoard,
-  type DailyClaim,
-  dailyPuzzle,
-  dayOf,
-  type Puzzle,
-} from "@yank-wars/engine";
+import type { DayBoard } from "@sammysul/lsel/daily";
+import { type DailyClaim, dailyPuzzle, dayOf, type Puzzle } from "@yank-wars/engine";
 
 export interface Daily {
   readonly day: number;
@@ -50,11 +45,11 @@ export function dailyShareText(
 const WHO = "the board";
 
 /** Today's board, with the asker's rank when signed in. */
-export const fetchBoard = (signal: AbortSignal): Promise<DailyBoard> =>
-  getJson<DailyBoard>("/api/daily", signal, WHO);
+export const fetchBoard = (signal: AbortSignal): Promise<DayBoard> =>
+  getJson<DayBoard>("/api/daily", signal, WHO);
 
 /** Puts a locked-in run on the board, which answers as `fetchBoard` does; fails with the server's reason. */
-export async function sendRun(claim: DailyClaim): Promise<DailyBoard> {
+export async function sendRun(claim: DailyClaim): Promise<DayBoard> {
   let res: Response;
   try {
     res = await fetch("/api/daily", {
@@ -69,5 +64,5 @@ export async function sendRun(claim: DailyClaim): Promise<DailyBoard> {
   if (!res.ok) {
     throw new Error(typeof body.error === "string" ? body.error : `${WHO} answered ${res.status}`);
   }
-  return body as DailyBoard;
+  return body as DayBoard;
 }

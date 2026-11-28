@@ -8,6 +8,7 @@
     "./oracle/*": "./oracle/*.ts"
   },
   "dependencies": {
+    "@sammysul/lsel": "workspace:*",
     "@codemirror/commands": "catalog:",
     "@codemirror/language": "catalog:",
     "@codemirror/search": "catalog:",
