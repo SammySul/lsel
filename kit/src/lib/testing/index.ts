@@ -49,9 +49,10 @@ export function eachBrowser(body: (browser: () => Browser, name: string) => void
       beforeAll(async () => {
         launched = await launch(name);
       }, 60_000);
+      // and WebKit on a Mac at times 5 s to close, bun's whole default
       afterAll(async () => {
         await launched?.close();
-      });
+      }, 20_000);
       body(() => {
         if (launched === undefined) throw new Error(`${name} has not launched`);
         return launched;
@@ -160,14 +161,28 @@ export const LAYOUT_SIZES = [
 /** What `lselLayout()` reads on a screen that keeps DESIGN.md's layout rules. */
 export const LSEL_LAYOUT: { scrolls: string[]; shifted: string[] } = { scrolls: [], shifted: [] };
 
-// Two frames, as a fitted List or Grid settles a frame after the window changes; capped, as page.clock stops frames.
+// Two drawn frames, as a fitted List or Grid settles a frame after the window changes; a ResizeObserver's first call counts them, as page.clock can stop requestAnimationFrame and a busy machine outlasts any timer
 const settle = (page: Page) =>
-  Promise.race([
-    page.evaluate(
-      () => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))),
-    ),
-    Bun.sleep(250),
-  ]);
+  page.evaluate(async () => {
+    const frame = () =>
+      new Promise<void>((done) => {
+        const observer = new ResizeObserver(() => {
+          observer.disconnect();
+          done();
+        });
+        observer.observe(document.documentElement);
+      });
+    // a task between them: observing again inside the first call is a loop WebKit reports as uncaught
+    const task = () =>
+      new Promise<void>((done) => {
+        const channel = new MessageChannel();
+        channel.port1.onmessage = () => done();
+        channel.port2.postMessage(null);
+      });
+    await frame();
+    await task();
+    await frame();
+  });
 
 /** The recorded shifts since the last call, cleared. */
 async function takeShifts(page: Page): Promise<Shift[]> {

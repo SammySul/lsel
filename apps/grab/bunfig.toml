@@ -1,5 +1,2 @@
 [test]
 preload = ["@sammysul/lsel/testing/preload"]
-
-# a CI runner is slower than a laptop: a browser test that holds a request takes longer than bun's 5 s there
-timeout = 20000

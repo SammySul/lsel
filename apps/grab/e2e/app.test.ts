@@ -1,5 +1,5 @@
 // Instagram and Threads are fakeInstagram, injected as fetch. Run `bun run build` first.
-import { afterEach, expect, test } from "bun:test";
+import { afterEach, expect, setDefaultTimeout, test } from "bun:test";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -19,6 +19,9 @@ import { Instagram } from "../src/server/instagram.ts";
 import { Threads } from "../src/server/threads.ts";
 
 const DIST = join(import.meta.dir, "../dist");
+
+// a CI runner is slower than a laptop: a test that holds a request or waits on a slow profile outlasts bun's 5 s there
+setDefaultTimeout(20_000);
 
 /** grab's server on the built app with its own fake Instagram and cache, so no test's profile hides another's refusal. */
 function server({ gap = 0 } = {}) {
@@ -316,11 +319,13 @@ eachBrowser((browser) => {
     await page.locator(".who h2").getByText("Patchy").waitFor();
     let release = () => {};
     const held = new Promise<void>((resolve) => (release = resolve));
-    await page.route("**/api/profile/**", async (route) => {
+    let reached = () => {};
+    const asked = new Promise<void>((resolve) => (reached = resolve));
+    await page.route("**/api/profile/nat.geo", async (route) => {
+      reached();
       await held;
       await route.continue();
     });
-    const asked = page.waitForRequest((r) => r.url().endsWith("/api/profile/nat.geo"));
     await page.keyboard.press("2");
     await asked;
     const seen = async () => [
