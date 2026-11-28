@@ -1,6 +1,7 @@
 <!-- Look up a public Instagram profile, preview its picture and recent posts, and download them one by one or as a zip. -->
 <script lang="ts">
 import { Empty, Field, go, keys, Page, route } from "@sammysul/lsel";
+import { untrack } from "svelte";
 import { version } from "../../package.json";
 import { safeDecode, toUsername } from "../shared/types.ts";
 import ProfileView from "./components/ProfileView.svelte";
@@ -16,6 +17,12 @@ let view: ProfileView | undefined = $state();
 // the field follows the address: a reload, the back button
 $effect(() => {
   if (username !== null) input = username;
+});
+
+// a profile already listed is known to exist: it moves up with the key that opened it, not when the server answers
+$effect(() => {
+  const name = username;
+  if (name !== null) untrack(() => recent.value.includes(name) && remember(name));
 });
 
 function submit(event: SubmitEvent): void {

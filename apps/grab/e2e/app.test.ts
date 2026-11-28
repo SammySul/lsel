@@ -452,6 +452,11 @@ eachBrowser((browser) => {
       page.getByRole("navigation", { name: "Recent profiles" }).locator("button").allTextContents();
     expect(await recent()).toEqual(["quiet 1", "patchy 2"]);
     await page.reload({ waitUntil: "networkidle" });
+    // the answer comes later than the 500 ms a shift counts as the key's: the list must move with the key
+    await page.route("**/api/profile/patchy", async (route) => {
+      await Bun.sleep(800);
+      await route.continue();
+    });
     await page.keyboard.press("2");
     await page.locator(".who h2").getByText("Patchy").waitFor();
     expect([new URL(page.url()).hash, await recent()]).toEqual([
