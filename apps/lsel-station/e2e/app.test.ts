@@ -72,7 +72,16 @@ async function open(page: Page, query = ""): Promise<() => Promise<string[]>> {
 }
 
 /** The scene's size and the distinct colors in it, as hex. */
-function scene(page: Page) {
+async function scene(page: Page) {
+  // the scene sizes its canvas from a ResizeObserver, which may land after the first frames; polled from here, as the page's clock is stopped
+  for (let i = 0; i < 50; i++) {
+    const sized = await page.evaluate(() => {
+      const c = document.querySelector("canvas");
+      return c !== null && !(c.width === 300 && c.height === 150);
+    });
+    if (sized) break;
+    await Bun.sleep(50);
+  }
   return page.evaluate(() => {
     const canvas = document.querySelector("canvas");
     const ctx = canvas?.getContext("2d");

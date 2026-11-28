@@ -35,6 +35,4 @@
   warning = "#d9b44a";
   success = "#5fb98a";
   select = "#8fb3c9";
-  # the page's scanlines: darker than base, so no text over the background loses contrast
-  scanline = "#000000";
 }

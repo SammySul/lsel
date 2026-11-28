@@ -46,21 +46,114 @@ keys(() => [
   { key: "K", label: hintsShown.value ? "Hide these keys" : "Show the keys", run: toggleHints },
 ]);
 
-// Ghostty's glitch (squares' crt.glsl): the title and the frame tear for a moment when the screen changes
-const GLITCH_MS = 200;
+// Ghostty's glitch (squares' crt.glsl, sampleGlitched), redrawn every frame for 150 ms as an SVG filter on the frame
+const GLITCH_MS = 150;
+// the shader's sizes, in device pixels: 18 px bands, a tear of up to ±30 px, red and blue 4 px either side of green
+const BAND = 18;
+const TEAR = 60;
+const SPLIT = 4;
+const SVG = "http://www.w3.org/2000/svg";
+// red, green or blue alone, kept opaque so the three add back up to the frame (main paints --base)
+const CHANNEL = [
+  "1 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1 0",
+  "0 0 0 0 0  0 1 0 0 0  0 0 0 0 0  0 0 0 1 0",
+  "0 0 0 0 0  0 0 0 0 0  0 0 1 0 0  0 0 0 1 0",
+] as const;
+const hash = (n: number) => {
+  const x = Math.sin(n * 78.233 + 1) * 43758.5453;
+  return x - Math.floor(x);
+};
 let frame: HTMLElement | undefined = $state();
-let glitch: { top: number; left: number; width: number; height: number } | null = $state(null);
+let filter: SVGFilterElement | undefined = $state();
+let glitching = $state(false);
 let typedAt = Number.NEGATIVE_INFINITY;
 let glitchedAt = Number.NEGATIVE_INFINITY;
+let glitches = 0;
+
+function primitive(name: string, attrs: Record<string, string | number>): SVGElement {
+  const el = document.createElementNS(SVG, name);
+  for (const [a, value] of Object.entries(attrs)) el.setAttribute(a, String(value));
+  return el;
+}
+
+/** The filter at strength k (1 to 0): a fifth of the bands, picked anew each 60th of a second, torn sideways, then red and blue split. */
+function draw(f: SVGFilterElement, main: HTMLElement, k: number, now: number): boolean {
+  const px = 1 / devicePixelRatio;
+  const band = BAND * px;
+  const tick = Math.floor((now / 1000) * 60);
+  // in fractions of main's box: WebKit puts user space's origin at the page's, not main's
+  const { top, bottom, width, height } = main.getBoundingClientRect();
+  // a frame not laid out (hidden, or not yet sized) has no fractions to draw in
+  if (width === 0 || height === 0) return false;
+  // the tears as a map: red at 0.5 leaves a pixel, at h shows the pixel (h - 0.5) * TEAR * k px to its right
+  const bands = [primitive("feFlood", { "flood-color": "rgb(128 128 128)", result: "still" })];
+  const map = primitive("feMerge", { result: "map" });
+  map.append(primitive("feMergeNode", { in: "still" }));
+  // bands count from the window's top, as the shader's do, cut to main: WebKit blanks the frame for a band outside the filter
+  const last = Math.min(bottom, innerHeight) / band;
+  for (let n = Math.floor(Math.max(top, 0) / band); n < last; n++) {
+    if (hash(n + tick) <= 0.8) continue;
+    const from = Math.max(n * band - top, 0);
+    const to = Math.min((n + 1) * band - top, height);
+    const red = Math.round(hash(n * 3.7) * 255);
+    bands.push(
+      primitive("feFlood", {
+        y: from / height,
+        height: (to - from) / height,
+        "flood-color": `rgb(${red} 128 128)`,
+        result: `b${n}`,
+      }),
+    );
+    map.append(primitive("feMergeNode", { in: `b${n}` }));
+  }
+  const split = (SPLIT * k * px) / width;
+  const only = (channel: 0 | 1 | 2) =>
+    primitive("feColorMatrix", { in: "torn", values: CHANNEL[channel] });
+  f.replaceChildren(
+    ...bands,
+    map,
+    primitive("feDisplacementMap", {
+      in: "SourceGraphic",
+      in2: "map",
+      scale: (TEAR * k * px) / width,
+      xChannelSelector: "R",
+      yChannelSelector: "G",
+      result: "torn",
+    }),
+    // red from split px to the right, blue from split px to the left, green where it was
+    only(0),
+    primitive("feOffset", { dx: -split, result: "r" }),
+    only(1),
+    primitive("feComposite", { in2: "r", operator: "arithmetic", k2: 1, k3: 1, result: "rg" }),
+    only(2),
+    primitive("feOffset", { dx: split }),
+    primitive("feComposite", { in2: "rg", operator: "arithmetic", k2: 1, k3: 1 }),
+  );
+  return true;
+}
 
 function fire(): void {
-  const now = performance.now();
+  const start = performance.now();
   // never while typing: a keystroke into a field in the last second
-  if (glitch !== null || frame === undefined || reducedMotion() || now - typedAt < 1000) return;
-  glitchedAt = now;
-  const r = frame.getBoundingClientRect();
-  glitch = { top: r.top, left: r.left, width: r.width, height: r.height };
-  setTimeout(() => (glitch = null), GLITCH_MS);
+  if (glitching || frame === undefined || filter === undefined || reducedMotion()) return;
+  if (start - typedAt < 1000) return;
+  const [f, main] = [filter, frame];
+  glitchedAt = start;
+  // drawn before it applies: an empty filter would hide the frame
+  if (!draw(f, main, 1, start)) return;
+  glitching = true;
+  const step = (now: number) => {
+    if (!glitching) return;
+    const k = Math.min(1, Math.max(0, 1 - (now - start) / GLITCH_MS));
+    if (draw(f, main, k, now)) requestAnimationFrame(step);
+    else glitching = false;
+  };
+  requestAnimationFrame(step);
+  const run = ++glitches;
+  // a glitch cut short by a collapsed frame leaves its timer to the next one's
+  setTimeout(() => {
+    if (run === glitches) glitching = false;
+  }, GLITCH_MS);
 }
 
 const typed = (e: KeyboardEvent) => {
@@ -100,14 +193,13 @@ const hints = $derived(
   bind:this={frame}
   class="lsel-page"
   class:fill
-  class:glitch={glitch !== null}
   style:max-width="{width}px"
-  style:--glitch-time="{GLITCH_MS}ms"
+  style:filter={glitching ? "url(#lsel-glitch)" : undefined}
 >
   <div class="top">
     <header>
       <div class="title">
-        <h1 data-text={name}>{name}</h1>
+        <h1>{name}</h1>
         {#if sub}<p class="sub">{sub}</p>{/if}
       </div>
       <div class="actions">
@@ -144,17 +236,14 @@ const hints = $derived(
   </footer>
 </main>
 
-{#if glitch !== null}
-  <div
-    class="lsel-glitch"
-    aria-hidden="true"
-    style:top="{glitch.top}px"
-    style:left="{glitch.left}px"
-    style:width="{glitch.width}px"
-    style:height="{glitch.height}px"
-    style:--glitch-time="{GLITCH_MS}ms"
-  ></div>
-{/if}
+<svg class="lsel-glitch" aria-hidden="true" width="0" height="0">
+  <filter
+    bind:this={filter}
+    id="lsel-glitch"
+    primitiveUnits="objectBoundingBox"
+    color-interpolation-filters="sRGB"
+  ></filter>
+</svg>
 <KeyHelp />
 <LoadingBar />
 
@@ -216,126 +305,21 @@ const hints = $derived(
   .hints.shown p {
     padding-top: var(--space-3);
   }
+  /* opaque, so the glitch's red, green and blue each have a whole frame to split */
+  .lsel-page {
+    background: var(--base);
+  }
   /* the app's name is its logo: the show's title face, in the accent */
-  /* as wide as the name, so the torn bands' background ends with it */
   h1 {
-    position: relative;
-    isolation: isolate;
-    width: fit-content;
     font-family: var(--font-display);
     font-weight: 400;
     color: var(--accent);
   }
-  /* the title's copies are generated content with empty alt text: its text and accessible name stay the name */
-  .glitch h1::before,
-  .glitch h1::after {
-    content: attr(data-text) / "";
-    position: absolute;
-    inset: 0;
-    clip-path: inset(50% 0);
-    animation: var(--glitch-time) steps(1, end);
-  }
-  /* the cyan half of the red/cyan split, behind the red title */
-  .glitch h1::before {
-    z-index: -1;
-    color: var(--term-14);
-    animation-name: split;
-  }
-  /* bands of the title torn sideways, covering the original under them */
-  .glitch h1::after {
-    background: var(--base);
-    animation-name: tear;
-  }
-  @keyframes split {
-    0% {
-      clip-path: inset(0);
-      transform: translateX(4px);
-    }
-    25% {
-      clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%, 0 70%, 100% 70%, 100% 100%, 0 100%);
-      transform: translateX(3px);
-    }
-    50% {
-      clip-path: inset(0);
-      transform: translateX(2px);
-    }
-    75% {
-      clip-path: inset(30% 0 20%);
-      transform: translateX(1px);
-    }
-  }
-  @keyframes tear {
-    0% {
-      clip-path: polygon(0 12%, 100% 12%, 100% 30%, 0 30%, 0 62%, 100% 62%, 100% 74%, 0 74%);
-      transform: translateX(-9px);
-    }
-    25% {
-      clip-path: polygon(0 40%, 100% 40%, 100% 52%, 0 52%, 0 80%, 100% 80%, 100% 94%, 0 94%);
-      transform: translateX(6px);
-    }
-    50% {
-      clip-path: polygon(0 4%, 100% 4%, 100% 20%, 0 20%, 0 55%, 100% 55%, 100% 63%, 0 63%);
-      transform: translateX(-4px);
-    }
-    75% {
-      clip-path: inset(70% 0 14%);
-      transform: translateX(2px);
-    }
-  }
-  /* the frame's border twice, cyan and red, in bands torn sideways; fixed over main, so nothing in the page moves */
+  /* takes no room; not display: none, which would leave the filter undrawn in some engines */
   .lsel-glitch {
-    position: fixed;
-    z-index: 1;
-    pointer-events: none;
-  }
-  .lsel-glitch::before,
-  .lsel-glitch::after {
-    content: "";
     position: absolute;
-    inset: 0;
-    border: 1px solid var(--term-14);
-    clip-path: inset(50% 0);
-    animation: frame-cyan var(--glitch-time) steps(1, end);
-  }
-  .lsel-glitch::after {
-    border-color: var(--accent);
-    animation-name: frame-red;
-  }
-  @keyframes frame-cyan {
-    0% {
-      clip-path: polygon(0 0, 100% 0, 100% 3%, 0 3%, 0 9%, 100% 9%, 100% 12%, 0 12%, 0 41%, 100% 41%, 100% 43%, 0 43%);
-      transform: translateX(8px);
-    }
-    25% {
-      clip-path: polygon(0 1%, 100% 1%, 100% 5%, 0 5%, 0 14%, 100% 14%, 100% 16%, 0 16%, 0 72%, 100% 72%, 100% 75%, 0 75%);
-      transform: translateX(-5px);
-    }
-    50% {
-      clip-path: polygon(0 0, 100% 0, 100% 2%, 0 2%, 0 22%, 100% 22%, 100% 26%, 0 26%, 0 26%, 100% 26%, 100% 26%, 0 26%);
-      transform: translateX(3px);
-    }
-    75% {
-      clip-path: inset(8% 0 89%);
-      transform: translateX(-1px);
-    }
-  }
-  @keyframes frame-red {
-    0% {
-      clip-path: polygon(0 4%, 100% 4%, 100% 7%, 0 7%, 0 25%, 100% 25%, 100% 28%, 0 28%, 0 86%, 100% 86%, 100% 88%, 0 88%);
-      transform: translateX(-6px);
-    }
-    25% {
-      clip-path: polygon(0 0, 100% 0, 100% 2%, 0 2%, 0 18%, 100% 18%, 100% 21%, 0 21%, 0 55%, 100% 55%, 100% 57%, 0 57%);
-      transform: translateX(4px);
-    }
-    50% {
-      clip-path: polygon(0 6%, 100% 6%, 100% 10%, 0 10%, 0 33%, 100% 33%, 100% 35%, 0 35%, 0 35%, 100% 35%, 100% 35%, 0 35%);
-      transform: translateX(-3px);
-    }
-    75% {
-      clip-path: inset(0 0 98%);
-      transform: translateX(1px);
-    }
+    width: 0;
+    height: 0;
   }
   .sub {
     margin: var(--space-1) 0 0;

@@ -116,18 +116,24 @@ appearing content settles in, and the bar glides edge to edge and back.
 ## The terminal's glitch and scanlines
 
 The apps should look like the terminal they came from: Sammy's Ghostty shader
-(`squares`' `crt.glsl`) draws faint scanlines always and tears the screen in
-red and cyan for a moment when the window gains focus or tmux switches. The
-kit carries both, bent to the page's rules. The scanlines sit on the page
-background only, darker than `--base`, so no text loses contrast (the contrast
-test checks every pair readable on `--base` against them too); Ghostty's also
-cross the text, which on a page would cost legibility. The glitch is `Page`'s
-alone, fires on the same moments (an app opening, a screen change, the tab
-coming back), touches only the title and the frame, and moves nothing in the
-layout; it is the one decoration in motion, so it stays at 200 ms, skips
-typing and stops under reduced motion. _Rejected:_ glitching the whole
-content (it would cover what the user came to read) and a vignette (a
-gradient over the content).
+(`squares`' `crt.glsl`) draws faint scanlines and a vignette always and tears
+the screen in red and cyan for 0.15 s when the window gains focus or tmux
+switches. The kit copies its numbers exactly. The lines and vignette lie over
+everything, as the shader's post-process does: a fixed pseudo-element over the
+window (a modal dialog draws its own, as the top layer sits above it), its
+rows counted in device pixels like the shader's `fragCoord`. Text is very
+slightly dimmer for it (×0.91 on two rows in three, ×0.8 in the corners);
+Sammy's call, for the terminal's look. The glitch is an SVG filter on `main`,
+redrawn each frame from JavaScript with the shader's hash, bands, tear and
+split, so it re-randomizes as the shader does; a filter moves nothing in the
+layout. Its bands are drawn as a displacement map of flood fills (one
+`feOffset` per band cost Firefox 60 ms a frame), in fractions of `main`'s box
+(WebKit puts a filter's user space at the page's origin, and blanks the
+element for a band outside the filter's region). It is the one decoration in
+motion, so it stays at 150 ms, skips typing and stops under reduced motion.
+_Rejected:_ lines on the page background only (invisible on `--base`), the
+title and frame torn by stepped CSS copies (not the shader's look), and
+`feTurbulence` for the bands (it can't reproduce the shader's hash).
 
 ## Deploys follow the tags
 

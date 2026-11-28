@@ -26,7 +26,6 @@ changes nothing.
 | `--muted`                           | disabled and decorative text only: it fails AA for reading                                                                                                  |
 | `--accent`                          | focus, links, the primary action, the selected row's left bar, a pressed toggle's border; as text it sits on `--base` only (it fails AA on anything raised) |
 | `--error`, `--warning`, `--success` | states; text in a state color sits on `--base`, so a selected row or a pressed toggle gets a border, not a fill                                             |
-| `--scanline`                        | the page background's scanlines; darker than `--base`, so whatever reads on `--base` reads on them                                                          |
 | `--select`                          | the text cursor                                                                                                                                             |
 | `--term-0` … `--term-15`            | the terminal's 16 colors, for charts                                                                                                                        |
 | `--base00` … `--base0F`             | the palette in base16's slots, for syntax highlighting, as nvim colors code (yank-wars' editors)                                                            |
@@ -56,10 +55,14 @@ the interface around it still uses these variables.
 
 - **No rounding**: `border-radius: 0` on everything (`tokens.css` sets it).
 - 1px borders in `--overlay`; no shadows, gradients, blur or transparency
-  effects. The one texture is the terminal's: faint scanlines on the page
-  background (`tokens.css`: a 1px `--scanline` line every 2px), under all
-  content and never over it. Panels, rows, inputs and buttons paint their own
-  background, so the lines show only where the page does.
+  effects. The one texture is the terminal's, exactly as Sammy's Ghostty
+  shader (`squares`' `crt.glsl`) draws it, over everything (`tokens.css`:
+  `body::after`, or a modal dialog's own while one is open, fixed over the
+  window, ignoring the pointer): scanlines with a period of 3 device pixels,
+  two rows of every three at ×0.91 and one untouched (1 CSS px rows, ½ on a 2×
+  screen, ⅓ on a 3×), and a vignette, ×(1 − 0.4(dx² + dy²)) from the window's
+  center, ×0.8 in its corners. Text is that much dimmer; the contrast pairs
+  are checked without it.
 - A page's content sits in `main`, which `tokens.css` frames with a border and
   a gap to the window (`--frame-gap`, smaller on a phone); `Page` draws it and
   sets its `max-width` (`width`) and padding.
@@ -130,11 +133,14 @@ button).
   The loading bar glides edge to edge and back, 1.6 s each way.
   Nothing moves for decoration, except inside a game's scene (lsel-station's
   stars) and the terminal's glitch: when the app opens, the screen changes
-  (`route.path`) or the tab comes back, `Page` tears the title and the frame
-  for 200 ms, in bands shifted sideways with a red/cyan split (`--accent`,
-  `--term-14`), by transforms and clip-paths only, so nothing in the page
-  moves. Never within a second of a keystroke into a field, and only `Page`
-  glitches: an app adds none of its own. `prefers-reduced-motion` stops all
+  (`route.path`) or the tab comes back, `Page` puts the shader's glitch on
+  the frame (`main`) as an SVG filter for 150 ms, redrawn every frame with a
+  strength k falling from 1 to 0: of the window's 18-device-pixel bands, those
+  whose hash of band and 60th of a second passes 0.8 (about one in five) tear
+  sideways by up to ±30·k device pixels, and red and blue each shift 4·k device
+  pixels from green, opposite ways. A filter moves nothing in the layout. Never
+  within a second of a keystroke into a field, and only `Page` glitches: an
+  app adds none of its own. `prefers-reduced-motion` stops all
   of it: the CSS through `tokens.css`, anything driven from JavaScript
   (Chart.js, the Web Animations API, a canvas, the glitch) by checking the
   media query itself.
