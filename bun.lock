@@ -5,23 +5,6 @@
     "": {
       "name": "lsel",
     },
-    "apps/antenna": {
-      "name": "antenna",
-      "version": "0.1.0",
-      "dependencies": {
-        "@sammysul/lsel": "workspace:*",
-        "svelte": "catalog:",
-        "valibot": "catalog:",
-      },
-      "devDependencies": {
-        "@sveltejs/vite-plugin-svelte": "catalog:",
-        "@types/bun": "catalog:",
-        "playwright-core": "catalog:",
-        "svelte-check": "catalog:",
-        "typescript": "catalog:",
-        "vite": "catalog:",
-      },
-    },
     "apps/dajaj": {
       "name": "dajaj",
       "version": "1.4.2",
@@ -388,8 +371,6 @@
     "@yank-wars/web": ["@yank-wars/web@workspace:apps/yank-wars/web"],
 
     "acorn": ["acorn@8.19.0", "", { "bin": { "acorn": "bin/acorn" } }, "sha512-oJlA3XiRm7Cyk6qFD2Jn8ak9B7jSy0qy00ADO3+8dpT0LSjFihQYv4C02LFCSYJV3Q37xYwwRy5m+IpIiUzqWw=="],
-
-    "antenna": ["antenna@workspace:apps/antenna"],
 
     "aria-query": ["aria-query@5.3.1", "", {}, "sha512-Z/ZeOgVl7bcSYZ/u/rh0fOpvEpq//LZmdbkXyc7syVzjPAhfOa9ebsdTSjEBDU4vs5nC98Kfduj1uFo0qyET3g=="],
 
