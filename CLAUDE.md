@@ -74,9 +74,9 @@ describes, fix or delete the note.
   in `patches/`.
 - **Run an app's scripts in its directory** (the root's `--filter` scripts do):
   bun reads `bunfig.toml`, and with it the tests' preload, from the cwd only.
-- **bun ignores `timeout` in `bunfig.toml`**: a browser test file that needs
-  more than 5 s calls `setDefaultTimeout()`. A timed-out test has bun kill the
-  browser, and every later test in the file fails with it.
+- **bun ignores `timeout` in `bunfig.toml`**: the kit's test preload sets 20 s
+  for every member; a member whose bunfig drops that preload loses it, and a
+  timed-out test has bun kill the browser for every later test in the file.
 - **Biome formats Markdown too**: after editing a doc, `biome format --write`
   it, or `nix flake check` fails on its tables and line breaks.
 - **An app is built, checked and deployable only once it's in `flake.nix`'s
