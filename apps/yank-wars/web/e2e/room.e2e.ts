@@ -278,10 +278,13 @@ eachBrowser((browser) => {
     await a.page.keyboard.press("r");
     await a.page.locator(".rematch", { hasText: "Waiting for bob" }).waitFor();
     await b.page.keyboard.press("r");
-    await b.page.waitForFunction((id) => {
-      const s = window.__ywRound?.state();
-      return s?.phase === "study" && s.puzzle !== id;
-    }, p.id);
+    // both pages, not just the one that pressed last: on a slow runner the other may still be between rounds
+    for (const page of [a.page, b.page]) {
+      await page.waitForFunction((id) => {
+        const s = window.__ywRound?.state();
+        return s?.phase === "study" && s.puzzle !== id;
+      }, p.id);
+    }
     expect((await probe(a.page)).puzzle).toBe((await probe(b.page)).puzzle);
 
     const problems = [...(await a.problems()), ...(await b.problems())];
