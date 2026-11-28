@@ -2,7 +2,7 @@
 <script lang="ts" generics="T">
 import type { Snippet } from "svelte";
 import Empty from "./Empty.svelte";
-import { refit } from "./fit.ts";
+import { hold, refit, release } from "./fit.ts";
 import { keys } from "./keys.svelte.ts";
 import Pager from "./Pager.svelte";
 import { type Action, selection } from "./selection.svelte.ts";
@@ -48,7 +48,7 @@ let {
   fit = false,
 }: Props = $props();
 
-// a fitted page is never shorter than this, so a small window scrolls instead
+// a fitted page is never shorter than this: below it the window, or a Page fill, scrolls instead
 const FIT_MIN = 3;
 let fitted = $state(10);
 
@@ -90,18 +90,22 @@ $effect(() => {
   const page = ul.closest("main") ?? document.body;
   // a Page fill pins main to the window: the rows take what is left inside it instead
   const body = page.classList.contains("fill") ? page.querySelector(":scope > .body") : null;
-  return refit(body ?? page, () => {
+  const stop = refit(body ?? page, () => {
     if (ul.children.length === 0) return;
     // the rows are all one height (grid-auto-rows: 1fr), fillers included
     const row = ul.offsetHeight / ul.children.length;
     if (body !== null) {
-      // the room left or missing at each box from the list up to the page's body, wherever it stretches
-      let room = 0;
-      for (let box = ul.parentElement; box !== null; box = box.parentElement) {
-        room += free(box);
-        if (box === body || box === page) break;
-      }
-      fitted = Math.max(FIT_MIN, Math.floor((ul.offsetHeight + room) / row));
+      // the list's height plus the room left or missing at each box up to the page's body, wherever it stretches
+      let have = 0;
+      hold(ul, page, () => {
+        have = ul.offsetHeight;
+        for (let box = ul.parentElement; box !== null; box = box.parentElement) {
+          have += free(box);
+          if (box === body || box === page) break;
+        }
+        return FIT_MIN * row - have;
+      });
+      fitted = Math.max(FIT_MIN, Math.floor(have / row));
       return;
     }
     const style = getComputedStyle(page);
@@ -113,6 +117,10 @@ $effect(() => {
     const rest = height - ul.offsetHeight;
     fitted = Math.max(FIT_MIN, Math.floor((document.documentElement.clientHeight - rest) / row));
   });
+  return () => {
+    stop();
+    release(ul, page);
+  };
 });
 
 $effect(() => {

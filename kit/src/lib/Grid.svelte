@@ -2,7 +2,7 @@
 <script lang="ts" generics="T">
 import type { Snippet } from "svelte";
 import Empty from "./Empty.svelte";
-import { refit } from "./fit.ts";
+import { hold, refit, release } from "./fit.ts";
 import { keys } from "./keys.svelte.ts";
 import Pager from "./Pager.svelte";
 import { type Action, selection } from "./selection.svelte.ts";
@@ -72,15 +72,24 @@ $effect(() => {
   // unmounting sets the bound element to null
   if (!area) return;
   const box = area;
-  return refit(box, () => {
+  // a Page fill pins main to the window: below one row the page scrolls instead
+  const page = box.closest("main");
+  const fill = page?.classList.contains("fill") ? page : null;
+  const stop = refit(box, () => {
     // the tiles' gap, read before the tiles exist
     const gap = Number.parseFloat(getComputedStyle(box).getPropertyValue("--space-2")) || 0;
+    // columns from the narrowest a tile may be; rows whose tiles come closest to the ratio, filling the height
+    const across = (width: number) => {
+      const cols = Math.max(1, Math.floor((width + gap) / (min + gap)));
+      return { cols, wide: (width - gap * (cols - 1)) / cols };
+    };
+    // one row at least, its tiles no flatter than two rows' where those take over: 1/√2 of the ratio
+    const lack = () => (across(box.clientWidth).wide * ratio) / Math.SQRT2 - box.clientHeight;
+    if (fill) hold(box, fill, lack);
     const width = box.clientWidth;
     const height = box.clientHeight;
     if (width === 0 || height === 0) return;
-    // columns from the narrowest a tile may be; rows whose tiles come closest to the ratio, filling the height
-    const cols = Math.max(1, Math.floor((width + gap) / (min + gap)));
-    const wide = (width - gap * (cols - 1)) / cols;
+    const { cols, wide } = across(width);
     const exact = (height + gap) / (wide * ratio + gap);
     const off = (rows: number) => {
       const tall = (height - gap * (rows - 1)) / rows;
@@ -94,6 +103,10 @@ $effect(() => {
       shape = best;
     }
   });
+  return () => {
+    stop();
+    if (fill) release(box, fill);
+  };
 });
 
 keys(() =>

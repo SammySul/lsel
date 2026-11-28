@@ -359,6 +359,47 @@ eachBrowser((browser, name) => {
     expect(await problems()).toEqual([]);
   });
 
+  test("below a fitted list's minimum a Page fill scrolls by what it lacks, its footer under the list", async () => {
+    const { page, problems } = await open();
+    await page.keyboard.press("7");
+    const fill = async (size: { width: number; height: number }) => {
+      await page.setViewportSize(size);
+      await page.waitForFunction(
+        () => !document.getAnimations().some((a) => a instanceof CSSTransition),
+      );
+      await page.evaluate(
+        () => new Promise((done) => requestAnimationFrame(() => requestAnimationFrame(done))),
+      );
+      return page.evaluate(() => {
+        const ul = document.querySelector('ul[aria-label="Items"]') as HTMLElement;
+        const pager = ul.nextElementSibling as HTMLElement;
+        const footer = document.querySelector("main.fill > footer") as HTMLElement;
+        const root = document.documentElement;
+        return {
+          rows: ul.children.length,
+          scrolls: root.scrollHeight - root.clientHeight,
+          under: footer.getBoundingClientRect().top >= pager.getBoundingClientRect().bottom,
+        };
+      });
+    };
+    // WebKit's rows are a fraction taller
+    const extra = name === "webkit" ? 1 : 0;
+    expect(await fill({ width: 1280, height: 500 })).toEqual({
+      rows: 3,
+      scrolls: 2 + extra,
+      under: true,
+    });
+    // short enough that the rows would reach into the footer
+    expect(await fill({ width: 1280, height: 400 })).toEqual({
+      rows: 3,
+      scrolls: 102 + extra,
+      under: true,
+    });
+    // grown back past the minimum, the page holds the window again
+    expect(await fill({ width: 1280, height: 600 })).toEqual({ rows: 5, scrolls: 0, under: true });
+    expect(await problems()).toEqual([]);
+  });
+
   test("a grid fits whole rows in its box, keeps its height on every page, and moves by tile, row and page", async () => {
     const { page, problems } = await open();
     await page.setViewportSize({ width: 1000, height: 900 });

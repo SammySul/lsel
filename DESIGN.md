@@ -76,7 +76,7 @@ every app's browser tests, at 1280×800 and 390×844 (`LAYOUT_SIZES`).
   `h`/`l` move between tiles). A screen with one working area (a game, an
   editor) is a `Page fill`, its children taking the height left with the
   page's gap between them; a fitted `List` in it takes the rows that room
-  leaves.
+  leaves. Below a fitted list's minimum the page scrolls rather than overlap.
 - **Nothing moves by itself.** What arrives later (loading, polling, a timer)
   takes space kept for it from the start; only the user's own key or click may
   move things (folding the key hints, an error under a submitted field).
