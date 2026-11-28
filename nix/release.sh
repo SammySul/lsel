@@ -1,5 +1,9 @@
 # lsel-release <app dir>: in Forgejo Actions, on a full clone. A version without its <name>-v tag becomes a release.
 dir=$1
+if [ ! -f "$dir/package.json" ]; then
+  echo "$dir has no package.json yet, so nothing to release"
+  exit 0
+fi
 name=$(jq -r .name "$dir/package.json")
 tag="$name-v$(jq -r .version "$dir/package.json")"
 if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
