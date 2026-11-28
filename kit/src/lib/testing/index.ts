@@ -60,9 +60,11 @@ export function eachBrowser(body: (browser: () => Browser, name: string) => void
   }
 }
 
-/** Firefox's hint whenever a scroll handler moves content, once per page: not the app's problem. */
+// Firefox's notes, not the app's problem: a scroll handler moving content, and a sign-in redirect it files as a bounce tracker
 const isBrowserNoise = (m: ConsoleMessage) =>
-  m.type() === "warning" && m.text().includes("scroll-linked positioning effect");
+  m.type() === "warning" &&
+  (m.text().includes("scroll-linked positioning effect") ||
+    m.text().includes("has been classified as a bounce tracker"));
 
 type Rect = { x: number; y: number; width: number; height: number };
 /** A layout shift as the page recorded it, its nodes already named: one may be gone by the time it is read. */
